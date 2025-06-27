@@ -6,7 +6,7 @@ function MainPage() {
 
   return (
     <div style={{
-      maxWidth: 400,
+      maxWidth: 600,
       margin: '80px auto',
       padding: 32,
       border: '1px solid #eee',
