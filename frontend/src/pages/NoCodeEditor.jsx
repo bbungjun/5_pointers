@@ -151,7 +151,7 @@ function NoCodeEditor() {
   // Yjs 초기화 및 실시간 동기화
   useEffect(() => {
     // y-websocket 서버 주소 (테스트용: public yjs 서버)
-    const wsProvider = new WebsocketProvider('wss://demos.yjs.dev', roomId, ydoc);
+    const wsProvider = new WebsocketProvider('ws://localhost:1234', roomId, ydoc);
 
     // 컴포넌트 리스트 동기화
     const yComponents = ydoc.getArray('components');
