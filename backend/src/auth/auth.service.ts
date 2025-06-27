@@ -127,6 +127,7 @@ export class AuthService {
   }
 
   async findOrCreateUser(profile: { email: string; nickname: string; providerId: string; provider: AuthProvider }) {
+    console.log('findOrCreateUser profile:', profile);
     let user = await this.userRepository.findOne({
       where: { provider: profile.provider, providerId: profile.providerId },
     });

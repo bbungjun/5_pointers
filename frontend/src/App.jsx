@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import EditorPage from './pages/EditorPage';
+import SocialCallbackPage from './pages/SocialCallbackPage';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -46,6 +47,14 @@ function App() {
           element={
             isLoggedIn ? <EditorPage /> : <Navigate to="/login" replace />
           }
+        />
+        <Route
+          path="/google"
+          element={<SocialCallbackPage onLogin={handleLogin} />}
+        />
+        <Route
+          path="/kakao"
+          element={<SocialCallbackPage onLogin={handleLogin} />}
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
