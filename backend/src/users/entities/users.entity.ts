@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Pages } from './pages.entity';
+import { PageMembers } from './page_members.entity';
 
 export enum AuthProvider {
   LOCAL = 'local',
@@ -6,23 +8,35 @@ export enum AuthProvider {
   KAKAO = 'kakao',
 }
 
-@Entity()
-export class User {
-  @PrimaryGeneratedColumn()
+@Entity('users')
+export class Users {
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
-
-  @Column({ nullable: true })
-  password: string;
 
   @Column()
   nickname: string;
 
-  @Column({ type: 'enum', enum: AuthProvider })
-  provider: AuthProvider;
+  @Column()
+  provider: string;
 
   @Column({ nullable: true })
-  providerId: string;
+  provider_id: string;
+
+  @Column({ nullable: true, select: false })
+  password: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+
+  @OneToMany(() => Pages, page => page.owner)
+  pages: Pages[];
+
+  @OneToMany(() => PageMembers, member => member.user)
+  pageMembers: PageMembers[];
 }

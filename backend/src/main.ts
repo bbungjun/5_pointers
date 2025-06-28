@@ -6,7 +6,7 @@ async function bootstrap() {
 
   // CORS 허용 설정
   app.enableCors({
-    origin: 'true',
+    origin: true,
     credentials: true,
   });
 
