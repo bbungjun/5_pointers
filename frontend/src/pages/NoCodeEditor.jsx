@@ -310,7 +310,13 @@ function NoCodeEditor() {
       <ComponentLibrary onDragStart={(e, type) => {
         e.dataTransfer.setData('componentType', type);
         e.dataTransfer.effectAllowed = 'copy';
-      }} />
+      }} 
+      components={components}
+      roomId={roomId
+
+      }
+      />
+
 
       {/* 중앙: 캔버스 */}
       <CanvasArea
