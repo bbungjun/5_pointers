@@ -8,7 +8,8 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
   const [deployedUrl, setDeployedUrl] = useState('');
 
   // 배포 핸들러
-   const handleDeploy = async () => {
+  const handleDeploy = async () => {
+
     if (!domainName.trim()) {
       setShowDomainInput(true);
       return;
@@ -116,7 +117,6 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
         )}
         
         <button
-
           onClick={handleDeploy}
           disabled={isDeploying || (components && components.length === 0)}
           style={{
