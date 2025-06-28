@@ -307,10 +307,14 @@ function NoCodeEditor() {
       background: '#fff', color: '#222', fontFamily: 'Inter, sans-serif'
     }}>
       {/* 좌측: 컴포넌트 라이브러리 */}
-      <ComponentLibrary onDragStart={(e, type) => {
-        e.dataTransfer.setData('componentType', type);
-        e.dataTransfer.effectAllowed = 'copy';
-      }} />
+      <ComponentLibrary 
+        onDragStart={(e, type) => {
+          e.dataTransfer.setData('componentType', type);
+          e.dataTransfer.effectAllowed = 'copy';
+        }}
+        components={components}
+        roomId={roomId}
+      />
 
       {/* 중앙: 캔버스 */}
       <CanvasArea
