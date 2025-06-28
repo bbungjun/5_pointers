@@ -3,7 +3,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User, AuthProvider } from '../users/entities/users.entity';
+import { Users, AuthProvider } from '../users/entities/users.entity';
 import { Repository } from 'typeorm';
 import axios from 'axios';
 import { google } from 'googleapis';
@@ -12,20 +12,20 @@ import { google } from 'googleapis';
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(Users)
+    private readonly userRepository: Repository<Users>,
     private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(email: string, password: string) {
-    const user = await this.userRepository.findOne({ where: { email, provider: AuthProvider.LOCAL } });
+    const user = await this.usersService.findByEmail(email);
     if (!user) return null;
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return null;
     return user;
   }
 
-  async login(user: User) {
+  async login(user: Users) {
     const payload = { userId: user.id, email: user.email, nickname: user.nickname };
     return {
       access_token: this.jwtService.sign(payload),
@@ -40,9 +40,6 @@ export class AuthService {
   }
 
   async signupLocal(dto: { email: string; password: string; nickname: string }) {
-    const exists = await this.userRepository.findOne({ where: { email: dto.email } });
-    if (exists) throw new BadRequestException('이미 가입된 이메일입니다.');
-
     const hashed = await bcrypt.hash(dto.password, 10);
     const user = this.userRepository.create({
       email: dto.email,
@@ -55,7 +52,7 @@ export class AuthService {
   }
 
   async loginSocial(dto: { provider: 'google' | 'kakao'; authorizationCode: string }) {
-    let profile: { email: string; nickname: string; providerId: string; provider: AuthProvider };
+    let profile: { email: string; nickname: string; provider_id: string; provider: AuthProvider };
 
     switch (dto.provider) {
       case 'google':
@@ -87,7 +84,7 @@ export class AuthService {
     return {
       email: data.email,
       nickname: data.name || data.email.split('@')[0],
-      providerId: data.id,
+      provider_id: data.id,
       provider: AuthProvider.GOOGLE,
     };
   }
@@ -121,22 +118,22 @@ export class AuthService {
     return {
       email: kakaoAccount.email,
       nickname: kakaoAccount.profile.nickname,
-      providerId: String((profileRes.data as any).id),
+      provider_id: String((profileRes.data as any).id),
       provider: AuthProvider.KAKAO,
     };
   }
 
-  async findOrCreateUser(profile: { email: string; nickname: string; providerId: string; provider: AuthProvider }) {
+  async findOrCreateUser(profile: { email: string; nickname: string; provider_id: string; provider: AuthProvider }) {
     console.log('findOrCreateUser profile:', profile);
     let user = await this.userRepository.findOne({
-      where: { provider: profile.provider, providerId: profile.providerId },
+      where: { provider: profile.provider, provider_id: profile.provider_id },
     });
     if (user) return user;
 
     user = await this.userRepository.findOne({ where: { email: profile.email } });
     if (user) {
       user.provider = profile.provider;
-      user.providerId = profile.providerId;
+      user.provider_id = profile.provider_id;
       await this.userRepository.save(user);
       return user;
     }
@@ -145,7 +142,7 @@ export class AuthService {
       email: profile.email,
       nickname: profile.nickname,
       provider: profile.provider,
-      providerId: profile.providerId,
+      provider_id: profile.provider_id,
     });
     await this.userRepository.save(user);
     return user;
