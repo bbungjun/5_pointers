@@ -13,7 +13,7 @@ import { User } from './users/entities/users.entity';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: '0000',
+      password: 'rhleh1412!',
       database: 'jungle',
       entities: [User],
       synchronize: true, // 개발용
