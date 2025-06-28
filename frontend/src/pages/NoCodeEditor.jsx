@@ -6,6 +6,10 @@ import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
 import CanvasArea from './NoCodeEditor/CanvasArea';
 import Inspector from './NoCodeEditor/Inspector';
 import { ComponentDefinitions } from './components/definitions';
+import ButtonRenderer from './NoCodeEditor/ComponentRenderers/ButtonRenderer';
+import TextRenderer from './NoCodeEditor/ComponentRenderers/TextRenderer';
+import LinkRenderer from './NoCodeEditor/ComponentRenderers/LinkRenderer';
+import AttendRenderer from './NoCodeEditor/ComponentRenderers/AttendRenderer';
 
 // 랜덤 닉네임/색상 생성
 function randomNickname() {
@@ -55,21 +59,14 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete }) {
     }
 
     switch (comp.type) {
+      case 'button':
+        return <ButtonRenderer comp={comp} isEditor={true} />;
+      case 'text':
+        return <TextRenderer comp={comp} isEditor={true} />;
       case 'link':
-        return (
-          <a 
-            href={comp.props.href} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{ 
-              color: comp.props.color, 
-              textDecoration: 'none',
-              pointerEvents: 'none' // 에디터 모드에서는 클릭 방지
-            }}
-          >
-            {comp.props.text}
-          </a>
-        );
+        return <LinkRenderer comp={comp} isEditor={true} />;
+      case 'attend':
+        return <AttendRenderer comp={comp} isEditor={true} />;
       default:
         return <span>{comp.props.text}</span>;
     }
@@ -352,4 +349,5 @@ function NoCodeEditor() {
     </div>
   );
 }
+
 export default NoCodeEditor;

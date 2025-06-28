@@ -1,0 +1,20 @@
+{
+  "type": "attend",
+  "label": "참석 여부",
+  "edit": {
+    "title": { "label": "제목", "type": "text" },
+    "description": { "label": "설명", "type": "text" },
+    "buttonText": { "label": "버튼 텍스트", "type": "text" },
+    "maxAttendees": { "label": "최대 참석자 수", "type": "number" },
+    "backgroundColor": { "label": "배경색", "type": "color" },
+    "buttonColor": { "label": "버튼 색상", "type": "color" }
+  },
+  "defaultProps": {
+    "title": "참석 여부",
+    "description": "참석하시는 분들은 버튼을 눌러주세요",
+    "buttonText": "참석",
+    "maxAttendees": 500,
+    "backgroundColor": "#f8f9fa",
+    "buttonColor": "#28a745"
+  }
+} 
