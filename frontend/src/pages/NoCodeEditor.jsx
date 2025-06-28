@@ -6,6 +6,7 @@ import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
 import CanvasArea from './NoCodeEditor/CanvasArea';
 import Inspector from './NoCodeEditor/Inspector';
 import { ComponentDefinitions } from './components/definitions';
+import MapView from './NoCodeEditor/ComponentEditors/MapView';
 
 // 랜덤 닉네임/색상 생성
 function randomNickname() {
@@ -55,6 +56,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete }) {
     }
 
     switch (comp.type) {
+      case 'map':
+        return <MapView {...comp.props} />;
       case 'link':
         return (
           <a 
@@ -170,7 +173,7 @@ function NoCodeEditor() {
   // Yjs 초기화 및 실시간 동기화
   useEffect(() => {
     // y-websocket 서버 주소 (테스트용: public yjs 서버)
-    const wsProvider = new WebsocketProvider('wss://demos.yjs.dev', roomId, ydoc);
+    const wsProvider = new WebsocketProvider('ws://localhost:1234', roomId, ydoc);
 
     // 컴포넌트 리스트 동기화
     const yComponents = ydoc.getArray('components');
