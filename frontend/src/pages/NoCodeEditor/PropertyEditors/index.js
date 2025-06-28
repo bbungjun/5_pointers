@@ -2,3 +2,5 @@
 export { default as NumberEditor } from './NumberEditor';
 export { default as ColorEditor } from './ColorEditor';
 export { default as TextEditor } from './TextEditor';
+export { default as PhoneEditor } from './PhoneEditor';
+export { default as DateEditor } from './DateEditor';

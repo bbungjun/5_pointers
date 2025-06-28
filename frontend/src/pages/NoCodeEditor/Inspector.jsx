@@ -15,6 +15,10 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.MapEditor;
       case 'attend':
         return ComponentEditors.AttendEditor;
+      case 'dday':
+        return ComponentEditors.DdayEditor;
+      case 'weddingContact':
+        return ComponentEditors.WeddingContactEditor;
       default:
         console.warn(`Unknown component type: ${componentType}`);
         return null;
