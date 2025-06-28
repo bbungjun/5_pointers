@@ -8,14 +8,8 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
   const [deployedUrl, setDeployedUrl] = useState('');
 
   // 배포 핸들러
-  const handleDeploy = async () => {
-    console.log('🚀 handleDeploy 호출됨');
-    console.log('domainName:', domainName);
-    console.log('components:', components);
-    console.log('roomId:', roomId);
-    
+   const handleDeploy = async () => {
     if (!domainName.trim()) {
-      console.log('도메인 입력창 표시');
       setShowDomainInput(true);
       return;
     }
@@ -116,19 +110,14 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
               textAlign: 'center',
               marginBottom: 8 
             }}>
-              {domainName}.localhost:3001로 배포됩니다
+              도메인으로 사이트가 배포됩니다
             </div>
           </div>
         )}
         
         <button
-          onClick={(e) => {
-            console.log('버튼 클릭됨!');
-            console.log('isDeploying:', isDeploying);
-            console.log('components 길이:', components?.length);
-            console.log('버튼 disabled 상태:', isDeploying || (components && components.length === 0));
-            handleDeploy();
-          }}
+
+          onClick={handleDeploy}
           disabled={isDeploying || (components && components.length === 0)}
           style={{
             width: '100%',
