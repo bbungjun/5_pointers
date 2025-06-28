@@ -165,27 +165,27 @@ function NoCodeEditor() {
     yInspector.observeDeep(updateInspector);
     updateInspector();
 
-    // 커서/유저 동기화
-    wsProvider.awareness.setLocalStateField('user', { nickname, color });
-    wsProvider.awareness.setLocalStateField('cursor', myCursor);
-    const onAwarenessChange = () => {
-      const states = Array.from(wsProvider.awareness.getStates().values());
-      const userMap = {};
-      states.forEach(state => {
-        if (state.user && state.cursor) {
-          userMap[state.user.nickname] = { ...state.user, ...state.cursor };
-        }
-      });
-      setUsers(userMap);
-    };
-    wsProvider.awareness.on('change', onAwarenessChange);
-    setProvider(wsProvider);
+    // 커서/유저 동기화 (비활성화)
+    // wsProvider.awareness.setLocalStateField('user', { nickname, color });
+    // wsProvider.awareness.setLocalStateField('cursor', myCursor);
+    // const onAwarenessChange = () => {
+    //   const states = Array.from(wsProvider.awareness.getStates().values());
+    //   const userMap = {};
+    //   states.forEach(state => {
+    //     if (state.user && state.cursor) {
+    //       userMap[state.user.nickname] = { ...state.user, ...state.cursor };
+    //     }
+    //   });
+    //   setUsers(userMap);
+    // };
+    // wsProvider.awareness.on('change', onAwarenessChange);
+    // setProvider(wsProvider);
 
     return () => {
       yComponents.unobserveDeep(updateComponents);
       yInspector.unobserveDeep(updateInspector);
-      wsProvider.awareness.off('change', onAwarenessChange);
-      wsProvider.destroy();
+      // wsProvider.awareness.off('change', onAwarenessChange);
+      // wsProvider.destroy();
       ydoc.destroy();
     };
     // eslint-disable-next-line
