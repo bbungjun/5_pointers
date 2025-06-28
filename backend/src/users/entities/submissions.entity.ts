@@ -9,6 +9,9 @@ export class Submissions {
   @ManyToOne(() => Pages, page => page.submissions, { onDelete: 'CASCADE' })
   page: Pages;
 
+  @Column({ name: 'pageId' })
+  pageId: string;
+
   @Column()
   component_id: string;
 

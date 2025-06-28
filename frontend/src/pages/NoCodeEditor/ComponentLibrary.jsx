@@ -9,6 +9,7 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
 
   // 배포 핸들러
   const handleDeploy = async () => {
+
     if (!domainName.trim()) {
       setShowDomainInput(true);
       return;
