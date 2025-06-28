@@ -1,0 +1,16 @@
+{
+  "type": "button",
+  "label": "버튼",
+  "edit": {
+    "text": { "label": "버튼명", "type": "text" },
+    "fontSize": { "label": "글자 크기", "type": "number" },
+    "color": { "label": "글자 색상", "type": "color" },
+    "bg": { "label": "배경색", "type": "color" }
+  },
+  "defaultProps": {
+    "text": "Click Me",
+    "fontSize": 18,
+    "color": "#fff",
+    "bg": "#3B4EFF"
+  }
+} 

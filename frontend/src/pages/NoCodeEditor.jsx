@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
 import CanvasArea from './NoCodeEditor/CanvasArea';
 import Inspector from './NoCodeEditor/Inspector';
+import { ComponentDefinitions } from './components/definitions';
 
 // 랜덤 닉네임/색상 생성
 function randomNickname() {
@@ -15,12 +16,6 @@ function randomColor() {
   const colors = ['#3B4EFF', '#FF3B3B', '#00B894', '#FDCB6E', '#6C5CE7', '#00B8D9', '#FF7675', '#636E72'];
   return colors[Math.floor(Math.random() * colors.length)];
 }
-
-// 기본 컴포넌트 라이브러리
-const COMPONENTS = [
-  { type: 'text', label: 'Text', defaultProps: { text: 'Double-click to edit', fontSize: 20, color: '#222' } },
-  { type: 'button', label: 'Button', defaultProps: { text: 'Button', fontSize: 18, color: '#fff', bg: '#3B4EFF' } },
-];
 
 // 캔버스 내 드래그 가능한 컴포넌트
 function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete }) {
@@ -33,6 +28,52 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete }) {
   useEffect(() => {
     if (editing && ref.current) ref.current.focus();
   }, [editing]);
+
+  const renderContent = () => {
+    if (editing) {
+      return (
+        <input
+          ref={ref}
+          value={editValue}
+          onChange={e => setEditValue(e.target.value)}
+          onBlur={() => { setEditing(false); onUpdate({ ...comp, props: { ...comp.props, text: editValue } }); }}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              setEditing(false);
+              onUpdate({ ...comp, props: { ...comp.props, text: editValue } });
+            }
+          }}
+          style={{
+            fontSize: comp.props.fontSize,
+            width: 120,
+            border: '1px solid #3B4EFF',
+            borderRadius: 4,
+            padding: 4
+          }}
+        />
+      );
+    }
+
+    switch (comp.type) {
+      case 'link':
+        return (
+          <a 
+            href={comp.props.href} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{ 
+              color: comp.props.color, 
+              textDecoration: 'none',
+              pointerEvents: 'none' // 에디터 모드에서는 클릭 방지
+            }}
+          >
+            {comp.props.text}
+          </a>
+        );
+      default:
+        return <span>{comp.props.text}</span>;
+    }
+  };
 
   return (
     <div
@@ -56,7 +97,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete }) {
       onClick={e => { e.stopPropagation(); onSelect(comp.id); }}
       onDoubleClick={e => {
         e.stopPropagation();
-        if (comp.type === 'text' || comp.type === 'button') setEditing(true);
+        if (comp.type === 'text' || comp.type === 'button' || comp.type === 'link') setEditing(true);
       }}
       draggable
       onDragStart={e => {
@@ -64,29 +105,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete }) {
         e.dataTransfer.effectAllowed = 'move';
       }}
     >
-      {editing ? (
-        <input
-          ref={ref}
-          value={editValue}
-          onChange={e => setEditValue(e.target.value)}
-          onBlur={() => { setEditing(false); onUpdate({ ...comp, props: { ...comp.props, text: editValue } }); }}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              setEditing(false);
-              onUpdate({ ...comp, props: { ...comp.props, text: editValue } });
-            }
-          }}
-          style={{
-            fontSize: comp.props.fontSize,
-            width: 120,
-            border: '1px solid #3B4EFF',
-            borderRadius: 4,
-            padding: 4
-          }}
-        />
-      ) : (
-        <span>{comp.props.text}</span>
-      )}
+      {renderContent()}
       {/* 삭제 버튼 (선택 시만) */}
       {selected && (
         <button
@@ -165,27 +184,27 @@ function NoCodeEditor() {
     yInspector.observeDeep(updateInspector);
     updateInspector();
 
-    // 커서/유저 동기화
-    wsProvider.awareness.setLocalStateField('user', { nickname, color });
-    wsProvider.awareness.setLocalStateField('cursor', myCursor);
-    const onAwarenessChange = () => {
-      const states = Array.from(wsProvider.awareness.getStates().values());
-      const userMap = {};
-      states.forEach(state => {
-        if (state.user && state.cursor) {
-          userMap[state.user.nickname] = { ...state.user, ...state.cursor };
-        }
-      });
-      setUsers(userMap);
-    };
-    wsProvider.awareness.on('change', onAwarenessChange);
-    setProvider(wsProvider);
+    // 커서/유저 동기화 (비활성화)
+    // wsProvider.awareness.setLocalStateField('user', { nickname, color });
+    // wsProvider.awareness.setLocalStateField('cursor', myCursor);
+    // const onAwarenessChange = () => {
+    //   const states = Array.from(wsProvider.awareness.getStates().values());
+    //   const userMap = {};
+    //   states.forEach(state => {
+    //     if (state.user && state.cursor) {
+    //       userMap[state.user.nickname] = { ...state.user, ...state.cursor };
+    //     }
+    //   });
+    //   setUsers(userMap);
+    // };
+    // wsProvider.awareness.on('change', onAwarenessChange);
+    // setProvider(wsProvider);
 
     return () => {
       yComponents.unobserveDeep(updateComponents);
       yInspector.unobserveDeep(updateInspector);
-      wsProvider.awareness.off('change', onAwarenessChange);
-      wsProvider.destroy();
+      // wsProvider.awareness.off('change', onAwarenessChange);
+      // wsProvider.destroy();
       ydoc.destroy();
     };
     // eslint-disable-next-line
@@ -203,7 +222,7 @@ function NoCodeEditor() {
     e.preventDefault();
     const type = e.dataTransfer.getData('componentType');
     if (type) {
-      const compDef = COMPONENTS.find(c => c.type === type);
+      const compDef = ComponentDefinitions[type];
       if (compDef) {
         const yComponents = ydoc.getArray('components');
         yComponents.push([{

@@ -1,9 +1,5 @@
 import React from 'react';
-
-const COMPONENTS = [
-  { type: 'text', label: 'Text', defaultProps: { text: 'Double-click to edit', fontSize: 20, color: '#222' } },
-  { type: 'button', label: 'Button', defaultProps: { text: 'Button', fontSize: 18, color: '#fff', bg: '#3B4EFF' } },
-];
+import { ComponentList } from '../components/definitions';
 
 function ComponentLibrary({ onDragStart }) {
   return (
@@ -12,7 +8,7 @@ function ComponentLibrary({ onDragStart }) {
       display: 'flex', flexDirection: 'column', alignItems: 'center'
     }}>
       <h3 style={{ marginBottom: 24, fontWeight: 900, letterSpacing: 2 }}>Components</h3>
-      {COMPONENTS.map(comp => (
+      {ComponentList.map(comp => (
         <div
           key={comp.type}
           draggable
