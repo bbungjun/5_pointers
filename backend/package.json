@@ -39,9 +39,10 @@
     "passport-jwt": "^4.0.1",
     "passport-kakao": "^1.0.1",
     "passport-local": "^1.0.0",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2",
-    "typeorm": "^0.3.25"
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.25",
+    "y-websocket": "^3.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
