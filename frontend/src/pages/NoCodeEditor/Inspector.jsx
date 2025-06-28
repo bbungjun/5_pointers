@@ -1,33 +1,18 @@
 import React from 'react';
-import { ComponentDefinitions } from '../components/definitions';
-import * as PropertyEditors from './PropertyEditors';
+import * as ComponentEditors from './ComponentEditors';
 
 function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
-  // 속성 업데이트 함수
-  const updateProperty = (propKey, value) => {
-    if (!selectedComp) return;
-    
-    const updatedComp = {
-      ...selectedComp,
-      props: {
-        ...selectedComp.props,
-        [propKey]: value
-      }
-    };
-    onUpdate(updatedComp);
-  };
-
-  // JSON 정의에서 에디터 타입 매핑
-  const getEditorComponent = (fieldType) => {
-    switch (fieldType) {
+  // 컴포넌트 타입별 에디터 매핑
+  const getComponentEditor = (componentType) => {
+    switch (componentType) {
+      case 'button':
+        return ComponentEditors.ButtonEditor;
       case 'text':
-        return PropertyEditors.TextEditor;
-      case 'number':
-        return PropertyEditors.NumberEditor;
-      case 'color':
-        return PropertyEditors.ColorEditor;
+        return ComponentEditors.TextComponentEditor;
+      case 'link':
+        return ComponentEditors.LinkEditor;
       default:
-        console.warn(`Unknown field type: ${fieldType}`);
+        console.warn(`Unknown component type: ${componentType}`);
         return null;
     }
   };
@@ -67,110 +52,29 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       }}>
         {selectedComp ? (
           <div>
-            {/* 컴포넌트 정보 */}
+            {/* 컴포넌트별 독립 에디터 렌더링 */}
             {(() => {
-              const componentDef = ComponentDefinitions[selectedComp.type];
-              if (!componentDef) {
+              const ComponentEditor = getComponentEditor(selectedComp.type);
+              
+              if (!ComponentEditor) {
                 return (
-                  <div style={{ color: 'red', marginBottom: 20 }}>
-                    Unknown component type: {selectedComp.type}
+                  <div style={{
+                    padding: '20px',
+                    textAlign: 'center',
+                    color: 'red',
+                    fontSize: 14
+                  }}>
+                    No editor available for component type: {selectedComp.type}
                   </div>
                 );
               }
 
               return (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  marginBottom: 20,
-                  padding: '8px 12px',
-                  backgroundColor: '#f0f2f5',
-                  borderRadius: 6
-                }}>
-                  <span style={{ fontSize: 16 }}>
-                    {selectedComp.type === 'button' ? '🔘' : 
-                     selectedComp.type === 'text' ? '📝' : 
-                     selectedComp.type === 'link' ? '🔗' : '❓'}
-                  </span>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1d2129' }}>
-                      {componentDef.label}
-                    </div>
-                    <div style={{ fontSize: 11, color: '#65676b' }}>
-                      {selectedComp.id}
-                    </div>
-                  </div>
-                </div>
+                <ComponentEditor
+                  selectedComp={selectedComp}
+                  onUpdate={onUpdate}
+                />
               );
-            })()}
-
-            {/* 동적 에디터 렌더링 */}
-            {(() => {
-              const componentDef = ComponentDefinitions[selectedComp.type];
-              if (!componentDef || !componentDef.edit) {
-                return (
-                  <div style={{
-                    padding: '20px',
-                    textAlign: 'center',
-                    color: '#65676b',
-                    fontSize: 14
-                  }}>
-                    No editors available for this component
-                  </div>
-                );
-              }
-
-              const editFields = Object.entries(componentDef.edit);
-              let colorSectionAdded = false;
-
-              return editFields.map(([propKey, fieldDef], index) => {
-                const EditorComponent = getEditorComponent(fieldDef.type);
-                
-                if (!EditorComponent) {
-                  return (
-                    <div key={propKey} style={{ color: 'red', marginBottom: 8 }}>
-                      Unknown editor type: {fieldDef.type}
-                    </div>
-                  );
-                }
-
-                // 색상 섹션 구분선 추가 (첫 번째 color 타입 전에)
-                const showColorSection = fieldDef.type === 'color' && !colorSectionAdded;
-                if (showColorSection) {
-                  colorSectionAdded = true;
-                }
-
-                return (
-                  <div key={propKey}>
-                    {/* 색상 섹션 헤더 */}
-                    {showColorSection && (
-                      <>
-                        <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
-                        <div style={{ 
-                          fontSize: 12, 
-                          color: '#65676b', 
-                          fontWeight: 600, 
-                          marginBottom: 12,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px'
-                        }}>
-                          Colors
-                        </div>
-                      </>
-                    )}
-
-                    <EditorComponent
-                      value={selectedComp.props[propKey]}
-                      onChange={(value) => updateProperty(propKey, value)}
-                      label={fieldDef.label}
-                      min={fieldDef.min}
-                      max={fieldDef.max}
-                      suffix={fieldDef.type === 'number' && propKey === 'fontSize' ? 'px' : ''}
-                    />
-                  </div>
-                );
-              });
             })()}
 
             {/* 구분선 */}
