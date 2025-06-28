@@ -13,6 +13,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.LinkEditor;
       case 'map':
         return ComponentEditors.MapEditor;
+      case 'attend':
+        return ComponentEditors.AttendEditor;
       default:
         console.warn(`Unknown component type: ${componentType}`);
         return null;
