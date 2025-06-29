@@ -3,6 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+
+import { GeneratorModule } from './generator/generator.module';
+
 import { Users } from './users/entities/users.entity';
 import { Pages } from './users/entities/pages.entity';
 import { PageMembers } from './users/entities/page_members.entity';
@@ -23,6 +26,7 @@ import { Submissions } from './users/entities/submissions.entity';
     }),
     AuthModule,
     UsersModule,
+    GeneratorModule,
   ],
 })
 export class AppModule {}
