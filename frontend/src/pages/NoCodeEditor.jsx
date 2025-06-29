@@ -24,6 +24,8 @@ function randomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
+
+
 // 캔버스 내 드래그 가능한 컴포넌트
 function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete }) {
   const ref = useRef();

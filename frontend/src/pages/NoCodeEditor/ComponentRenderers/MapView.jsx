@@ -1,23 +1,73 @@
 import React, { useEffect, useRef } from 'react';
 
-function MapView({ lat = 37.5665, lng = 126.9780, zoom = 3, width = 400, height = 300 }) {
+function loadKakaoMapsScript() {
+  return new Promise((resolve) => {
+    if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
+      resolve();
+      return;
+    }
+    const existingScript = document.querySelector('script[src*="dapi.kakao.com"]');
+    if (existingScript) {
+      const check = () => {
+        if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
+          resolve();
+        } else {
+          setTimeout(check, 100);
+        }
+      };
+      check();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=37e5ce2cc5212815fd433917a0994f89&autoload=false&libraries=services';
+    script.onload = () => {
+      window.kakao.maps.load(() => {
+        resolve();
+      });
+    };
+    document.head.appendChild(script);
+  });
+}
+
+function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, width = 400, height = 300 }) {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
   useEffect(() => {
-    if (window.naver && window.naver.maps && mapRef.current) {
-      if (!mapRef.current._naver_map_instance) {
-        const map = new window.naver.maps.Map(mapRef.current, {
-          center: new window.naver.maps.LatLng(lat, lng),
-          zoom: zoom,
-        });
-        mapRef.current._naver_map_instance = map;
-        markerRef.current = new window.naver.maps.Marker({
-          position: new window.naver.maps.LatLng(lat, lng),
-          map: map,
-        });
+    loadKakaoMapsScript().then(() => {
+      function renderMap() {
+        if (!window.kakao || !window.kakao.maps || !window.kakao.maps.LatLng || !mapRef.current) {
+          setTimeout(renderMap, 100);
+          return;
+        }
+        let map = mapRef.current._kakao_map_instance;
+        const center = new window.kakao.maps.LatLng(lat, lng);
+        if (!map) {
+          map = new window.kakao.maps.Map(mapRef.current, {
+            center,
+            level: zoom,
+          });
+          mapRef.current._kakao_map_instance = map;
+          markerRef.current = new window.kakao.maps.Marker({
+            position: center,
+            map: map,
+          });
+          map.setLevel(zoom);
+        } else {
+          map.setCenter(center);
+          if (markerRef.current) {
+            markerRef.current.setPosition(center);
+          } else {
+            markerRef.current = new window.kakao.maps.Marker({
+              position: center,
+              map: map,
+            });
+          }
+          map.setLevel(zoom);
+        }
       }
-    }
+      renderMap();
+    });
   }, [lat, lng, zoom]);
 
   return (
@@ -30,4 +80,4 @@ function MapView({ lat = 37.5665, lng = 126.9780, zoom = 3, width = 400, height 
   );
 }
 
-export default MapView; 
+export default KakaoMapView; 
