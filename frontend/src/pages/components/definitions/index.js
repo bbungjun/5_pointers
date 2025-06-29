@@ -1,13 +1,16 @@
-import textDef from './text.json';
 import buttonDef from './button.json';
+import textDef from './text.json';
 import linkDef from './link.json';
 import attendDef from './attend.json';
+import imageDef from './image.json';
 
-export const ComponentDefinitions = {
-  [textDef.type]: textDef,
-  [buttonDef.type]: buttonDef,
-  [linkDef.type]: linkDef,
-  [attendDef.type]: attendDef,
-};
+export const ComponentList = [
+  buttonDef,
+  textDef,
+  linkDef,
+  attendDef,
+  imageDef
+];
 
-export const ComponentList = Object.values(ComponentDefinitions); 
+// 기존 코드와의 호환성을 위해 ComponentDefinitions도 export
+export const ComponentDefinitions = ComponentList;
