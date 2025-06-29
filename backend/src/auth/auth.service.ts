@@ -26,8 +26,10 @@ export class AuthService {
   }
 
   async login(user: Users) {
+
     console.log('Login - User object:', user);
     console.log('Login - User ID:', user.id, 'Type:', typeof user.id);
+
     const payload = { userId: user.id, email: user.email, nickname: user.nickname };
     console.log('Login - JWT payload:', payload);
     return {

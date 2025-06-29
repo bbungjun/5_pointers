@@ -1,11 +1,20 @@
 # Dependencies
 node_modules/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
 */node_modules/
+
 
 # Build outputs
 dist/
 build/
+
+
 *.tsbuildinfo
+
 
 # Environment variables
 .env
@@ -13,6 +22,20 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+
+
+# MySQL MCP Server
+mysql-mcp-server/node_modules/
+mysql-mcp-server/dist/
+mysql-mcp-server/.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
 
 # IDE
 .vscode/
@@ -114,3 +137,4 @@ mysql-mcp-server/
 
 # Deployed sites (if these are generated)
 deployed-sites/
+

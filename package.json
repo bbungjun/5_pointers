@@ -1,4 +1,6 @@
 {
+  "dependencies": {
+    "react-datepicker": "^8.4.0"
   "name": "5_pointers",
   "version": "1.0.0",
   "scripts": {
