@@ -13,6 +13,7 @@ import AttendRenderer from './NoCodeEditor/ComponentRenderers/AttendRenderer';
 import MapView from './NoCodeEditor/ComponentEditors/MapView';
 import DdayRenderer from './NoCodeEditor/ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './NoCodeEditor/ComponentRenderers/WeddingContactRenderer.jsx';
+import ImageRenderer from './NoCodeEditor/ComponentRenderers/ImageRenderer';
 
 // 랜덤 닉네임/색상 생성
 function randomNickname() {
@@ -76,6 +77,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete }) {
         return <DdayRenderer comp={comp} isEditor={true} />;
       case 'weddingContact':
         return <WeddingContactRenderer comp={comp} isEditor={true} />;
+      case 'image':
+        return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       default:
         return <span>{comp.props.text}</span>;
     }
@@ -228,7 +231,7 @@ function NoCodeEditor() {
     e.preventDefault();
     const type = e.dataTransfer.getData('componentType');
     if (type) {
-      const compDef = ComponentDefinitions[type];
+      const compDef = ComponentDefinitions.find(def => def.type === type);
       if (compDef) {
         const yComponents = ydoc.getArray('components');
         yComponents.push([{
@@ -358,5 +361,4 @@ function NoCodeEditor() {
     </div>
   );
 }
-
 export default NoCodeEditor;

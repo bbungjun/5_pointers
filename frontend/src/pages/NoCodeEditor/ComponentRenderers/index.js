@@ -3,6 +3,7 @@ export { default as ButtonRenderer } from './ButtonRenderer';
 export { default as TextRenderer } from './TextRenderer';
 export { default as LinkRenderer } from './LinkRenderer';
 export { default as AttendRenderer } from './AttendRenderer';
+export { default as ImageRenderer } from './ImageRenderer';
 export { default as DdayRenderer } from './DdayRenderer.jsx';
 export { default as WeddingContactRenderer } from './WeddingContactRenderer.jsx';
 // wedding-contact 렌더러는 추후 추가
@@ -18,6 +19,8 @@ export function getRendererByType(type) {
       return LinkRenderer;
     case 'attend':
       return AttendRenderer;
+    case 'image':
+      return ImageRenderer;
     case 'map':
       return MapView;
     case 'dday':
@@ -27,4 +30,4 @@ export function getRendererByType(type) {
     default:
       return null;
   }
-} 
+}
