@@ -1,13 +1,19 @@
-import textDef from './text.json';
 import buttonDef from './button.json';
 import linkDef from './link.json';
+import textDef from './text.json';
+import mapDef from './map.json';
 import attendDef from './attend.json';
+import ddayDef from './d-day.json';
+import weddingContactDef from './wedding-contact.json';
 
 export const ComponentDefinitions = {
-  [textDef.type]: textDef,
-  [buttonDef.type]: buttonDef,
-  [linkDef.type]: linkDef,
-  [attendDef.type]: attendDef,
+  button: buttonDef,
+  link: linkDef,
+  text: textDef,
+  map: mapDef,
+  attend: attendDef,
+  dday: ddayDef,
+  weddingContact: weddingContactDef,
 };
 
 export const ComponentList = Object.values(ComponentDefinitions); 
