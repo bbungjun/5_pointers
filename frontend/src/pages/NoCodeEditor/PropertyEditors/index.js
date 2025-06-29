@@ -1,5 +1,4 @@
 // PropertyEditors 모듈들을 한 곳에서 export
-export { default as TextEditor } from './TextEditor';
 export { default as NumberEditor } from './NumberEditor';
 export { default as ColorEditor } from './ColorEditor';
 export { default as FontFamilyEditor } from './FontFamilyEditor';
@@ -10,3 +9,7 @@ export { default as TextStyleEditor } from './TextStyleEditor';
 export { default as ImageSourceEditor } from './ImageSourceEditor';
 export { default as ObjectFitEditor } from './ObjectFitEditor';
 export { default as BorderRadiusEditor } from './BorderRadiusEditor';
+export { default as TextEditor } from './TextEditor';
+export { default as PhoneEditor } from './PhoneEditor';
+export { default as DateEditor } from './DateEditor';
+

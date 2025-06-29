@@ -2,56 +2,33 @@ import React from 'react';
 
 function AttendRenderer({ comp, isEditor = false }) {
   return (
-    <div style={{
-      width: 280,
-      padding: 16,
-      backgroundColor: comp.props.backgroundColor,
-      borderRadius: 8,
-      border: '1px solid #ddd'
-    }}>
-      <h3 style={{ margin: '0 0 8px 0', fontSize: 16, color: '#333' }}>
-        👥 {comp.props.title}
-      </h3>
-      <p style={{ 
-        margin: '0 0 16px 0', 
-        fontSize: 14, 
-        color: '#666',
-        lineHeight: 1.4
-      }}>
-        {comp.props.description}
-      </p>
+    <div className="max-w-sm mx-auto bg-white rounded-xl shadow-sm px-6 py-12 pt-12 pb-8 text-center">
+      <div className="text-gray-400 text-xl font-medium mb-9">
+        {comp.props.title || '참석 의사 전달'}
+      </div>
+      <div className="text-gray-700 text-lg leading-relaxed mb-10 whitespace-pre-line">
+        {comp.props.description || (
+          <>
+            축하의 마음으로 참석해 주실<br />
+            모든 분을 정중히 모시고자 하오니,<br />
+            참석 여부를 알려주시면 감사하겠습니다.
+          </>
+        )}
+      </div>
       <button
+        className="w-full py-4 text-white text-2xl font-bold border-none rounded-lg cursor-pointer tracking-wide"
         style={{
-          width: '100%',
-          padding: '12px',
-          backgroundColor: comp.props.buttonColor,
-          color: '#fff',
-          border: 'none',
-          borderRadius: 6,
-          fontSize: 14,
-          fontWeight: 600,
-          cursor: 'pointer',
-          transition: 'opacity 0.2s'
+          background: comp.props.buttonColor || '#aeb8fa',
         }}
-        onMouseEnter={(e) => e.target.style.opacity = '0.8'}
-        onMouseLeave={(e) => e.target.style.opacity = '1'}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           if (isEditor) {
             alert('참석 기능은 배포 모드에서 사용 가능합니다.');
           }
         }}
       >
-        {comp.props.buttonText}
+        {comp.props.buttonText || '전달하기'}
       </button>
-      <div style={{ 
-        marginTop: 12, 
-        fontSize: 12, 
-        color: '#888',
-        textAlign: 'center'
-      }}>
-        {/* 최대 {comp.props.maxAttendees}명 참석 가능 */}
-      </div>
     </div>
   );
 }

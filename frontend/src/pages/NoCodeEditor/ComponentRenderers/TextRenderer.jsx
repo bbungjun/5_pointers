@@ -43,26 +43,24 @@ function TextRenderer({ comp, isEditor = false }) {
         onChange={e => setEditValue(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        style={{
-          fontSize: comp.props.fontSize,
-          width: 120,
-          border: '1px solid #3B4EFF',
-          borderRadius: 4,
-          padding: 4
-        }}
+        className="w-32 border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+        style={{ fontSize: comp.props.fontSize }}
       />
     );
   }
 
   return (
     <div 
+      className={`${isEditor ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center transition-all duration-200 hover:opacity-80 ${
+        comp.props.bold ? 'font-bold' : 'font-normal'
+      } ${
+        comp.props.italic ? 'italic' : 'not-italic'
+      } ${
+        comp.props.underline ? 'underline' : 'no-underline'
+      }`}
       style={{
-        width: '100%', height: '100%',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: comp.props.color, fontSize: comp.props.fontSize,
-        fontWeight: comp.props.bold ? 'bold' : 'normal',
-        fontStyle: comp.props.italic ? 'italic' : 'normal',
-        textDecoration: comp.props.underline ? 'underline' : 'none'
+        color: comp.props.color, 
+        fontSize: comp.props.fontSize
       }}
       onDoubleClick={handleDoubleClick}
     >

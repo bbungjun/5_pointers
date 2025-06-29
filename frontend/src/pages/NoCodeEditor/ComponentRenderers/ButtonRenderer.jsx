@@ -113,6 +113,7 @@ function ButtonRenderer({ comp, isEditor = false }) {
         textAlign: textAlign,
         overflow: 'visible',
         position: 'relative'
+
       }}
       onDoubleClick={handleDoubleClick}
     >
