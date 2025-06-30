@@ -47,7 +47,7 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       dday: '📅',
       weddingContact: '💒',
       gridGallery: '🖼️',
-      slideGallery: '🎠'
+      slideGallery: '🎠',
       calendar: '📅'
     };
     return icons[type] || '📦';

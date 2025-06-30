@@ -20,7 +20,7 @@ export const ComponentList = [
   ddayDef,
   weddingContactDef,
   gridGalleryDef,
-  slideGalleryDef
+  slideGalleryDef,
   mapInfoDef,
   calendarDef
 ];
