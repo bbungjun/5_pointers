@@ -4,7 +4,6 @@ import * as ComponentEditors from './ComponentEditors';
 function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
   // 컴포넌트 타입별 에디터 매핑
   const getComponentEditor = (componentType) => {
-    console.log('Getting editor for component type:', componentType);
     switch (componentType) {
       case 'button':
         return ComponentEditors.ButtonEditor;
@@ -22,16 +21,6 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.DdayEditor;
       case 'weddingContact':
         return ComponentEditors.WeddingContactEditor;
-      case 'gridGallery':
-        return ComponentEditors.GridGalleryEditor;
-      case 'slideGallery':
-        return ComponentEditors.SlideGalleryEditor;
-      case 'mapInfo':
-        return ComponentEditors.MapInfoEditor;
-      case 'calendar':
-        return ComponentEditors.CalendarEditor;
-      case 'bankAccount':
-        return ComponentEditors.BankAccountEditor;
       default:
         console.warn(`Unknown component type: ${componentType}`);
         return null;
@@ -48,11 +37,7 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       attend: '✅',
       image: '🖼️',
       dday: '📅',
-      weddingContact: '💒',
-      bankAccount: '🏦',
-      gridGallery: '🖼️',
-      slideGallery: '🎠',
-      calendar: '📅'
+      weddingContact: '💒'
     };
     return icons[type] || '📦';
   };
@@ -67,11 +52,7 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       attend: 'Attend',
       image: 'Image',
       dday: 'D-day',
-      weddingContact: 'Wedding Contact',
-      gridGallery: 'Grid Gallery',
-      slideGallery: 'Slide Gallery',
-      calendar: 'Calendar',
-      bankAccount: 'Bank Account'
+      weddingContact: 'Wedding Contact'
     };
     return labels[type] || 'Component';
   };
@@ -84,8 +65,6 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       width: 340,
       height: '100vh',
       zIndex: 10,
-      background: '#fff',
-      width: 320,
       background: '#ffffff',
       borderLeft: '1px solid #e1e5e9',
       display: 'flex',
