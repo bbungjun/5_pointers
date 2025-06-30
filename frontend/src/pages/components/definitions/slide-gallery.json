@@ -1,0 +1,91 @@
+{
+  "type": "slideGallery",
+  "label": "슬라이드 갤러리",
+  "edit": {
+    "containerWidth": { 
+      "label": "메인 영역 폭", 
+      "type": "number",
+      "min": 300,
+      "max": 1200,
+      "suffix": "px"
+    },
+    "containerHeight": { 
+      "label": "메인 영역 높이", 
+      "type": "number",
+      "min": 200,
+      "max": 800,
+      "suffix": "px"
+    },
+    "thumbnailHeight": { 
+      "label": "썸네일 높이", 
+      "type": "number",
+      "min": 40,
+      "max": 120,
+      "suffix": "px"
+    },
+    "thumbnailGap": { 
+      "label": "썸네일 간격", 
+      "type": "number",
+      "min": 0,
+      "max": 20,
+      "suffix": "px"
+    },
+    "borderRadius": { 
+      "label": "모서리 둥글기", 
+      "type": "number",
+      "min": 0,
+      "max": 20,
+      "suffix": "px"
+    },
+    "backgroundColor": { 
+      "label": "배경색", 
+      "type": "color"
+    },
+    "images": { 
+      "label": "이미지 목록", 
+      "type": "imageList"
+    },
+    "showArrows": { 
+      "label": "화살표 표시", 
+      "type": "boolean"
+    },
+    "showThumbnails": { 
+      "label": "썸네일 표시", 
+      "type": "boolean"
+    },
+    "showCounter": { 
+    "showCaption": { 
+      "label": "캡션 표시", 
+      "type": "boolean"
+    },
+      "label": "카운터 표시", 
+      "type": "boolean"
+    },
+    "autoPlay": { 
+      "label": "자동 재생", 
+      "type": "boolean"
+    },
+    "autoPlayInterval": { 
+      "label": "재생 간격", 
+      "type": "number",
+      "min": 1000,
+      "max": 10000,
+      "suffix": "ms"
+    }
+  },
+  "defaultProps": {
+    "containerWidth": 600,
+    "containerHeight": 400,
+    "thumbnailHeight": 80,
+    "thumbnailGap": 8,
+    "borderRadius": 8,
+    "backgroundColor": "#ffffff",
+    "images": [],
+    "showArrows": true,
+    "showThumbnails": true,
+    "showCounter": true,
+    "showCaption": true,
+    "autoPlay": false,
+    "autoPlayInterval": 3000
+  }
+}
