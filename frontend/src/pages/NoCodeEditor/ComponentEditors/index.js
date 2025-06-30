@@ -7,4 +7,5 @@ export { default as ImageEditor } from './ImageEditor';
 export { default as MapEditor } from './MapEditor';
 export { default as DdayEditor } from './DdayEditor.jsx';
 export { default as WeddingContactEditor } from './WeddingContactEditor.jsx';
+export { default as CalendarEditor } from './CalendarEditor';
 // wedding-contact 에디터는 추후 추가

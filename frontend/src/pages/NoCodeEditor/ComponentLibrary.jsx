@@ -128,7 +128,7 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
       <div style={{ padding: '16px 24px', borderBottom: '1px solid #e1e5e9' }}>
         <input
           type="text"
-          placeholder="필요한 컴포넌트를 검색하세요"
+          placeholder="원하는 기능을 검색하세요"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -225,6 +225,18 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
                   fontSize: 20
                 }}>
                   🗺️
+                </div>
+              );
+            case 'calendar':
+              return (
+                <div style={{
+                  width: 80, height: 60, background: '#fff', border: '1px solid #ddd',
+                  borderRadius: 6, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', fontSize: 8,
+                  color: '#666', textAlign: 'center', lineHeight: 1.2
+                }}>
+                  <div style={{ fontSize: 16, marginBottom: 2 }}>📅</div>
+                  <div style={{ fontWeight: 'bold', fontSize: 7 }}>Wedding Calendar</div>
                 </div>
               );
             default:
