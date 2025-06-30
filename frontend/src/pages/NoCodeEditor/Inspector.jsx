@@ -15,6 +15,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.MapEditor;
       case 'attend':
         return ComponentEditors.AttendEditor;
+      case 'image':
+        return ComponentEditors.ImageEditor;
       case 'dday':
         return ComponentEditors.DdayEditor;
       case 'weddingContact':
