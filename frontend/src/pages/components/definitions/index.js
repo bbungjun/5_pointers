@@ -1,12 +1,18 @@
-import buttonDef from './button.json';
-import textDef from './text.json';
-import linkDef from './link.json';
-import mapDef from './map.json';
-import attendDef from './attend.json';
-import imageDef from './image.json';
-import ddayDef from './d-day.json';
-import weddingContactDef from './wedding-contact.json';
+import buttonDef from "./button.json";
+import textDef from "./text.json";
+import linkDef from "./link.json";
+import mapDef from "./map.json";
+import attendDef from "./attend.json";
+import imageDef from "./image.json";
+import ddayDef from "./d-day.json";
+import weddingContactDef from "./wedding-contact.json";
+import gridGalleryDef from "./grid-gallery.json";
+import slideGalleryDef from "./slide-gallery.json";
+import mapInfoDef from './map_info.json';
+import calendarDef from './calendar.json';
+import bankAccount from './bank-account.json';
 import commentDef from './comment.json';
+
 
 export const ComponentList = [
   buttonDef,
@@ -17,7 +23,12 @@ export const ComponentList = [
   imageDef,
   ddayDef,
   weddingContactDef,
-  commentDef,
+  gridGalleryDef,
+  slideGalleryDef,
+  mapInfoDef,
+  bankAccount,
+  calendarDef,
+  commentDef
 ];
 
 // 기존 코드와의 호환성을 위해 ComponentDefinitions도 export
