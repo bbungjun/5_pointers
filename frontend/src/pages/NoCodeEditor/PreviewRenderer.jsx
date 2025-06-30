@@ -7,6 +7,42 @@ import MapView from './ComponentEditors/MapView';
 import DdayRenderer from './ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './ComponentRenderers/WeddingContactRenderer';
 import ImageRenderer from './ComponentRenderers/ImageRenderer';
+import GridGalleryRenderer from './ComponentRenderers/GridGalleryRenderer';
+import SlideGalleryRenderer from './ComponentRenderers/SlideGalleryRenderer';
+import MapInfoRenderer from './ComponentRenderers/MapInfoRenderer';
+import CalendarRenderer from './ComponentRenderers/CalendarRenderer';
+
+// 컴포넌트 definitions import
+import buttonDef from '../components/definitions/button.json';
+import textDef from '../components/definitions/text.json';
+import linkDef from '../components/definitions/link.json';
+import mapDef from '../components/definitions/map.json';
+import attendDef from '../components/definitions/attend.json';
+import imageDef from '../components/definitions/image.json';
+import ddayDef from '../components/definitions/d-day.json';
+import weddingContactDef from '../components/definitions/wedding-contact.json';
+import bankAccountDef from '../components/definitions/bank-account.json';
+import gridGalleryDef from '../components/definitions/grid-gallery.json';
+import slideGalleryDef from '../components/definitions/slide-gallery.json';
+import mapInfoDef from '../components/definitions/map_info.json';
+import calendarDef from '../components/definitions/calendar.json';
+
+// 컴포넌트 정의들을 맵으로 구성
+const componentDefinitions = {
+  button: buttonDef,
+  text: textDef,
+  link: linkDef,
+  map: mapDef,
+  attend: attendDef,
+  image: imageDef,
+  dday: ddayDef,
+  weddingContact: weddingContactDef,
+  bankAccount: bankAccountDef,
+  gridGallery: gridGalleryDef,
+  slideGallery: slideGalleryDef,
+  mapInfo: mapInfoDef,
+  calendar: calendarDef
+};
 
 /**
  * PreviewRenderer - iframe 내부에서 실제 페이지를 렌더링하는 순수 컴포넌트
@@ -17,8 +53,17 @@ import ImageRenderer from './ComponentRenderers/ImageRenderer';
  * 3. 드래그, 선택, 편집 등의 에디터 기능은 포함하지 않음
  */
 const PreviewRenderer = ({ pageContent }) => {
+  // 컴포넌트의 props와 defaultProps를 병합하는 함수
+  const getMergedProps = (comp) => {
+    const definition = componentDefinitions[comp.type];
+    const defaultProps = definition?.defaultProps || {};
+    return { ...defaultProps, ...(comp.props || {}) };
+  };
+
   // 컴포넌트 타입별 렌더링 함수
   const renderComponent = (comp) => {
+    const mergedProps = getMergedProps(comp);
+    
     const baseStyle = {
       position: 'absolute',
       left: comp.x,
@@ -28,29 +73,43 @@ const PreviewRenderer = ({ pageContent }) => {
       // 편집 관련 스타일 제거 (border, cursor 등)
     };
 
+    // 병합된 props로 새로운 comp 객체 생성
+    const compWithMergedProps = {
+      ...comp,
+      props: mergedProps
+    };
+
     const componentContent = (() => {
       switch (comp.type) {
         case 'button':
-          return <ButtonRenderer comp={comp} isEditor={false} />;
+          return <ButtonRenderer comp={compWithMergedProps} isEditor={true} />;
         case 'text':
-          return <TextRenderer comp={comp} isEditor={false} />;
+          return <TextRenderer comp={compWithMergedProps} isEditor={true} />;
         case 'link':
-          return <LinkRenderer comp={comp} isEditor={false} />;
+          return <LinkRenderer comp={compWithMergedProps} isEditor={true} />;
         case 'attend':
-          return <AttendRenderer comp={comp} isEditor={false} />;
+          return <AttendRenderer comp={compWithMergedProps} isEditor={true} />;
         case 'map':
-          return <MapView {...comp.props} isEditor={false} />;
+          return <MapView {...mergedProps} isEditor={true} />;
         case 'dday':
-          return <DdayRenderer comp={comp} isEditor={false} />;
+          return <DdayRenderer comp={compWithMergedProps} isEditor={true} />;
         case 'weddingContact':
-          return <WeddingContactRenderer comp={comp} isEditor={false} />;
+          return <WeddingContactRenderer comp={compWithMergedProps} isEditor={true} />;
         case 'image':
-          return <ImageRenderer comp={comp} isEditor={false} />;
+          return <ImageRenderer comp={compWithMergedProps} isEditor={true} />;
+        case 'gridGallery':
+          return <GridGalleryRenderer comp={compWithMergedProps} isEditor={true} />;
+        case 'slideGallery':
+          return <SlideGalleryRenderer comp={compWithMergedProps} isEditor={true} />;
+        case 'mapInfo':
+          return <MapInfoRenderer comp={compWithMergedProps} isEditor={true} />;
+        case 'calendar':
+          return <CalendarRenderer comp={compWithMergedProps} isEditor={true} />;
         case 'bankAccount':
           return (
             <div style={{
               padding: '16px',
-              background: '#ffffff',
+              background: mergedProps.backgroundColor || '#ffffff',
               border: '1px solid #e1e5e9',
               borderRadius: 8,
               fontFamily: 'inherit'
@@ -61,33 +120,21 @@ const PreviewRenderer = ({ pageContent }) => {
                 color: '#1d2129',
                 marginBottom: 12
               }}>
-                💒 축의금 계좌 안내
+                💒 {mergedProps.title || '축의금 계좌 안내'}
               </div>
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 12
               }}>
+                {/* 신랑 측 계좌들 */}
                 <div style={{
-                  padding: '12px',
-                  background: '#f8f9fa',
-                  borderRadius: 6,
-                  border: '1px solid #e9ecef'
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#495057',
+                  marginBottom: 8
                 }}>
-                  <div style={{
-                    fontSize: 14,
-                    fontWeight: 500,
-                    color: '#495057',
-                    marginBottom: 4
-                  }}>
-                    신랑 측 계좌
-                  </div>
-                  <div style={{
-                    fontSize: 13,
-                    color: '#6c757d'
-                  }}>
-                    {comp.props?.groomAccount || '계좌번호를 입력해주세요'}
-                  </div>
+                  신랑 측
                 </div>
                 <div style={{
                   padding: '12px',
@@ -95,21 +142,97 @@ const PreviewRenderer = ({ pageContent }) => {
                   borderRadius: 6,
                   border: '1px solid #e9ecef'
                 }}>
-                  <div style={{
-                    fontSize: 14,
-                    fontWeight: 500,
-                    color: '#495057',
-                    marginBottom: 4
-                  }}>
-                    신부 측 계좌
+                  <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
+                    {mergedProps.groomSide?.groom?.name || '신랑'}
                   </div>
-                  <div style={{
-                    fontSize: 13,
-                    color: '#6c757d'
-                  }}>
-                    {comp.props?.brideAccount || '계좌번호를 입력해주세요'}
+                  <div style={{ fontSize: 12, color: '#6c757d' }}>
+                    {mergedProps.groomSide?.groom?.bank || '은행'} {mergedProps.groomSide?.groom?.account || '계좌번호'}
                   </div>
                 </div>
+                {mergedProps.groomSide?.groomFather?.enabled && (
+                  <div style={{
+                    padding: '12px',
+                    background: '#f8f9fa',
+                    borderRadius: 6,
+                    border: '1px solid #e9ecef'
+                  }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
+                      {mergedProps.groomSide?.groomFather?.name || '신랑 아버지'}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6c757d' }}>
+                      {mergedProps.groomSide?.groomFather?.bank || '은행'} {mergedProps.groomSide?.groomFather?.account || '계좌번호'}
+                    </div>
+                  </div>
+                )}
+                {mergedProps.groomSide?.groomMother?.enabled && (
+                  <div style={{
+                    padding: '12px',
+                    background: '#f8f9fa',
+                    borderRadius: 6,
+                    border: '1px solid #e9ecef'
+                  }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
+                      {mergedProps.groomSide?.groomMother?.name || '신랑 어머니'}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6c757d' }}>
+                      {mergedProps.groomSide?.groomMother?.bank || '은행'} {mergedProps.groomSide?.groomMother?.account || '계좌번호'}
+                    </div>
+                  </div>
+                )}
+
+                {/* 신부 측 계좌들 */}
+                <div style={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#495057',
+                  marginBottom: 8,
+                  marginTop: 16
+                }}>
+                  신부 측
+                </div>
+                <div style={{
+                  padding: '12px',
+                  background: '#f8f9fa',
+                  borderRadius: 6,
+                  border: '1px solid #e9ecef'
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
+                    {mergedProps.brideSide?.bride?.name || '신부'}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#6c757d' }}>
+                    {mergedProps.brideSide?.bride?.bank || '은행'} {mergedProps.brideSide?.bride?.account || '계좌번호'}
+                  </div>
+                </div>
+                {mergedProps.brideSide?.brideFather?.enabled && (
+                  <div style={{
+                    padding: '12px',
+                    background: '#f8f9fa',
+                    borderRadius: 6,
+                    border: '1px solid #e9ecef'
+                  }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
+                      {mergedProps.brideSide?.brideFather?.name || '신부 아버지'}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6c757d' }}>
+                      {mergedProps.brideSide?.brideFather?.bank || '은행'} {mergedProps.brideSide?.brideFather?.account || '계좌번호'}
+                    </div>
+                  </div>
+                )}
+                {mergedProps.brideSide?.brideMother?.enabled && (
+                  <div style={{
+                    padding: '12px',
+                    background: '#f8f9fa',
+                    borderRadius: 6,
+                    border: '1px solid #e9ecef'
+                  }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
+                      {mergedProps.brideSide?.brideMother?.name || '신부 어머니'}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6c757d' }}>
+                      {mergedProps.brideSide?.brideMother?.bank || '은행'} {mergedProps.brideSide?.brideMother?.account || '계좌번호'}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -123,7 +246,7 @@ const PreviewRenderer = ({ pageContent }) => {
               fontSize: 14,
               color: '#6c757d'
             }}>
-              {comp.props?.text || comp.type}
+              {mergedProps.text || comp.type}
             </div>
           );
       }
@@ -132,9 +255,17 @@ const PreviewRenderer = ({ pageContent }) => {
     return (
       <div
         key={comp.id}
-        style={baseStyle}
         data-component-type={comp.type}
         data-component-id={comp.id}
+        // 미리보기에서는 모든 편집 이벤트 차단
+        onDoubleClick={(e) => e.preventDefault()}
+        onClick={(e) => e.preventDefault()}
+        onMouseDown={(e) => e.preventDefault()}
+        style={{
+          ...baseStyle,
+          pointerEvents: 'none', // 모든 마우스 이벤트 차단
+          userSelect: 'none'     // 텍스트 선택 차단
+        }}
       >
         {componentContent}
       </div>
