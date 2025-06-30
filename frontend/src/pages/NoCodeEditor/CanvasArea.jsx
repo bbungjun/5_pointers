@@ -14,7 +14,7 @@ function CanvasArea({
   nickname,
   snapLines,
   onDrop, onDragOver,
-  onClick, onMouseMove,
+  onClick, onMouseMove, onMouseUp,
   onSelect,
   onUpdate,
   onDelete,
@@ -82,7 +82,7 @@ function CanvasArea({
     }
   };
 
-  // 마우스 업 시 snapLines 항상 초기화
+  // 마우스 업 시 드래그 상태 해제
   const handleMouseUp = (e) => {
     if (onMouseUp) onMouseUp(e);
     if (typeof setSnapLines === 'function') {
