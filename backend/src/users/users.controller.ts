@@ -14,9 +14,8 @@ export class UsersController {
     return this.usersService.createPage(req.user.id, body.subdomain, body.title);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('pages/:pageId/deploy')
-  async deployPage(@Request() req, @Body() body: { components: any[]; domain: string }, @Param('pageId') pageId: string) {
+  async deployPage(@Body() body: { components: any[]; domain: string }, @Param('pageId') pageId: string) {
     return this.usersService.deployPage(pageId, body.components, body.domain);
   }
 

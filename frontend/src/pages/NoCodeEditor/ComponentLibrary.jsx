@@ -34,12 +34,24 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
     
     try {
       const token = localStorage.getItem('token');
+      
+      // 토큰이 없는 경우 경고 메시지
+      if (!token) {
+        console.warn('인증 토큰이 없습니다. 로그인이 필요할 수 있습니다.');
+      }
+      
+      const headers = { 
+        'Content-Type': 'application/json'
+      };
+      
+      // 토큰이 있는 경우에만 Authorization 헤더 추가
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(`http://localhost:3000/users/pages/${roomId}/deploy`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers,
         body: JSON.stringify({
           components: components || [],
           domain: domainName.trim()
@@ -52,11 +64,18 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
         setShowDomainInput(false);
         alert(`배포 완료! 도메인: ${domainName.trim()}`);
       } else {
-        throw new Error('배포 실패');
+        const errorData = await response.text();
+        console.error('배포 실패 응답:', response.status, errorData);
+        
+        if (response.status === 401) {
+          throw new Error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+        } else {
+          throw new Error(`배포 실패: ${response.status}`);
+        }
       }
     } catch (error) {
       console.error('배포 실패:', error);
-      alert('배포에 실패했습니다. 다시 시도해주세요.');
+      alert(`배포에 실패했습니다: ${error.message}`);
     } finally {
       setIsDeploying(false);
     }
