@@ -21,6 +21,14 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.DdayEditor;
       case 'weddingContact':
         return ComponentEditors.WeddingContactEditor;
+      case 'gridGallery':
+        return ComponentEditors.GridGalleryEditor;
+      case 'slideGallery':
+        return ComponentEditors.SlideGalleryEditor;
+      case 'mapInfo':
+        return ComponentEditors.MapInfoEditor;
+      case 'calendar':
+        return ComponentEditors.CalendarEditor;
       case 'bankAccount':
         return ComponentEditors.BankAccountEditor;
       default:
@@ -56,6 +64,9 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       image: 'Image',
       dday: 'D-day',
       weddingContact: 'Wedding Contact',
+      gridGallery: 'Grid Gallery',
+      slideGallery: 'Slide Gallery',
+      calendar: 'Calendar',
       bankAccount: 'Bank Account'
     };
     return labels[type] || 'Component';
