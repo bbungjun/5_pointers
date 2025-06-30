@@ -4,6 +4,7 @@ import * as ComponentEditors from './ComponentEditors';
 function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
   // 컴포넌트 타입별 에디터 매핑
   const getComponentEditor = (componentType) => {
+    console.log('Getting editor for component type:', componentType);
     switch (componentType) {
       case 'button':
         return ComponentEditors.ButtonEditor;
@@ -23,6 +24,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.WeddingContactEditor;
       case 'calendar':
         return ComponentEditors.CalendarEditor;
+      case 'bankAccount':
+        return ComponentEditors.BankAccountEditor;
       default:
         console.warn(`Unknown component type: ${componentType}`);
         return null;
@@ -40,7 +43,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       image: '🖼️',
       dday: '📅',
       weddingContact: '💒',
-      calendar: '📅'
+      calendar: '📅',
+      bankAccount: '🏦'
     };
     return icons[type] || '📦';
   };
@@ -56,7 +60,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       image: 'Image',
       dday: 'D-day',
       weddingContact: 'Wedding Contact',
-      calendar: 'Calendar'
+      calendar: 'Calendar',
+      bankAccount: 'Bank Account'
     };
     return labels[type] || 'Component';
   };
