@@ -14,6 +14,8 @@ import MapView from './NoCodeEditor/ComponentEditors/MapView';
 import DdayRenderer from './NoCodeEditor/ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './NoCodeEditor/ComponentRenderers/WeddingContactRenderer.jsx';
 import ImageRenderer from './NoCodeEditor/ComponentRenderers/ImageRenderer';
+import GridGalleryRenderer from './NoCodeEditor/ComponentRenderers/GridGalleryRenderer';
+import SlideGalleryRenderer from './NoCodeEditor/ComponentRenderers/SlideGalleryRenderer';
 import { MapInfoRenderer } from './NoCodeEditor/ComponentRenderers';
 import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer';
 
@@ -88,6 +90,11 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         return <WeddingContactRenderer comp={comp} isEditor={true} />;
       case 'image':
         return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+
+      case 'gridGallery':
+        return <GridGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+      case 'slideGallery':
+        return <SlideGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'mapInfo':
         return <MapInfoRenderer comp={comp} isEditor={true} />;
       case 'calendar':
