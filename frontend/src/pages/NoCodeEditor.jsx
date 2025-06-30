@@ -14,6 +14,7 @@ import MapView from './NoCodeEditor/ComponentEditors/MapView';
 import DdayRenderer from './NoCodeEditor/ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './NoCodeEditor/ComponentRenderers/WeddingContactRenderer.jsx';
 import ImageRenderer from './NoCodeEditor/ComponentRenderers/ImageRenderer';
+import { MapInfoRenderer } from './NoCodeEditor/ComponentRenderers';
 import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from './NoCodeEditor/ComponentRenderers/BankAccountRenderer';
 
@@ -88,6 +89,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         return <WeddingContactRenderer comp={comp} isEditor={true} />;
       case 'image':
         return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+      case 'mapInfo':
+        return <MapInfoRenderer comp={comp} isEditor={true} />;
       case 'calendar':
         return <CalendarRenderer comp={comp} isEditor={true} />;
       case 'bankAccount':
@@ -113,15 +116,15 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
 
   const handleResize = (e) => {
     if (!isResizing) return;
-    
+
     const deltaX = e.clientX - resizeStart.x;
     const deltaY = e.clientY - resizeStart.y;
-    
+
     // 그리드에 스냅된 크기 계산
     const gridSize = 50;
     let newWidth = resizeStart.width;
     let newHeight = resizeStart.height;
-    
+
     // 모서리별 리사이즈 로직
     switch (resizeStart.corner) {
       case 'se':
@@ -141,7 +144,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         newHeight = Math.max(50, Math.round((resizeStart.height - deltaY) / gridSize) * gridSize);
         break;
     }
-    
+
     onUpdate({
       ...comp,
       width: newWidth,
@@ -156,7 +159,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
   // 드래그 핸들러
   const handleDragStart = (e) => {
     if (isResizing) return;
-    
+
     e.stopPropagation();
     setIsDragging(true);
     setDragStart({
@@ -169,15 +172,15 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
 
   const handleDrag = (e) => {
     if (!isDragging) return;
-    
+
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
-    
+
     // 그리드에 스냅된 위치 계산
     const gridSize = 50;
     const newX = Math.round((dragStart.compX + deltaX) / gridSize) * gridSize;
     const newY = Math.round((dragStart.compY + deltaY) / gridSize) * gridSize;
-    
+
     onUpdate({
       ...comp,
       x: newX,
@@ -198,10 +201,10 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     if (isResizing) {
       const handleMouseMove = handleResize;
       const handleMouseUp = handleResizeEnd;
-      
+
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
-      
+
       return () => {
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
@@ -214,10 +217,10 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     if (isDragging) {
       const handleMouseMove = handleDrag;
       const handleMouseUp = handleDragEnd;
-      
+
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
-      
+
       return () => {
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
@@ -229,11 +232,11 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     <div
       style={{
         position: 'absolute',
-        left: comp.x, 
+        left: comp.x,
         top: comp.y,
         width: comp.width || 'auto',
         height: comp.height || 'auto',
-        minWidth: 100, 
+        minWidth: 100,
         minHeight: 50,
         border: selected ? '2px solid #3B4EFF' : '1px solid transparent',
         borderRadius: 8,
@@ -249,10 +252,10 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         outline: 'none'
       }}
       tabIndex={0}
-      onClick={e => { 
+      onClick={e => {
         if (!isDragging && !isResizing) {
-          e.stopPropagation(); 
-          onSelect(comp.id); 
+          e.stopPropagation();
+          onSelect(comp.id);
         }
       }}
       onDoubleClick={e => {
@@ -262,7 +265,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
       onMouseDown={handleDragStart}
     >
       {renderContent()}
-      
+
       {/* Figma 스타일 선택 핸들 */}
       {selected && (
         <>
@@ -327,21 +330,21 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
             }}
             onMouseDown={(e) => handleResizeStart(e, 'se')}
           />
-          
+
           {/* 중앙 삭제 버튼 */}
           <button
             onClick={e => { e.stopPropagation(); onDelete(comp.id); }}
             style={{
-              position: 'absolute', 
-              top: -20, 
+              position: 'absolute',
+              top: -20,
               right: -20,
-              background: '#FF3B3B', 
-              color: '#fff', 
-              border: 'none', 
+              background: '#FF3B3B',
+              color: '#fff',
+              border: 'none',
               borderRadius: '50%',
-              width: 24, 
-              height: 24, 
-              cursor: 'pointer', 
+              width: 24,
+              height: 24,
+              cursor: 'pointer',
               fontWeight: 'bold',
               fontSize: 14,
               display: 'flex',
@@ -530,7 +533,7 @@ function NoCodeEditor() {
         const gridSize = 50;
         const snappedX = Math.round(e.nativeEvent.offsetX / gridSize) * gridSize;
         const snappedY = Math.round(e.nativeEvent.offsetY / gridSize) * gridSize;
-        
+
         const yComponents = ydoc.getArray('components');
         yComponents.push([{
           id: Math.random().toString(36).slice(2, 10),
@@ -565,7 +568,7 @@ function NoCodeEditor() {
     if (idx !== -1) {
       yComponents.delete(idx, 1);
       yComponents.insert(idx, [comp]);
-      
+
       // 스냅라인 계산
       const lines = calculateSnapLines(comp, components);
       setSnapLines(lines);
@@ -601,7 +604,7 @@ function NoCodeEditor() {
       background: '#fff', color: '#222', fontFamily: 'Inter, sans-serif'
     }}>
       {/* 좌측: 컴포넌트 라이브러리 */}
-      <ComponentLibrary 
+      <ComponentLibrary
         onDragStart={(e, type) => {
           e.dataTransfer.setData('componentType', type);
           e.dataTransfer.effectAllowed = 'copy';
