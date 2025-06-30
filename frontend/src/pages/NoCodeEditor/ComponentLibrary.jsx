@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import { ComponentList } from '../components/definitions';
+import ButtonRenderer from './ComponentRenderers/ButtonRenderer';
+import TextRenderer from './ComponentRenderers/TextRenderer';
+import LinkRenderer from './ComponentRenderers/LinkRenderer';
+import AttendRenderer from './ComponentRenderers/AttendRenderer';
+import DdayRenderer from './ComponentRenderers/DdayRenderer';
+import WeddingContactRenderer from './ComponentRenderers/WeddingContactRenderer';
 
 function ComponentLibrary({ onDragStart, components, roomId }) {
   const [showDomainInput, setShowDomainInput] = useState(false);
@@ -118,69 +124,125 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
       </div>
 
       {/* 컴포넌트 리스트 */}
-      <div style={{
-        flex: 1,
-        padding: '20px',
-        overflowY: 'auto'
-      }}>
-        <div style={{
-          display: 'grid',
-          gap: 12
-        }}>
-          {ComponentList.map(comp => (
-            <div
-              key={comp.type}
-              draggable
-              onDragStart={e => onDragStart(e, comp.type)}
-              style={{
-                padding: '16px',
-                background: '#ffffff',
-                border: '1px solid #e1e5e9',
-                borderRadius: 8,
-                cursor: 'grab',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-1px)';
-                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-                e.target.style.borderColor = '#3B4EFF';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
-                e.target.style.borderColor = '#e1e5e9';
-              }}
-            >
-              <div style={{
-                fontSize: 24,
-                opacity: 0.8
-              }}>
-                {getComponentIcon(comp.type)}
-              </div>
-              <div>
+      {ComponentList.map(comp => {
+        const renderIcon = () => {
+          switch (comp.type) {
+            case 'button':
+              return (
                 <div style={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: '#1d2129',
-                  marginBottom: 2
+                  width: 60, height: 24, background: '#3B4EFF', color: '#fff',
+                  borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 10, fontWeight: 'bold'
                 }}>
-                  {comp.label}
+                  Button
                 </div>
+              );
+            case 'text':
+              return (
                 <div style={{
-                  fontSize: 11,
-                  color: '#65676b'
+                  fontSize: 12, color: '#333', fontWeight: 'normal',
+                  textAlign: 'center', lineHeight: 1.2
                 }}>
-                  Drag to canvas
+                  Sample Text
                 </div>
-              </div>
+              );
+            case 'link':
+              return (
+                <div style={{
+                  fontSize: 12, color: '#3B4EFF', textDecoration: 'underline',
+                  textAlign: 'center'
+                }}>
+                  Link Text
+                </div>
+              );
+            case 'attend':
+              return (
+                <div style={{
+                  width: 80, height: 60, background: '#fff', border: '1px solid #ddd',
+                  borderRadius: 6, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', fontSize: 8,
+                  color: '#666', textAlign: 'center', lineHeight: 1.2
+                }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 2 }}>참석 의사</div>
+                  <div style={{ background: '#3B4EFF', color: '#fff', padding: '2px 6px', borderRadius: 2, fontSize: 7 }}>전달하기</div>
+                </div>
+              );
+            case 'dday':
+              return (
+                <div style={{
+                  width: 70, height: 50, background: '#fff', border: '1px solid #ddd',
+                  borderRadius: 6, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', fontSize: 8,
+                  color: '#666', textAlign: 'center'
+                }}>
+                  <div style={{ fontWeight: 'bold', fontSize: 10 }}>D-DAY</div>
+                  <div style={{ fontSize: 12, fontWeight: 'bold', color: '#3B4EFF' }}>-30</div>
+                </div>
+              );
+            case 'weddingContact':
+              return (
+                <div style={{
+                  width: 80, height: 50, background: '#fff', border: '1px solid #ddd',
+                  borderRadius: 6, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', fontSize: 7,
+                  color: '#666', textAlign: 'center', lineHeight: 1.2
+                }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: 2 }}>연락처</div>
+                  <div>📞 010-1234-5678</div>
+                </div>
+              );
+            case 'map':
+              return (
+                <div style={{
+                  width: 70, height: 50, background: '#e8f5e8', border: '1px solid #4CAF50',
+                  borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 20
+                }}>
+                  🗺️
+                </div>
+              );
+            default:
+              return <span style={{ fontSize: 12 }}>{comp.label}</span>;
+          }
+        };
+
+        return (
+          <div
+            key={comp.type}
+            draggable
+            onDragStart={e => onDragStart(e, comp.type)}
+            style={{
+              width: '100%', marginBottom: 8, padding: 12,
+              background: '#fff', borderRadius: 8,
+              cursor: 'grab', boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+              border: '1px solid #eee',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={e => {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            }}
+            onMouseLeave={e => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 1px 4px rgba(0,0,0,0.1)';
+            }}
+          >
+            <div style={{
+              fontSize: 9, fontWeight: 600, color: '#888',
+              marginBottom: 8, textAlign: 'center', textTransform: 'uppercase',
+              letterSpacing: 0.5
+            }}>
+              {comp.label}
             </div>
-          ))}
-        </div>
-      </div>
+            <div style={{
+              height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: '#f8f9fa', borderRadius: 4
+            }}>
+              {renderIcon()}
+            </div>
+          </div>
+        );
+      })}
 
       {/* 배포 섹션 */}
       <div style={{ 
