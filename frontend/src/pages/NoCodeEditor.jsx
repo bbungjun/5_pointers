@@ -15,6 +15,11 @@ import MapView from './NoCodeEditor/ComponentEditors/MapView';
 import DdayRenderer from './NoCodeEditor/ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './NoCodeEditor/ComponentRenderers/WeddingContactRenderer.jsx';
 import ImageRenderer from './NoCodeEditor/ComponentRenderers/ImageRenderer';
+import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer';
+import BankAccountRenderer from './NoCodeEditor/ComponentRenderers/BankAccountRenderer';
+import GridGalleryRenderer from './NoCodeEditor/ComponentRenderers/GridGalleryRenderer';
+import SlideGalleryRenderer from './NoCodeEditor/ComponentRenderers/SlideGalleryRenderer';
+import MapInfoRenderer from './NoCodeEditor/ComponentRenderers/MapInfoRenderer';
 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
@@ -100,6 +105,16 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         return <WeddingContactRenderer comp={comp} isEditor={true} />;
       case 'image':
         return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+      case 'calendar':
+        return <CalendarRenderer comp={comp} isEditor={true} />;
+      case 'bankAccount':
+        return <BankAccountRenderer comp={comp} isEditor={true} />;
+      case 'gridGallery':
+        return <GridGalleryRenderer comp={comp} isEditor={true} />;
+      case 'slideGallery':
+        return <SlideGalleryRenderer comp={comp} isEditor={true} />;
+      case 'mapInfo':
+        return <MapInfoRenderer comp={comp} isEditor={true} />;
       default:
         return <span>{comp.props.text}</span>;
     }
