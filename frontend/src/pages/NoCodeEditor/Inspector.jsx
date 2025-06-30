@@ -21,6 +21,10 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.DdayEditor;
       case 'weddingContact':
         return ComponentEditors.WeddingContactEditor;
+      case 'gridGallery':
+        return ComponentEditors.GridGalleryEditor;
+      case 'slideGallery':
+        return ComponentEditors.SlideGalleryEditor;
       default:
         console.warn(`Unknown component type: ${componentType}`);
         return null;
@@ -37,7 +41,9 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       attend: '✅',
       image: '🖼️',
       dday: '📅',
-      weddingContact: '💒'
+      weddingContact: '💒',
+      gridGallery: '🖼️',
+      slideGallery: '🎠'
     };
     return icons[type] || '📦';
   };
@@ -52,7 +58,9 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       attend: 'Attend',
       image: 'Image',
       dday: 'D-day',
-      weddingContact: 'Wedding Contact'
+      weddingContact: 'Wedding Contact',
+      gridGallery: 'Grid Gallery',
+      slideGallery: 'Slide Gallery'
     };
     return labels[type] || 'Component';
   };

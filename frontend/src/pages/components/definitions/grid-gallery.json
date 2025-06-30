@@ -1,0 +1,89 @@
+{
+  "type": "gridGallery",
+  "label": "그리드 갤러리",
+  "edit": {
+    "containerWidth": { 
+      "label": "영역 폭", 
+      "type": "number",
+      "min": 100,
+      "max": 2000,
+      "suffix": "px"
+    },
+    "containerHeight": { 
+      "label": "영역 높이", 
+      "type": "number",
+      "min": 100,
+      "max": 1500,
+      "suffix": "px"
+    },
+    "rows": { 
+      "label": "행 수", 
+      "type": "number",
+      "min": 1,
+      "max": 10
+    },
+    "columns": { 
+      "label": "열 수", 
+      "type": "number",
+      "min": 1,
+      "max": 10
+    },
+    "gap": { 
+      "label": "간격", 
+      "type": "number",
+      "min": 0,
+      "max": 50,
+      "suffix": "px"
+    },
+    "borderRadius": { 
+      "label": "모서리 둥글기", 
+      "type": "number",
+      "min": 0,
+      "max": 20,
+      "suffix": "px"
+    },
+    "objectFit": { 
+      "label": "이미지 맞춤", 
+      "type": "objectFit"
+    },
+    "objectPosition": { 
+      "label": "이미지 정렬", 
+      "type": "text"
+    },
+    "images": { 
+      "label": "이미지 목록", 
+      "type": "imageList"
+    },
+    "enableModal": { 
+      "label": "전체화면 보기", 
+      "type": "boolean"
+    },
+    "showNavigation": { 
+      "label": "네비게이션 표시", 
+      "type": "boolean"
+    },
+    "showCaption": { 
+      "label": "캡션 표시", 
+      "type": "boolean"
+    },
+    "backgroundColor": { 
+      "label": "배경색", 
+      "type": "color"
+    }
+  },
+  "defaultProps": {
+    "containerWidth": 800,
+    "containerHeight": 600,
+    "rows": 3,
+    "columns": 4,
+    "gap": 8,
+    "borderRadius": 4,
+    "objectFit": "cover",
+    "objectPosition": "center",
+    "images": [],
+    "enableModal": true,
+    "showNavigation": true,
+    "showCaption": true,
+    "backgroundColor": "#ffffff"
+  }
+}
