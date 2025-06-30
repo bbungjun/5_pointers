@@ -18,6 +18,7 @@ import GridGalleryRenderer from './NoCodeEditor/ComponentRenderers/GridGalleryRe
 import SlideGalleryRenderer from './NoCodeEditor/ComponentRenderers/SlideGalleryRenderer';
 import { MapInfoRenderer } from './NoCodeEditor/ComponentRenderers';
 import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer';
+import BankAccountRenderer from './NoCodeEditor/ComponentRenderers/BankAccountRenderer';
 
 // 랜덤 닉네임/색상 생성
 function randomNickname() {
@@ -99,6 +100,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         return <MapInfoRenderer comp={comp} isEditor={true} />;
       case 'calendar':
         return <CalendarRenderer comp={comp} isEditor={true} />;
+      case 'bankAccount':
+        return <BankAccountRenderer comp={comp} isEditor={true} />;
       default:
         return <span>{comp.props.text}</span>;
     }

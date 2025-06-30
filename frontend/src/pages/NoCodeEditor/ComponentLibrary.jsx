@@ -147,8 +147,8 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
       <div style={{ padding: '16px 24px', flex: 1, overflowY: 'auto' }}>
         {ComponentList
           .filter(comp => 
-            comp.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            comp.type.toLowerCase().includes(searchTerm.toLowerCase())
+            (comp.label && comp.label.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (comp.type && comp.type.toLowerCase().includes(searchTerm.toLowerCase()))
           )
           .map(comp => {
         const renderIcon = () => {
@@ -239,6 +239,30 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
                   <div style={{ fontWeight: 'bold', fontSize: 7 }}>Wedding Calendar</div>
                 </div>
               );
+            case 'bankAccount':
+              return (
+                <div style={{
+                  width: 80, height: 60, background: '#fff', border: '1px solid #ddd',
+                  borderRadius: 6, padding: 4, display: 'flex', flexDirection: 'column',
+                  justifyContent: 'center', alignItems: 'center', gap: 2, fontSize: 6, lineHeight: 1.1
+                }}>
+                  <div style={{
+                    background: '#f3f4f6', borderRadius: 3, padding: '2px 4px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+
+                  }}>
+                    <span style={{ fontSize: 6, color: '#374151' }}>신랑 측 계좌</span>
+                    <span style={{ fontSize: 5 }}>▼</span>
+                  </div>
+                  <div style={{
+                    background: '#f3f4f6', borderRadius: 3, padding: '2px 4px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                  }}>
+                    <span style={{ fontSize: 6, color: '#374151' }}>신부 측 계좌</span>
+                    <span style={{ fontSize: 5 }}>▼</span>
+                  </div>
+                </div>
+              );
             default:
               return <span style={{ fontSize: 12 }}>{comp.label}</span>;
           }
@@ -284,8 +308,8 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
       
       {ComponentList
         .filter(comp => 
-          comp.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          comp.type.toLowerCase().includes(searchTerm.toLowerCase())
+          (comp.label && comp.label.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (comp.type && comp.type.toLowerCase().includes(searchTerm.toLowerCase()))
         ).length === 0 && searchTerm && (
         <div style={{
           textAlign: 'center',

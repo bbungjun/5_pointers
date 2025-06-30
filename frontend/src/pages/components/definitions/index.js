@@ -10,6 +10,8 @@ import gridGalleryDef from "./grid-gallery.json";
 import slideGalleryDef from "./slide-gallery.json";
 import mapInfoDef from './map_info.json';
 import calendarDef from './calendar.json';
+import bankAccount from './bank-account.json';
+
 export const ComponentList = [
   buttonDef,
   textDef,
@@ -22,6 +24,7 @@ export const ComponentList = [
   gridGalleryDef,
   slideGalleryDef,
   mapInfoDef,
+  bankAccount,
   calendarDef
 ];
 

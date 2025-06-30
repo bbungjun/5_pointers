@@ -163,7 +163,7 @@ function WeddingContactEditor({ selectedComp, onUpdate }) {
             marginBottom: 8,
             marginTop: 16
           }}>
-            신랑측
+            신랑 측
           </div>
 
           <TextEditor
@@ -250,7 +250,7 @@ function WeddingContactEditor({ selectedComp, onUpdate }) {
             marginBottom: 8,
             marginTop: 16
           }}>
-            신부측
+            신부 측
           </div>
 
           <TextEditor

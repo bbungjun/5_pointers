@@ -11,3 +11,4 @@ export { default as GridGalleryEditor } from "./GridGalleryEditor";
 export { default as SlideGalleryEditor } from "./SlideGalleryEditor";
 export { default as MapInfoEditor } from './MapInfoEditor';
 export { default as CalendarEditor } from './CalendarEditor';
+export { default as BankAccountEditor } from './BankAccountEditor';
