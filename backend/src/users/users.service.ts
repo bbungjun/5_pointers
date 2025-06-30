@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users, AuthProvider } from './entities/users.entity'
 import { Pages } from './entities/pages.entity'
+import { Submissions } from './entities/submissions.entity'
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -12,6 +13,8 @@ export class UsersService {
     private usersRepository: Repository<Users>,
     @InjectRepository(Pages)
     private pagesRepository: Repository<Pages>,
+    @InjectRepository(Submissions)
+    private submissionsRepository: Repository<Submissions>,
   ) {}
 
   async findByEmail(email: string): Promise<Users | undefined> {
@@ -119,6 +122,8 @@ export class UsersService {
           return `<a href="${comp.props.url}" style="${style} text-decoration: underline;">${comp.props.text}</a>`;
         case 'attend':
           return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
+        case 'comment':
+          return this.generateCommentHTML(comp);
         default:
           return `<div style="${style}">${comp.props.text}</div>`;
       }
@@ -139,5 +144,73 @@ export class UsersService {
       </body>
       </html>
     `;
+  }
+
+  // 댓글 조회
+  async getComments(pageId: string, componentId: string): Promise<any[]> {
+    const comments = await this.submissionsRepository.find({
+      where: { 
+        pageId: pageId,
+        component_id: componentId
+      },
+      order: { createdAt: 'DESC' }
+    });
+
+    return comments.map(comment => ({
+      id: comment.id,
+      author: comment.data.author,
+      content: comment.data.content,
+      createdAt: comment.createdAt
+    }));
+  }
+
+  // 댓글 작성
+  async createComment(pageId: string, componentId: string, commentData: { author: string; content: string; password: string }): Promise<any> {
+    const hashedPassword = await bcrypt.hash(commentData.password, 10);
+    
+    const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+    if (!page) throw new Error('Page not found');
+
+    const submission = this.submissionsRepository.create({
+      page: page,
+      pageId: pageId,
+      component_id: componentId,
+      data: {
+        author: commentData.author,
+        content: commentData.content,
+        password: hashedPassword
+      }
+    });
+
+    const saved = await this.submissionsRepository.save(submission);
+    return {
+      id: saved.id,
+      author: saved.data.author,
+      content: saved.data.content,
+      createdAt: saved.createdAt
+    };
+  }
+
+  // 댓글 삭제
+  async deleteComment(pageId: string, componentId: string, commentId: string, password: string): Promise<any> {
+    const comment = await this.submissionsRepository.findOne({
+      where: {
+        id: parseInt(commentId),
+        pageId: pageId,
+        component_id: componentId
+      }
+    });
+
+    if (!comment) {
+      throw new Error('Comment not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, comment.data.password);
+    if (!isPasswordValid) {
+      throw new Error('Invalid password');
+    }
+
+    await this.submissionsRepository.remove(comment);
+    return { message: 'Comment deleted successfully' };
   }
 }

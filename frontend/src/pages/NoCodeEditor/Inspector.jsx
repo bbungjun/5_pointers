@@ -31,6 +31,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.CalendarEditor;
       case 'bankAccount':
         return ComponentEditors.BankAccountEditor;
+      case 'comment':
+        return ComponentEditors.CommentEditor;
       default:
         console.warn(`Unknown component type: ${componentType}`);
         return null;
@@ -48,7 +50,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       image: '🖼️',
       dday: '📅',
       weddingContact: '💒',
-      bankAccount: '🏦'
+      bankAccount: '🏦',
+      comment: '💬'
     };
     return icons[type] || '📦';
   };
@@ -67,7 +70,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       gridGallery: 'Grid Gallery',
       slideGallery: 'Slide Gallery',
       calendar: 'Calendar',
-      bankAccount: 'Bank Account'
+      bankAccount: 'Bank Account',
+      comment: 'Comment'
     };
     return labels[type] || 'Component';
   };
