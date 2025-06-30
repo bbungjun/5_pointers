@@ -7,6 +7,21 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState('');
 
+  // 컴포넌트 타입별 아이콘
+  const getComponentIcon = (type) => {
+    const icons = {
+      button: '🔘',
+      text: '📝',
+      link: '🔗',
+      map: '🗺️',
+      attend: '✅',
+      image: '🖼️',
+      dday: '📅',
+      weddingContact: '💒'
+    };
+    return icons[type] || '📦';
+  };
+
   // 배포 핸들러
   const handleDeploy = async () => {
     if (!domainName.trim()) {
@@ -45,64 +60,195 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
       setIsDeploying(false);
     }
   };
+
   return (
     <div style={{
-      width: 180, background: '#3B4EFF', color: '#fff', padding: 24,
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      minHeight: '100vh'
+      width: 240,
+      background: '#ffffff',
+      borderRight: '1px solid #e1e5e9',
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '100vh',
+      boxShadow: '2px 0 8px rgba(0,0,0,0.05)'
     }}>
-      <h3 style={{ marginBottom: 24, fontWeight: 900, letterSpacing: 2 }}>Components</h3>
-      
-      {/* 컴포넌트 리스트 */}
-      {ComponentList.map(comp => (
-        <div
-          key={comp.type}
-          draggable
-          onDragStart={e => onDragStart(e, comp.type)}
-          style={{
-            width: '100%', marginBottom: 16, padding: 16,
-            background: '#fff', color: '#3B4EFF', borderRadius: 8,
-            fontWeight: 700, fontSize: 18, textAlign: 'center',
-            cursor: 'grab', boxShadow: '0 1px 4px #0001'
-          }}
-        >
-          {comp.label}
+      {/* 헤더 */}
+      <div style={{
+        padding: '20px 24px',
+        borderBottom: '1px solid #e1e5e9',
+        backgroundColor: '#fafbfc'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          marginBottom: 8
+        }}>
+          <div style={{
+            width: 32,
+            height: 32,
+            background: '#3B4EFF',
+            borderRadius: 6,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 16,
+            color: '#fff'
+          }}>
+            📦
+          </div>
+          <div>
+            <h3 style={{
+              margin: 0,
+              fontSize: 16,
+              fontWeight: 600,
+              color: '#1d2129',
+              letterSpacing: '0.3px'
+            }}>
+              Components
+            </h3>
+            <div style={{
+              fontSize: 12,
+              color: '#65676b',
+              marginTop: 2
+            }}>
+              {ComponentList.length} components available
+            </div>
+          </div>
         </div>
-      ))}
+      </div>
+
+      {/* 컴포넌트 리스트 */}
+      <div style={{
+        flex: 1,
+        padding: '20px',
+        overflowY: 'auto'
+      }}>
+        <div style={{
+          display: 'grid',
+          gap: 12
+        }}>
+          {ComponentList.map(comp => (
+            <div
+              key={comp.type}
+              draggable
+              onDragStart={e => onDragStart(e, comp.type)}
+              style={{
+                padding: '16px',
+                background: '#ffffff',
+                border: '1px solid #e1e5e9',
+                borderRadius: 8,
+                cursor: 'grab',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-1px)';
+                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                e.target.style.borderColor = '#3B4EFF';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                e.target.style.borderColor = '#e1e5e9';
+              }}
+            >
+              <div style={{
+                fontSize: 24,
+                opacity: 0.8
+              }}>
+                {getComponentIcon(comp.type)}
+              </div>
+              <div>
+                <div style={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#1d2129',
+                  marginBottom: 2
+                }}>
+                  {comp.label}
+                </div>
+                <div style={{
+                  fontSize: 11,
+                  color: '#65676b'
+                }}>
+                  Drag to canvas
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* 배포 섹션 */}
       <div style={{ 
-        width: '100%', 
-        marginTop: 'auto', 
-        paddingTop: 24, 
-        borderTop: '1px solid rgba(255,255,255,0.2)' 
+        padding: '20px 24px',
+        borderTop: '1px solid #e1e5e9',
+        backgroundColor: '#fafbfc'
       }}>
-        <h4 style={{ 
-          marginBottom: 16, 
-          fontWeight: 700, 
-          fontSize: 14,
-          textAlign: 'center',
-          letterSpacing: 1
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          marginBottom: 16
         }}>
-          🚀 DEPLOY
-        </h4>
+          <div style={{
+            width: 32,
+            height: 32,
+            background: '#00b894',
+            borderRadius: 6,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 16,
+            color: '#fff'
+          }}>
+            🚀
+          </div>
+          <div>
+            <h4 style={{
+              margin: 0,
+              fontSize: 14,
+              fontWeight: 600,
+              color: '#1d2129',
+              letterSpacing: '0.3px'
+            }}>
+              Deploy Site
+            </h4>
+            <div style={{
+              fontSize: 11,
+              color: '#65676b',
+              marginTop: 2
+            }}>
+              {components ? components.length : 0} components ready
+            </div>
+          </div>
+        </div>
         
         {showDomainInput && (
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: 16 }}>
             <input
               type="text"
-              placeholder="원하는 도메인을 입력하세요"
+              placeholder="Enter domain name"
               value={domainName}
               onChange={(e) => setDomainName(e.target.value)}
               style={{
                 width: '100%',
-                padding: '8px 12px',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '12px',
-                marginBottom: '8px',
+                padding: '10px 12px',
+                border: '1px solid #e1e5e9',
+                borderRadius: 6,
+                fontSize: 13,
                 outline: 'none',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#3B4EFF';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#e1e5e9';
               }}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
@@ -113,11 +259,12 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
             />
             <div style={{ 
               fontSize: 10, 
-              color: 'rgba(255,255,255,0.8)', 
-              textAlign: 'center',
-              marginBottom: 8 
+              color: '#65676b', 
+              marginTop: 6,
+              lineHeight: 1.4
             }}>
-              도메인으로 사이트가 배포됩니다
+              Your site will be available at:<br />
+              <strong>{domainName || 'your-domain'}.localhost:3001</strong>
             </div>
           </div>
         )}
@@ -128,49 +275,71 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
           style={{
             width: '100%',
             padding: '12px 16px',
-            background: isDeploying ? 'rgba(255,255,255,0.3)' : '#fff',
-            color: isDeploying ? 'rgba(255,255,255,0.7)' : '#3B4EFF',
+            background: isDeploying ? '#e1e5e9' : '#00b894',
+            color: isDeploying ? '#65676b' : '#ffffff',
             border: 'none',
-            borderRadius: '6px',
-            fontSize: '12px',
-            fontWeight: 700,
+            borderRadius: 6,
+            fontSize: 13,
+            fontWeight: 600,
             cursor: isDeploying ? 'not-allowed' : 'pointer',
             transition: 'all 0.2s',
-            letterSpacing: 1
+            letterSpacing: '0.3px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8
           }}
           onMouseEnter={(e) => {
             if (!isDeploying) {
-              e.target.style.backgroundColor = 'rgba(255,255,255,0.9)';
+              e.target.style.background = '#00a085';
             }
           }}
           onMouseLeave={(e) => {
             if (!isDeploying) {
-              e.target.style.backgroundColor = '#fff';
+              e.target.style.background = '#00b894';
             }
           }}
         >
-          {isDeploying ? 'DEPLOYING...' : 'DEPLOY SITE'}
+          {isDeploying ? (
+            <>
+              <span style={{ fontSize: 14 }}>⏳</span>
+              Deploying...
+            </>
+          ) : (
+            <>
+              <span style={{ fontSize: 14 }}>🚀</span>
+              Deploy Site
+            </>
+          )}
         </button>
         
         {deployedUrl && (
           <div style={{
-            marginTop: '12px',
-            padding: '8px 12px',
-            backgroundColor: 'rgba(255,255,255,0.1)',
-            borderRadius: '4px',
-            fontSize: '10px',
+            marginTop: 16,
+            padding: '12px',
+            backgroundColor: '#e8f5e8',
+            borderRadius: 6,
+            border: '1px solid #c8e6c9',
+            fontSize: 11,
             textAlign: 'center'
           }}>
-            <strong>배포 완료!</strong>
-            <br />
+            <div style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: '#2e7d32',
+              marginBottom: 6
+            }}>
+              ✅ Deployed Successfully!
+            </div>
             <a 
               href={deployedUrl} 
               target="_blank" 
               rel="noopener noreferrer"
               style={{ 
-                color: '#fff', 
+                color: '#1976d2', 
                 textDecoration: 'underline',
-                wordBreak: 'break-all'
+                wordBreak: 'break-all',
+                fontSize: 10
               }}
             >
               {deployedUrl}
