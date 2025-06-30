@@ -14,6 +14,7 @@ import MapView from './NoCodeEditor/ComponentEditors/MapView';
 import DdayRenderer from './NoCodeEditor/ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './NoCodeEditor/ComponentRenderers/WeddingContactRenderer.jsx';
 import ImageRenderer from './NoCodeEditor/ComponentRenderers/ImageRenderer';
+import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer';
 
 // 랜덤 닉네임/색상 생성
 function randomNickname() {
@@ -86,6 +87,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         return <WeddingContactRenderer comp={comp} isEditor={true} />;
       case 'image':
         return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+      case 'calendar':
+        return <CalendarRenderer comp={comp} isEditor={true} />;
       default:
         return <span>{comp.props.text}</span>;
     }
