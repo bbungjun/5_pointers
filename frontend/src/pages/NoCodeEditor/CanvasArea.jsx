@@ -84,7 +84,10 @@ function CanvasArea({
 
   // 마우스 업 시 드래그 상태 해제
   const handleMouseUp = (e) => {
-    setIsDragging(false);
+    if (onMouseUp) onMouseUp(e);
+    if (typeof setSnapLines === 'function') {
+      setSnapLines({ vertical: [], horizontal: [] });
+    }
   };
 
   // 캔버스 컨테이너에서 마우스 드래그로 스크롤 이동
