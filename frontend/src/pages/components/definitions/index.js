@@ -6,6 +6,7 @@ import attendDef from './attend.json';
 import imageDef from './image.json';
 import ddayDef from './d-day.json';
 import weddingContactDef from './wedding-contact.json';
+import mapInfoDef from './map_info.json';
 import calendarDef from './calendar.json';
 
 export const ComponentList = [
@@ -17,6 +18,7 @@ export const ComponentList = [
   imageDef,
   ddayDef,
   weddingContactDef,
+  mapInfoDef,
   calendarDef
 ];
 
