@@ -59,13 +59,21 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
 
   return (
     <div style={{
+      position: 'fixed',
+      top: 0,
+      right: 0,
+      width: 340,
+      height: '100vh',
+      zIndex: 10,
+      background: '#fff',
       width: 320,
       background: '#ffffff',
       borderLeft: '1px solid #e1e5e9',
       display: 'flex',
       flexDirection: 'column',
       minHeight: '100vh',
-      boxShadow: '-2px 0 8px rgba(0,0,0,0.05)'
+      boxShadow: '-2px 0 8px rgba(0,0,0,0.05)',
+      overflowY: 'auto',
     }}>
       {/* 헤더 */}
       <div style={{
