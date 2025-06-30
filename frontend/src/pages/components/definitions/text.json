@@ -1,11 +1,6 @@
 {
   "type": "text",
   "label": "텍스트",
-  "edit": {
-    "text": { "label": "내용", "type": "text" },
-    "fontSize": { "label": "글자 크기", "type": "number" },
-    "color": { "label": "글자 색상", "type": "color" }
-  },
   "defaultProps": {
     "text": "내용을 입력하세요",
     "fontSize": 20,

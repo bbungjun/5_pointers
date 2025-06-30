@@ -1,19 +1,6 @@
 {
   "type": "button",
   "label": "버튼",
-  "edit": {
-    "text": { "label": "버튼명", "type": "text" },
-    "fontSize": { "label": "글자 크기", "type": "number" },
-    "fontFamily": { "label": "폰트", "type": "fontFamily" },
-    "fontWeight": { "label": "굵게", "type": "boolean" },
-    "fontStyle": { "label": "기울임", "type": "boolean" },
-    "textDecoration": { "label": "밑줄", "type": "boolean" },
-    "lineHeight": { "label": "줄간격", "type": "lineHeight" },
-    "letterSpacing": { "label": "글자간격", "type": "letterSpacing" },
-    "textAlign": { "label": "텍스트 정렬", "type": "textAlign" },
-    "color": { "label": "글자 색상", "type": "color" },
-    "bg": { "label": "배경색", "type": "color" }
-  },
   "defaultProps": {
     "text": "클릭하세요",
     "fontSize": 18,

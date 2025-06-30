@@ -1,12 +1,6 @@
 {
   "type": "link",
   "label": "링크",
-  "edit": {
-    "text": { "label": "표시될 텍스트", "type": "text" },
-    "href": { "label": "연결할 주소 (URL)", "type": "text" },
-    "fontSize": { "label": "글자 크기", "type": "number" },
-    "color": { "label": "글자 색상", "type": "color" }
-  },
   "defaultProps": {
     "text": "여기를 클릭하세요",
     "href": "https://www.google.com",
