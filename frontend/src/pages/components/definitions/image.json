@@ -1,14 +1,6 @@
 {
   "type": "image",
   "label": "이미지",
-  "edit": {
-    "src": { "label": "이미지", "type": "imageSource" },
-    "alt": { "label": "대체 텍스트", "type": "text" },
-    "width": { "label": "너비", "type": "number" },
-    "height": { "label": "높이", "type": "number" },
-    "objectFit": { "label": "맞춤 방식", "type": "objectFit" },
-    "borderRadius": { "label": "모서리 둥글기", "type": "number" }
-  },
   "defaultProps": {
     "src": "",
     "alt": "이미지",

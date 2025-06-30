@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request, Param, Get, Res } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Param, Get, Res, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
@@ -26,5 +26,32 @@ export class UsersController {
     const html = this.usersService.generateHTML(siteData.components);
     res.setHeader('Content-Type', 'text/html');
     res.send(html);
+  }
+
+  // 댓글 조회
+  @Get('pages/:pageId/comments/:componentId')
+  async getComments(@Param('pageId') pageId: string, @Param('componentId') componentId: string) {
+    return this.usersService.getComments(pageId, componentId);
+  }
+
+  // 댓글 작성
+  @Post('pages/:pageId/comments/:componentId')
+  async createComment(
+    @Param('pageId') pageId: string,
+    @Param('componentId') componentId: string,
+    @Body() commentData: { author: string; content: string; password: string }
+  ) {
+    return this.usersService.createComment(pageId, componentId, commentData);
+  }
+
+  // 댓글 삭제
+  @Delete('pages/:pageId/comments/:componentId/:commentId')
+  async deleteComment(
+    @Param('pageId') pageId: string,
+    @Param('componentId') componentId: string,
+    @Param('commentId') commentId: string,
+    @Body() body: { password: string }
+  ) {
+    return this.usersService.deleteComment(pageId, componentId, commentId, body.password);
   }
 }

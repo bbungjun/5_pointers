@@ -1,22 +1,6 @@
 {
     "type": "mapInfo",
     "label": "장소 안내",
-    "edit": {
-      "sections": {
-        "label": "섹션",
-        "type": "list",
-        "item": {
-          "header": {
-            "label": "제목",
-            "type": "text"
-          },
-          "content": {
-            "label": "내용",
-            "type": "textarea"
-          }
-        }
-      }
-    },
     "defaultProps": {
       "sections": [
         {

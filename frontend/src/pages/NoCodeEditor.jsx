@@ -20,6 +20,7 @@ import BankAccountRenderer from './NoCodeEditor/ComponentRenderers/BankAccountRe
 import GridGalleryRenderer from './NoCodeEditor/ComponentRenderers/GridGalleryRenderer';
 import SlideGalleryRenderer from './NoCodeEditor/ComponentRenderers/SlideGalleryRenderer';
 import MapInfoRenderer from './NoCodeEditor/ComponentRenderers/MapInfoRenderer';
+import CommentRenderer from './NoCodeEditor/ComponentRenderers/CommentRenderer';
 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
@@ -115,6 +116,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         return <SlideGalleryRenderer comp={comp} isEditor={true} />;
       case 'mapInfo':
         return <MapInfoRenderer comp={comp} isEditor={true} />;
+      case 'comment':
+        return <CommentRenderer comp={comp} isEditor={true} />;
       default:
         return <span>{comp.props.text}</span>;
     }

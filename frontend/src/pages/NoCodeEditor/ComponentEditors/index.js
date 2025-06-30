@@ -12,3 +12,4 @@ export { default as SlideGalleryEditor } from "./SlideGalleryEditor";
 export { default as MapInfoEditor } from './MapInfoEditor';
 export { default as CalendarEditor } from './CalendarEditor';
 export { default as BankAccountEditor } from './BankAccountEditor';
+export { default as CommentEditor } from './CommentEditor';

@@ -11,6 +11,7 @@ import slideGalleryDef from "./slide-gallery.json";
 import mapInfoDef from './map_info.json';
 import calendarDef from './calendar.json';
 import bankAccount from './bank-account.json';
+import commentDef from './comment.json';
 
 export const ComponentList = [
   buttonDef,
@@ -25,7 +26,8 @@ export const ComponentList = [
   slideGalleryDef,
   mapInfoDef,
   bankAccount,
-  calendarDef
+  calendarDef,
+  commentDef
 ];
 
 // 기존 코드와의 호환성을 위해 ComponentDefinitions도 export
