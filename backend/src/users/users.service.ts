@@ -213,4 +213,117 @@ export class UsersService {
     await this.submissionsRepository.remove(comment);
     return { message: 'Comment deleted successfully' };
   }
+
+  generateCommentHTML(comp: any): string {
+    const style = `position: absolute; left: ${comp.x}px; top: ${comp.y}px;`;
+    const title = comp.props.title || '축하 메세지를 남겨주세요';
+    const placeholder = comp.props.placeholder || '댓글을 남겨주세요';
+    
+    return `
+      <div id="comment-${comp.id}" style="${style} width: 400px; padding: 24px; background: ${comp.props.backgroundColor || '#ffffff'}; border: 1px solid #ddd; border-radius: 8px;">
+        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937;">${title}</h3>
+        
+        <form id="comment-form-${comp.id}" style="margin-bottom: 24px; padding: 16px; background: #f9fafb; border-radius: 8px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <input type="text" placeholder="이름" required style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+            <input type="password" placeholder="비밀번호" required style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+          </div>
+          <textarea placeholder="${placeholder}" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: none; box-sizing: border-box;" rows="3"></textarea>
+          <button type="submit" style="margin-top: 12px; padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">댓글 작성</button>
+        </form>
+        
+        <div id="comments-list-${comp.id}" style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="text-align: center; color: #6b7280; padding: 32px;">첫 번째 댓글을 남겨보세요!</div>
+        </div>
+      </div>
+      
+      <script>
+        (function() {
+          const form = document.getElementById('comment-form-${comp.id}');
+          const commentsList = document.getElementById('comments-list-${comp.id}');
+          
+          // 댓글 로드
+          function loadComments() {
+            fetch('http://localhost:3000/users/pages/${comp.pageId}/comments/${comp.id}')
+              .then(res => res.json())
+              .then(comments => {
+                if (comments.length === 0) {
+                  commentsList.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 32px;">첫 번째 댓글을 남겨보세요!</div>';
+                } else {
+                  commentsList.innerHTML = comments.map(comment => 
+                    \`<div style="position: relative; padding: 16px; background: white; border: 1px solid #e5e7eb; border-radius: 8px;">
+                      <button onclick="deleteComment('${comp.id}', '\${comment.id}')" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 16px;">×</button>
+                      <div style="padding-right: 32px;">
+                        <div style="font-weight: 500; color: #1f2937; margin-bottom: 4px;">\${comment.author}</div>
+                        <div style="color: #4b5563; font-size: 14px; line-height: 1.5;">\${comment.content}</div>
+                        <div style="color: #9ca3af; font-size: 12px; margin-top: 8px;">\${new Date(comment.createdAt).toLocaleDateString()}</div>
+                      </div>
+                    </div>\`
+                  ).join('');
+                }
+              })
+              .catch(err => console.error('댓글 로드 실패:', err));
+          }
+          
+          // 댓글 삭제
+          window.deleteComment = function(componentId, commentId) {
+            const password = prompt('비밀번호를 입력하세요:');
+            if (!password) return;
+            
+            fetch(\`http://localhost:3000/users/pages/${comp.pageId}/comments/\${componentId}/\${commentId}\`, {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ password })
+            })
+            .then(res => {
+              if (res.ok) {
+                loadComments();
+              } else {
+                alert('비밀번호가 일치하지 않습니다.');
+              }
+            })
+            .catch(err => {
+              console.error('댓글 삭제 실패:', err);
+              alert('댓글 삭제에 실패했습니다.');
+            });
+          };
+          
+          // 댓글 작성
+          form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const inputs = form.querySelectorAll('input, textarea');
+            const author = inputs[0].value;
+            const password = inputs[1].value;
+            const content = inputs[2].value;
+            
+            if (!author || !password || !content) {
+              alert('모든 필드를 입력해주세요.');
+              return;
+            }
+            
+            fetch('http://localhost:3000/users/pages/${comp.pageId}/comments/${comp.id}', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ author, content, password })
+            })
+            .then(res => {
+              if (res.ok) {
+                form.reset();
+                loadComments();
+              } else {
+                alert('댓글 작성에 실패했습니다.');
+              }
+            })
+            .catch(err => {
+              console.error('댓글 작성 실패:', err);
+              alert('댓글 작성에 실패했습니다.');
+            });
+          });
+          
+          // 초기 로드
+          loadComments();
+        })();
+      </script>
+    `;
+  }
 }

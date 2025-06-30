@@ -105,6 +105,8 @@ const PreviewRenderer = ({ pageContent }) => {
           return <MapInfoRenderer comp={compWithMergedProps} isEditor={true} />;
         case 'calendar':
           return <CalendarRenderer comp={compWithMergedProps} isEditor={true} />;
+        case 'comment':
+          return <CommentRenderer comp={compWithMergedProps} isEditor={true} />;
         case 'bankAccount':
           return (
             <div style={{

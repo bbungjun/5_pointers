@@ -15,15 +15,13 @@ import MapView from './NoCodeEditor/ComponentEditors/MapView';
 import DdayRenderer from './NoCodeEditor/ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './NoCodeEditor/ComponentRenderers/WeddingContactRenderer.jsx';
 import ImageRenderer from './NoCodeEditor/ComponentRenderers/ImageRenderer';
-import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer';
-import ViewportController from './NoCodeEditor/ViewportController';
-import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer';
-import BankAccountRenderer from './NoCodeEditor/ComponentRenderers/BankAccountRenderer';
 import GridGalleryRenderer from './NoCodeEditor/ComponentRenderers/GridGalleryRenderer';
 import SlideGalleryRenderer from './NoCodeEditor/ComponentRenderers/SlideGalleryRenderer';
-import MapInfoRenderer from './NoCodeEditor/ComponentRenderers/MapInfoRenderer';
-import CommentRenderer from './NoCodeEditor/ComponentRenderers/CommentRenderer';
-
+import { MapInfoRenderer } from './NoCodeEditor/ComponentRenderers';
+import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer';
+import BankAccountRenderer from './NoCodeEditor/ComponentRenderers/BankAccountRenderer';
+import ViewportController from './NoCodeEditor/ViewportController';
+import CommentRenderer from './NoCodeEditor/ComponentRenderers/CommentRenderer'; 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
 
@@ -121,7 +119,8 @@ function getComponentDimensions(type) {
     slideGallery: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 200 },
     mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
     calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 250, minHeight: 300 },
-    bankAccount: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 }
+    bankAccount: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
+    comment: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 }
   };
   return dimensions[type] || { defaultWidth: 120, defaultHeight: 40, minWidth: 80, minHeight: 30 };
 }
@@ -144,6 +143,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
   const effectiveGridSize = GRID_SIZE; // 고정된 그리드 크기
 
   const componentDimensions = getComponentDimensions(comp.type);
+  const currentWidth = comp.width || componentDimensions.defaultWidth;
+  const currentHeight = comp.height || componentDimensions.defaultHeight;
 
   useEffect(() => {
     if (editing && ref.current) ref.current.focus();
@@ -201,16 +202,16 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         return <WeddingContactRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'image':
         return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+      case 'gridGallery':
+        return <GridGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+      case 'slideGallery':
+        return <SlideGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+      case 'mapInfo':
+        return <MapInfoRenderer comp={comp} isEditor={true} />;
       case 'calendar':
         return <CalendarRenderer comp={comp} isEditor={true} />;
       case 'bankAccount':
         return <BankAccountRenderer comp={comp} isEditor={true} />;
-      case 'gridGallery':
-        return <GridGalleryRenderer comp={comp} isEditor={true} />;
-      case 'slideGallery':
-        return <SlideGalleryRenderer comp={comp} isEditor={true} />;
-      case 'mapInfo':
-        return <MapInfoRenderer comp={comp} isEditor={true} />;
       case 'comment':
         return <CommentRenderer comp={comp} isEditor={true} />;
       default:
@@ -419,7 +420,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
       {/* Figma 스타일 선택 핸들 */}
       {selected && (
         <>
-          {/* 모서리 리사이즈 핸들 */}
+          {/* 모서리 리사이즈 핸들 - 실제 컴포넌트 크기에 맞게 배치 */}
           <div
             style={{
               position: 'absolute',
@@ -439,7 +440,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
             style={{
               position: 'absolute',
               top: -4,
-              right: -4,
+              left: currentWidth - 4,
               width: 8,
               height: 8,
               background: '#3B4EFF',
@@ -453,7 +454,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
           <div
             style={{
               position: 'absolute',
-              bottom: -4,
+              top: currentHeight - 4,
               left: -4,
               width: 8,
               height: 8,
@@ -468,8 +469,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
           <div
             style={{
               position: 'absolute',
-              bottom: -4,
-              right: -4,
+              top: currentHeight - 4,
+              left: currentWidth - 4,
               width: 8,
               height: 8,
               background: '#3B4EFF',
@@ -481,13 +482,13 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
             onMouseDown={(e) => handleResizeStart(e, 'se')}
           />
           
-          {/* 중앙 삭제 버튼 */}
+          {/* 삭제 버튼 - 실제 컴포넌트 크기에 맞게 배치 */}
           <button
             onClick={e => { e.stopPropagation(); onDelete(comp.id); }}
             style={{
               position: 'absolute', 
               top: -20, 
-              right: -20,
+              left: currentWidth + 4,
               background: '#FF3B3B', 
               color: '#fff', 
               border: 'none', 
