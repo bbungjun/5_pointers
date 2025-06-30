@@ -12,6 +12,7 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
   const [domainName, setDomainName] = useState('');
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // 컴포넌트 타입별 아이콘
   const getComponentIcon = (type) => {
@@ -123,8 +124,33 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
         </div>
       </div>
 
+      {/* 검색 입력 */}
+      <div style={{ padding: '16px 24px', borderBottom: '1px solid #e1e5e9' }}>
+        <input
+          type="text"
+          placeholder="원하는 기능을 검색하세요"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            border: '1px solid #e1e5e9',
+            borderRadius: 6,
+            fontSize: 13,
+            outline: 'none',
+            boxSizing: 'border-box'
+          }}
+        />
+      </div>
+
       {/* 컴포넌트 리스트 */}
-      {ComponentList.map(comp => {
+      <div style={{ padding: '16px 24px', flex: 1, overflowY: 'auto' }}>
+        {ComponentList
+          .filter(comp => 
+            comp.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            comp.type.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+          .map(comp => {
         const renderIcon = () => {
           switch (comp.type) {
             case 'button':
@@ -201,6 +227,18 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
                   🗺️
                 </div>
               );
+            case 'calendar':
+              return (
+                <div style={{
+                  width: 80, height: 60, background: '#fff', border: '1px solid #ddd',
+                  borderRadius: 6, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', fontSize: 8,
+                  color: '#666', textAlign: 'center', lineHeight: 1.2
+                }}>
+                  <div style={{ fontSize: 16, marginBottom: 2 }}>📅</div>
+                  <div style={{ fontWeight: 'bold', fontSize: 7 }}>Wedding Calendar</div>
+                </div>
+              );
             default:
               return <span style={{ fontSize: 12 }}>{comp.label}</span>;
           }
@@ -243,6 +281,23 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
           </div>
         );
       })}
+      
+      {ComponentList
+        .filter(comp => 
+          comp.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          comp.type.toLowerCase().includes(searchTerm.toLowerCase())
+        ).length === 0 && searchTerm && (
+        <div style={{
+          textAlign: 'center',
+          padding: '40px 20px',
+          color: '#65676b',
+          fontSize: 14
+        }}>
+          <div style={{ fontSize: 24, marginBottom: 8 }}>🔍</div>
+          No components found for "{searchTerm}"
+        </div>
+      )}
+      </div>
 
       {/* 배포 섹션 */}
       <div style={{ 

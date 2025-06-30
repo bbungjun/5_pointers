@@ -9,6 +9,7 @@ export { default as WeddingContactRenderer } from "./WeddingContactRenderer.jsx"
 export { default as GridGalleryRenderer } from "./GridGalleryRenderer";
 export { default as SlideGalleryRenderer } from "./SlideGalleryRenderer";
 export { default as MapView } from "./MapView";
+export { default as MapInfoRenderer } from './MapInfoRenderer';
 
 // 개별 import (getRendererByType 함수에서 사용)
 import ButtonRenderer from "./ButtonRenderer";
@@ -21,6 +22,7 @@ import WeddingContactRenderer from "./WeddingContactRenderer.jsx";
 import GridGalleryRenderer from "./GridGalleryRenderer";
 import SlideGalleryRenderer from "./SlideGalleryRenderer";
 import MapView from "./MapView";
+import MapInfoRenderer from './MapInfoRenderer';
 
 // 컴포넌트 타입별 렌더러 매핑 함수
 export function getRendererByType(type) {
@@ -45,6 +47,8 @@ export function getRendererByType(type) {
       return GridGalleryRenderer;
     case "slideGallery":
       return SlideGalleryRenderer;
+    case 'mapInfo':
+      return MapInfoRenderer;
     default:
       return null;
   }
