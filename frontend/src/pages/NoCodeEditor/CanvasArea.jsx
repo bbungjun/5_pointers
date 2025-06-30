@@ -1,9 +1,13 @@
 // frontend/src/pages/NoCodeEditor/CanvasArea.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
+// 그리드 크기 상수 import 또는 선언
+const GRID_SIZE = 50;
 
 function CanvasArea({
   canvasRef,
+  containerRef,
   components,
   selectedId,
   users,
@@ -15,24 +19,32 @@ function CanvasArea({
   onUpdate,
   onDelete,
   CanvasComponent,
-  UserCursor
+  UserCursor,
+  zoom = 100,
+  onZoomChange
 }) {
-  const [zoom, setZoom] = useState(100);
+  const [localZoom, setLocalZoom] = useState(zoom);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
   const [showGrid, setShowGrid] = useState(true);
 
+  // 패닝(캔버스 드래그 이동) 관련 상태
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
+
+  const LIBRARY_WIDTH = 240; // 좌측 패널(컴포넌트 라이브러리) width와 동일하게!
+
   // 줌 핸들러
   const handleZoom = (delta) => {
-    setZoom(prev => Math.max(25, Math.min(400, prev + delta)));
+    const newZoom = Math.max(25, Math.min(400, localZoom + delta));
+    setLocalZoom(newZoom);
+    if (onZoomChange) onZoomChange(newZoom);
   };
 
   // 마우스 휠로 줌
   const handleWheel = (e) => {
     if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      e.stopPropagation();
       const delta = e.deltaY > 0 ? -10 : 10;
       handleZoom(delta);
     }
@@ -62,10 +74,55 @@ function CanvasArea({
     onMouseMove(e);
   };
 
-  // 패닝 종료
-  const handleMouseUp = () => {
-    setIsDragging(false);
+  // 드롭 시 snapLines 항상 초기화
+  const handleDrop = (e) => {
+    if (onDrop) onDrop(e);
+    if (typeof setSnapLines === 'function') {
+      setSnapLines({ vertical: [], horizontal: [] });
+    }
   };
+
+  // 마우스 업 시 snapLines 항상 초기화
+  const handleMouseUp = (e) => {
+    if (onMouseUp) onMouseUp(e);
+    if (typeof setSnapLines === 'function') {
+      setSnapLines({ vertical: [], horizontal: [] });
+    }
+  };
+
+  // 캔버스 컨테이너에서 마우스 드래그로 스크롤 이동
+  const handleContainerMouseDown = (e) => {
+    // 컨테이너의 빈 영역에서만 동작 (컴포넌트 위에서는 무시)
+    if (e.target === containerRef.current) {
+      setIsPanning(true);
+      setPanStart({
+        x: e.clientX,
+        y: e.clientY,
+        scrollLeft: containerRef.current.scrollLeft,
+        scrollTop: containerRef.current.scrollTop,
+      });
+    }
+  };
+  const handleContainerMouseMove = (e) => {
+    if (isPanning) {
+      const dx = e.clientX - panStart.x;
+      const dy = e.clientY - panStart.y;
+      containerRef.current.scrollLeft = panStart.scrollLeft - dx;
+      containerRef.current.scrollTop = panStart.scrollTop - dy;
+    }
+  };
+  const handleContainerMouseUp = () => setIsPanning(false);
+
+  useEffect(() => {
+    if (isPanning) {
+      window.addEventListener('mousemove', handleContainerMouseMove);
+      window.addEventListener('mouseup', handleContainerMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleContainerMouseMove);
+        window.removeEventListener('mouseup', handleContainerMouseUp);
+      };
+    }
+  }, [isPanning, panStart]);
 
   // 키보드 이벤트
   useEffect(() => {
@@ -116,215 +173,153 @@ function CanvasArea({
     };
   }, []);
 
-  // 그리드 크기 계산 (줌에 따라 조정)
-  const gridSize = Math.max(20, Math.floor(50 * zoom / 100));
+  useEffect(() => {
+    const scrollToCenter = () => {
+      if (containerRef.current) {
+        const container = containerRef.current;
+        const canvasWidth = 1920 * (localZoom / 100);
+        const canvasHeight = 1080 * (localZoom / 100);
+        container.scrollLeft = (canvasWidth - container.clientWidth) / 2;
+        container.scrollTop = (canvasHeight - container.clientHeight) / 2;
+      }
+    };
+    scrollToCenter();
+    window.addEventListener('resize', scrollToCenter);
+    return () => window.removeEventListener('resize', scrollToCenter);
+  }, [localZoom]);
+
+  const scale = localZoom / 100;
+  // 그리드 크기를 고정하여 줌 레벨에 관계없이 일관된 그리드 간격 유지
+  const gridSize = GRID_SIZE; // 고정된 그리드 크기
+
+  const handleSliderChange = (e) => {
+    handleZoom(Number(e.target.value) - localZoom);
+  };
 
   return (
     <div
       style={{
-        flex: 1,
-        minHeight: '100vh',
-        background: '#f0f1f5',
+        width: '100%',
+        height: '100%',
         overflow: 'auto',
         position: 'relative',
+        background: '#f0f1f5',
+        cursor: isPanning ? 'grabbing' : 'default',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
       }}
+      ref={containerRef}
+      onWheel={handleWheel}
+      onMouseDown={handleContainerMouseDown}
     >
-      {/* 줌 컨트롤 */}
-      <div style={{
-        position: 'absolute',
-        top: 20,
-        right: 20,
-        background: '#fff',
-        borderRadius: 8,
-        padding: 8,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        zIndex: 1000,
-        display: 'flex',
-        gap: 8,
-        alignItems: 'center'
-      }}>
-        <button
-          onClick={() => handleZoom(-25)}
-          style={{
-            width: 32,
-            height: 32,
-            border: 'none',
-            background: '#f8f9fa',
-            borderRadius: 4,
-            cursor: 'pointer',
-            fontSize: 16,
-            fontWeight: 'bold'
-          }}
-        >
-          -
-        </button>
-        <span style={{ fontSize: 14, fontWeight: 500, minWidth: 40, textAlign: 'center' }}>
-          {zoom}%
-        </span>
-        <button
-          onClick={() => handleZoom(25)}
-          style={{
-            width: 32,
-            height: 32,
-            border: 'none',
-            background: '#f8f9fa',
-            borderRadius: 4,
-            cursor: 'pointer',
-            fontSize: 16,
-            fontWeight: 'bold'
-          }}
-        >
-          +
-        </button>
-      </div>
-
-      {/* 그리드 토글 버튼 */}
-      <div style={{
-        position: 'absolute',
-        top: 20,
-        left: 20,
-        background: '#fff',
-        borderRadius: 8,
-        padding: 8,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        zIndex: 1000,
-      }}>
-        <button
-          onClick={() => setShowGrid(!showGrid)}
-          style={{
-            width: 32,
-            height: 32,
-            border: 'none',
-            background: showGrid ? '#3B4EFF' : '#f8f9fa',
-            color: showGrid ? '#fff' : '#333',
-            borderRadius: 4,
-            cursor: 'pointer',
-            fontSize: 16,
-            fontWeight: 'bold'
-          }}
-          title="Toggle Grid (G)"
-        >
-          ⊞
-        </button>
-      </div>
-
-      {/* 캔버스 컨테이너 */}
+      {/* 실제 캔버스 */}
       <div
+        ref={canvasRef}
         style={{
-          width: '100%',
-          height: '100%',
-          overflow: 'visible',
           position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          width: '1920px',
+          height: '1080px',
+          margin: 'auto',
+          background: showGrid ? `
+            linear-gradient(90deg, #e5e7eb 1px, transparent 1px),
+            linear-gradient(0deg, #e5e7eb 1px, transparent 1px)
+          ` : '#fff',
+          backgroundSize: showGrid ? `${gridSize}px ${gridSize}px` : 'auto',
+          backgroundPosition: showGrid ? '0 0' : '0 0',
+          borderRadius: 8,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          cursor: isDragging ? 'grabbing' : 'default',
+          transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+          transform: `scale(${scale})`,
+          transformOrigin: 'center center',
         }}
-        onWheel={handleWheel}
+        onDrop={handleDrop}
+        onDragOver={onDragOver}
+        onClick={onClick}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
-        {/* 실제 캔버스 */}
-        <div
-          ref={canvasRef}
-          style={{
-            position: 'relative',
-            width: '1920px',
-            height: '1080px',
-            background: showGrid ? `
-              linear-gradient(90deg, #e5e7eb 1px, transparent 1px),
-              linear-gradient(0deg, #e5e7eb 1px, transparent 1px)
-            ` : '#fff',
-            backgroundSize: showGrid ? `${gridSize}px ${gridSize}px` : 'auto',
-            backgroundPosition: showGrid ? `${pan.x}px ${pan.y}px` : '0 0',
-            borderRadius: 8,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-            cursor: isDragging ? 'grabbing' : 'default',
-            transition: isDragging ? 'none' : 'transform 0.1s ease-out',
-            transform: `scale(${zoom / 100}) translate(${pan.x}px, ${pan.y}px)`,
-            transformOrigin: 'top left',
-          }}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          onClick={onClick}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-        >
-          {/* 스냅라인 렌더링 */}
-          {snapLines.vertical.map((line, index) => (
-            <div
-              key={`v-${index}`}
-              style={{
-                position: 'absolute',
-                left: line.x,
-                top: 0,
-                width: 1,
-                height: '100%',
-                background: '#3B4EFF',
-                zIndex: 100,
-                pointerEvents: 'none',
-                boxShadow: '0 0 4px rgba(59, 78, 255, 0.5)'
-              }}
-            />
-          ))}
-          
-          {snapLines.horizontal.map((line, index) => (
-            <div
-              key={`h-${index}`}
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: line.y,
-                width: '100%',
-                height: 1,
-                background: '#3B4EFF',
-                zIndex: 100,
-                pointerEvents: 'none',
-                boxShadow: '0 0 4px rgba(59, 78, 255, 0.5)'
-              }}
-            />
-          ))}
-
-          {/* 캔버스 내 컴포넌트 렌더링 */}
-          {components.map(comp => (
-            <CanvasComponent
-              key={comp.id}
-              comp={comp}
-              selected={selectedId === comp.id}
-              onSelect={onSelect}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
-            />
-          ))}
-
-          {/* 실시간 커서 표시 */}
-          {Object.entries(users).map(([nick, u]) =>
-            nick !== nickname ? (
-              <UserCursor
-                key={nick}
-                x={u.x}
-                y={u.y}
-                color={u.color}
-                nickname={nick}
-              />
-            ) : null
-          )}
-
-          {/* 선택 영역 표시 */}
-          {selectedId && (
-            <div style={{
+        {/* snapLines 렌더링 (정렬/간격/그리드 타입별 색상) */}
+        {isDragging && snapLines.vertical.map((line, index) => (
+          <div
+            key={`v-${index}`}
+            style={{
               position: 'absolute',
-              border: '2px solid #3B4EFF',
-              borderRadius: 4,
+              left: line.x,
+              top: 0,
+              width: 1,
+              height: '100%',
+              background:
+                line.type === 'align' ? '#3B4EFF' :
+                line.type === 'spacing' ? '#FFB300' :
+                '#BDBDBD',
+              zIndex: 100,
               pointerEvents: 'none',
-              zIndex: 5
-            }} />
-          )}
-        </div>
-      </div>
+              boxShadow: line.type === 'align' ? '0 0 4px rgba(59, 78, 255, 0.5)' : 'none'
+            }}
+          />
+        ))}
+        
+        {isDragging && snapLines.horizontal.map((line, index) => (
+          <div
+            key={`h-${index}`}
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: line.y,
+              width: '100%',
+              height: 1,
+              background:
+                line.type === 'align' ? '#3B4EFF' :
+                line.type === 'spacing' ? '#FFB300' :
+                '#BDBDBD',
+              zIndex: 100,
+              pointerEvents: 'none',
+              boxShadow: line.type === 'align' ? '0 0 4px rgba(59, 78, 255, 0.5)' : 'none'
+            }}
+          />
+        ))}
 
+        {/* 캔버스 내 컴포넌트 렌더링 */}
+        {components.map(comp => (
+          <CanvasComponent
+            key={comp.id}
+            comp={comp}
+            selected={selectedId === comp.id}
+            onSelect={onSelect}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            zoom={localZoom}
+          />
+        ))}
+
+        {/* 실시간 커서 표시 */}
+        {Object.entries(users).map(([nick, u]) =>
+          nick !== nickname ? (
+            <UserCursor
+              key={nick}
+              x={u.x}
+              y={u.y}
+              color={u.color}
+              nickname={nick}
+            />
+          ) : null
+        )}
+
+        {/* 선택 영역 표시 */}
+        {selectedId && (
+          <div style={{
+            position: 'absolute',
+            border: '2px solid #3B4EFF',
+            borderRadius: 4,
+            pointerEvents: 'none',
+            zIndex: 5
+          }} />
+        )}
+      </div>
       {/* 스크롤바 스타일링 */}
       <style>{`
         ::-webkit-scrollbar {

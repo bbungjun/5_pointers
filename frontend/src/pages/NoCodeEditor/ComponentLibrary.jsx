@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
 import { ComponentList } from '../components/definitions';
-import ButtonRenderer from './ComponentRenderers/ButtonRenderer';
-import TextRenderer from './ComponentRenderers/TextRenderer';
-import LinkRenderer from './ComponentRenderers/LinkRenderer';
-import AttendRenderer from './ComponentRenderers/AttendRenderer';
-import DdayRenderer from './ComponentRenderers/DdayRenderer';
-import WeddingContactRenderer from './ComponentRenderers/WeddingContactRenderer';
 
 function ComponentLibrary({ onDragStart, components, roomId }) {
   const [showDomainInput, setShowDomainInput] = useState(false);
@@ -69,15 +63,25 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
   };
 
   return (
-    <div style={{
-      width: 240,
-      background: '#ffffff',
-      borderRight: '1px solid #e1e5e9',
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
-      boxShadow: '2px 0 8px rgba(0,0,0,0.05)'
-    }}>
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: 260,
+        height: '100vh',
+        zIndex: 10,
+        background: '#fff',
+        overflowY: 'auto',
+        width: 240,
+        background: '#ffffff',
+        borderRight: '1px solid #e1e5e9',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        boxShadow: '2px 0 8px rgba(0,0,0,0.05)'
+      }}
+    >
       {/* 헤더 */}
       <div style={{
         padding: '20px 24px',
@@ -208,23 +212,18 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
             case 'weddingContact':
               return (
                 <div style={{
-                  width: 80, height: 50, background: '#fff', border: '1px solid #ddd',
-                  borderRadius: 6, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center', fontSize: 7,
-                  color: '#666', textAlign: 'center', lineHeight: 1.2
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#1d2129',
+                  marginBottom: 2
                 }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: 2 }}>연락처</div>
-                  <div>📞 010-1234-5678</div>
+                  {comp.label}
                 </div>
-              );
-            case 'map':
-              return (
                 <div style={{
-                  width: 70, height: 50, background: '#e8f5e8', border: '1px solid #4CAF50',
-                  borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 20
+                  fontSize: 11,
+                  color: '#65676b'
                 }}>
-                  🗺️
+                  Drag to canvas
                 </div>
               );
             case 'calendar':
