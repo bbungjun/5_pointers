@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
 import CanvasArea from './NoCodeEditor/CanvasArea';
 import Inspector from './NoCodeEditor/Inspector';
+import PreviewModal from './NoCodeEditor/PreviewModal';
 import { ComponentDefinitions } from './components/definitions';
 import ButtonRenderer from './NoCodeEditor/ComponentRenderers/ButtonRenderer';
 import TextRenderer from './NoCodeEditor/ComponentRenderers/TextRenderer';
@@ -14,11 +15,6 @@ import MapView from './NoCodeEditor/ComponentEditors/MapView';
 import DdayRenderer from './NoCodeEditor/ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './NoCodeEditor/ComponentRenderers/WeddingContactRenderer.jsx';
 import ImageRenderer from './NoCodeEditor/ComponentRenderers/ImageRenderer';
-import GridGalleryRenderer from './NoCodeEditor/ComponentRenderers/GridGalleryRenderer';
-import SlideGalleryRenderer from './NoCodeEditor/ComponentRenderers/SlideGalleryRenderer';
-import { MapInfoRenderer } from './NoCodeEditor/ComponentRenderers';
-import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer';
-import BankAccountRenderer from './NoCodeEditor/ComponentRenderers/BankAccountRenderer';
 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
@@ -104,17 +100,6 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         return <WeddingContactRenderer comp={comp} isEditor={true} />;
       case 'image':
         return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
-
-      case 'gridGallery':
-        return <GridGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
-      case 'slideGallery':
-        return <SlideGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
-      case 'mapInfo':
-        return <MapInfoRenderer comp={comp} isEditor={true} />;
-      case 'calendar':
-        return <CalendarRenderer comp={comp} isEditor={true} />;
-      case 'bankAccount':
-        return <BankAccountRenderer comp={comp} isEditor={true} />;
       default:
         return <span>{comp.props.text}</span>;
     }
@@ -136,12 +121,14 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
 
   const handleResize = (e) => {
     if (!isResizing) return;
-
+    
     const deltaX = e.clientX - resizeStart.x;
     const deltaY = e.clientY - resizeStart.y;
+    
+    // 줌 레벨에 맞는 그리드에 스냅된 크기 계산
     let newWidth = resizeStart.width;
     let newHeight = resizeStart.height;
-
+    
     // 모서리별 리사이즈 로직
     switch (resizeStart.corner) {
       case 'se':
@@ -161,12 +148,10 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         newHeight = Math.max(50, Math.round((resizeStart.height - deltaY) / effectiveGridSize) * effectiveGridSize);
         break;
     }
-
     
     newWidth = Math.min(newWidth, 1920 - comp.x);
     newHeight = Math.min(newHeight, 1080 - comp.y);
     
-
     onUpdate({
       ...comp,
       width: newWidth,
@@ -185,7 +170,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
   // 드래그 핸들러
   const handleDragStart = (e) => {
     if (isResizing) return;
-
+    
     e.stopPropagation();
     setIsDragging(true);
     setDragStart({
@@ -198,7 +183,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
 
   const handleDrag = (e) => {
     if (!isDragging) return;
-
+    
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
     
@@ -235,10 +220,10 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     if (isResizing) {
       const handleMouseMove = handleResize;
       const handleMouseUp = handleResizeEnd;
-
+      
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
-
+      
       return () => {
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
@@ -251,10 +236,10 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     if (isDragging) {
       const handleMouseMove = handleDrag;
       const handleMouseUp = handleDragEnd;
-
+      
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
-
+      
       return () => {
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
@@ -280,7 +265,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
       onClick={(e) => { e.stopPropagation(); onSelect(comp.id); }}
     >
       {renderContent()}
-
+      
       {/* Figma 스타일 선택 핸들 */}
       {selected && (
         <>
@@ -345,21 +330,21 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
             }}
             onMouseDown={(e) => handleResizeStart(e, 'se')}
           />
-
+          
           {/* 중앙 삭제 버튼 */}
           <button
             onClick={e => { e.stopPropagation(); onDelete(comp.id); }}
             style={{
-              position: 'absolute',
-              top: -20,
+              position: 'absolute', 
+              top: -20, 
               right: -20,
-              background: '#FF3B3B',
-              color: '#fff',
-              border: 'none',
+              background: '#FF3B3B', 
+              color: '#fff', 
+              border: 'none', 
               borderRadius: '50%',
-              width: 24,
-              height: 24,
-              cursor: 'pointer',
+              width: 24, 
+              height: 24, 
+              cursor: 'pointer', 
               fontWeight: 'bold',
               fontSize: 14,
               display: 'flex',
@@ -490,6 +475,9 @@ function NoCodeEditor() {
 
   // 줌 상태
   const [zoom, setZoom] = useState(100);
+
+  // 미리보기 모달 상태
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // 사용자 정보
   const [nickname] = useState(randomNickname());
@@ -703,8 +691,93 @@ function NoCodeEditor() {
       minHeight: '100vh', width: '100vw', display: 'flex',
       background: '#fff', color: '#222', fontFamily: 'Inter, sans-serif', overflow: 'hidden'
     }}>
+      {/* 에디터 헤더 */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 240, // ComponentLibrary 너비만큼 오프셋
+        right: selectedComp ? 340 : 0, // Inspector 너비만큼 오프셋
+        height: 60,
+        background: 'rgba(255, 255, 255, 0.95)',
+        borderBottom: '1px solid #e1e5e9',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 24px',
+        zIndex: 100,
+        backdropFilter: 'blur(10px)',
+        transition: 'right 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <h1 style={{
+            margin: 0,
+            fontSize: 20,
+            fontWeight: 700,
+            color: '#1d2129'
+          }}>
+            페이지레고
+          </h1>
+          <div style={{
+            padding: '4px 8px',
+            background: '#e3f2fd',
+            color: '#1976d2',
+            borderRadius: 4,
+            fontSize: 12,
+            fontWeight: 500
+          }}>
+            {components.length}개 컴포넌트
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* 미리보기 버튼 */}
+          <button
+            onClick={() => setIsPreviewOpen(true)}
+            style={{
+              padding: '8px 16px',
+              background: '#3B4EFF',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              transition: 'all 0.2s',
+              boxShadow: '0 2px 8px rgba(59, 78, 255, 0.2)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = '#2c39d4';
+              e.target.style.transform = 'translateY(-1px)';
+              e.target.style.boxShadow = '0 4px 16px rgba(59, 78, 255, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = '#3B4EFF';
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 2px 8px rgba(59, 78, 255, 0.2)';
+            }}
+          >
+            <span>🔍</span>
+            <span>미리보기</span>
+          </button>
+
+          {/* 기타 헤더 버튼들 (필요시 추가) */}
+          <div style={{
+            padding: '4px 8px',
+            background: '#f0f2f5',
+            borderRadius: 4,
+            fontSize: 12,
+            color: '#65676b'
+          }}>
+            Room: {roomId}
+          </div>
+        </div>
+      </div>
+
       {/* 좌측: 컴포넌트 라이브러리 */}
-      <ComponentLibrary
+      <ComponentLibrary 
         onDragStart={(e, type) => {
           e.dataTransfer.setData('componentType', type);
           e.dataTransfer.effectAllowed = 'copy';
@@ -714,7 +787,13 @@ function NoCodeEditor() {
       />
 
       {/* 중앙: 캔버스 */}
-      <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex' }}>
+      <div style={{ 
+        flex: 1, 
+        minWidth: 0, 
+        minHeight: 0, 
+        display: 'flex',
+        paddingTop: 60 // 헤더 높이만큼 패딩
+      }}>
         <CanvasArea
           containerRef={containerRef}
           canvasRef={canvasRef}
@@ -747,6 +826,13 @@ function NoCodeEditor() {
           roomId={roomId}
         />
       )}
+
+      {/* 미리보기 모달 */}
+      <PreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        pageContent={components}
+      />
 
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}
       <style>{`

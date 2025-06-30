@@ -47,7 +47,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       attend: '✅',
       image: '🖼️',
       dday: '📅',
-      weddingContact: '💒'
+      weddingContact: '💒',
+      bankAccount: '🏦'
     };
     return icons[type] || '📦';
   };
