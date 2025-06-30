@@ -105,7 +105,7 @@ function CanvasArea({
     }
   };
 
-  // 마우스 업 시 snapLines 항상 초기화
+  // 마우스 업 시 드래그 상태 해제
   const handleMouseUp = (e) => {
     setIsDragging(false);
     if (onMouseUp) onMouseUp(e);
