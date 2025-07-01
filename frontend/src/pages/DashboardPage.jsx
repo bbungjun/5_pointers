@@ -49,39 +49,46 @@ function DashboardPage({ user, onLogout }) {
     fetchTemplates(selectedCategory);
   }, [selectedCategory]);
 
-  // 템플릿으로 페이지 생성
+  // 템플릿으로 페이지 생성 (캔버스와 동일한 API 사용)
   const handleCreateFromTemplate = async (templateId) => {
-    console.log('템플릿 클릭됨:', templateId);
     try {
       const token = localStorage.getItem('token');
-      const subdomain = randomId();
-      
-      console.log('API 호출 시작:', `http://localhost:3000/templates/${templateId}/create-page`);
-      
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+
       const response = await fetch(`http://localhost:3000/templates/${templateId}/create-page`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ subdomain })
+        body: JSON.stringify({
+          title: `Template Page ${Date.now()}`,
+          subdomain: `template-${Date.now()}`
+        })
       });
-      
-      console.log('응답 상태:', response.status);
-      const responseText = await response.text();
-      console.log('응답 내용:', responseText);
-      
+
       if (response.ok) {
-        const page = JSON.parse(responseText);
-        console.log('생성된 페이지:', page);
-        navigate(`/editor/${page.id}`);
+        const pageData = await response.json();
+        console.log('템플릿 API 응답:', pageData);
+        
+        // 템플릿 컴포넌트들을 에디터로 전달
+        if (pageData.content) {
+          const newRoomId = randomId();
+          navigate(`/editor/${newRoomId}`, { 
+            state: { templateComponents: pageData.content } 
+          });
+        } else {
+          alert('템플릿에 컴포넌트 데이터가 없습니다.');
+        }
       } else {
-        console.error('템플릿으로 페이지 생성 실패:', response.status, responseText);
-        alert('페이지 생성에 실패했습니다: ' + responseText);
+        alert('템플릿 로드에 실패했습니다.');
       }
     } catch (error) {
-      console.error('템플릿으로 페이지 생성 실패:', error);
-      alert('페이지 생성 중 오류가 발생했습니다.');
+      console.error('템플릿 로드 실패:', error);
+      alert('템플릿 로드에 실패했습니다.');
     }
   };
 
@@ -147,7 +154,7 @@ function DashboardPage({ user, onLogout }) {
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Create New Page
+            빈 페이지부터 시작하기
           </button>
         </div>
 
