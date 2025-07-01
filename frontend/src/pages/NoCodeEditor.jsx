@@ -24,7 +24,11 @@ import ViewportController from './NoCodeEditor/ViewportController';
 import CommentRenderer from './NoCodeEditor/ComponentRenderers/CommentRenderer';
 // 협업 기능 imports
 import { useCollaboration } from '../hooks/useCollaboration';
-import { LiveCursors, CollaborativeSelections } from '../components/collaboration/LiveCursors'; 
+import { LiveCursors, CollaborativeSelections } from '../components/collaboration/LiveCursors';
+import { CommentPins, CommentThreadModal, CommentModeToggle } from '../components/collaboration/CommentSystem';
+import { VersionHistoryPanel } from '../components/collaboration/VersionHistory';
+import WeddingInviteRenderer from './NoCodeEditor/ComponentRenderers/WeddingInviteRenderer';
+
 // 그리드 크기 상수
 const GRID_SIZE = 50;
 
@@ -47,16 +51,16 @@ function clamp(val, min, max) {
 function checkCollision(comp1, comp2) {
   const comp1Dimensions = getComponentDimensions(comp1.type);
   const comp2Dimensions = getComponentDimensions(comp2.type);
-  
+
   const comp1Width = comp1.width || comp1Dimensions.defaultWidth;
   const comp1Height = comp1.height || comp1Dimensions.defaultHeight;
   const comp2Width = comp2.width || comp2Dimensions.defaultWidth;
   const comp2Height = comp2.height || comp2Dimensions.defaultHeight;
-  
-  return !(comp1.x + comp1Width <= comp2.x || 
-           comp2.x + comp2Width <= comp1.x || 
-           comp1.y + comp1Height <= comp2.y || 
-           comp2.y + comp2Height <= comp1.y);
+
+  return !(comp1.x + comp1Width <= comp2.x ||
+    comp2.x + comp2Width <= comp1.x ||
+    comp1.y + comp1Height <= comp2.y ||
+    comp2.y + comp2Height <= comp1.y);
 }
 
 // 충돌 방지 위치 계산 함수
@@ -64,21 +68,21 @@ function resolveCollision(draggedComp, otherComponents) {
   const COLLISION_MARGIN = 10; // 컴포넌트 간 최소 간격
   let resolvedX = draggedComp.x;
   let resolvedY = draggedComp.y;
-  
+
   const draggedDimensions = getComponentDimensions(draggedComp.type);
   const draggedWidth = draggedComp.width || draggedDimensions.defaultWidth;
   const draggedHeight = draggedComp.height || draggedDimensions.defaultHeight;
-  
+
   // 각 컴포넌트와의 충돌 검사 및 해결
   for (const other of otherComponents) {
     if (other.id === draggedComp.id) continue;
-    
+
     const tempComp = { ...draggedComp, x: resolvedX, y: resolvedY };
     if (checkCollision(tempComp, other)) {
       const otherDimensions = getComponentDimensions(other.type);
       const otherWidth = other.width || otherDimensions.defaultWidth;
       const otherHeight = other.height || otherDimensions.defaultHeight;
-      
+
       // 4방향 중 가장 가까운 위치로 이동
       const moveOptions = [
         { x: other.x - draggedWidth - COLLISION_MARGIN, y: resolvedY }, // 왼쪽
@@ -86,11 +90,11 @@ function resolveCollision(draggedComp, otherComponents) {
         { x: resolvedX, y: other.y - draggedHeight - COLLISION_MARGIN }, // 위쪽
         { x: resolvedX, y: other.y + otherHeight + COLLISION_MARGIN }   // 아래쪽
       ];
-      
+
       // 원래 위치에서 가장 가까운 옵션 선택
       let bestOption = moveOptions[0];
       let minDistance = Math.sqrt(Math.pow(bestOption.x - draggedComp.x, 2) + Math.pow(bestOption.y - draggedComp.y, 2));
-      
+
       for (const option of moveOptions) {
         const distance = Math.sqrt(Math.pow(option.x - draggedComp.x, 2) + Math.pow(option.y - draggedComp.y, 2));
         if (distance < minDistance && option.x >= 0 && option.y >= 0) {
@@ -98,12 +102,12 @@ function resolveCollision(draggedComp, otherComponents) {
           bestOption = option;
         }
       }
-      
+
       resolvedX = Math.max(0, bestOption.x);
       resolvedY = Math.max(0, bestOption.y);
     }
   }
-  
+
   return { x: resolvedX, y: resolvedY };
 }
 
@@ -123,7 +127,8 @@ function getComponentDimensions(type) {
     mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
     calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 250, minHeight: 300 },
     bankAccount: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
-    comment: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 }
+    comment: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
+    weddingInvite: { defaultWidth: 380, defaultHeight: 275, minWidth: 250, minHeight: 150 }
   };
   return dimensions[type] || { defaultWidth: 120, defaultHeight: 40, minWidth: 80, minHeight: 30 };
 }
@@ -270,6 +275,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         return <BankAccountRenderer comp={comp} isEditor={true} />;
       case 'comment':
         return <CommentRenderer comp={comp} isEditor={true} />;
+      case 'weddingInvite': // 추가
+        return <WeddingInviteRenderer comp={comp} isEditor={true} />;
       default:
         return <span>{comp.props.text}</span>;
     }
@@ -291,14 +298,14 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
 
   const handleResize = (e) => {
     if (!isResizing) return;
-    
+
     const deltaX = e.clientX - resizeStart.x;
     const deltaY = e.clientY - resizeStart.y;
-    
+
     // 줌 레벨에 맞는 그리드에 스냅된 크기 계산
     let newWidth = resizeStart.width;
     let newHeight = resizeStart.height;
-    
+
     // 모서리별 리사이즈 로직
     switch (resizeStart.corner) {
       case 'se':
@@ -379,7 +386,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
   // 드래그 핸들러
   const handleDragStart = (e) => {
     if (isResizing) return;
-    
+
     e.stopPropagation();
     setIsDragging(true);
     setDragStart({
@@ -392,7 +399,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
 
   const handleDrag = (e) => {
     if (!isDragging) return;
-    
+
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
     
@@ -419,14 +426,15 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     const maxX = Math.max(0, canvasSize.width - (comp.width || componentDimensions.defaultWidth));
     const maxY = Math.max(0, canvasSize.height - (comp.height || componentDimensions.defaultHeight));
     
+
     // 기본 위치 계산 (그리드 스냅 적용)
     let newX = Math.round((dragStart.compX + deltaX) / effectiveGridSize) * effectiveGridSize;
     let newY = Math.round((dragStart.compY + deltaY) / effectiveGridSize) * effectiveGridSize;
-    
+
     // 다른 컴포넌트들과 스냅라인 계산
     const tempComp = { ...comp, x: newX, y: newY };
     const otherComponents = components?.filter(c => c.id !== comp.id) || [];
-    
+
     // 스냅라인 계산
     const snapResult = calculateSnapPosition(tempComp, otherComponents, effectiveGridSize, viewport);
     if (snapResult.snapped) {
@@ -434,22 +442,22 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
       newY = snapResult.y;
       console.log('컴포넌트 스냅됨:', { x: newX, y: newY });
     }
-    
+
     // 충돌 방지 계산
     const collisionResult = resolveCollision({ ...comp, x: newX, y: newY }, otherComponents);
     newX = collisionResult.x;
     newY = collisionResult.y;
-    
+
     // 경계 제한 적용
     newX = clamp(newX, 0, maxX);
     newY = clamp(newY, 0, maxY);
-    
+
     // 스냅라인 업데이트 (드래그 중에 실시간으로)
     if (setSnapLines) {
       const lines = calculateSnapLines({ ...comp, x: newX, y: newY }, otherComponents, zoom, viewport);
       setSnapLines(lines);
     }
-    
+
     onUpdate({
       ...comp,
       x: newX,
@@ -471,10 +479,10 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     if (isResizing) {
       const handleMouseMove = handleResize;
       const handleMouseUp = handleResizeEnd;
-      
+
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
-      
+
       return () => {
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
@@ -487,10 +495,10 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     if (isDragging) {
       const handleMouseMove = handleDrag;
       const handleMouseUp = handleDragEnd;
-      
+
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
-      
+
       return () => {
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
@@ -527,7 +535,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
       }}
     >
       {renderContent()}
-      
+
       {/* Figma 스타일 선택 핸들 */}
       {selected && (
         <>
@@ -592,7 +600,7 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
             }}
             onMouseDown={(e) => handleResizeStart(e, 'se')}
           />
-          
+
           {/* 삭제 버튼 - 실제 컴포넌트 크기에 맞게 배치 */}
           <button
             onClick={e => { e.stopPropagation(); onDelete(comp.id); }}
@@ -749,7 +757,7 @@ function calculateSnapPosition(draggedComp, otherComponents, gridSize = 50, view
   if (!snapped) {
     const gridX = Math.round(draggedComp.x / gridSize) * gridSize;
     const gridY = Math.round(draggedComp.y / gridSize) * gridSize;
-    
+
     if (Math.abs(draggedComp.x - gridX) < SNAP_THRESHOLD / 2) {
       snappedX = gridX;
       snapped = true;
@@ -783,17 +791,17 @@ function calculateSnapLines(draggedComp, allComponents, zoom = 100, viewport = '
   const draggedDimensions = getComponentDimensions(draggedComp.type);
   const draggedWidth = draggedComp.width || draggedDimensions.defaultWidth;
   const draggedHeight = draggedComp.height || draggedDimensions.defaultHeight;
-  
+
   const canvasCenterX = canvasWidth / 2;
   const canvasCenterY = canvasHeight / 2;
   const compCenterX = draggedComp.x + draggedWidth / 2;
   const compCenterY = draggedComp.y + draggedHeight / 2;
-  
+
   // 수직 중앙선 (캔버스 중앙)
   if (Math.abs(compCenterX - canvasCenterX) < SNAP_THRESHOLD) {
     snapLines.vertical.push({ x: canvasCenterX, type: 'center' });
   }
-  
+
   // 수평 중앙선 (캔버스 중앙)
   if (Math.abs(compCenterY - canvasCenterY) < SNAP_THRESHOLD) {
     snapLines.horizontal.push({ y: canvasCenterY, type: 'center' });
@@ -959,7 +967,7 @@ function NoCodeEditor() {
         const dimensions = getComponentDimensions(type);
         const width = dimensions.defaultWidth;
         const height = dimensions.defaultHeight;
-        
+
         const snappedX = Math.round(e.nativeEvent.offsetX / effectiveGridSize) * effectiveGridSize;
         const snappedY = Math.round(e.nativeEvent.offsetY / effectiveGridSize) * effectiveGridSize;
         
@@ -968,7 +976,7 @@ function NoCodeEditor() {
         
         let clampedX = clamp(snappedX, 0, maxX);
         let clampedY = clamp(snappedY, 0, maxY);
-        
+
         const newComponent = {
           id: Math.random().toString(36).slice(2, 10),
           type,
@@ -978,14 +986,14 @@ function NoCodeEditor() {
           height,
           props: { ...compDef.defaultProps }
         };
-        
+
         const collisionResult = resolveCollision(newComponent, components);
         clampedX = collisionResult.x;
         clampedY = collisionResult.y;
-        
+
         clampedX = clamp(clampedX, 0, maxX);
         clampedY = clamp(clampedY, 0, maxY);
-        
+
         // 협업 기능으로 컴포넌트 추가
         addComponent({
           ...newComponent,
@@ -1005,8 +1013,6 @@ function NoCodeEditor() {
   const handleUpdate = comp => {
     // 협업 기능으로 컴포넌트 업데이트
     updateComponent(comp.id, comp);
-      
-      // 스냅라인 계산
     const lines = calculateSnapLines(comp, components, zoom);
       setSnapLines(lines);
   };
@@ -1034,7 +1040,7 @@ function NoCodeEditor() {
 
   // 속성 인스펙터
   const selectedComp = components.find(c => c.id === selectedId);
-  
+
   // 활성 사용자 정보 (디버깅용)
   const activeUsers = getActiveUsers();
   console.log('활성 사용자:', activeUsers.length);
@@ -1229,9 +1235,9 @@ function NoCodeEditor() {
         </div>
 
         {/* 우측: 미리보기 버튼과 기타 */}
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
           gap: 12,
           minWidth: selectedComp ? '120px' : '200px', // Inspector 열림 상태에 따라 조정
           justifyContent: 'flex-end'
@@ -1372,7 +1378,6 @@ function NoCodeEditor() {
         otherCursors={otherCursors}
         otherSelections={otherSelections}
         />
-
 
       </div>
 

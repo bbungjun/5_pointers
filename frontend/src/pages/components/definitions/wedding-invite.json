@@ -1,0 +1,26 @@
+{
+  "type": "weddingInvite",
+  "label": "안내장",
+  "defaultProps": {
+    "title": "Our Love Story",
+    "titleFontFamily": "\"Dancing Script\", \"cursive\", \"Noto Sans KR\", \"맑은 고딕\", sans-serif",
+    "titleFontSize": 32,
+    "titleFontStyle": "italic",
+    "titleColor": "#aaa",
+    "content": [
+      "서로가 마주보며 다져온 사랑을",
+      "이제 함께 한 곳을 바라보며",
+      "걸어갈 수 있는 큰 사랑으로 키우고자 합니다.",
+      "",
+      "저희 두 사람이 사랑의 이름으로",
+      "지켜나갈 수 있게 앞날을",
+      "축복해 주시면 감사하겠습니다."
+    ],
+    "contentFontFamily": "\"Noto Sans KR\", \"맑은 고딕\", sans-serif",
+    "contentFontSize": 26,
+    "contentFontWeight": "normal",
+    "contentColor": "#444",
+    "textAlign": "center",
+    "backgroundColor": "#fff"
+  }
+}
