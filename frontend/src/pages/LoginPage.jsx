@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { API_BASE_URL, GOOGLE_CLIENT_ID, KAKAO_CLIENT_ID, getRedirectUrl } from '../config';
 
 function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -8,8 +9,8 @@ function LoginPage({ onLogin }) {
   const navigate = useNavigate();
 
   // 소셜 로그인 리다이렉트 URL
-  const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=http://localhost:5173/google&response_type=code&scope=openid%20email%20profile`;
-  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_KAKAO_CLIENT_ID}&redirect_uri=http://localhost:5173/kakao&response_type=code`;
+  const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${getRedirectUrl('google')}&response_type=code&scope=openid%20email%20profile`;
+  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${getRedirectUrl('kakao')}&response_type=code`;
 
   // 소셜 로그인 인가 코드 처리
   useEffect(() => {
@@ -20,7 +21,7 @@ function LoginPage({ onLogin }) {
       const isKakao = url.pathname.includes('kakao');
       const provider = isGoogle ? 'google' : isKakao ? 'kakao' : undefined;
       if (provider) {
-        fetch('http://localhost:3000/auth/login/social', {
+        fetch(`${API_BASE_URL}/auth/login/social`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ provider, authorizationCode: code }),
@@ -48,7 +49,7 @@ function LoginPage({ onLogin }) {
     e.preventDefault();
     setMsg('');
     try {
-      const res = await fetch('http://localhost:3000/auth/login/local', {
+      const res = await fetch(`${API_BASE_URL}/auth/login/local`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

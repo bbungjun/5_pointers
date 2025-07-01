@@ -29,7 +29,8 @@ function CanvasComponent({
   zoom = 100, 
   viewport = 'desktop', 
   components = [],
-  getComponentDimensions 
+  getComponentDimensions,
+  canvasHeight // 확장된 캔버스 높이
 }) {
   const ref = useRef();
 
@@ -51,18 +52,11 @@ function CanvasComponent({
   // 확장된 캔버스 크기 계산 공통 함수
   const getExtendedCanvasSize = () => {
     const baseWidth = viewport === 'mobile' ? 375 : 1920;
-    const baseHeight = viewport === 'mobile' ? 667 : 1080;
     
-    // 확장 컴포넌트들의 최대 Y 위치 계산
-    const extenderComponents = components?.filter(c => c.id.startsWith('canvas-extender-')) || [];
-    let maxExtendedHeight = baseHeight;
+    // canvasHeight prop을 사용하여 확장된 캔버스 높이 계산 (더미 컴포넌트 불필요)
+    const effectiveHeight = canvasHeight || (viewport === 'mobile' ? 667 : 1080);
     
-    if (extenderComponents.length > 0) {
-      const extenderMaxY = Math.max(...extenderComponents.map(c => c.y + c.height));
-      maxExtendedHeight = Math.max(baseHeight, extenderMaxY);
-    }
-    
-    return { width: baseWidth, height: maxExtendedHeight };
+    return { width: baseWidth, height: effectiveHeight };
   };
   
   // 컴포넌트별 실제 크기 계산 (props와 comp 모두 고려)

@@ -23,6 +23,7 @@ import {
   resolveCollision,
   calculateSnapLines 
 } from './NoCodeEditor/utils/editorUtils';
+import { API_BASE_URL } from '../config';
 
 // 컴포넌트 정의
 import { ComponentDefinitions } from './components/definitions';
@@ -50,29 +51,40 @@ function NoCodeEditor() {
   });
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(true); // 컴포넌트 라이브러리 토글 상태
+  const [canvasHeight, setCanvasHeight] = useState(viewport === 'mobile' ? 667 : 1080); // 캔버스 높이 관리
 
-  // 사용자 정보
-  const [userInfo] = useState(() => ({
-    id: Math.random().toString(36).slice(2, 10),
-    name: randomNickname(),
-    color: randomColor()
-  }));
-  
-  // 사용자 권한 확인
-  useEffect(() => {
-    const checkUserRole = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          setIsAdmin(payload.role === 'ADMIN');
-        }
-      } catch (error) {
-        console.error('사용자 권한 확인 실패:', error);
+  // 사용자 정보 및 권한 관리
+  const [userInfo] = useState(() => {
+    // JWT 토큰에서 사용자 정보 추출
+    let userId = Math.random().toString(36).slice(2, 10);
+    let nickname = `게스트${Math.floor(Math.random() * 1000)}`; // 더 친근한 fallback
+    let isAdminUser = false;
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        userId = payload.userId || userId;
+        nickname = payload.nickname || '사용자';
+        isAdminUser = payload.role === 'ADMIN';
+        
+        console.log('사용자 정보:', { userId, nickname, role: payload.role });
+      } else {
+        console.log('로그인하지 않은 사용자:', nickname);
       }
+    } catch (error) {
+      console.error('토큰 파싱 실패:', error);
+    }
+    
+    // 관리자 권한 설정
+    setIsAdmin(isAdminUser);
+    
+    return {
+      id: userId,
+      name: nickname,
+      color: randomColor()
     };
-    checkUserRole();
-  }, []);
+  });
 
   // ref
   const canvasRef = useRef();
@@ -105,6 +117,21 @@ function NoCodeEditor() {
       console.log('협업 서버에 연결되었습니다.');
     }
   }, [isConnected]);
+
+  // viewport 변경 시 캔버스 높이 초기화
+  useEffect(() => {
+    const baseHeight = viewport === 'mobile' ? 667 : 1080;
+    setCanvasHeight(baseHeight);
+  }, [viewport]);
+
+  // 기존 더미 컴포넌트 제거 (초기화 시)
+  useEffect(() => {
+    const extenderComponents = components.filter(comp => comp.id.startsWith('canvas-extender-'));
+    if (extenderComponents.length > 0) {
+      console.log(`기존 더미 컴포넌트 ${extenderComponents.length}개를 제거합니다.`);
+      extenderComponents.forEach(comp => removeComponent(comp.id));
+    }
+  }, []); // 초기 로딩 시에만 실행
 
   // 컴포넌트 선택 시 해당 컴포넌트가 보이도록 스크롤 이동
   useEffect(() => {
@@ -142,7 +169,7 @@ function NoCodeEditor() {
         const snappedY = Math.round(e.nativeEvent.offsetY / effectiveGridSize) * effectiveGridSize;
         
         const maxX = viewport === 'mobile' ? Math.max(0, 375 - width) : Math.max(0, 1920 - width);
-        const maxY = viewport === 'mobile' ? Math.max(0, 667 - height) : Math.max(0, 1080 - height);
+        const maxY = Math.max(0, canvasHeight - height); // 확장된 캔버스 높이 사용
         
         let clampedX = clamp(snappedX, 0, maxX);
         let clampedY = clamp(snappedY, 0, maxY);
@@ -184,9 +211,9 @@ function NoCodeEditor() {
     // 협업 기능으로 컴포넌트 업데이트
     updateComponent(comp.id, comp);
       
-    // 스냅라인 계산
+      // 스냅라인 계산
     const lines = calculateSnapLines(comp, components, zoom, viewport, getComponentDimensions);
-    setSnapLines(lines);
+      setSnapLines(lines);
   };
 
   // 컴포넌트 삭제
@@ -267,12 +294,14 @@ function NoCodeEditor() {
     // 뷰포트 변경 시 선택된 컴포넌트 해제 (UX 향상)
     setSelectedId(null);
   }, []);
+
+
   
   // 템플릿으로 저장
   const handleSaveAsTemplate = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/templates/from-components', {
+      const response = await fetch(`${API_BASE_URL}/templates/from-components`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -301,37 +330,10 @@ function NoCodeEditor() {
 
   // 새 섹션 추가 핸들러
   const handleAddSection = useCallback((sectionY) => {
-    // 기존 더미 컴포넌트들 확인
-    const existingExtenders = components.filter(comp => comp.id.startsWith('canvas-extender-'));
-    
-    // 새로운 확장 위치 계산
-    const newExtenderY = sectionY + 200;
-    
-    // 기존 확장 영역보다 더 아래에 있는 경우에만 새로운 더미 컴포넌트 추가
-    const maxExistingY = existingExtenders.length > 0 
-      ? Math.max(...existingExtenders.map(comp => comp.y))
-      : 0;
-    
-    if (newExtenderY > maxExistingY) {
-      // 캔버스 높이를 확장하기 위해 투명한 더미 컴포넌트 추가
-      const dummyComponent = {
-        id: `canvas-extender-${Date.now()}`,
-        type: 'text',
-        x: 0,
-        y: newExtenderY,
-        width: 1,
-        height: 1,
-        props: {
-          text: '',
-          fontSize: 1,
-          color: 'transparent',
-          backgroundColor: 'transparent'
-        }
-      };
-      
-      // 더미 컴포넌트 추가하여 캔버스 확장
-      addComponent(dummyComponent);
-    }
+    // 현재 캔버스 높이에 새 섹션 높이를 추가 (더미 컴포넌트 없이)
+    const newCanvasHeight = Math.max(canvasHeight, sectionY + 400); // 400px 추가 공간
+    console.log('섹션 추가:', { currentHeight: canvasHeight, sectionY, newCanvasHeight });
+    setCanvasHeight(newCanvasHeight);
     
     // 새로 추가된 섹션으로 스크롤
     setTimeout(() => {
@@ -343,7 +345,7 @@ function NoCodeEditor() {
         });
       }
     }, 100);
-  }, [viewport, zoom, addComponent, components]);
+  }, [viewport, zoom, canvasHeight]);
 
   return (
     <div style={{
@@ -384,29 +386,30 @@ function NoCodeEditor() {
         position: 'relative',
         overflow: 'hidden' // 내부 컴포넌트에서 스크롤 처리
       }}>
-        <CanvasArea
+      <CanvasArea
           containerRef={containerRef}
-          canvasRef={canvasRef}
-          components={components}
-          selectedId={selectedId}
+        canvasRef={canvasRef}
+        components={components}
+        selectedId={selectedId}
           users={{}} // 기존 users 대신 빈 객체
           nickname={userInfo.name}
-          snapLines={snapLines}
+        snapLines={snapLines}
           setSnapLines={setSnapLines}
-          onDrop={e => { handleDrop(e); }}
-          onDragOver={e => e.preventDefault()}
-          onClick={() => handleSelect(null)}
+        onDrop={e => { handleDrop(e); }}
+        onDragOver={e => e.preventDefault()}
+        onClick={() => handleSelect(null)}
           onMouseMove={() => {}} // 커서 추적은 협업 훅에서 처리
           onMouseUp={() => {}}
-          onSelect={handleSelect}
-          onUpdate={handleUpdate}
-          onDelete={handleDelete}
+        onSelect={handleSelect}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
           onAddSection={handleAddSection} // 새 섹션 추가 핸들러
-          CanvasComponent={CanvasComponent}
-          UserCursor={UserCursor}
+        CanvasComponent={CanvasComponent}
+        UserCursor={UserCursor}
           zoom={zoom}
           onZoomChange={handleZoomChange}
           viewport={viewport}
+          canvasHeight={canvasHeight} // 캔버스 높이 전달
           isInspectorOpen={!!selectedComp}
           isLibraryOpen={isLibraryOpen} // 라이브러리 상태 전달
           updateCursorPosition={updateCursorPosition} // 협업 커서 위치 업데이트
