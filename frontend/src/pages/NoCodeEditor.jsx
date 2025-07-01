@@ -146,6 +146,24 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
   const effectiveGridSize = GRID_SIZE; // 고정된 그리드 크기
 
   const componentDimensions = getComponentDimensions(comp.type);
+  
+  // 확장된 캔버스 크기 계산 공통 함수
+  const getExtendedCanvasSize = () => {
+    const baseWidth = viewport === 'mobile' ? 375 : 1920;
+    const baseHeight = viewport === 'mobile' ? 667 : 1080;
+    
+    // 확장 컴포넌트들의 최대 Y 위치 계산
+    const extenderComponents = components?.filter(c => c.id.startsWith('canvas-extender-')) || [];
+    let maxExtendedHeight = baseHeight;
+    
+    if (extenderComponents.length > 0) {
+      const extenderMaxY = Math.max(...extenderComponents.map(c => c.y + c.height));
+      maxExtendedHeight = Math.max(baseHeight, extenderMaxY);
+    }
+    
+    return { width: baseWidth, height: maxExtendedHeight };
+  };
+  
   // 컴포넌트별 실제 크기 계산 (props와 comp 모두 고려)
   const getActualSize = () => {
     // 이미지 컴포넌트의 경우 props에서 크기를 가져옴
@@ -301,9 +319,28 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         break;
     }
     
-    // 캔버스 경계 제한 (뷰포트에 따라 다르게 적용)
-    const maxWidth = viewport === 'mobile' ? Math.max(0, 375 - comp.x) : Math.max(0, 1920 - comp.x);
-    const maxHeight = viewport === 'mobile' ? Math.max(0, 667 - comp.y) : Math.max(0, 1080 - comp.y);
+    // 확장된 캔버스 크기 계산
+    const getExtendedCanvasSize = () => {
+      const baseWidth = viewport === 'mobile' ? 375 : 1920;
+      const baseHeight = viewport === 'mobile' ? 667 : 1080;
+      
+      // 확장 컴포넌트들의 최대 Y 위치 계산
+      const extenderComponents = components?.filter(c => c.id.startsWith('canvas-extender-')) || [];
+      let maxExtendedHeight = baseHeight;
+      
+      if (extenderComponents.length > 0) {
+        const extenderMaxY = Math.max(...extenderComponents.map(c => c.y + c.height));
+        maxExtendedHeight = Math.max(baseHeight, extenderMaxY);
+      }
+      
+      return { width: baseWidth, height: maxExtendedHeight };
+    };
+    
+    const canvasSize = getExtendedCanvasSize();
+    
+    // 캔버스 경계 제한 (확장된 캔버스 크기 사용)
+    const maxWidth = Math.max(0, canvasSize.width - comp.x);
+    const maxHeight = Math.max(0, canvasSize.height - comp.y);
     
     newWidth = Math.min(newWidth, maxWidth);
     newHeight = Math.min(newHeight, maxHeight);
@@ -359,9 +396,28 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
     
-    // 뷰포트에 따른 드래그 경계 제한
-    const maxX = viewport === 'mobile' ? Math.max(0, 375 - (comp.width || componentDimensions.defaultWidth)) : Math.max(0, 1920 - (comp.width || componentDimensions.defaultWidth));
-    const maxY = viewport === 'mobile' ? Math.max(0, 667 - (comp.height || componentDimensions.defaultHeight)) : Math.max(0, 1080 - (comp.height || componentDimensions.defaultHeight));
+    // 확장된 캔버스 크기 계산
+    const getExtendedCanvasSize = () => {
+      const baseWidth = viewport === 'mobile' ? 375 : 1920;
+      const baseHeight = viewport === 'mobile' ? 667 : 1080;
+      
+      // 확장 컴포넌트들의 최대 Y 위치 계산
+      const extenderComponents = components?.filter(c => c.id.startsWith('canvas-extender-')) || [];
+      let maxExtendedHeight = baseHeight;
+      
+      if (extenderComponents.length > 0) {
+        const extenderMaxY = Math.max(...extenderComponents.map(c => c.y + c.height));
+        maxExtendedHeight = Math.max(baseHeight, extenderMaxY);
+      }
+      
+      return { width: baseWidth, height: maxExtendedHeight };
+    };
+    
+    const canvasSize = getExtendedCanvasSize();
+    
+    // 뷰포트에 따른 드래그 경계 제한 (확장된 캔버스 크기 사용)
+    const maxX = Math.max(0, canvasSize.width - (comp.width || componentDimensions.defaultWidth));
+    const maxY = Math.max(0, canvasSize.height - (comp.height || componentDimensions.defaultHeight));
     
     // 기본 위치 계산 (그리드 스냅 적용)
     let newX = Math.round((dragStart.compX + deltaX) / effectiveGridSize) * effectiveGridSize;
@@ -479,12 +535,12 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
           <div
             style={{
               position: 'absolute',
-              top: -4,
-              left: -4,
-              width: 8,
-              height: 8,
+              top: -4 / scale,
+              left: -4 / scale,
+              width: 8 / scale,
+              height: 8 / scale,
               background: '#3B4EFF',
-              border: '2px solid #fff',
+              border: `${2 / scale}px solid #fff`,
               borderRadius: '50%',
               cursor: 'nw-resize',
               zIndex: 11
@@ -494,12 +550,12 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
           <div
             style={{
               position: 'absolute',
-              top: -4,
-              left: currentWidth - 4,
-              width: 8,
-              height: 8,
+              top: -4 / scale,
+              left: currentWidth - 4 / scale,
+              width: 8 / scale,
+              height: 8 / scale,
               background: '#3B4EFF',
-              border: '2px solid #fff',
+              border: `${2 / scale}px solid #fff`,
               borderRadius: '50%',
               cursor: 'ne-resize',
               zIndex: 11
@@ -509,12 +565,12 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
           <div
             style={{
               position: 'absolute',
-              top: currentHeight - 4,
-              left: -4,
-              width: 8,
-              height: 8,
+              top: currentHeight - 4 / scale,
+              left: -4 / scale,
+              width: 8 / scale,
+              height: 8 / scale,
               background: '#3B4EFF',
-              border: '2px solid #fff',
+              border: `${2 / scale}px solid #fff`,
               borderRadius: '50%',
               cursor: 'sw-resize',
               zIndex: 11
@@ -524,12 +580,12 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
           <div
             style={{
               position: 'absolute',
-              top: currentHeight - 4,
-              left: currentWidth - 4,
-              width: 8,
-              height: 8,
+              top: currentHeight - 4 / scale,
+              left: currentWidth - 4 / scale,
+              width: 8 / scale,
+              height: 8 / scale,
               background: '#3B4EFF',
-              border: '2px solid #fff',
+              border: `${2 / scale}px solid #fff`,
               borderRadius: '50%',
               cursor: 'se-resize',
               zIndex: 11
@@ -542,21 +598,21 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
             onClick={e => { e.stopPropagation(); onDelete(comp.id); }}
             style={{
               position: 'absolute', 
-              top: -20, 
-              left: currentWidth + 4,
+              top: -20 / scale, 
+              left: currentWidth + 4 / scale,
               background: '#FF3B3B', 
               color: '#fff', 
               border: 'none', 
               borderRadius: '50%',
-              width: 24, 
-              height: 24, 
+              width: 24 / scale, 
+              height: 24 / scale, 
               cursor: 'pointer', 
               fontWeight: 'bold',
-              fontSize: 14,
+              fontSize: 14 / scale,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(255, 59, 59, 0.3)',
+              boxShadow: `0 ${2 / scale}px ${8 / scale}px rgba(255, 59, 59, 0.3)`,
               transition: 'all 0.2s',
               zIndex: 12
             }}
@@ -836,6 +892,7 @@ function NoCodeEditor() {
     updateComponent,
     addComponent,
     removeComponent,
+    updateCursorPosition,
     getActiveUsers
   } = collaboration;
 
@@ -1087,7 +1144,7 @@ function NoCodeEditor() {
             fontWeight: 700,
             color: '#1d2129'
           }}>
-            페이지레고
+            석재민짱
           </h1>
           <div style={{
             padding: '4px 8px',
@@ -1218,16 +1275,13 @@ function NoCodeEditor() {
           viewport={viewport}
           isInspectorOpen={!!selectedComp}
           isLibraryOpen={isLibraryOpen} // 라이브러리 상태 전달
+        updateCursorPosition={updateCursorPosition} // 협업 커서 위치 업데이트
+        // 협업 기능 props 추가
+        otherCursors={otherCursors}
+        otherSelections={otherSelections}
         />
 
-        {/* 협업 기능: 라이브 커서 */}
-        <LiveCursors cursors={otherCursors} />
 
-        {/* 협업 기능: 다른 사용자 선택 영역 */}
-        <CollaborativeSelections 
-          selections={otherSelections} 
-          components={components} 
-        />
       </div>
 
       {/* 우측: 속성 인스펙터 */}

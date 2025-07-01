@@ -13,19 +13,32 @@ export function useLiveCursors(awareness, canvasRef) {
   const [otherSelections, setOtherSelections] = useState(new Map());
 
   // 마우스 움직임을 Awareness에 브로드캐스트
-  const updateCursorPosition = useCallback((x, y) => {
+  const updateCursorPosition = useCallback((x, y, zoom = 100, viewport = 'desktop', containerRef = null, isLibraryOpen = true) => {
     if (!awareness) return;
 
-    // 캔버스 기준 상대 좌표로 변환
+    // 커서 숨기기 (x, y가 null인 경우)
+    if (x === null || y === null) {
+      awareness.setLocalStateField('cursor', null);
+      return;
+    }
+
+    // 실제 캔버스 프레임 기준 상대 좌표로 변환
     const canvasRect = canvasRef?.current?.getBoundingClientRect();
+    
     if (canvasRect) {
-      const relativeX = x - canvasRect.left;
-      const relativeY = y - canvasRect.top;
+      const scale = zoom / 100;
       
-      // Awareness Protocol을 통해 커서 위치 브로드캐스트
+      // 브라우저 화면 좌표를 캔버스 프레임 내부 좌표로 직접 변환
+      // canvasRef는 실제 캔버스 프레임을 가리키므로 별도 오프셋 계산 불필요
+      const relativeX = (x - canvasRect.left) / scale;
+      const relativeY = (y - canvasRect.top) / scale;
+      
+      // Awareness Protocol을 통해 커서 위치 브로드캐스트 (실제 캔버스 좌표)
       awareness.setLocalStateField('cursor', {
         x: relativeX,
         y: relativeY,
+        zoom: zoom,
+        viewport: viewport,
         timestamp: Date.now()
       });
     }
@@ -98,30 +111,8 @@ export function useLiveCursors(awareness, canvasRef) {
     };
   }, [awareness]);
 
-  // 마우스 이벤트 핸들러 등록
-  useEffect(() => {
-    const canvas = canvasRef?.current;
-    if (!canvas) return;
-
-    const handleMouseMove = (event) => {
-      updateCursorPosition(event.clientX, event.clientY);
-    };
-
-    // 마우스 leave 시 커서 숨기기
-    const handleMouseLeave = () => {
-      if (awareness) {
-        awareness.setLocalStateField('cursor', null);
-      }
-    };
-
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseleave', handleMouseLeave);
-
-    return () => {
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
-    };
-  }, [canvasRef, updateCursorPosition, awareness]);
+  // 마우스 이벤트 핸들러는 NoCodeEditor에서 직접 호출하도록 변경
+  // (줌과 뷰포트 정보에 접근하기 위해)
 
   return {
     otherCursors: Array.from(otherCursors.values()),

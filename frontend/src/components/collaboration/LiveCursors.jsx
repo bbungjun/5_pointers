@@ -3,22 +3,29 @@ import React from 'react';
 /**
  * 다른 사용자들의 실시간 커서를 렌더링하는 컴포넌트
  */
-export function LiveCursors({ cursors }) {
+export function LiveCursors({ cursors, zoom = 100, viewport = 'desktop' }) {
+  const scale = zoom / 100;
+  
   return (
     <>
-      {cursors.map((cursor, index) => (
-        <div
-          key={`cursor-${cursor.user.id}-${index}`}
-          style={{
-            position: 'absolute',
-            left: cursor.x,
-            top: cursor.y,
-            pointerEvents: 'none',
-            zIndex: 9999,
-            transform: 'translate(-2px, -2px)', // 커서 포인터 정확한 위치 조정
-            transition: 'left 0.1s ease-out, top 0.1s ease-out', // 부드러운 움직임
-          }}
-        >
+      {cursors.map((cursor, index) => {
+        // 커서 좌표를 현재 줌 레벨에 맞게 변환
+        const displayX = cursor.x * scale;
+        const displayY = cursor.y * scale;
+        
+        return (
+          <div
+            key={`cursor-${cursor.user.id}-${index}`}
+            style={{
+              position: 'absolute',
+              left: displayX,
+              top: displayY,
+              pointerEvents: 'none',
+              zIndex: 9999,
+              transform: 'translate(-2px, -2px)', // 커서 포인터 정확한 위치 조정
+              transition: 'left 0.1s ease-out, top 0.1s ease-out', // 부드러운 움직임
+            }}
+          >
           {/* 커서 아이콘 */}
           <svg
             width="20"
@@ -57,7 +64,8 @@ export function LiveCursors({ cursors }) {
             {cursor.user.name}
           </div>
         </div>
-      ))}
+        );
+      })}
       
       <style jsx>{`
         @keyframes fadeIn {
@@ -78,7 +86,8 @@ export function LiveCursors({ cursors }) {
 /**
  * 다른 사용자가 선택한 컴포넌트에 테두리를 표시하는 컴포넌트
  */
-export function CollaborativeSelections({ selections, components }) {
+export function CollaborativeSelections({ selections, components, zoom = 100, viewport = 'desktop' }) {
+  const scale = zoom / 100;
   return (
     <>
       {selections.map((selection, index) => 
@@ -86,15 +95,21 @@ export function CollaborativeSelections({ selections, components }) {
           const component = components.find(c => c.id === componentId);
           if (!component) return null;
 
+          // 컴포넌트 좌표와 크기를 스케일에 맞게 변환
+          const scaledX = component.x * scale;
+          const scaledY = component.y * scale;
+          const scaledWidth = (component.width || 120) * scale;
+          const scaledHeight = (component.height || 40) * scale;
+
           return (
             <div
               key={`selection-${selection.user.id}-${componentId}`}
               style={{
                 position: 'absolute',
-                left: component.x - 2,
-                top: component.y - 2,
-                width: (component.width || 120) + 4,
-                height: (component.height || 40) + 4,
+                left: scaledX - 2,
+                top: scaledY - 2,
+                width: scaledWidth + 4,
+                height: scaledHeight + 4,
                 border: `2px solid ${selection.user.color}`,
                 borderRadius: '4px',
                 pointerEvents: 'none',
