@@ -21,7 +21,12 @@ import { MapInfoRenderer } from './NoCodeEditor/ComponentRenderers';
 import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from './NoCodeEditor/ComponentRenderers/BankAccountRenderer';
 import ViewportController from './NoCodeEditor/ViewportController';
-import CommentRenderer from './NoCodeEditor/ComponentRenderers/CommentRenderer'; 
+import CommentRenderer from './NoCodeEditor/ComponentRenderers/CommentRenderer';
+// 협업 기능 imports
+import { useCollaboration } from '../hooks/useCollaboration';
+import { LiveCursors, CollaborativeSelections } from '../components/collaboration/LiveCursors';
+import { CommentPins, CommentThreadModal, CommentModeToggle } from '../components/collaboration/CommentSystem';
+import { VersionHistoryPanel } from '../components/collaboration/VersionHistory'; 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
 
@@ -743,86 +748,71 @@ function calculateSnapLines(draggedComp, allComponents, zoom = 100, viewport = '
 function NoCodeEditor() {
   const { roomId } = useParams();
 
-  // Yjs 문서 및 provider
-  const [ydoc] = useState(() => new Y.Doc());
-  const [provider, setProvider] = useState(null);
-
-  // Yjs 상태
+  // 기본 상태
   const [components, setComponents] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [inspector, setInspector] = useState({});
-  const [users, setUsers] = useState({});
-  const [myCursor, setMyCursor] = useState({ x: 0, y: 0 });
-
-  // 스냅라인 상태
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
-
-  // 줌 상태
   const [zoom, setZoom] = useState(100);
-
-  // 미리보기 모달 상태
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [viewport, setViewport] = useState('desktop');
 
   // 사용자 정보
-  const [nickname] = useState(randomNickname());
-  const [color] = useState(randomColor());
+  const [userInfo] = useState(() => ({
+    id: Math.random().toString(36).slice(2, 10),
+    name: randomNickname(),
+    color: randomColor()
+  }));
 
-  // 캔버스 ref
+  // ref
   const canvasRef = useRef();
   const containerRef = useRef();
 
-  // 전역 상태 관리
-  const [viewport, setViewport] = useState('desktop'); // 'desktop' | 'mobile' - 뷰포트 모드 관리
+  // 협업 기능 통합
+  const collaboration = useCollaboration({
+    roomId,
+    userInfo,
+    canvasRef,
+    selectedComponentId: selectedId,
+    onComponentsUpdate: setComponents
+  });
 
-  // Yjs 초기화 및 실시간 동기화
+  // 협업 상태 구조분해할당
+  const {
+    isConnected,
+    otherCursors,
+    otherSelections,
+    commentMode,
+    comments,
+    versions,
+    isCreatingSnapshot,
+    isRestoring,
+    updateComponent,
+    addComponent,
+    removeComponent,
+    addComment,
+    addReply,
+    toggleResolveComment,
+    deleteComment,
+    getCommentsForComponent,
+    toggleCommentMode,
+    createSnapshot,
+    restoreVersion,
+    deleteVersion,
+    renameVersion,
+    getActiveUsers
+  } = collaboration;
+
+  // 버전 히스토리 패널 상태
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [selectedComment, setSelectedComment] = useState(null);
+
+  // 연결 상태 표시 (선택사항)
   useEffect(() => {
-    // y-websocket 서버 주소 (테스트용: public yjs 서버)
-    const wsProvider = new WebsocketProvider('wss://demos.yjs.dev', roomId, ydoc);
-
-    // 컴포넌트 리스트 동기화
-    const yComponents = ydoc.getArray('components');
-    const updateComponents = () => setComponents(yComponents.toArray());
-    yComponents.observeDeep(updateComponents);
-    updateComponents();
-
-    // 선택/속성 동기화
-    const yInspector = ydoc.getMap('inspector');
-    const updateInspector = () => setInspector({ ...yInspector.toJSON() });
-    yInspector.observeDeep(updateInspector);
-    updateInspector();
-
-    // 커서/유저 동기화 (비활성화)
-    // wsProvider.awareness.setLocalStateField('user', { nickname, color });
-    // wsProvider.awareness.setLocalStateField('cursor', myCursor);
-    // const onAwarenessChange = () => {
-    //   const states = Array.from(wsProvider.awareness.getStates().values());
-    //   const userMap = {};
-    //   states.forEach(state => {
-    //     if (state.user && state.cursor) {
-    //       userMap[state.user.nickname] = { ...state.user, ...state.cursor };
-    //     }
-    //   });
-    //   setUsers(userMap);
-    // };
-    // wsProvider.awareness.on('change', onAwarenessChange);
-    // setProvider(wsProvider);
-
-    return () => {
-      yComponents.unobserveDeep(updateComponents);
-      yInspector.unobserveDeep(updateInspector);
-      // wsProvider.awareness.off('change', onAwarenessChange);
-      // wsProvider.destroy();
-      ydoc.destroy();
-    };
-    // eslint-disable-next-line
-  }, [roomId]);
-
-  // 커서 위치 실시간 전송
-  useEffect(() => {
-    if (provider) {
-      provider.awareness.setLocalStateField('cursor', myCursor);
+    if (isConnected) {
+      console.log('협업 서버에 연결되었습니다.');
     }
-  }, [myCursor, provider]);
+  }, [isConnected]);
 
   // 컴포넌트 선택 시 해당 컴포넌트가 보이도록 스크롤 이동
   useEffect(() => {
@@ -851,9 +841,7 @@ function NoCodeEditor() {
     if (type) {
       const compDef = ComponentDefinitions.find(def => def.type === type);
       if (compDef) {
-        // 고정된 그리드 크기 사용 (줌 레벨에 관계없이 일관된 그리드)
-        const effectiveGridSize = GRID_SIZE; // 고정된 그리드 크기
-        
+        const effectiveGridSize = GRID_SIZE;
         const dimensions = getComponentDimensions(type);
         const width = dimensions.defaultWidth;
         const height = dimensions.defaultHeight;
@@ -861,14 +849,12 @@ function NoCodeEditor() {
         const snappedX = Math.round(e.nativeEvent.offsetX / effectiveGridSize) * effectiveGridSize;
         const snappedY = Math.round(e.nativeEvent.offsetY / effectiveGridSize) * effectiveGridSize;
         
-        // 뷰포트에 따른 경계 제한
         const maxX = viewport === 'mobile' ? 375 - width : 1920 - width;
         const maxY = viewport === 'mobile' ? 667 - height : 1080 - height;
         
         let clampedX = clamp(snappedX, 0, maxX);
         let clampedY = clamp(snappedY, 0, maxY);
         
-        // 새 컴포넌트의 임시 객체 생성
         const newComponent = {
           id: Math.random().toString(36).slice(2, 10),
           type,
@@ -879,60 +865,53 @@ function NoCodeEditor() {
           props: { ...compDef.defaultProps }
         };
         
-        // 충돌 방지 적용
         const collisionResult = resolveCollision(newComponent, components);
         clampedX = collisionResult.x;
         clampedY = collisionResult.y;
         
-        // 최종 경계 제한 재적용
         clampedX = clamp(clampedX, 0, maxX);
         clampedY = clamp(clampedY, 0, maxY);
         
-        const yComponents = ydoc.getArray('components');
-        yComponents.push([{
+        // 협업 기능으로 컴포넌트 추가
+        addComponent({
           ...newComponent,
           x: clampedX,
           y: clampedY
-        }]);
+        });
       }
     }
-  };
-
-  // 캔버스에서 마우스 이동 시 커서 위치 전송
-  const handleMouseMove = e => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    setMyCursor({
-      x: e.clientX - rect.left + canvasRef.current.scrollLeft,
-      y: e.clientY - rect.top + canvasRef.current.scrollTop
-    });
   };
 
   // 컴포넌트 선택
   const handleSelect = id => {
     setSelectedId(id);
-    ydoc.getMap('inspector').set('selectedId', id);
   };
 
   // 속성 변경 (스냅라인 포함)
   const handleUpdate = comp => {
-    const yComponents = ydoc.getArray('components');
-    const idx = yComponents.toArray().findIndex(c => c.id === comp.id);
-    if (idx !== -1) {
-      yComponents.delete(idx, 1);
-      yComponents.insert(idx, [comp]);
-      
-      // 스냅라인 계산 (줌 레벨 고려)
-      const lines = calculateSnapLines(comp, components, zoom);
-      setSnapLines(lines);
-    }
+    // 협업 기능으로 컴포넌트 업데이트
+    updateComponent(comp.id, comp);
+    
+    // 스냅라인 계산
+    const lines = calculateSnapLines(comp, components, zoom);
+    setSnapLines(lines);
   };
 
   // 컴포넌트 삭제
   const handleDelete = id => {
-    const yComponents = ydoc.getArray('components');
-    const idx = yComponents.toArray().findIndex(c => c.id === id);
-    if (idx !== -1) yComponents.delete(idx, 1);
+    // 협업 기능으로 컴포넌트 삭제
+    removeComponent(id);
     if (selectedId === id) setSelectedId(null);
+  };
+
+  // 주석 관련 핸들러
+  const handleCommentPinClick = (commentId) => {
+    const comment = comments.find(c => c.id === commentId);
+    setSelectedComment(comment);
+  };
+
+  const handleAddComment = (componentId, position, text) => {
+    addComment(componentId, position, text);
   };
 
   // Delete 키로 삭제
@@ -949,6 +928,10 @@ function NoCodeEditor() {
 
   // 속성 인스펙터
   const selectedComp = components.find(c => c.id === selectedId);
+  
+  // 활성 사용자 정보 (디버깅용)
+  const activeUsers = getActiveUsers();
+  console.log('활성 사용자:', activeUsers.length);
 
   // 브라우저 전체 확대/축소(Ctrl+스크롤, Ctrl+키, 트랙패드 pinch) 완벽 차단
   useEffect(() => {
@@ -1135,21 +1118,22 @@ function NoCodeEditor() {
         minWidth: 0, 
         minHeight: 0, 
         display: 'flex',
-        paddingTop: 60 // 헤더 높이만큼 패딩
+        paddingTop: 60, // 헤더 높이만큼 패딩
+        position: 'relative'
       }}>
         <CanvasArea
           containerRef={containerRef}
           canvasRef={canvasRef}
           components={components}
           selectedId={selectedId}
-          users={users}
-          nickname={nickname}
+          users={{}} // 기존 users 대신 빈 객체
+          nickname={userInfo.name}
           snapLines={snapLines}
           setSnapLines={setSnapLines}
           onDrop={e => { handleDrop(e); }}
           onDragOver={e => e.preventDefault()}
           onClick={() => handleSelect(null)}
-          onMouseMove={handleMouseMove}
+          onMouseMove={() => {}} // 커서 추적은 협업 훅에서 처리
           onMouseUp={() => {}}
           onSelect={handleSelect}
           onUpdate={handleUpdate}
@@ -1159,7 +1143,24 @@ function NoCodeEditor() {
           zoom={zoom}
           onZoomChange={handleZoomChange}
           viewport={viewport}
-          isInspectorOpen={!!selectedComp} // Inspector 열림 상태 전달
+          isInspectorOpen={!!selectedComp}
+        />
+
+        {/* 협업 기능: 라이브 커서 */}
+        <LiveCursors cursors={otherCursors} />
+
+        {/* 협업 기능: 다른 사용자 선택 영역 */}
+        <CollaborativeSelections 
+          selections={otherSelections} 
+          components={components} 
+        />
+
+        {/* 협업 기능: 주석 핀들 */}
+        <CommentPins
+          comments={comments}
+          onPinClick={handleCommentPinClick}
+          onAddComment={handleAddComment}
+          commentMode={commentMode}
         />
       </div>
 
@@ -1168,8 +1169,8 @@ function NoCodeEditor() {
         <Inspector
           selectedComp={selectedComp}
           onUpdate={handleUpdate}
-          color={color}
-          nickname={nickname}
+          color={userInfo.color}
+          nickname={userInfo.name}
           roomId={roomId}
         />
       )}
@@ -1180,6 +1181,86 @@ function NoCodeEditor() {
         onClose={() => setIsPreviewOpen(false)}
         pageContent={components}
       />
+
+      {/* 협업 기능: 주석 모드 토글 */}
+      <CommentModeToggle
+        commentMode={commentMode}
+        onToggle={toggleCommentMode}
+      />
+
+      {/* 협업 기능: 버전 히스토리 패널 */}
+      <VersionHistoryPanel
+        versions={versions}
+        onCreateSnapshot={createSnapshot}
+        onRestoreVersion={restoreVersion}
+        onDeleteVersion={deleteVersion}
+        onRenameVersion={renameVersion}
+        isCreatingSnapshot={isCreatingSnapshot}
+        isRestoring={isRestoring}
+        isOpen={showVersionHistory}
+        onToggle={() => setShowVersionHistory(!showVersionHistory)}
+      />
+
+      {/* 협업 기능: 주석 스레드 모달 */}
+      {selectedComment && (
+        <CommentThreadModal
+          comment={selectedComment}
+          onClose={() => setSelectedComment(null)}
+          onAddReply={addReply}
+          onResolve={toggleResolveComment}
+          onDelete={deleteComment}
+          currentUser={userInfo}
+        />
+      )}
+
+      {/* 연결 상태 표시 */}
+      {!isConnected && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '260px',
+          padding: '8px 12px',
+          backgroundColor: '#ff9800',
+          color: 'white',
+          borderRadius: '6px',
+          fontSize: '12px',
+          zIndex: 1000
+        }}>
+          협업 서버 연결 중...
+        </div>
+      )}
+
+      {/* 복원 중 오버레이 */}
+      {isRestoring && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000
+        }}>
+          <div style={{
+            padding: '24px',
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            textAlign: 'center',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+          }}>
+            <div style={{ fontSize: '24px', marginBottom: '12px' }}>🔄</div>
+            <div style={{ fontSize: '16px', fontWeight: '500' }}>
+              버전을 복원하는 중입니다...
+            </div>
+            <div style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
+              잠시만 기다려주세요
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}
       <style>{`

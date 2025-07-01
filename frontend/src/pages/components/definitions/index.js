@@ -13,6 +13,7 @@ import calendarDef from './calendar.json';
 import bankAccount from './bank-account.json';
 import commentDef from './comment.json';
 
+
 export const ComponentList = [
   buttonDef,
   textDef,
@@ -33,3 +34,10 @@ export const ComponentList = [
 // 기존 코드와의 호환성을 위해 ComponentDefinitions도 export
 export const ComponentDefinitions = ComponentList;
 
+// snapLine 타입 예시:
+// {
+//   x?: number,
+//   y?: number,
+//   type: 'align' | 'spacing' | 'grid',
+//   spacing?: number
+// }
