@@ -5,13 +5,14 @@ export default function WeddingInviteRenderer({ comp }) {
         containerWidth = comp.width || 450,
         containerHeight = comp.height || 400,
         title = "Our Love Story",
-        titleFontFamily = "\"Dancing Script\", \"cursive\", \"Noto Sans KR\", \"맑은 고딕\", sans-serif",
+        titleFontFamily = "Dancing Script, cursive, Noto Sans KR, 맑은 고딕, sans-serif",
         titleFontSize = 32,
         titleFontStyle = "italic",
         titleFontWeight = "normal",
         titleTextDecoration = "none",
-        titleColor = "#aaa",
-        titleAlign = "center",
+        titleColor = "#222",
+        titleAlign = comp.props.titleAlign || comp.props.textAlign || "center", // 수정된 부분
+
         content = [
             "서로가 마주보며 다져온 사랑을",
             "이제 함께 한 곳을 바라보며",
@@ -21,33 +22,39 @@ export default function WeddingInviteRenderer({ comp }) {
             "지켜나갈 수 있게 앞날을",
             "축복해 주시면 감사하겠습니다."
         ],
-        contentFontFamily = "\"Noto Sans KR\", \"맑은 고딕\", sans-serif",
-        contentFontSize = 26,
+        contentFontFamily = "Noto Sans KR, 맑은 고딕, sans-serif",
+        contentFontSize = 22,
         contentFontWeight = "normal",
         contentFontStyle = "normal",
         contentTextDecoration = "none",
         contentColor = "#444",
-        contentAlign = "center",
+        contentAlign = comp.props.contentAlign || comp.props.textAlign || "center", // 수정된 부분
         backgroundColor = "#fff"
-    } = comp.props;
+    } = comp.props; // 수정된 부분
 
+    // px 변환
     const toPx = v => (typeof v === 'number' ? `${v}px` : v || undefined);
-    const contentLines = Array.isArray(content) ? content : String(content).split('\n');
+    // content가 배열이 아니면 줄바꿈 분리
+    const contentLines = Array.isArray(content) ? content : String(content || '').split('\n');
 
     return (
         <div
             style={{
-                padding: 24,
+                padding: 32,
                 background: backgroundColor,
-                borderRadius: 8,
-                width: containerWidth,
-                //height: containerHeight,
+                borderRadius: 16,
+                width: '100%',
+                height: '100%',
+                minWidth: 200,
+                minHeight: 120,
                 boxSizing: 'border-box',
-                //overflow: 'auto',
+                overflow: 'auto',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                border: '2px solid #e3e3e3',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
             }}
         >
             {/* 제목 */}
@@ -59,12 +66,16 @@ export default function WeddingInviteRenderer({ comp }) {
                     fontWeight: titleFontWeight,
                     textDecoration: titleTextDecoration,
                     color: titleColor,
-                    marginBottom: 36,
+                    marginBottom: 28,
                     textAlign: titleAlign,
-                    width: '100%'
+                    width: '100%',
+                    letterSpacing: 1,
+                    lineHeight: 1.2,
+                    wordBreak: 'keep-all',
+                    background: 'none',
                 }}
             >
-                {title}
+                {title || <span style={{ color: "#bbb" }}>제목 없음</span>}
             </div>
 
             {/* 본문 */}
@@ -77,13 +88,15 @@ export default function WeddingInviteRenderer({ comp }) {
                     textDecoration: contentTextDecoration,
                     color: contentColor,
                     textAlign: contentAlign,
-                    lineHeight: 1.6,
-                    width: '100%'
+                    lineHeight: 1.7,
+                    width: '100%',
+                    wordBreak: 'keep-all',
+                    background: 'none',
                 }}
             >
                 {contentLines.map((line, idx) => (
-                    <div key={idx}>
-                        {line || '\u00A0'}
+                    <div key={idx} style={{ minHeight: 24 }}>
+                        {line && line.trim().length > 0 ? line : <span style={{ opacity: 0.3 }}>　</span>}
                     </div>
                 ))}
             </div>

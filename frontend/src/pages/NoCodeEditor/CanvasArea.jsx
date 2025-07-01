@@ -190,7 +190,7 @@ function CanvasArea({
     }
   };
 
-  // 마우스 업 시 드래그 상태 해제
+  // 마우스업 
   const handleMouseUp = (e) => {
     setIsDragging(false);
     if (onMouseUp) onMouseUp(e);
@@ -223,6 +223,7 @@ function CanvasArea({
       });
     }
   };
+
   const handleContainerMouseMove = (e) => {
     if (isPanning && !isComponentDragging) {
       const dx = e.clientX - panStart.x;
@@ -234,6 +235,7 @@ function CanvasArea({
       setIsPanning(false);
     }
   };
+
   const handleContainerMouseUp = () => setIsPanning(false);
 
   useEffect(() => {
@@ -353,41 +355,6 @@ function CanvasArea({
             containerRef.current.scrollLeft += scrollAmount;
             scrolled = true;
             break;
-          case 'PageUp':
-            e.preventDefault();
-            containerRef.current.scrollTop -= containerRef.current.clientHeight * 0.8;
-            scrolled = true;
-            break;
-          case 'PageDown':
-            e.preventDefault();
-            containerRef.current.scrollTop += containerRef.current.clientHeight * 0.8;
-            scrolled = true;
-            break;
-          case 'Home':
-            if (e.ctrlKey) {
-              e.preventDefault();
-              containerRef.current.scrollTop = 0;
-              containerRef.current.scrollLeft = 0;
-              scrolled = true;
-            }
-            break;
-          case 'End':
-            if (e.ctrlKey) {
-              e.preventDefault();
-              containerRef.current.scrollTop = containerRef.current.scrollHeight;
-              scrolled = true;
-            }
-            break;
-        }
-        
-        if (scrolled) {
-          // 스크롤 시 부드러운 효과
-          containerRef.current.style.scrollBehavior = 'smooth';
-          setTimeout(() => {
-            if (containerRef.current) {
-              containerRef.current.style.scrollBehavior = 'auto';
-            }
-          }, 300);
         }
       }
     };
@@ -398,19 +365,15 @@ function CanvasArea({
       }
     };
 
-    // 전역 휠 이벤트로 브라우저 줌 방지
     const handleGlobalWheel = (e) => {
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
-        e.stopPropagation();
       }
     };
 
-    // 전역 키보드 이벤트로 브라우저 줌 방지
     const handleGlobalKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=')) {
         e.preventDefault();
-        e.stopPropagation();
       }
     };
 
@@ -418,7 +381,7 @@ function CanvasArea({
     window.addEventListener('keyup', handleKeyUp);
     window.addEventListener('wheel', handleGlobalWheel, { passive: false });
     window.addEventListener('keydown', handleGlobalKeyDown);
-    
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
@@ -427,122 +390,63 @@ function CanvasArea({
     };
   }, []);
 
-  const scale = localZoom / 100;
-
+  // 중앙으로 스크롤 (초기 로딩 시에만)
   useEffect(() => {
     const scrollToCenter = () => {
       if (containerRef.current && canvasRef.current) {
         const container = containerRef.current;
+        const canvas = canvasRef.current;
         
-        // 스케일을 적용한 실제 캔버스 크기
-        const baseCanvasWidth = viewport === 'mobile' ? 375 : 1920;
-        const baseCanvasHeight = viewport === 'mobile' ? 667 : 1080;
-        
-        // 더미 컴포넌트(canvas-extender)가 있으면 그에 따라 확장
-        let maxY = baseCanvasHeight;
-        if (components && components.length > 0) {
-          const extenderComponents = components.filter(comp => comp.id.startsWith('canvas-extender-'));
-          if (extenderComponents.length > 0) {
-            const extenderMaxY = Math.max(...extenderComponents.map(comp => comp.y + comp.height));
-            maxY = Math.max(baseCanvasHeight, extenderMaxY + 100);
-          }
-        }
-        
-        // 그리드에 맞춘 최종 크기
-        const gridSize = GRID_SIZE;
-        const gridColumns = Math.ceil(baseCanvasWidth / gridSize);
-        const gridRows = Math.ceil(maxY / gridSize);
-        const finalWidth = gridColumns * gridSize;
-        const finalHeight = gridRows * gridSize;
-        
-        // 스케일 적용된 실제 크기
-        const scaledWidth = finalWidth * scale;
-        const scaledHeight = finalHeight * scale;
-        
-        // 패딩 고려 (모바일은 작게, 데스크톱은 크게)
-        const paddingX = viewport === 'mobile' ? 20 : 60;
-        const paddingY = viewport === 'mobile' ? 10 : 20;
-        
-        const containerWidth = container.clientWidth;
-        const containerHeight = container.clientHeight;
-        
-        if (viewport === 'mobile') {
-          // 모바일: 좌우 중앙 정렬만, 상하는 스크롤 가능
-          const scrollX = Math.max(0, (scaledWidth + paddingX * 2 - containerWidth) / 2);
-          container.scrollLeft = scrollX;
-          container.scrollTop = 0; // 상단 고정
-        } else {
-          // 데스크톱: Inspector 상태에 따른 중앙 정렬 조정
-          // Inspector가 열려있을 때 좀 더 중앙으로 이동하도록 조정
-          const inspectorOffset = isInspectorOpen ? -170 : 0; // Inspector 너비의 절반만큼 왼쪽으로 이동
-          const scrollX = Math.max(0, (scaledWidth + paddingX * 2 - containerWidth) / 2 + inspectorOffset);
-          const scrollY = Math.max(0, (scaledHeight + paddingY * 2 - containerHeight) / 2);
-          container.scrollLeft = scrollX;
-          container.scrollTop = scrollY;
-        }
+        // 중앙으로 스크롤 (부드럽게)
+        container.scrollTo({
+          left: Math.max(0, (canvas.scrollWidth - container.clientWidth) / 2),
+          top: Math.max(0, (canvas.scrollHeight - container.clientHeight) / 2),
+          behavior: 'smooth'
+        });
       }
     };
-    
-    // 초기 중앙 정렬 (Inspector 애니메이션 고려)
-    const delay = isInspectorOpen ? 200 : 100; // Inspector 열림 시 더 긴 딜레이
-    setTimeout(scrollToCenter, delay);
-    window.addEventListener('resize', scrollToCenter);
-    return () => window.removeEventListener('resize', scrollToCenter);
-  }, [localZoom, viewport, components, scale, isInspectorOpen]);
-  // 그리드 크기를 고정하여 줌 레벨에 관계없이 일관된 그리드 간격 유지
-  const gridSize = GRID_SIZE; // 고정된 그리드 크기
 
+    // 약간의 딜레이를 두고 스크롤 (DOM이 완전히 렌더링된 후)
+    const timeoutId = setTimeout(scrollToCenter, 300);
+    
+    return () => clearTimeout(timeoutId);
+  }, [viewport]); // viewport가 변경될 때마다 재실행
+
+  // 줌 레벨 동기화
+  useEffect(() => {
+    setLocalZoom(zoom);
+  }, [zoom]);
+
+  // 스타일링 변수들
+  const zoomScale = localZoom / 100;
+
+  // 슬라이더 핸들러 
   const handleSliderChange = (e) => {
-    handleZoom(Number(e.target.value) - localZoom);
+    const newZoom = parseInt(e.target.value);
+    setLocalZoom(newZoom);
+    if (onZoomChange) onZoomChange(newZoom);
   };
 
-  // ===== 뷰포트별 캔버스 크기 설정 =====
   const getCanvasStyles = () => {
-    // 캔버스 기본 크기 정의
-    const baseCanvasWidth = viewport === 'mobile' ? 375 : 1920;
-    
-    // canvasHeight prop을 사용하여 캔버스 높이 설정 (더미 컴포넌트 불필요)
+    // canvasHeight prop을 사용하여 동적 높이 설정 (더미 컴포넌트 불필요)
     const effectiveHeight = canvasHeight || (viewport === 'mobile' ? 667 : 1080);
     
-    // 그리드가 딱 떨어지도록 계산
-    const adjustedGridSize = GRID_SIZE;
-    const gridColumns = Math.ceil(baseCanvasWidth / adjustedGridSize);
-    const gridRows = Math.ceil(effectiveHeight / adjustedGridSize);
-    const finalWidth = gridColumns * adjustedGridSize;
-    const finalHeight = gridRows * adjustedGridSize;
-    
-    const baseStyles = {
-      position: 'relative',
-      background: showGrid ? `
-        linear-gradient(90deg, #e5e7eb 1px, transparent 1px),
-        linear-gradient(0deg, #e5e7eb 1px, transparent 1px)
-      ` : '#fff',
-      backgroundSize: showGrid ? `${adjustedGridSize}px ${adjustedGridSize}px` : 'auto',
-      backgroundPosition: showGrid ? '0 0' : '0 0',
-      borderRadius: 8,
-      boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-      cursor: isDragging ? 'grabbing' : 'default',
-      transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', // 부드러운 크기 전환
-      transformOrigin: 'top center', // 변형 기준점을 상단 중앙으로 변경
-      margin: viewport === 'mobile' ? '0 auto' : '0', // 모바일만 중앙 정렬
-      flexShrink: 0, // 크기 축소 방지
-    };
-
-    if (viewport === 'mobile') {
-      return {
-        ...baseStyles,
-        width: `${finalWidth}px`,
-        height: `${finalHeight}px`,
-        transform: `scale(${scale})`,
-      };
-    }
-
-    // 데스크톱 (기본값)
     return {
-      ...baseStyles,
-      width: `${finalWidth}px`,
-      height: `${finalHeight}px`,
-      transform: `scale(${scale})`,
+      position: 'relative',
+      width: viewport === 'mobile' ? 375 : 1920,
+      height: effectiveHeight,
+      background: showGrid ? 
+        `radial-gradient(circle, #e1e5e9 1px, transparent 1px)` : 
+        '#fff',
+      backgroundSize: showGrid ? `${GRID_SIZE}px ${GRID_SIZE}px` : 'auto',
+      border: '1px solid #e1e5e9',
+      borderRadius: 12,
+      margin: '0 auto',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+      transform: `scale(${zoomScale})`,
+      transformOrigin: 'top left',
+      overflow: 'visible',
+      cursor: isPanning ? 'grabbing' : 'default'
     };
   };
 
@@ -562,6 +466,7 @@ function CanvasArea({
   const containerWidth = actualCanvasSize.width + (viewport === 'mobile' ? 40 : leftPadding + 60); // 모바일: 40px, 데스크톱: 동적
   const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
   
+  // 디버깅: 캔버스 크기 정보 콘솔 출력
   console.log('Canvas Size Debug:', {
     canvasHeight,
     actualCanvasSize,
@@ -570,7 +475,6 @@ function CanvasArea({
     viewport,
     extenderComponents: components.filter(comp => comp.id.startsWith('canvas-extender-')).length
   });
-
 
   return (
     <div
@@ -687,6 +591,7 @@ function CanvasArea({
               font-size: 12px !important;
             }
           `}</style>
+
           {/* snapLines 렌더링 (정렬/간격/그리드/중앙선 타입별 색상) */}
           {snapLines.vertical.map((line, index) => (
             <div
@@ -738,25 +643,27 @@ function CanvasArea({
             />
           ))}
 
-          {/* 캔버스 내 컴포넌트 렌더링 */}
-          {components.map(comp => 
-            if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
-            return (
-              <CanvasComponent
-                key={comp.id}
-                comp={comp}
-                selected={selectedId === comp.id}
-                onSelect={onSelect}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-                setSnapLines={setSnapLines}
-                zoom={localZoom}
-                viewport={viewport}
-                components={components}
-                getComponentDimensions={getComponentDimensions}
-                canvasHeight={canvasHeight} // 확장된 캔버스 높이 전달
-            />
-          ))}
+          {/* 캔버스 내 컴포넌트 렌더링 (더미 컴포넌트 제외) */}
+          {components
+            .map(comp => {
+              if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
+              return (
+                <CanvasComponent
+                  key={comp.id}
+                  comp={comp}
+                  selected={selectedId === comp.id}
+                  onSelect={onSelect}
+                  onUpdate={onUpdate}
+                  onDelete={onDelete}
+                  setSnapLines={setSnapLines}
+                  zoom={localZoom}
+                  viewport={viewport}
+                  components={components}
+                  getComponentDimensions={getComponentDimensions}
+                  canvasHeight={canvasHeight} // 확장된 캔버스 높이 전달
+                />
+              );
+            })}
 
           {/* 실시간 커서 표시 */}
           {Object.entries(users).map(([nick, u]) =>
@@ -805,8 +712,6 @@ function CanvasArea({
           />
         </div>
       </div>
-
-
 
       {/* 스크롤바 스타일링 */}
       <style>{`
