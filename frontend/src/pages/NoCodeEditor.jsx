@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 // 모듈화된 컴포넌트들
 import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
@@ -33,7 +33,6 @@ import { useCollaboration } from '../hooks/useCollaboration';
 
 function NoCodeEditor() {
   const { roomId } = useParams();
-  const location = useLocation();
 
   // 기본 상태
   const [components, setComponents] = useState([]);
@@ -118,7 +117,8 @@ function NoCodeEditor() {
       console.log('협업 서버에 연결되었습니다.');
     }
   }, [isConnected]);
-
+  
+  
   // YJS 초기화
   const [ydoc] = useState(() => new Y.Doc());
   
@@ -153,6 +153,13 @@ function NoCodeEditor() {
       }
     }
   }, [location.state, ydoc]);
+
+  // viewport 변경 시 캔버스 높이 초기화
+  useEffect(() => {
+    const baseHeight = viewport === 'mobile' ? 667 : 1080;
+    setCanvasHeight(baseHeight);
+  }, [viewport]);
+
 
   // viewport 변경 시 캔버스 높이 초기화
   useEffect(() => {
@@ -274,8 +281,8 @@ function NoCodeEditor() {
   const selectedComp = components.find(c => c.id === selectedId);
   
   // 활성 사용자 정보 (디버깅용)
-  // const activeUsers = getActiveUsers();
-  // console.log('활성 사용자:', activeUsers.length);
+  const activeUsers = getActiveUsers();
+  console.log('활성 사용자:', activeUsers.length);
 
   // 브라우저 전체 확대/축소(Ctrl+스크롤, Ctrl+키, 트랙패드 pinch) 완벽 차단
   useEffect(() => {
