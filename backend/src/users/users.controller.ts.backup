@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request, Param, Get, Res, Delete, Put } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Param, Get, Res, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
@@ -52,25 +52,5 @@ export class UsersController {
     @Body() body: { password: string }
   ) {
     return this.usersService.deleteComment(pageId, componentId, commentId, body.password);
-  }
-
-  // 🔄 새로고침 복구 시스템 API
-  @Get("pages/room/:roomId/content")
-  async getPageContent(@Param("roomId") roomId: string) {
-    return this.usersService.getPageContentByRoom(roomId);
-  }
-
-  @Put("pages/room/:roomId/content")
-  async savePageContent(
-    @Param("roomId") roomId: string,
-    @Body() body: { components: any[]; canvasSettings: any }
-  ) {
-    const content = {
-      components: body.components || [],
-      canvasSettings: body.canvasSettings || {},
-      lastModified: new Date(),
-      version: Date.now() // 간단한 버전 관리
-    };
-    return this.usersService.savePageContentByRoom(roomId, content);
   }
 }

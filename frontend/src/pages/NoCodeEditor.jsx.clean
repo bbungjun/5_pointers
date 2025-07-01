@@ -28,7 +28,6 @@ import {
 import { ComponentDefinitions } from './components/definitions';
 
 // 협업 기능 imports
-import useAutoSave from "../hooks/useAutoSave";
 import { useCollaboration } from '../hooks/useCollaboration';
 
 function NoCodeEditor() {
@@ -36,19 +35,6 @@ function NoCodeEditor() {
 
   // 기본 상태
   const [components, setComponents] = useState([]);
-
-  // 컴포넌트 업데이트 + 자동저장 래퍼 (먼저 선언)
-  const handleComponentsUpdate = useCallback((newComponents) => {
-    setComponents(newComponents);
-  }, []);
-
-  const { isSaving, saveNow } = useAutoSave(roomId, components, { width: 1200, height: 800 }, 3000);
-
-
-
-
-
-
   const [selectedId, setSelectedId] = useState(null);
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
   const [zoom, setZoom] = useState(100);
@@ -88,9 +74,6 @@ function NoCodeEditor() {
     checkUserRole();
   }, []);
 
-
-
-
   // ref
   const canvasRef = useRef();
   const containerRef = useRef();
@@ -101,7 +84,7 @@ function NoCodeEditor() {
     userInfo,
     canvasRef,
     selectedComponentId: selectedId,
-    onComponentsUpdate: handleComponentsUpdate
+    onComponentsUpdate: setComponents
   });
 
   // 협업 상태 구조분해할당
@@ -226,7 +209,9 @@ function NoCodeEditor() {
   // 속성 인스펙터
   const selectedComp = components.find(c => c.id === selectedId);
 
+  // 활성 사용자 정보 (디버깅용)
   const activeUsers = getActiveUsers();
+  console.log('활성 사용자:', activeUsers.length);
 
   // 브라우저 전체 확대/축소(Ctrl+스크롤, Ctrl+키, 트랙패드 pinch) 완벽 차단
   useEffect(() => {
@@ -270,9 +255,6 @@ function NoCodeEditor() {
     };
   }, []);
 
-
-
-
   // 줌 상태 변경 핸들러
   const handleZoomChange = (newZoom) => {
     setZoom(newZoom);
@@ -284,9 +266,6 @@ function NoCodeEditor() {
     // 뷰포트 변경 시 선택된 컴포넌트 해제 (UX 향상)
     setSelectedId(null);
   }, []);
-
-
-
   
   // 템플릿으로 저장
   const handleSaveAsTemplate = async () => {
@@ -371,15 +350,6 @@ function NoCodeEditor() {
       background: '#fff', color: '#222', fontFamily: 'Inter, sans-serif', overflow: 'hidden'
     }}>
       {/* 에디터 헤더 */}
-      {isSaving && (
-        <div style={{
-          position: "fixed", top: "10px", right: "10px", 
-          background: "#4CAF50", color: "white", padding: "8px 12px", 
-          borderRadius: "6px", fontSize: "12px", zIndex: 1000
-        }}>
-          💾 저장 중...
-        </div>
-      )}
       <EditorHeader
         components={components}
         selectedComp={selectedComp}

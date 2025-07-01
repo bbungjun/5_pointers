@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MainPage from './pages/MainPage';
 import LoginPage from './pages/LoginPage';
@@ -8,6 +8,7 @@ import SocialCallbackPage from './pages/SocialCallbackPage';
 import Dashboard from "./pages/Dashboard";
 import AppEditor from "./pages/AppEditor";
 import NoCodeEditor from './pages/NoCodeEditor';
+import RecoveryTest from "./pages/RecoveryTest";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -59,6 +60,7 @@ function App() {
           element={<SocialCallbackPage onLogin={handleLogin} />}
         />
         <Route path="/editor/:roomId" element={<NoCodeEditor />} />
+        <Route path="/recovery-test/:roomId" element={<RecoveryTest />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </BrowserRouter>

@@ -597,13 +597,6 @@ function CanvasArea({
   const containerWidth = actualCanvasSize.width + (viewport === 'mobile' ? 40 : leftPadding + 60); // 모바일: 40px, 데스크톱: 동적
   const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
   
-  // 디버깅: 캔버스 크기 정보 콘솔 출력
-  console.log('Canvas Size Debug:', {
-    actualCanvasSize,
-    containerWidth,
-    containerHeight,
-    extenderComponents: components.filter(comp => comp.id.startsWith('canvas-extender-')).length
-  });
 
   return (
     <div
