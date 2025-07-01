@@ -37,7 +37,7 @@ function EditorHeader({
           fontWeight: 700,
           color: '#1d2129'
         }}>
-          석재민짱
+          페이지레고
         </h1>
         <div style={{
           padding: '4px 8px',

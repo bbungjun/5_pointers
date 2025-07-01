@@ -7,23 +7,9 @@ import { LiveCursors, CollaborativeSelections } from '../../components/collabora
 const GRID_SIZE = 50;
 
 // 섹션 추가 버튼 컴포넌트
-function AddSectionButton({ components, viewport, onAddSection, getComponentDimensions }) {
-  // 현재 캔버스의 실제 확장된 크기 계산 (확장 컴포넌트만 고려)
-  const currentMaxY = useMemo(() => {
-    const baseHeight = viewport === 'mobile' ? 667 : 1080;
-    
-    // 기본 캔버스 크기로 시작 (일반 컴포넌트는 고려하지 않음)
-    let maxY = baseHeight;
-    
-    // 오직 확장 컴포넌트(canvas-extender)만 고려
-    const extenderComponents = components.filter(comp => comp.id.startsWith('canvas-extender-'));
-    if (extenderComponents.length > 0) {
-      const extenderMaxY = Math.max(...extenderComponents.map(comp => comp.y + comp.height));
-      maxY = Math.max(baseHeight, extenderMaxY);
-    }
-    
-    return maxY;
-  }, [components, viewport]);
+function AddSectionButton({ canvasHeight, viewport, onAddSection }) {
+  // 현재 캔버스의 높이 사용 (더미 컴포넌트 필요 없음)
+  const currentMaxY = canvasHeight;
 
   // 캔버스 너비 계산
   const canvasWidth = viewport === 'mobile' ? 375 : 1920;
@@ -109,6 +95,7 @@ function CanvasArea({
   zoom = 100,
   onZoomChange,
   viewport = 'desktop', // 새로 추가: 뷰포트 모드
+  canvasHeight, // 캔버스 높이
   isInspectorOpen = false, // Inspector 열림 상태
   isLibraryOpen = true, // 컴포넌트 라이브러리 열림 상태
   updateCursorPosition, // 협업 커서 위치 업데이트 함수
@@ -513,25 +500,14 @@ function CanvasArea({
   const getCanvasStyles = () => {
     // 캔버스 기본 크기 정의
     const baseCanvasWidth = viewport === 'mobile' ? 375 : 1920;
-    const baseCanvasHeight = viewport === 'mobile' ? 667 : 1080;
     
-    // 기본 캔버스 크기로 시작 (일반 컴포넌트는 크기에 영향을 주지 않음)
-    let maxX = baseCanvasWidth;
-    let maxY = baseCanvasHeight;
-    
-    // 오직 확장 컴포넌트(canvas-extender)만 캔버스 크기에 영향을 줌
-    if (components && components.length > 0) {
-      const extenderComponents = components.filter(comp => comp.id.startsWith('canvas-extender-'));
-      if (extenderComponents.length > 0) {
-        const extenderMaxY = Math.max(...extenderComponents.map(comp => comp.y + comp.height));
-        maxY = Math.max(baseCanvasHeight, extenderMaxY + 100);
-      }
-    }
+    // canvasHeight prop을 사용하여 캔버스 높이 설정 (더미 컴포넌트 불필요)
+    const effectiveHeight = canvasHeight || (viewport === 'mobile' ? 667 : 1080);
     
     // 그리드가 딱 떨어지도록 계산
     const adjustedGridSize = GRID_SIZE;
-    const gridColumns = Math.ceil(maxX / adjustedGridSize);
-    const gridRows = Math.ceil(maxY / adjustedGridSize);
+    const gridColumns = Math.ceil(baseCanvasWidth / adjustedGridSize);
+    const gridRows = Math.ceil(effectiveHeight / adjustedGridSize);
     const finalWidth = gridColumns * adjustedGridSize;
     const finalHeight = gridRows * adjustedGridSize;
     
@@ -573,22 +549,11 @@ function CanvasArea({
   // 확장된 캔버스의 실제 크기 계산 (섹션 추가 버튼으로만 확장)
   const getActualCanvasSize = () => {
     const baseCanvasWidth = viewport === 'mobile' ? 375 : 1920;
-    const baseCanvasHeight = viewport === 'mobile' ? 667 : 1080;
     
-    // 기본 캔버스 크기로 시작 (일반 컴포넌트는 크기에 영향을 주지 않음)
-    let maxX = baseCanvasWidth;
-    let maxY = baseCanvasHeight;
+    // canvasHeight prop을 사용하여 캔버스 높이 계산 (더미 컴포넌트 불필요)
+    const effectiveHeight = canvasHeight || (viewport === 'mobile' ? 667 : 1080);
     
-    // 오직 확장 컴포넌트(canvas-extender)만 캔버스 크기에 영향을 줌
-    if (components && components.length > 0) {
-      const extenderComponents = components.filter(comp => comp.id.startsWith('canvas-extender-'));
-      if (extenderComponents.length > 0) {
-        const extenderMaxY = Math.max(...extenderComponents.map(comp => comp.y + comp.height));
-        maxY = Math.max(baseCanvasHeight, extenderMaxY + 100);
-      }
-    }
-    
-    return { width: maxX, height: maxY };
+    return { width: baseCanvasWidth, height: effectiveHeight };
   };
 
   const actualCanvasSize = getActualCanvasSize();
@@ -597,7 +562,15 @@ function CanvasArea({
   const containerWidth = actualCanvasSize.width + (viewport === 'mobile' ? 40 : leftPadding + 60); // 모바일: 40px, 데스크톱: 동적
   const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
   
-  // 캔버스 크기 계산 완료
+  console.log('Canvas Size Debug:', {
+    canvasHeight,
+    actualCanvasSize,
+    containerWidth,
+    containerHeight,
+    viewport,
+    extenderComponents: components.filter(comp => comp.id.startsWith('canvas-extender-')).length
+  });
+
 
   return (
     <div
@@ -766,7 +739,7 @@ function CanvasArea({
           ))}
 
           {/* 캔버스 내 컴포넌트 렌더링 */}
-          {components.map(comp => {
+          {components.map(comp => 
             if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
             return (
               <CanvasComponent
@@ -781,9 +754,9 @@ function CanvasArea({
                 viewport={viewport}
                 components={components}
                 getComponentDimensions={getComponentDimensions}
-              />
-            );
-          })}
+                canvasHeight={canvasHeight} // 확장된 캔버스 높이 전달
+            />
+          ))}
 
           {/* 실시간 커서 표시 */}
           {Object.entries(users).map(([nick, u]) =>
@@ -811,10 +784,9 @@ function CanvasArea({
 
           {/* 섹션 추가 버튼 - 캔버스 내부 하단에 위치 */}
           <AddSectionButton 
-            components={components}
+            canvasHeight={canvasHeight}
             viewport={viewport}
             onAddSection={onAddSection}
-            getComponentDimensions={getComponentDimensions}
           />
 
           {/* 협업 기능: 라이브 커서 */}

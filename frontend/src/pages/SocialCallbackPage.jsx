@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 function SocialCallbackPage({ onLogin }) {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ function SocialCallbackPage({ onLogin }) {
     const provider = isGoogle ? 'google' : isKakao ? 'kakao' : undefined;
 
     if (code && provider) {
-      fetch('http://localhost:3000/auth/login/social', {
+      fetch(`${API_BASE_URL}/auth/login/social`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider, authorizationCode: code }),
