@@ -33,7 +33,7 @@ import { useCollaboration } from '../hooks/useCollaboration';
 
 function NoCodeEditor() {
   const { roomId } = useParams();
-
+  const location = useLocation();
   // 기본 상태
   const [components, setComponents] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -89,6 +89,10 @@ function NoCodeEditor() {
   // ref
   const canvasRef = useRef();
   const containerRef = useRef();
+  
+  const handleComponentsUpdate = useCallback((newComponents) => {
+    setComponents(newComponents);
+  }, []);
 
   // 협업 기능 통합
   const collaboration = useCollaboration({
@@ -117,6 +121,29 @@ function NoCodeEditor() {
       console.log('협업 서버에 연결되었습니다.');
     }
   }, [isConnected]);
+
+ // 템플릿 로딩 - YJS 초기화 대기
+  const loadedTemplateRef = useRef(null);
+  
+  useEffect(() => {
+    const templateComponents = location.state?.templateComponents;
+    if (templateComponents && Array.isArray(templateComponents) && collaboration.ydoc) {
+      // 이전에 로딩한 템플릿과 다른지 확인
+      const templateKey = JSON.stringify(templateComponents.map(c => c.id));
+      if (loadedTemplateRef.current !== templateKey) {
+        console.log('새로운 템플릿 로딩:', templateComponents.length, '개');
+        templateComponents.forEach((comp, index) => {
+          console.log(`addComponent ${index} 호출:`, comp);
+          addComponent(comp);
+          console.log(`addComponent ${index} 완료`);
+        });
+        loadedTemplateRef.current = templateKey;
+        console.log('템플릿 로딩 완료');
+      }
+    } else if (templateComponents) {
+      console.log('YJS 초기화 대기 중...', { hasYdoc: !!collaboration.ydoc });
+    }
+  }, [location.state, addComponent, collaboration.ydoc]);
 
   // viewport 변경 시 캔버스 높이 초기화
   useEffect(() => {

@@ -468,16 +468,6 @@ function CanvasArea({
   const leftPadding = isLibraryOpen ? 280 : 40; // 라이브러리 열림/닫힘에 따라
   const containerWidth = actualCanvasSize.width + (viewport === 'mobile' ? 40 : leftPadding + 60); // 모바일: 40px, 데스크톱: 동적
   const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
-  
-  // 디버깅: 캔버스 크기 정보 콘솔 출력
-  console.log('Canvas Size Debug:', {
-    canvasHeight,
-    actualCanvasSize,
-    containerWidth,
-    containerHeight,
-    viewport,
-    extenderComponents: components.filter(comp => comp.id.startsWith('canvas-extender-')).length
-  });
 
   return (
     <div
@@ -646,27 +636,26 @@ function CanvasArea({
             />
           ))}
 
-          {/* 캔버스 내 컴포넌트 렌더링 (더미 컴포넌트 제외) */}
-          {components
-            .map(comp => {
-              if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
-              return (
-                <CanvasComponent
-                  key={comp.id}
-                  comp={comp}
-                  selected={selectedId === comp.id}
-                  onSelect={onSelect}
-                  onUpdate={onUpdate}
-                  onDelete={onDelete}
-                  setSnapLines={setSnapLines}
-                  zoom={localZoom}
-                  viewport={viewport}
-                  components={components}
-                  getComponentDimensions={getComponentDimensions}
-                  canvasHeight={canvasHeight} // 확장된 캔버스 높이 전달
-                />
-              );
-            })}
+          {/* 캔버스 내 컴포넌트 렌더링 */}
+          {components.map(comp => {
+            // if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
+            return (
+              <CanvasComponent
+                key={comp.id}
+                comp={comp}
+                selected={selectedId === comp.id}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                setSnapLines={setSnapLines}
+                zoom={localZoom}
+                viewport={viewport}
+                components={components}
+                getComponentDimensions={getComponentDimensions}
+                canvasHeight={canvasHeight} // 확장된 캔버스 높이 전달
+              />
+            );
+          })}
 
           {/* 실시간 커서 표시 */}
           {Object.entries(users).map(([nick, u]) =>

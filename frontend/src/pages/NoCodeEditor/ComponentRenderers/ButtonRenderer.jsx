@@ -3,6 +3,7 @@ import { getResponsiveValue, getResponsiveScale } from '../utils/editorUtils';
 
 function ButtonRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
   console.log('버튼 컴포넌트 렌더링:', comp);
+
   
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props.text);
