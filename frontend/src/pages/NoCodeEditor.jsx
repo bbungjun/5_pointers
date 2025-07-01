@@ -22,6 +22,7 @@ import CalendarRenderer from './NoCodeEditor/ComponentRenderers/CalendarRenderer
 import BankAccountRenderer from './NoCodeEditor/ComponentRenderers/BankAccountRenderer';
 import MapInfoRenderer from './NoCodeEditor/ComponentRenderers/MapInfoRenderer';
 import CommentRenderer from './NoCodeEditor/ComponentRenderers/CommentRenderer';
+import WeddingInviteRenderer from './NoCodeEditor/ComponentRenderers/WeddingInviteRenderer';
 
 
 // 그리드 크기 상수
@@ -122,7 +123,8 @@ function getComponentDimensions(type) {
     mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
     calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 250, minHeight: 300 },
     bankAccount: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
-    comment: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 }
+    comment: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
+    weddingInvite: { defaultWidth: 450, defaultHeight: 500, minWidth: 250, minHeight: 150 }
   };
   return dimensions[type] || { defaultWidth: 120, defaultHeight: 40, minWidth: 80, minHeight: 30 };
 }
@@ -216,6 +218,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
         return <BankAccountRenderer comp={comp} isEditor={true} />;
       case 'comment':
         return <CommentRenderer comp={comp} isEditor={true} />;
+      case 'weddingInvite':
+        return <WeddingInviteRenderer comp={comp} isEditor={true} />;
       default:
         return <span>{comp.props.text}</span>;
     }
@@ -1079,6 +1083,7 @@ function NoCodeEditor() {
     
     yComponents.push([extenderComponent]);
   };
+
 
   return (
     <div style={{

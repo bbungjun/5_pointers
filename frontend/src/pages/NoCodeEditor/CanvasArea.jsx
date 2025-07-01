@@ -117,6 +117,7 @@ function CanvasArea({
   otherSelections = [],
   getComponentDimensions // 컴포넌트 크기 함수
 }) {
+
   const [localZoom, setLocalZoom] = useState(zoom);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -784,6 +785,7 @@ function CanvasArea({
               />
             );
           })}
+          
 
           {/* 실시간 커서 표시 */}
           {Object.entries(users).map(([nick, u]) =>
