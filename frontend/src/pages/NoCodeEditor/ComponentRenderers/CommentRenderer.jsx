@@ -83,7 +83,19 @@ function CommentRenderer({ comp, isEditor = false }) {
   // 에디터 모드에서도 실제 UI를 보여주되 버튼만 비활성화
 
   return (
-    <div className="w-full p-6 rounded-lg border" style={{ backgroundColor, minWidth: '400px' }}>
+    <div style={{
+      width: '100%',
+      height: '100%',
+      padding: '24px',
+      borderRadius: '8px',
+      border: '1px solid #e5e7eb',
+      backgroundColor,
+      minWidth: '250px',
+      minHeight: '150px',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'auto'
+    }}>
       <h3 className="text-lg font-semibold mb-4 text-gray-800">
         {title || '축하 메세지를 남겨주세요'}
       </h3>
