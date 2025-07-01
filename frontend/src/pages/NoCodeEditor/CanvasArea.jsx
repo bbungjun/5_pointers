@@ -89,27 +89,6 @@ function AddSectionButton({ components, viewport, onAddSection, getComponentDime
   );
 }
 
-// 컴포넌트 타입별 기본 크기와 최소 크기 정의 (NoCodeEditor.jsx와 동일)
-function getComponentDimensions(type) {
-  const dimensions = {
-    button: { defaultWidth: 120, defaultHeight: 48, minWidth: 80, minHeight: 32 },
-    text: { defaultWidth: 200, defaultHeight: 30, minWidth: 50, minHeight: 20 },
-    image: { defaultWidth: 200, defaultHeight: 150, minWidth: 50, minHeight: 50 },
-    map: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 150 },
-    link: { defaultWidth: 150, defaultHeight: 30, minWidth: 50, minHeight: 20 },
-    attend: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
-    dday: { defaultWidth: 200, defaultHeight: 100, minWidth: 150, minHeight: 80 },
-    weddingContact: { defaultWidth: 300, defaultHeight: 250, minWidth: 250, minHeight: 200 },
-    gridGallery: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 200 },
-    slideGallery: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 200 },
-    mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
-    calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 250, minHeight: 300 },
-    bankAccount: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
-    weddingInvite: { defaultWidth: 450, defaultHeight: 400, minWidth: 250, minHeight: 150 } 
-  };
-  return dimensions[type] || { defaultWidth: 120, defaultHeight: 40, minWidth: 80, minHeight: 30 };
-}
-
 function CanvasArea({
   canvasRef,
   containerRef,
@@ -135,7 +114,8 @@ function CanvasArea({
   updateCursorPosition, // 협업 커서 위치 업데이트 함수
   // 협업 기능 props 추가
   otherCursors = [],
-  otherSelections = []
+  otherSelections = [],
+  getComponentDimensions // 컴포넌트 크기 함수
 }) {
   const [localZoom, setLocalZoom] = useState(zoom);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -804,6 +784,7 @@ function CanvasArea({
               zoom={localZoom}
               viewport={viewport}
               components={components}
+              getComponentDimensions={getComponentDimensions}
             />
           ))}
 
