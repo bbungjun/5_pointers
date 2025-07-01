@@ -96,8 +96,6 @@ export function useCollaboration({
 
   // 컴포넌트 추가 함수
   const addComponent = (component) => {
-    if (!componentsArrayRef.current) return;
-
     componentsArrayRef.current.push([component]);
   };
 
