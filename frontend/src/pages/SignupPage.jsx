@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 function SignupPage({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ function SignupPage({ onLogin }) {
     setMsg('');
     if (email && nickname && password) {
       try {
-        const res = await fetch('http://localhost:3000/auth/signup/local', {
+        const res = await fetch(`${API_BASE_URL}/auth/signup/local`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, nickname, password }),

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 10);
@@ -30,8 +31,8 @@ function DashboardPage({ user, onLogout }) {
     try {
       setLoading(true);
       const url = category === 'all' 
-        ? 'http://localhost:3000/templates'
-        : `http://localhost:3000/templates?category=${category}`;
+        ? `${API_BASE_URL}/templates`
+        : `${API_BASE_URL}/templates?category=${category}`;
       
       const response = await fetch(url);
       if (response.ok) {
@@ -99,7 +100,7 @@ function DashboardPage({ user, onLogout }) {
       if (token) console.log('Token preview:', token.substring(0, 20) + '...');
       
       const subdomain = randomId();
-      const response = await fetch('http://localhost:3000/users/pages', {
+              const response = await fetch(`${API_BASE_URL}/users/pages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
