@@ -33,7 +33,8 @@ export function getComponentDimensions(type) {
     mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
     calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 250, minHeight: 300 },
     bankAccount: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
-    comment: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 }
+    comment: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
+    weddingInvite: { defaultWidth: 500, defaultHeight: 500, minWidth: 300, minHeight: 250 }
   };
   return dimensions[type] || { defaultWidth: 120, defaultHeight: 40, minWidth: 80, minHeight: 30 };
 }
