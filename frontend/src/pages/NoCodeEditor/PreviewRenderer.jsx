@@ -1,4 +1,5 @@
 import React from 'react';
+import { getResponsiveStyles, getResponsiveValue, VIEWPORT_SIZES } from './utils/editorUtils';
 import ButtonRenderer from './ComponentRenderers/ButtonRenderer';
 import TextRenderer from './ComponentRenderers/TextRenderer';
 import LinkRenderer from './ComponentRenderers/LinkRenderer';
@@ -56,7 +57,7 @@ const componentDefinitions = {
  * 2. 실제 배포 환경과 동일한 모습을 보여줌
  * 3. 드래그, 선택, 편집 등의 에디터 기능은 포함하지 않음
  */
-const PreviewRenderer = ({ pageContent }) => {
+const PreviewRenderer = ({ pageContent, viewport = 'desktop' }) => {
   // 컴포넌트의 props와 defaultProps를 병합하는 함수
   const getMergedProps = (comp) => {
     const definition = componentDefinitions[comp.type];
@@ -68,14 +69,10 @@ const PreviewRenderer = ({ pageContent }) => {
   const renderComponent = (comp) => {
     const mergedProps = getMergedProps(comp);
     
-    const baseStyle = {
-      position: 'absolute',
-      left: comp.x,
-      top: comp.y,
-      width: comp.width || 'auto',
-      height: comp.height || 'auto',
+    // 반응형 스타일 적용
+    const baseStyle = getResponsiveStyles(comp, viewport, {
       // 편집 관련 스타일 제거 (border, cursor 등)
-    };
+    });
 
     // 병합된 props로 새로운 comp 객체 생성
     const compWithMergedProps = {
@@ -86,33 +83,33 @@ const PreviewRenderer = ({ pageContent }) => {
     const componentContent = (() => {
       switch (comp.type) {
         case 'button':
-          return <ButtonRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <ButtonRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'text':
-          return <TextRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <TextRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'link':
-          return <LinkRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <LinkRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'attend':
-          return <AttendRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <AttendRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'map':
-          return <MapView {...mergedProps} isEditor={true} />;
+          return <MapView {...mergedProps} isEditor={false} viewport={viewport} />;
         case 'dday':
-          return <DdayRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <DdayRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'weddingContact':
-          return <WeddingContactRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <WeddingContactRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'image':
-          return <ImageRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <ImageRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'gridGallery':
-          return <GridGalleryRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <GridGalleryRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'slideGallery':
-          return <SlideGalleryRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <SlideGalleryRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'mapInfo':
-          return <MapInfoRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <MapInfoRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'calendar':
-          return <CalendarRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <CalendarRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'comment':
-          return <CommentRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <CommentRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         case 'bankAccount':
-          return <BankAccountRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <BankAccountRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
         default:
           return (
             <div style={{
@@ -134,14 +131,11 @@ const PreviewRenderer = ({ pageContent }) => {
         key={comp.id}
         data-component-type={comp.type}
         data-component-id={comp.id}
-        // 미리보기에서는 모든 편집 이벤트 차단
-        onDoubleClick={(e) => e.preventDefault()}
-        onClick={(e) => e.preventDefault()}
-        onMouseDown={(e) => e.preventDefault()}
+        // 미리보기에서는 실제 동작 허용 (링크, 버튼 등)
         style={{
           ...baseStyle,
-          pointerEvents: 'none', // 모든 마우스 이벤트 차단
-          userSelect: 'none'     // 텍스트 선택 차단
+          pointerEvents: 'auto', // 실제 동작 활성화 (링크, 버튼 클릭 등)
+          userSelect: 'text'     // 텍스트 선택 가능
         }}
       >
         {componentContent}
@@ -149,24 +143,29 @@ const PreviewRenderer = ({ pageContent }) => {
     );
   };
 
-  // 확장된 캔버스 크기 계산
+  // 확장된 캔버스 크기 계산 (반응형)
   const calculateCanvasSize = () => {
+    const baseSize = VIEWPORT_SIZES[viewport] || VIEWPORT_SIZES.desktop;
+    
     if (!pageContent || !Array.isArray(pageContent) || pageContent.length === 0) {
-      return { width: 1920, height: 1080 };
+      return baseSize;
     }
 
-    // 모든 컴포넌트의 최대 위치 계산
-    let maxX = 1920;
-    let maxY = 1080;
+    // 모든 컴포넌트의 최대 위치 계산 (반응형 스케일링 적용)
+    let maxX = baseSize.width;
+    let maxY = baseSize.height;
 
     pageContent.forEach(comp => {
       if (comp.id && comp.id.startsWith('canvas-extender-')) {
         // 확장 컴포넌트는 캔버스 크기 계산에 포함
-        maxY = Math.max(maxY, comp.y + (comp.height || 0) + 100);
+        const responsiveY = getResponsiveValue(comp.y + (comp.height || 0) + 100, viewport, 'position');
+        maxY = Math.max(maxY, responsiveY);
       } else {
-        // 일반 컴포넌트의 경우 실제 위치 + 크기로 계산
-        maxX = Math.max(maxX, comp.x + (comp.width || 200));
-        maxY = Math.max(maxY, comp.y + (comp.height || 100) + 100);
+        // 일반 컴포넌트의 경우 실제 위치 + 크기로 계산 (반응형 적용)
+        const responsiveX = getResponsiveValue(comp.x + (comp.width || 200), viewport, 'position');
+        const responsiveY = getResponsiveValue(comp.y + (comp.height || 100) + 100, viewport, 'position');
+        maxX = Math.max(maxX, responsiveX);
+        maxY = Math.max(maxY, responsiveY);
       }
     });
 

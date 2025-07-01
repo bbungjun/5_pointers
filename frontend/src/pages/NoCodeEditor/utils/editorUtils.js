@@ -1,6 +1,60 @@
 // 그리드 크기 상수
 export const GRID_SIZE = 50;
 
+// 기준 뷰포트 크기 (데스크톱)
+export const BASE_VIEWPORT = {
+  width: 1920,
+  height: 1080
+};
+
+// 뷰포트별 크기 정의
+export const VIEWPORT_SIZES = {
+  desktop: { width: 1920, height: 1080 },
+  mobile: { width: 375, height: 667 }
+};
+
+// 반응형 스케일 계산 함수
+export function getResponsiveScale(currentViewport) {
+  const current = VIEWPORT_SIZES[currentViewport] || VIEWPORT_SIZES.desktop;
+  const base = BASE_VIEWPORT;
+  
+  // 너비 기준으로 스케일 계산 (높이는 자동 조정)
+  return current.width / base.width;
+}
+
+// 반응형 값 계산 함수
+export function getResponsiveValue(value, viewport, type = 'size') {
+  if (viewport === 'desktop') return value;
+  
+  const scale = getResponsiveScale(viewport);
+  
+  switch (type) {
+    case 'size': // 크기 (width, height)
+    case 'position': // 위치 (x, y)
+      return Math.round(value * scale);
+    case 'fontSize': // 폰트 크기
+      return Math.max(12, Math.round(value * scale)); // 최소 12px
+    default:
+      return value;
+  }
+}
+
+// 반응형 스타일 객체 생성 함수
+export function getResponsiveStyles(comp, viewport, additionalStyles = {}) {
+  const scale = getResponsiveScale(viewport);
+  
+  return {
+    position: 'absolute',
+    left: getResponsiveValue(comp.x, viewport, 'position'),
+    top: getResponsiveValue(comp.y, viewport, 'position'),
+    width: getResponsiveValue(comp.width || getComponentDimensions(comp.type).defaultWidth, viewport, 'size'),
+    height: getResponsiveValue(comp.height || getComponentDimensions(comp.type).defaultHeight, viewport, 'size'),
+    // 폰트 크기도 스케일링
+    fontSize: comp.props?.fontSize ? getResponsiveValue(comp.props.fontSize, viewport, 'fontSize') : undefined,
+    ...additionalStyles
+  };
+}
+
 // clamp 함수
 export function clamp(val, min, max) {
   return Math.max(min, Math.min(max, val));
@@ -17,26 +71,25 @@ export function randomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-// 컴포넌트 타입별 기본 크기와 최소 크기 정의
+// 컴포넌트 타입별 기본 크기와 최소 크기 정의 (50px 그리드에 맞춤)
 export function getComponentDimensions(type) {
   const dimensions = {
-    button: { defaultWidth: 120, defaultHeight: 48, minWidth: 80, minHeight: 32 },
-    text: { defaultWidth: 200, defaultHeight: 30, minWidth: 50, minHeight: 20 },
-    image: { defaultWidth: 200, defaultHeight: 150, minWidth: 50, minHeight: 50 },
+    button: { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 },
+    text: { defaultWidth: 200, defaultHeight: 50, minWidth: 100, minHeight: 50 },
+    image: { defaultWidth: 200, defaultHeight: 150, minWidth: 100, minHeight: 100 },
     map: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 150 },
-    link: { defaultWidth: 150, defaultHeight: 30, minWidth: 50, minHeight: 20 },
-    attend: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
-    dday: { defaultWidth: 200, defaultHeight: 100, minWidth: 150, minHeight: 80 },
+    link: { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 },
+    attend: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
+    dday: { defaultWidth: 200, defaultHeight: 100, minWidth: 150, minHeight: 100 },
     weddingContact: { defaultWidth: 300, defaultHeight: 250, minWidth: 250, minHeight: 200 },
     gridGallery: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 200 },
     slideGallery: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 200 },
-    mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
-    calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 250, minHeight: 300 },
-    bankAccount: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
-    comment: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
-    weddingInvite: { defaultWidth: 500, defaultHeight: 500, minWidth: 300, minHeight: 250 }
+    mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
+    calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 300, minHeight: 350 },
+    bankAccount: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
+    comment: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 }
   };
-  return dimensions[type] || { defaultWidth: 120, defaultHeight: 40, minWidth: 80, minHeight: 30 };
+  return dimensions[type] || { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 };
 }
 
 // 충돌 감지 함수

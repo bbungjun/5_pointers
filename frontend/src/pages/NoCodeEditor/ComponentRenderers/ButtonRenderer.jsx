@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getResponsiveValue, getResponsiveScale } from '../utils/editorUtils';
 
-function ButtonRenderer({ comp, isEditor = false }) {
-  // console.log('버튼 컴포넌트 렌더링:', comp);
+function ButtonRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
+  console.log('버튼 컴포넌트 렌더링:', comp);
+
   
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props.text);
@@ -45,10 +47,15 @@ function ButtonRenderer({ comp, isEditor = false }) {
     }
   };
 
+  // 반응형 스케일링 적용
+  const scale = getResponsiveScale(viewport);
+  const responsiveFontSize = getResponsiveValue(comp.props.fontSize || 18, viewport, 'fontSize');
+  const responsivePadding = Math.max(4, Math.round((8 * scale)));
+  const responsiveLetterSpacing = (comp.props.letterSpacing || 0) * scale;
+  
   const fontStyle = comp.props.fontFamily || 'Arial, sans-serif';
   const textAlign = comp.props.textAlign || 'center';
   const lineHeight = comp.props.lineHeight || 1.2;
-  const letterSpacing = comp.props.letterSpacing || 0;
   const fontWeight = comp.props.fontWeight ? 'bold' : 'normal';
   const textDecoration = comp.props.textDecoration ? 'underline' : 'none';
   
@@ -65,19 +72,19 @@ function ButtonRenderer({ comp, isEditor = false }) {
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         style={{
-          fontSize: (comp.props.fontSize || 18) + 'px',
+          fontSize: responsiveFontSize + 'px',
           fontFamily: fontStyle,
           textAlign: textAlign,
           lineHeight: lineHeight,
-          letterSpacing: letterSpacing + 'px',
+          letterSpacing: responsiveLetterSpacing + 'px',
           fontWeight: fontWeight,
           textDecoration: textDecoration,
           transform: italicTransform,
           width: '100%',
           height: '100%',
           border: '1px solid #3B4EFF',
-          borderRadius: 4,
-          padding: '8px 12px',
+          borderRadius: Math.max(2, Math.round(4 * scale)),
+          padding: `${responsivePadding}px ${responsivePadding * 1.5}px`,
           boxSizing: 'border-box'
         }}
       />
@@ -98,19 +105,19 @@ function ButtonRenderer({ comp, isEditor = false }) {
                        textAlign === 'right' ? 'flex-end' : 'center',
         background: comp.props.bg || '#3B4EFF', 
         color: comp.props.color || '#fff',
-        fontSize: (comp.props.fontSize || 18) + 'px', 
+        fontSize: responsiveFontSize + 'px', 
         fontFamily: fontStyle,
         fontWeight: fontWeight,
         textDecoration: textDecoration,
-        borderRadius: 6, 
+        borderRadius: Math.max(2, Math.round(6 * scale)), 
         cursor: 'pointer',
         border: 'none',
         outline: 'none',
         userSelect: 'none',
         textTransform: 'none',
         lineHeight: lineHeight,
-        letterSpacing: letterSpacing + 'px',
-        padding: '8px 12px',
+        letterSpacing: responsiveLetterSpacing + 'px',
+        padding: `${responsivePadding}px ${responsivePadding * 1.5}px`,
         boxSizing: 'border-box',
         textAlign: textAlign,
         overflow: 'visible',
@@ -123,17 +130,17 @@ function ButtonRenderer({ comp, isEditor = false }) {
         display: 'block',
         width: '100%',
         textAlign: textAlign,
-        letterSpacing: letterSpacing + 'px',
+        letterSpacing: responsiveLetterSpacing + 'px',
         lineHeight: lineHeight,
         fontWeight: fontWeight,
         textDecoration: textDecoration,
         transform: italicTransform, // 강제 기울임 적용
         overflow: 'visible',
         whiteSpace: 'nowrap',
-        textIndent: textAlign === 'center' && letterSpacing !== 0 ? 
-                   (letterSpacing / 2) + 'px' : '0',
-        marginRight: textAlign === 'center' && letterSpacing !== 0 ? 
-                    (-letterSpacing / 2) + 'px' : '0'
+        textIndent: textAlign === 'center' && responsiveLetterSpacing !== 0 ? 
+                   (responsiveLetterSpacing / 2) + 'px' : '0',
+        marginRight: textAlign === 'center' && responsiveLetterSpacing !== 0 ? 
+                    (-responsiveLetterSpacing / 2) + 'px' : '0'
       }}>
         {textContent}
       </span>

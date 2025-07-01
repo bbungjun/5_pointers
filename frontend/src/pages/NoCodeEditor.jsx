@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 // 모듈화된 컴포넌트들
 import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
@@ -34,14 +34,8 @@ import { useCollaboration } from '../hooks/useCollaboration';
 function NoCodeEditor() {
   const { roomId } = useParams();
   const location = useLocation();
-
   // 기본 상태
   const [components, setComponents] = useState([]);
-  
-  // components 상태 변경 감지
-  useEffect(() => {
-    // console.log('components 상태 변경:', components.length, '개', components);
-  }, [components]);
   const [selectedId, setSelectedId] = useState(null);
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
   const [zoom, setZoom] = useState(100);
@@ -95,18 +89,18 @@ function NoCodeEditor() {
   // ref
   const canvasRef = useRef();
   const containerRef = useRef();
-
-  // 협업 기능 통합
+  
   const handleComponentsUpdate = useCallback((newComponents) => {
     setComponents(newComponents);
   }, []);
-  
+
+  // 협업 기능 통합
   const collaboration = useCollaboration({
     roomId,
     userInfo,
     canvasRef,
     selectedComponentId: selectedId,
-    onComponentsUpdate: handleComponentsUpdate
+    onComponentsUpdate: setComponents
   });
 
   // 협업 상태 구조분해할당
@@ -127,9 +121,8 @@ function NoCodeEditor() {
       console.log('협업 서버에 연결되었습니다.');
     }
   }, [isConnected]);
-  
-  
-  // 템플릿 로딩 - YJS 초기화 대기
+
+ // 템플릿 로딩 - YJS 초기화 대기
   const loadedTemplateRef = useRef(null);
   
   useEffect(() => {
@@ -151,13 +144,6 @@ function NoCodeEditor() {
       console.log('YJS 초기화 대기 중...', { hasYdoc: !!collaboration.ydoc });
     }
   }, [location.state, addComponent, collaboration.ydoc]);
-
-  // viewport 변경 시 캔버스 높이 초기화
-  useEffect(() => {
-    const baseHeight = viewport === 'mobile' ? 667 : 1080;
-    setCanvasHeight(baseHeight);
-  }, [viewport]);
-
 
   // viewport 변경 시 캔버스 높이 초기화
   useEffect(() => {
@@ -490,23 +476,6 @@ function NoCodeEditor() {
         setTemplateData={setTemplateData}
         onSave={handleSaveAsTemplate}
       />
-
-      {/* 연결 상태 표시 */}
-      {!isConnected && (
-        <div style={{
-          position: 'fixed',
-          bottom: '40px', // 스크롤바 위로 올림
-          left: isLibraryOpen ? '260px' : '20px', // 라이브러리 상태에 따라 위치 조정
-          padding: '8px 12px',
-          backgroundColor: '#ff9800',
-          color: 'white',
-          borderRadius: '6px',
-          fontSize: '12px',
-          zIndex: 999 // 스크롤바보다 낮은 z-index
-        }}>
-          협업 서버 연결 중...
-        </div>
-      )}
 
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}
       <style>{`

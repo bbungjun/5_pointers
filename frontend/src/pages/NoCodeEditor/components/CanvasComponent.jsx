@@ -140,35 +140,35 @@ function CanvasComponent({
 
     switch (comp.type) {
       case 'button':
-        return <ButtonRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <ButtonRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'text':
-        return <TextRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <TextRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'link':
-        return <LinkRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <LinkRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'attend':
-        return <AttendRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <AttendRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'map':
-        return <MapView {...comp.props} />;
+        return <MapView {...comp.props} viewport={viewport} />;
       case 'dday':
-        return <DdayRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <DdayRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'weddingContact':
-        return <WeddingContactRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <WeddingContactRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'image':
-        return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'gridGallery':
-        return <GridGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <GridGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'slideGallery':
-        return <SlideGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <SlideGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'mapInfo':
-        return <MapInfoRenderer comp={comp} isEditor={true} />;
+        return <MapInfoRenderer comp={comp} isEditor={true} viewport={viewport} />;
       case 'calendar':
-        return <CalendarRenderer comp={comp} isEditor={true} />;
+        return <CalendarRenderer comp={comp} isEditor={true} viewport={viewport} />;
       case 'bankAccount':
-        return <BankAccountRenderer comp={comp} isEditor={true} />;
+        return <BankAccountRenderer comp={comp} isEditor={true} viewport={viewport} />;
       case 'comment':
-        return <CommentRenderer comp={comp} isEditor={true} />;
+        return <CommentRenderer comp={comp} isEditor={true} viewport={viewport} />;
       case 'weddingInvite':
-        return <WeddingInviteRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <WeddingInviteRenderer comp={comp} isEditor={true} viewport={viewport} />;
       default:
         return <span>{comp.props.text}</span>;
     }
