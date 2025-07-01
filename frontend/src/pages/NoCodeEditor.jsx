@@ -37,6 +37,11 @@ function NoCodeEditor() {
 
   // 기본 상태
   const [components, setComponents] = useState([]);
+  
+  // components 상태 변경 감지
+  useEffect(() => {
+    // console.log('components 상태 변경:', components.length, '개', components);
+  }, [components]);
   const [selectedId, setSelectedId] = useState(null);
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
   const [zoom, setZoom] = useState(100);
@@ -92,12 +97,16 @@ function NoCodeEditor() {
   const containerRef = useRef();
 
   // 협업 기능 통합
+  const handleComponentsUpdate = useCallback((newComponents) => {
+    setComponents(newComponents);
+  }, []);
+  
   const collaboration = useCollaboration({
     roomId,
     userInfo,
     canvasRef,
     selectedComponentId: selectedId,
-    onComponentsUpdate: setComponents
+    onComponentsUpdate: handleComponentsUpdate
   });
 
   // 협업 상태 구조분해할당
@@ -120,17 +129,28 @@ function NoCodeEditor() {
   }, [isConnected]);
   
   
-  // 템플릿 로딩 - 협업 기능을 통해 추가
+  // 템플릿 로딩 - YJS 초기화 대기
+  const loadedTemplateRef = useRef(null);
+  
   useEffect(() => {
     const templateComponents = location.state?.templateComponents;
-    if (templateComponents && Array.isArray(templateComponents)) {
-      console.log('템플릿 컴포넌트 로딩:', templateComponents);
-      // 협업 기능의 addComponent 사용
-      templateComponents.forEach(comp => {
-        addComponent(comp);
-      });
+    if (templateComponents && Array.isArray(templateComponents) && collaboration.ydoc) {
+      // 이전에 로딩한 템플릿과 다른지 확인
+      const templateKey = JSON.stringify(templateComponents.map(c => c.id));
+      if (loadedTemplateRef.current !== templateKey) {
+        console.log('새로운 템플릿 로딩:', templateComponents.length, '개');
+        templateComponents.forEach((comp, index) => {
+          console.log(`addComponent ${index} 호출:`, comp);
+          addComponent(comp);
+          console.log(`addComponent ${index} 완료`);
+        });
+        loadedTemplateRef.current = templateKey;
+        console.log('템플릿 로딩 완료');
+      }
+    } else if (templateComponents) {
+      console.log('YJS 초기화 대기 중...', { hasYdoc: !!collaboration.ydoc });
     }
-  }, [location.state, addComponent]);
+  }, [location.state, addComponent, collaboration.ydoc]);
 
   // viewport 변경 시 캔버스 높이 초기화
   useEffect(() => {
