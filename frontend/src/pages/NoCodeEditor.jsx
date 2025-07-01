@@ -24,9 +24,7 @@ import ViewportController from './NoCodeEditor/ViewportController';
 import CommentRenderer from './NoCodeEditor/ComponentRenderers/CommentRenderer';
 // 협업 기능 imports
 import { useCollaboration } from '../hooks/useCollaboration';
-import { LiveCursors, CollaborativeSelections } from '../components/collaboration/LiveCursors';
-import { CommentPins, CommentThreadModal, CommentModeToggle } from '../components/collaboration/CommentSystem';
-import { VersionHistoryPanel } from '../components/collaboration/VersionHistory'; 
+import { LiveCursors, CollaborativeSelections } from '../components/collaboration/LiveCursors'; 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
 
@@ -782,30 +780,11 @@ function NoCodeEditor() {
     isConnected,
     otherCursors,
     otherSelections,
-    commentMode,
-    comments,
-    versions,
-    isCreatingSnapshot,
-    isRestoring,
     updateComponent,
     addComponent,
     removeComponent,
-    addComment,
-    addReply,
-    toggleResolveComment,
-    deleteComment,
-    getCommentsForComponent,
-    toggleCommentMode,
-    createSnapshot,
-    restoreVersion,
-    deleteVersion,
-    renameVersion,
     getActiveUsers
   } = collaboration;
-
-  // 버전 히스토리 패널 상태
-  const [showVersionHistory, setShowVersionHistory] = useState(false);
-  const [selectedComment, setSelectedComment] = useState(null);
 
   // 연결 상태 표시 (선택사항)
   useEffect(() => {
@@ -904,15 +883,7 @@ function NoCodeEditor() {
     if (selectedId === id) setSelectedId(null);
   };
 
-  // 주석 관련 핸들러
-  const handleCommentPinClick = (commentId) => {
-    const comment = comments.find(c => c.id === commentId);
-    setSelectedComment(comment);
-  };
 
-  const handleAddComment = (componentId, position, text) => {
-    addComment(componentId, position, text);
-  };
 
   // Delete 키로 삭제
   useEffect(() => {
@@ -1154,14 +1125,6 @@ function NoCodeEditor() {
           selections={otherSelections} 
           components={components} 
         />
-
-        {/* 협업 기능: 주석 핀들 */}
-        <CommentPins
-          comments={comments}
-          onPinClick={handleCommentPinClick}
-          onAddComment={handleAddComment}
-          commentMode={commentMode}
-        />
       </div>
 
       {/* 우측: 속성 인스펙터 */}
@@ -1182,36 +1145,7 @@ function NoCodeEditor() {
         pageContent={components}
       />
 
-      {/* 협업 기능: 주석 모드 토글 */}
-      <CommentModeToggle
-        commentMode={commentMode}
-        onToggle={toggleCommentMode}
-      />
 
-      {/* 협업 기능: 버전 히스토리 패널 */}
-      <VersionHistoryPanel
-        versions={versions}
-        onCreateSnapshot={createSnapshot}
-        onRestoreVersion={restoreVersion}
-        onDeleteVersion={deleteVersion}
-        onRenameVersion={renameVersion}
-        isCreatingSnapshot={isCreatingSnapshot}
-        isRestoring={isRestoring}
-        isOpen={showVersionHistory}
-        onToggle={() => setShowVersionHistory(!showVersionHistory)}
-      />
-
-      {/* 협업 기능: 주석 스레드 모달 */}
-      {selectedComment && (
-        <CommentThreadModal
-          comment={selectedComment}
-          onClose={() => setSelectedComment(null)}
-          onAddReply={addReply}
-          onResolve={toggleResolveComment}
-          onDelete={deleteComment}
-          currentUser={userInfo}
-        />
-      )}
 
       {/* 연결 상태 표시 */}
       {!isConnected && (
@@ -1230,37 +1164,7 @@ function NoCodeEditor() {
         </div>
       )}
 
-      {/* 복원 중 오버레이 */}
-      {isRestoring && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 2000
-        }}>
-          <div style={{
-            padding: '24px',
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            textAlign: 'center',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
-          }}>
-            <div style={{ fontSize: '24px', marginBottom: '12px' }}>🔄</div>
-            <div style={{ fontSize: '16px', fontWeight: '500' }}>
-              버전을 복원하는 중입니다...
-            </div>
-            <div style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
-              잠시만 기다려주세요
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}
       <style>{`
