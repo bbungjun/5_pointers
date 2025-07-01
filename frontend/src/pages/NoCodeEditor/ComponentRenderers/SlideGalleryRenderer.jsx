@@ -26,8 +26,8 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate }) {
   const autoPlayRef = useRef(null);
 
   const {
-    containerWidth = 600,
-    containerHeight = 400,
+    containerWidth = comp.width || 400,
+    containerHeight = comp.height || 300,
     thumbnailHeight = 80,
     thumbnailGap = 8,
     borderRadius = 8,
@@ -103,17 +103,20 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate }) {
 
   // 메인 컨테이너 스타일
   const mainContainerStyle = {
-    width: containerWidth + "px",
+    width: "100%",
+    height: "100%",
     backgroundColor,
     borderRadius: borderRadius + "px",
     overflow: "hidden",
-    fontFamily: "system-ui, -apple-system, sans-serif"
+    fontFamily: "system-ui, -apple-system, sans-serif",
+    display: "flex",
+    flexDirection: "column"
   };
 
   // 메인 슬라이드 영역 스타일
   const slideAreaStyle = {
     width: "100%",
-    height: containerHeight + "px",
+    flex: 1,
     position: "relative",
     display: "flex",
     alignItems: "center",

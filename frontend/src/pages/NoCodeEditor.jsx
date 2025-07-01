@@ -24,9 +24,7 @@ import ViewportController from './NoCodeEditor/ViewportController';
 import CommentRenderer from './NoCodeEditor/ComponentRenderers/CommentRenderer';
 // 협업 기능 imports
 import { useCollaboration } from '../hooks/useCollaboration';
-import { LiveCursors, CollaborativeSelections } from '../components/collaboration/LiveCursors';
-import { CommentPins, CommentThreadModal, CommentModeToggle } from '../components/collaboration/CommentSystem';
-import { VersionHistoryPanel } from '../components/collaboration/VersionHistory'; 
+import { LiveCursors, CollaborativeSelections } from '../components/collaboration/LiveCursors'; 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
 
@@ -148,8 +146,43 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
   const effectiveGridSize = GRID_SIZE; // 고정된 그리드 크기
 
   const componentDimensions = getComponentDimensions(comp.type);
-  const currentWidth = comp.width || componentDimensions.defaultWidth;
-  const currentHeight = comp.height || componentDimensions.defaultHeight;
+  // 컴포넌트별 실제 크기 계산 (props와 comp 모두 고려)
+  const getActualSize = () => {
+    // 이미지 컴포넌트의 경우 props에서 크기를 가져옴
+    if (comp.type === 'image') {
+      return {
+        width: comp.props.width || comp.width || componentDimensions.defaultWidth,
+        height: comp.props.height || comp.height || componentDimensions.defaultHeight
+      };
+    }
+    
+    // 고정 크기 컴포넌트들 (리사이즈가 어려운 컴포넌트들)
+    if (['attend', 'dday', 'weddingContact', 'calendar', 'bankAccount', 'comment'].includes(comp.type)) {
+      // 이런 컴포넌트들은 내부 레이아웃이 복잡하므로 기본 크기를 우선 사용
+      return {
+        width: comp.width || componentDimensions.defaultWidth,
+        height: comp.height || componentDimensions.defaultHeight
+      };
+    }
+    
+    // 갤러리 컴포넌트들 (동적 크기 조정 가능)
+    if (['gridGallery', 'slideGallery'].includes(comp.type)) {
+      return {
+        width: comp.width || componentDimensions.defaultWidth,
+        height: comp.height || componentDimensions.defaultHeight
+      };
+    }
+    
+    // 기본 컴포넌트들 (button, text, link 등)
+    return {
+      width: comp.width || componentDimensions.defaultWidth,
+      height: comp.height || componentDimensions.defaultHeight
+    };
+  };
+  
+  const actualSize = getActualSize();
+  const currentWidth = actualSize.width;
+  const currentHeight = actualSize.height;
 
   useEffect(() => {
     if (editing && ref.current) ref.current.focus();
@@ -232,8 +265,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     setResizeStart({
       x: e.clientX,
       y: e.clientY,
-      width: comp.width || componentDimensions.defaultWidth,
-      height: comp.height || componentDimensions.defaultHeight,
+      width: currentWidth,
+      height: currentHeight,
       corner: corner
     });
   };
@@ -269,17 +302,33 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     }
     
     // 캔버스 경계 제한 (뷰포트에 따라 다르게 적용)
-    const maxWidth = viewport === 'mobile' ? 375 - comp.x : 1920 - comp.x;
-    const maxHeight = viewport === 'mobile' ? 667 - comp.y : 1080 - comp.y;
+    const maxWidth = viewport === 'mobile' ? Math.max(0, 375 - comp.x) : Math.max(0, 1920 - comp.x);
+    const maxHeight = viewport === 'mobile' ? Math.max(0, 667 - comp.y) : Math.max(0, 1080 - comp.y);
     
     newWidth = Math.min(newWidth, maxWidth);
     newHeight = Math.min(newHeight, maxHeight);
     
+    // 컴포넌트 타입에 따라 다르게 업데이트
+    if (comp.type === 'image') {
+      // 이미지 컴포넌트는 props에 크기 저장
     onUpdate({
       ...comp,
+        props: {
+          ...comp.props,
+          width: newWidth,
+          height: newHeight
+        },
       width: newWidth,
       height: newHeight
     });
+    } else {
+      // 다른 컴포넌트들은 comp 레벨에 크기 저장
+      onUpdate({
+        ...comp,
+        width: newWidth,
+        height: newHeight
+      });
+    }
   };
 
   const handleResizeEnd = () => {
@@ -311,8 +360,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
     const deltaY = e.clientY - dragStart.y;
     
     // 뷰포트에 따른 드래그 경계 제한
-    const maxX = viewport === 'mobile' ? 375 - (comp.width || componentDimensions.defaultWidth) : 1920 - (comp.width || componentDimensions.defaultWidth);
-    const maxY = viewport === 'mobile' ? 667 - (comp.height || componentDimensions.defaultHeight) : 1080 - (comp.height || componentDimensions.defaultHeight);
+    const maxX = viewport === 'mobile' ? Math.max(0, 375 - (comp.width || componentDimensions.defaultWidth)) : Math.max(0, 1920 - (comp.width || componentDimensions.defaultWidth));
+    const maxY = viewport === 'mobile' ? Math.max(0, 667 - (comp.height || componentDimensions.defaultHeight)) : Math.max(0, 1080 - (comp.height || componentDimensions.defaultHeight));
     
     // 기본 위치 계산 (그리드 스냅 적용)
     let newX = Math.round((dragStart.compX + deltaX) / effectiveGridSize) * effectiveGridSize;
@@ -396,10 +445,11 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
   return (
     <div
       ref={ref}
-      className={getResponsiveClasses(comp.type)}
+      className={`canvas-component ${getResponsiveClasses(comp.type)}`}
+      data-component-id={comp.id}
       style={{
         position: 'absolute',
-        left: comp.x,
+        left: comp.x, 
         top: comp.y,
         width: comp.width || componentDimensions.defaultWidth,
         height: comp.height || componentDimensions.defaultHeight,
@@ -416,8 +466,8 @@ function CanvasComponent({ comp, selected, onSelect, onUpdate, onDelete, setSnap
       }}
       onMouseDown={handleDragStart}
       onClick={(e) => {
-        e.stopPropagation();
-        onSelect(comp.id);
+          e.stopPropagation(); 
+          onSelect(comp.id); 
       }}
     >
       {renderContent()}
@@ -756,7 +806,7 @@ function NoCodeEditor() {
   const [zoom, setZoom] = useState(100);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [viewport, setViewport] = useState('desktop');
-  
+
   // 템플릿 저장 모달 상태
   const [isTemplateSaveOpen, setIsTemplateSaveOpen] = useState(false);
   const [templateData, setTemplateData] = useState({
@@ -765,6 +815,7 @@ function NoCodeEditor() {
     tags: ''
   });
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(true); // 컴포넌트 라이브러리 토글 상태
 
   // 사용자 정보
   const [userInfo] = useState(() => ({
@@ -807,30 +858,11 @@ function NoCodeEditor() {
     isConnected,
     otherCursors,
     otherSelections,
-    commentMode,
-    comments,
-    versions,
-    isCreatingSnapshot,
-    isRestoring,
     updateComponent,
     addComponent,
     removeComponent,
-    addComment,
-    addReply,
-    toggleResolveComment,
-    deleteComment,
-    getCommentsForComponent,
-    toggleCommentMode,
-    createSnapshot,
-    restoreVersion,
-    deleteVersion,
-    renameVersion,
     getActiveUsers
   } = collaboration;
-
-  // 버전 히스토리 패널 상태
-  const [showVersionHistory, setShowVersionHistory] = useState(false);
-  const [selectedComment, setSelectedComment] = useState(null);
 
   // 연결 상태 표시 (선택사항)
   useEffect(() => {
@@ -874,8 +906,8 @@ function NoCodeEditor() {
         const snappedX = Math.round(e.nativeEvent.offsetX / effectiveGridSize) * effectiveGridSize;
         const snappedY = Math.round(e.nativeEvent.offsetY / effectiveGridSize) * effectiveGridSize;
         
-        const maxX = viewport === 'mobile' ? 375 - width : 1920 - width;
-        const maxY = viewport === 'mobile' ? 667 - height : 1080 - height;
+        const maxX = viewport === 'mobile' ? Math.max(0, 375 - width) : Math.max(0, 1920 - width);
+        const maxY = viewport === 'mobile' ? Math.max(0, 667 - height) : Math.max(0, 1080 - height);
         
         let clampedX = clamp(snappedX, 0, maxX);
         let clampedY = clamp(snappedY, 0, maxY);
@@ -916,10 +948,10 @@ function NoCodeEditor() {
   const handleUpdate = comp => {
     // 협업 기능으로 컴포넌트 업데이트
     updateComponent(comp.id, comp);
-    
-    // 스냅라인 계산
+      
+      // 스냅라인 계산
     const lines = calculateSnapLines(comp, components, zoom);
-    setSnapLines(lines);
+      setSnapLines(lines);
   };
 
   // 컴포넌트 삭제
@@ -929,15 +961,7 @@ function NoCodeEditor() {
     if (selectedId === id) setSelectedId(null);
   };
 
-  // 주석 관련 핸들러
-  const handleCommentPinClick = (commentId) => {
-    const comment = comments.find(c => c.id === commentId);
-    setSelectedComment(comment);
-  };
 
-  const handleAddComment = (componentId, position, text) => {
-    addComment(componentId, position, text);
-  };
 
   // Delete 키로 삭제
   useEffect(() => {
@@ -1043,6 +1067,52 @@ function NoCodeEditor() {
     }
   };
 
+  // 새 섹션 추가 핸들러
+  const handleAddSection = useCallback((sectionY) => {
+    // 기존 더미 컴포넌트들 확인
+    const existingExtenders = components.filter(comp => comp.id.startsWith('canvas-extender-'));
+    
+    // 새로운 확장 위치 계산
+    const newExtenderY = sectionY + 200;
+    
+    // 기존 확장 영역보다 더 아래에 있는 경우에만 새로운 더미 컴포넌트 추가
+    const maxExistingY = existingExtenders.length > 0 
+      ? Math.max(...existingExtenders.map(comp => comp.y))
+      : 0;
+    
+    if (newExtenderY > maxExistingY) {
+      // 캔버스 높이를 확장하기 위해 투명한 더미 컴포넌트 추가
+      const dummyComponent = {
+        id: `canvas-extender-${Date.now()}`,
+        type: 'text',
+        x: 0,
+        y: newExtenderY,
+        width: 1,
+        height: 1,
+        props: {
+          text: '',
+          fontSize: 1,
+          color: 'transparent',
+          backgroundColor: 'transparent'
+        }
+      };
+      
+      // 더미 컴포넌트 추가하여 캔버스 확장
+      addComponent(dummyComponent);
+    }
+    
+    // 새로 추가된 섹션으로 스크롤
+    setTimeout(() => {
+      if (containerRef.current) {
+        const targetScrollTop = sectionY * (zoom / 100) - 200;
+        containerRef.current.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
+  }, [viewport, zoom, addComponent, components]);
+
   return (
     <div style={{
       minHeight: '100vh', width: '100vw', display: 'flex',
@@ -1052,7 +1122,7 @@ function NoCodeEditor() {
       <div style={{
         position: 'fixed',
         top: 0,
-        left: 240, // ComponentLibrary 너비만큼 오프셋
+        left: isLibraryOpen ? 240 : 0, // ComponentLibrary 상태에 따라 동적 오프셋
         right: selectedComp ? 340 : 0, // Inspector 너비만큼 오프셋
         height: 60,
         background: 'rgba(255, 255, 255, 0.95)',
@@ -1194,7 +1264,7 @@ function NoCodeEditor() {
         </div>
       </div>
 
-      {/* 좌측: 컴포넌트 라이브러리 */}
+      {/* 좌측: 컴포넌트 라이브러리 (토글 가능) */}
       <ComponentLibrary 
         onDragStart={(e, type) => {
           e.dataTransfer.setData('componentType', type);
@@ -1202,40 +1272,44 @@ function NoCodeEditor() {
         }}
         components={components}
         roomId={roomId}
+        isOpen={isLibraryOpen}
+        onToggle={() => setIsLibraryOpen(!isLibraryOpen)}
       />
 
       {/* 중앙: 캔버스 */}
       <div style={{ 
         flex: 1, 
         minWidth: 0, 
-        minHeight: 0, 
+        height: '100vh', // 전체 화면 높이
         display: 'flex',
-        paddingTop: 60, // 헤더 높이만큼 패딩
-        position: 'relative'
+        position: 'relative',
+        overflow: 'hidden' // 내부 컴포넌트에서 스크롤 처리
       }}>
-        <CanvasArea
+      <CanvasArea
           containerRef={containerRef}
-          canvasRef={canvasRef}
-          components={components}
-          selectedId={selectedId}
+        canvasRef={canvasRef}
+        components={components}
+        selectedId={selectedId}
           users={{}} // 기존 users 대신 빈 객체
           nickname={userInfo.name}
-          snapLines={snapLines}
+        snapLines={snapLines}
           setSnapLines={setSnapLines}
-          onDrop={e => { handleDrop(e); }}
-          onDragOver={e => e.preventDefault()}
-          onClick={() => handleSelect(null)}
+        onDrop={e => { handleDrop(e); }}
+        onDragOver={e => e.preventDefault()}
+        onClick={() => handleSelect(null)}
           onMouseMove={() => {}} // 커서 추적은 협업 훅에서 처리
           onMouseUp={() => {}}
-          onSelect={handleSelect}
-          onUpdate={handleUpdate}
-          onDelete={handleDelete}
-          CanvasComponent={CanvasComponent}
-          UserCursor={UserCursor}
+        onSelect={handleSelect}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
+          onAddSection={handleAddSection} // 새 섹션 추가 핸들러
+        CanvasComponent={CanvasComponent}
+        UserCursor={UserCursor}
           zoom={zoom}
           onZoomChange={handleZoomChange}
           viewport={viewport}
           isInspectorOpen={!!selectedComp}
+          isLibraryOpen={isLibraryOpen} // 라이브러리 상태 전달
         />
 
         {/* 협업 기능: 라이브 커서 */}
@@ -1245,14 +1319,6 @@ function NoCodeEditor() {
         <CollaborativeSelections 
           selections={otherSelections} 
           components={components} 
-        />
-
-        {/* 협업 기능: 주석 핀들 */}
-        <CommentPins
-          comments={comments}
-          onPinClick={handleCommentPinClick}
-          onAddComment={handleAddComment}
-          commentMode={commentMode}
         />
       </div>
 
@@ -1402,85 +1468,26 @@ function NoCodeEditor() {
         </div>
       )}
 
-      {/* 협업 기능: 주석 모드 토글 */}
-      <CommentModeToggle
-        commentMode={commentMode}
-        onToggle={toggleCommentMode}
-      />
 
-      {/* 협업 기능: 버전 히스토리 패널 */}
-      <VersionHistoryPanel
-        versions={versions}
-        onCreateSnapshot={createSnapshot}
-        onRestoreVersion={restoreVersion}
-        onDeleteVersion={deleteVersion}
-        onRenameVersion={renameVersion}
-        isCreatingSnapshot={isCreatingSnapshot}
-        isRestoring={isRestoring}
-        isOpen={showVersionHistory}
-        onToggle={() => setShowVersionHistory(!showVersionHistory)}
-      />
-
-      {/* 협업 기능: 주석 스레드 모달 */}
-      {selectedComment && (
-        <CommentThreadModal
-          comment={selectedComment}
-          onClose={() => setSelectedComment(null)}
-          onAddReply={addReply}
-          onResolve={toggleResolveComment}
-          onDelete={deleteComment}
-          currentUser={userInfo}
-        />
-      )}
 
       {/* 연결 상태 표시 */}
       {!isConnected && (
         <div style={{
           position: 'fixed',
-          bottom: '20px',
-          left: '260px',
+          bottom: '40px', // 스크롤바 위로 올림
+          left: isLibraryOpen ? '260px' : '20px', // 라이브러리 상태에 따라 위치 조정
           padding: '8px 12px',
           backgroundColor: '#ff9800',
           color: 'white',
           borderRadius: '6px',
           fontSize: '12px',
-          zIndex: 1000
+          zIndex: 999 // 스크롤바보다 낮은 z-index
         }}>
           협업 서버 연결 중...
         </div>
       )}
 
-      {/* 복원 중 오버레이 */}
-      {isRestoring && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 2000
-        }}>
-          <div style={{
-            padding: '24px',
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            textAlign: 'center',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
-          }}>
-            <div style={{ fontSize: '24px', marginBottom: '12px' }}>🔄</div>
-            <div style={{ fontSize: '16px', fontWeight: '500' }}>
-              버전을 복원하는 중입니다...
-            </div>
-            <div style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
-              잠시만 기다려주세요
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}
       <style>{`

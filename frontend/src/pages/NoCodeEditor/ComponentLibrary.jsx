@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ComponentList } from '../components/definitions';
 
-function ComponentLibrary({ onDragStart, components, roomId }) {
+function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onToggle }) {
   const [showDomainInput, setShowDomainInput] = useState(false);
   const [domainName, setDomainName] = useState('');
   const [isDeploying, setIsDeploying] = useState(false);
@@ -82,23 +82,63 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        height: '100vh',
-        zIndex: 10,
-        overflowY: 'auto',
-        width: 240,
-        background: '#ffffff',
-        borderRight: '1px solid #e1e5e9',
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        boxShadow: '2px 0 8px rgba(0,0,0,0.05)'
-      }}
-    >
+    <>
+      {/* 토글 버튼 - 라이브러리가 닫혀있을 때 보임 */}
+      {!isOpen && (
+        <button
+          onClick={onToggle}
+          style={{
+            position: 'fixed',
+            top: 80, // 헤더 높이(60px) + 여유공간(20px)
+            left: 20,
+            width: 50,
+            height: 50,
+            border: 'none',
+            borderRadius: 12,
+            background: '#3B4EFF',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: 20,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+            zIndex: 1000,
+            boxShadow: '0 4px 16px rgba(59, 78, 255, 0.3)'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = '#2c39d4';
+            e.target.style.transform = 'scale(1.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = '#3B4EFF';
+            e.target.style.transform = 'scale(1)';
+          }}
+          title="컴포넌트 라이브러리 열기"
+        >
+          📦
+        </button>
+      )}
+
+      {/* 라이브러리 패널 */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: isOpen ? 0 : -240,
+          height: '100vh',
+          zIndex: 100,
+          overflowY: 'auto',
+          width: 240,
+          background: '#ffffff',
+          borderRight: '1px solid #e1e5e9',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+          boxShadow: '2px 0 8px rgba(0,0,0,0.05)',
+          transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      >
       {/* 헤더 */}
       <div style={{
         padding: '20px 24px',
@@ -108,40 +148,76 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 12,
+          justifyContent: 'space-between',
           marginBottom: 8
         }}>
           <div style={{
-            width: 32,
-            height: 32,
-            background: '#3B4EFF',
-            borderRadius: 6,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 16,
-            color: '#fff'
+            gap: 12
           }}>
-            📦
-          </div>
-          <div>
-            <h3 style={{
-              margin: 0,
-              fontSize: 16,
-              fontWeight: 600,
-              color: '#1d2129',
-              letterSpacing: '0.3px'
-            }}>
-              Components
-            </h3>
             <div style={{
-              fontSize: 12,
-              color: '#65676b',
-              marginTop: 2
+              width: 32,
+              height: 32,
+              background: '#3B4EFF',
+              borderRadius: 6,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 16,
+              color: '#fff'
             }}>
-              {ComponentList.length} components available
+              📦
+            </div>
+            <div>
+              <h3 style={{
+                margin: 0,
+                fontSize: 16,
+                fontWeight: 600,
+                color: '#1d2129',
+                letterSpacing: '0.3px'
+              }}>
+                Components
+              </h3>
+              <div style={{
+                fontSize: 12,
+                color: '#65676b',
+                marginTop: 2
+              }}>
+                {ComponentList.length} components available
+              </div>
             </div>
           </div>
+          
+          {/* 닫기 버튼 */}
+          {onToggle && (
+            <button
+              onClick={onToggle}
+              style={{
+                width: 32,
+                height: 32,
+                border: 'none',
+                borderRadius: 6,
+                background: '#f0f2f5',
+                color: '#65676b',
+                cursor: 'pointer',
+                fontSize: 16,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#e4e6ea';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = '#f0f2f5';
+              }}
+              title="컴포넌트 라이브러리 닫기"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
@@ -523,7 +599,8 @@ function ComponentLibrary({ onDragStart, components, roomId }) {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

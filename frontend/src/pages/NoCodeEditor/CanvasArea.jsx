@@ -1,9 +1,101 @@
 // frontend/src/pages/NoCodeEditor/CanvasArea.jsx
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 // 그리드 크기 상수 import 또는 선언
 const GRID_SIZE = 50;
+
+// 섹션 추가 버튼 컴포넌트
+function AddSectionButton({ components, viewport, onAddSection, getComponentDimensions }) {
+  // 현재 캔버스의 실제 확장된 크기 계산 (더미 컴포넌트 포함)
+  const currentMaxY = useMemo(() => {
+    const baseHeight = viewport === 'mobile' ? 667 : 1080;
+    
+    if (components.length === 0) {
+      return baseHeight;
+    }
+    
+    // 실제 컴포넌트들의 최대 Y 위치
+    const realComponents = components.filter(comp => !comp.id.startsWith('canvas-extender-'));
+    let realMaxY = baseHeight;
+    
+    if (realComponents.length > 0) {
+      realMaxY = Math.max(...realComponents.map(comp => {
+        const compDimensions = getComponentDimensions(comp.type);
+        return comp.y + (comp.height || compDimensions.defaultHeight);
+      }));
+    }
+    
+    // 더미 컴포넌트(canvas-extender)들의 최대 Y 위치
+    const extenderComponents = components.filter(comp => comp.id.startsWith('canvas-extender-'));
+    let extenderMaxY = baseHeight;
+    
+    if (extenderComponents.length > 0) {
+      extenderMaxY = Math.max(...extenderComponents.map(comp => comp.y + comp.height));
+    }
+    
+    // 실제 컴포넌트와 확장 영역 중 더 큰 값 사용
+    return Math.max(baseHeight, realMaxY, extenderMaxY);
+  }, [components, viewport, getComponentDimensions]);
+
+  return (
+    <div style={{
+      position: 'absolute',
+      left: '50%',
+      top: currentMaxY + 50,
+      transform: 'translateX(-50%)',
+      zIndex: 10
+    }}>
+      <button
+        onClick={() => {
+          if (onAddSection) {
+            // 새 섹션의 시작 위치 (현재 최대 Y + 여백)
+            const newSectionY = currentMaxY + 100;
+            
+            // 부모 컴포넌트에 새 섹션 추가 요청
+            onAddSection(newSectionY);
+          } else {
+            // onAddSection이 없는 경우 기본 동작
+            alert('캔버스가 확장되었습니다! 새로운 영역에 컴포넌트를 추가해보세요.');
+          }
+        }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          padding: '12px 24px',
+          backgroundColor: 'white',
+          border: '2px dashed #d1d5db',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: '500',
+          color: '#6b7280',
+          transition: 'all 0.2s ease',
+          minWidth: '200px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.borderColor = '#3B4EFF';
+          e.target.style.color = '#3B4EFF';
+          e.target.style.backgroundColor = '#f8faff';
+          e.target.style.boxShadow = '0 4px 12px rgba(59, 78, 255, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.borderColor = '#d1d5db';
+          e.target.style.color = '#6b7280';
+          e.target.style.backgroundColor = 'white';
+          e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+        }}
+        title="새로운 섹션을 추가하여 캔버스를 확장합니다"
+      >
+        <span style={{ fontSize: '16px', fontWeight: 'bold' }}>+</span>
+        <span>섹션 추가</span>
+      </button>
+    </div>
+  );
+}
 
 // 컴포넌트 타입별 기본 크기와 최소 크기 정의 (NoCodeEditor.jsx와 동일)
 function getComponentDimensions(type) {
@@ -39,12 +131,14 @@ function CanvasArea({
   onSelect,
   onUpdate,
   onDelete,
+  onAddSection, // 새 섹션 추가 함수
   CanvasComponent,
   UserCursor,
   zoom = 100,
   onZoomChange,
   viewport = 'desktop', // 새로 추가: 뷰포트 모드
-  isInspectorOpen = false // Inspector 열림 상태
+  isInspectorOpen = false, // Inspector 열림 상태
+  isLibraryOpen = true // 컴포넌트 라이브러리 열림 상태
 }) {
   const [localZoom, setLocalZoom] = useState(zoom);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -55,6 +149,9 @@ function CanvasArea({
   // 패닝(캔버스 드래그 이동) 관련 상태
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
+  
+  // 컴포넌트 드래그 상태 감지
+  const [isComponentDragging, setIsComponentDragging] = useState(false);
 
   const LIBRARY_WIDTH = 240; // 좌측 패널(컴포넌트 라이브러리) width와 동일하게!
 
@@ -65,11 +162,19 @@ function CanvasArea({
     if (onZoomChange) onZoomChange(newZoom);
   };
 
-  // 마우스 휠로 줌
+  // 마우스 휠로 줌 또는 스크롤
   const handleWheel = (e) => {
     if (e.ctrlKey || e.metaKey) {
+      // Ctrl/Cmd + 휠: 줌
+      e.preventDefault();
       const delta = e.deltaY > 0 ? -10 : 10;
       handleZoom(delta);
+    } else if (isComponentDragging) {
+      // 컴포넌트 드래그 중일 때는 스크롤 차단
+      e.preventDefault();
+    } else {
+      // 일반 휠: 스크롤 (기본 동작 허용)
+      // 브라우저의 기본 스크롤 동작을 그대로 사용
     }
   };
 
@@ -116,8 +221,19 @@ function CanvasArea({
 
   // 캔버스 컨테이너에서 마우스 드래그로 스크롤 이동
   const handleContainerMouseDown = (e) => {
-    // 컨테이너의 빈 영역에서만 동작 (컴포넌트 위에서는 무시)
-    if (e.target === containerRef.current) {
+    // 컴포넌트 드래그 중이면 패닝하지 않음
+    if (isComponentDragging) {
+      return;
+    }
+    
+    // 컨테이너의 빈 영역에서만 동작 (컴포넌트나 컴포넌트 관련 요소 위에서는 무시)
+    const isClickOnComponent = e.target.closest('[data-component-id]') !== null ||
+                              e.target.closest('.canvas-component') !== null ||
+                              e.target.style.cursor === 'grab' ||
+                              e.target.style.cursor === 'grabbing' ||
+                              e.target.tagName === 'BUTTON';
+    
+    if ((e.target === containerRef.current || e.target === canvasRef.current) && !isClickOnComponent) {
       setIsPanning(true);
       setPanStart({
         x: e.clientX,
@@ -128,11 +244,14 @@ function CanvasArea({
     }
   };
   const handleContainerMouseMove = (e) => {
-    if (isPanning) {
+    if (isPanning && !isComponentDragging) {
       const dx = e.clientX - panStart.x;
       const dy = e.clientY - panStart.y;
       containerRef.current.scrollLeft = panStart.scrollLeft - dx;
       containerRef.current.scrollTop = panStart.scrollTop - dy;
+    } else if (isComponentDragging) {
+      // 컴포넌트 드래그 중이면 패닝 중지
+      setIsPanning(false);
     }
   };
   const handleContainerMouseUp = () => setIsPanning(false);
@@ -146,7 +265,74 @@ function CanvasArea({
         window.removeEventListener('mouseup', handleContainerMouseUp);
       };
     }
-  }, [isPanning, panStart]);
+  }, [isPanning, panStart, isComponentDragging]);
+
+  // 컴포넌트 드래그 상태 감지 - 더 강력한 방법
+  useEffect(() => {
+    const handleMouseDown = (e) => {
+      const componentElement = e.target.closest('[data-component-id]') || e.target.closest('.canvas-component');
+      if (componentElement) {
+        setIsComponentDragging(true);
+        
+        // 컨테이너의 모든 스크롤 관련 속성 차단
+        if (containerRef.current) {
+          const container = containerRef.current;
+          // 현재 스크롤 위치 저장
+          const currentScrollLeft = container.scrollLeft;
+          const currentScrollTop = container.scrollTop;
+          
+          // 스크롤 차단
+          container.style.overflow = 'hidden';
+          container.style.pointerEvents = 'none';
+          
+          // 스크롤 위치 고정
+          const preventScroll = () => {
+            container.scrollLeft = currentScrollLeft;
+            container.scrollTop = currentScrollTop;
+          };
+          
+          // 스크롤 이벤트 리스너 추가
+          container.addEventListener('scroll', preventScroll);
+          
+          // cleanup 함수를 위해 저장
+          componentElement._preventScroll = preventScroll;
+          componentElement._currentScrollLeft = currentScrollLeft;
+          componentElement._currentScrollTop = currentScrollTop;
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsComponentDragging(false);
+      
+      // 컨테이너의 스크롤을 다시 활성화
+      if (containerRef.current) {
+        const container = containerRef.current;
+        container.style.overflow = 'auto';
+        container.style.pointerEvents = 'auto';
+        
+        // 모든 컴포넌트에서 스크롤 이벤트 리스너 제거
+        const allComponents = document.querySelectorAll('[data-component-id]');
+        allComponents.forEach(comp => {
+          if (comp._preventScroll) {
+            container.removeEventListener('scroll', comp._preventScroll);
+            delete comp._preventScroll;
+            delete comp._currentScrollLeft;
+            delete comp._currentScrollTop;
+          }
+        });
+      }
+    };
+
+    // 전역 이벤트로 더 확실하게 감지
+    window.addEventListener('mousedown', handleMouseDown, { capture: true });
+    window.addEventListener('mouseup', handleMouseUp, { capture: true });
+
+    return () => {
+      window.removeEventListener('mousedown', handleMouseDown, { capture: true });
+      window.removeEventListener('mouseup', handleMouseUp, { capture: true });
+    };
+  }, []);
 
   // 키보드 이벤트
   useEffect(() => {
@@ -159,6 +345,70 @@ function CanvasArea({
       if (e.code === 'KeyG') {
         e.preventDefault();
         setShowGrid(prev => !prev);
+      }
+      
+      // 화살표 키로 캔버스 스크롤
+      if (containerRef.current && !e.ctrlKey && !e.metaKey) {
+        const scrollAmount = 50;
+        let scrolled = false;
+        
+        switch (e.code) {
+          case 'ArrowUp':
+            e.preventDefault();
+            containerRef.current.scrollTop -= scrollAmount;
+            scrolled = true;
+            break;
+          case 'ArrowDown':
+            e.preventDefault();
+            containerRef.current.scrollTop += scrollAmount;
+            scrolled = true;
+            break;
+          case 'ArrowLeft':
+            e.preventDefault();
+            containerRef.current.scrollLeft -= scrollAmount;
+            scrolled = true;
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            containerRef.current.scrollLeft += scrollAmount;
+            scrolled = true;
+            break;
+          case 'PageUp':
+            e.preventDefault();
+            containerRef.current.scrollTop -= containerRef.current.clientHeight * 0.8;
+            scrolled = true;
+            break;
+          case 'PageDown':
+            e.preventDefault();
+            containerRef.current.scrollTop += containerRef.current.clientHeight * 0.8;
+            scrolled = true;
+            break;
+          case 'Home':
+            if (e.ctrlKey) {
+              e.preventDefault();
+              containerRef.current.scrollTop = 0;
+              containerRef.current.scrollLeft = 0;
+              scrolled = true;
+            }
+            break;
+          case 'End':
+            if (e.ctrlKey) {
+              e.preventDefault();
+              containerRef.current.scrollTop = containerRef.current.scrollHeight;
+              scrolled = true;
+            }
+            break;
+        }
+        
+        if (scrolled) {
+          // 스크롤 시 부드러운 효과
+          containerRef.current.style.scrollBehavior = 'smooth';
+          setTimeout(() => {
+            if (containerRef.current) {
+              containerRef.current.style.scrollBehavior = 'auto';
+            }
+          }, 300);
+        }
       }
     };
 
@@ -208,14 +458,14 @@ function CanvasArea({
         const baseCanvasWidth = viewport === 'mobile' ? 375 : 1920;
         const baseCanvasHeight = viewport === 'mobile' ? 667 : 1080;
         
-        // 컴포넌트들의 최대 위치 계산하여 동적 높이 결정
+        // 더미 컴포넌트(canvas-extender)가 있으면 그에 따라 확장
         let maxY = baseCanvasHeight;
         if (components && components.length > 0) {
-          const componentsMaxY = Math.max(...components.map(comp => {
-            const compDimensions = getComponentDimensions(comp.type);
-            return comp.y + (comp.height || compDimensions.defaultHeight);
-          }));
-          maxY = Math.max(baseCanvasHeight, componentsMaxY + 200);
+          const extenderComponents = components.filter(comp => comp.id.startsWith('canvas-extender-'));
+          if (extenderComponents.length > 0) {
+            const extenderMaxY = Math.max(...extenderComponents.map(comp => comp.y + comp.height));
+            maxY = Math.max(baseCanvasHeight, extenderMaxY + 100);
+          }
         }
         
         // 그리드에 맞춘 최종 크기
@@ -272,20 +522,33 @@ function CanvasArea({
     const baseCanvasWidth = viewport === 'mobile' ? 375 : 1920;
     const baseCanvasHeight = viewport === 'mobile' ? 667 : 1080;
     
-    // 컴포넌트들의 최대 위치 계산하여 동적 높이 결정
+    // 실제 컴포넌트들의 최대 X, Y 위치 계산
+    let maxX = baseCanvasWidth;
     let maxY = baseCanvasHeight;
+    
     if (components && components.length > 0) {
-      const componentsMaxY = Math.max(...components.map(comp => {
-        const compDimensions = getComponentDimensions ? getComponentDimensions(comp.type) : { defaultHeight: 40 };
-        return comp.y + (comp.height || compDimensions.defaultHeight);
-      }));
-      // 최소 여백 200px 추가
-      maxY = Math.max(baseCanvasHeight, componentsMaxY + 200);
+      // 일반 컴포넌트들의 최대 위치 계산
+      const realComponents = components.filter(comp => !comp.id.startsWith('canvas-extender-'));
+      if (realComponents.length > 0) {
+        realComponents.forEach(comp => {
+          const compWidth = comp.width || 200; // 기본 너비
+          const compHeight = comp.height || 100; // 기본 높이
+          maxX = Math.max(maxX, comp.x + compWidth + 200); // 우측 여유 공간 추가
+          maxY = Math.max(maxY, comp.y + compHeight + 100); // 하단 여유 공간 추가
+        });
+      }
+      
+      // 더미 컴포넌트(canvas-extender)가 있으면 그에 따라 확장
+      const extenderComponents = components.filter(comp => comp.id.startsWith('canvas-extender-'));
+      if (extenderComponents.length > 0) {
+        const extenderMaxY = Math.max(...extenderComponents.map(comp => comp.y + comp.height));
+        maxY = Math.max(maxY, extenderMaxY + 200); // 더 많은 여유 공간 추가
+      }
     }
     
     // 그리드가 딱 떨어지도록 계산
     const adjustedGridSize = gridSize;
-    const gridColumns = Math.ceil(baseCanvasWidth / adjustedGridSize);
+    const gridColumns = Math.ceil(maxX / adjustedGridSize);
     const gridRows = Math.ceil(maxY / adjustedGridSize);
     const finalWidth = gridColumns * adjustedGridSize;
     const finalHeight = gridRows * adjustedGridSize;
@@ -325,6 +588,49 @@ function CanvasArea({
     };
   };
 
+  // 확장된 캔버스의 실제 크기 계산
+  const getActualCanvasSize = () => {
+    const baseCanvasWidth = viewport === 'mobile' ? 375 : 1920;
+    const baseCanvasHeight = viewport === 'mobile' ? 667 : 1080;
+    let maxX = baseCanvasWidth;
+    let maxY = baseCanvasHeight;
+    
+    if (components && components.length > 0) {
+      // 일반 컴포넌트들의 최대 위치 계산
+      const realComponents = components.filter(comp => !comp.id.startsWith('canvas-extender-'));
+      if (realComponents.length > 0) {
+        realComponents.forEach(comp => {
+          const compWidth = comp.width || 200;
+          const compHeight = comp.height || 100;
+          maxX = Math.max(maxX, comp.x + compWidth + 200);
+          maxY = Math.max(maxY, comp.y + compHeight + 100);
+        });
+      }
+      
+      const extenderComponents = components.filter(comp => comp.id.startsWith('canvas-extender-'));
+      if (extenderComponents.length > 0) {
+        const extenderMaxY = Math.max(...extenderComponents.map(comp => comp.y + comp.height));
+        maxY = Math.max(maxY, extenderMaxY + 100);
+      }
+    }
+    
+    return { width: maxX, height: maxY };
+  };
+
+  const actualCanvasSize = getActualCanvasSize();
+  // 좌측 패딩(라이브러리 상태에 따라) + 우측 패딩(60px) + 여유 공간을 포함
+  const leftPadding = isLibraryOpen ? 280 : 40; // 라이브러리 열림/닫힘에 따라
+  const containerWidth = actualCanvasSize.width + (viewport === 'mobile' ? 40 : leftPadding + 60); // 모바일: 40px, 데스크톱: 동적
+  const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
+  
+  // 디버깅: 캔버스 크기 정보 콘솔 출력
+  console.log('Canvas Size Debug:', {
+    actualCanvasSize,
+    containerWidth,
+    containerHeight,
+    extenderComponents: components.filter(comp => comp.id.startsWith('canvas-extender-')).length
+  });
+
   return (
     <div
       style={{
@@ -333,28 +639,35 @@ function CanvasArea({
         position: 'relative',
         background: '#f0f1f5',
         cursor: isPanning ? 'grabbing' : 'default',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
         // 뷰포트별 스크롤 설정
         overflowX: viewport === 'mobile' ? 'hidden' : 'auto',
-        overflowY: 'auto'
+        overflowY: 'auto',
+        paddingTop: '60px' // 헤더 높이만큼 상단 패딩
       }}
       ref={containerRef}
       onWheel={handleWheel}
       onMouseDown={handleContainerMouseDown}
+      onScroll={(e) => {
+        // 컴포넌트 드래그 중일 때 스크롤 이벤트 차단
+        if (isComponentDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
     >
       {/* ===== OUTER WRAPPER: 캔버스 컨테이너 ===== */}
       <div
         style={{
+          width: `${containerWidth}px`, // 동적 너비 설정
+          height: `${containerHeight}px`, // 동적 높이 설정
+          minWidth: '100%', // 최소 너비는 부모 컨테이너 크기
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'flex-start', // 좌측 정렬로 변경
           alignItems: 'flex-start',
-          // 스크롤을 위해 컨텐츠 크기에 맞춘 크기 설정
-          width: viewport === 'mobile' ? '100%' : 'max-content',
-          minHeight: '100%',
-          // 뷰포트별 패딩 조정
-          padding: viewport === 'mobile' ? '10px 20px' : '20px 60px',
+          // 뷰포트별 패딩 조정 (좌측은 컴포넌트 라이브러리 상태에 따라 동적 조정)
+          padding: viewport === 'mobile' 
+            ? '20px' 
+            : `40px 60px 200px ${isLibraryOpen ? '280px' : '40px'}`, // 라이브러리 열림: 280px, 닫힘: 40px
           boxSizing: 'border-box'
         }}
       >
@@ -520,182 +833,49 @@ function CanvasArea({
               zIndex: 5
             }} />
           )}
-        </div>
-      </div>
 
-      {/* 줌 컨트롤과 페이지 확장 버튼 */}
-      <div style={{
-        position: 'fixed',
-        bottom: 20,
-        right: 20,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
-        zIndex: 1000
-      }}>
-        {/* 페이지 확장 버튼 */}
-        <button
-          onClick={() => {
-            // 캔버스 높이를 200px 추가로 확장
-            const baseHeight = viewport === 'mobile' ? 667 : 1080;
-            // 이 기능은 동적 높이 계산에서 자동으로 처리됩니다
-            // 임시로 더미 컴포넌트를 하단에 추가하여 높이 확장 효과를 줄 수 있습니다
-            console.log('페이지 확장 기능 - 컴포넌트를 하단으로 드래그하면 자동으로 확장됩니다');
-          }}
-          style={{
-            width: 48,
-            height: 48,
-            backgroundColor: '#3B4EFF',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50%',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 24,
-            fontWeight: 'bold',
-            boxShadow: '0 4px 12px rgba(59, 78, 255, 0.3)',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = 'scale(1.1)';
-            e.target.style.boxShadow = '0 6px 16px rgba(59, 78, 255, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = 'scale(1)';
-            e.target.style.boxShadow = '0 4px 12px rgba(59, 78, 255, 0.3)';
-          }}
-          title="페이지 확장 (컴포넌트를 하단으로 드래그하면 자동 확장)"
-        >
-          +
-        </button>
-
-        {/* 줌 컨트롤 */}
-        <div style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          padding: 12,
-          borderRadius: 8,
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 8,
-          minWidth: 120
-        }}>
-          <div style={{
-            fontSize: 12,
-            fontWeight: 600,
-            color: '#374151',
-            marginBottom: 4
-          }}>
-            줌: {localZoom}%
-          </div>
-          
-          {/* 줌 버튼들 */}
-          <div style={{
-            display: 'flex',
-            gap: 4
-          }}>
-            <button
-              onClick={() => handleZoom(-25)}
-              style={{
-                width: 32,
-                height: 32,
-                backgroundColor: '#f3f4f6',
-                border: '1px solid #d1d5db',
-                borderRadius: 4,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: '#374151'
-              }}
-              title="축소"
-            >
-              -
-            </button>
-            <button
-              onClick={() => handleZoom(25)}
-              style={{
-                width: 32,
-                height: 32,
-                backgroundColor: '#f3f4f6',
-                border: '1px solid #d1d5db',
-                borderRadius: 4,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: '#374151'
-              }}
-              title="확대"
-            >
-              +
-            </button>
-          </div>
-          
-          {/* 줌 슬라이더 */}
-          <input
-            type="range"
-            min="25"
-            max="400"
-            value={localZoom}
-            onChange={handleSliderChange}
-            style={{
-              width: '100%',
-              height: 4,
-              background: '#e5e7eb',
-              borderRadius: 2,
-              outline: 'none',
-              cursor: 'pointer'
-            }}
+          {/* 섹션 추가 버튼 - 캔버스 내부 하단에 위치 */}
+          <AddSectionButton 
+            components={components}
+            viewport={viewport}
+            onAddSection={onAddSection}
+            getComponentDimensions={getComponentDimensions}
           />
-          
-          {/* 리셋 버튼 */}
-          <button
-            onClick={() => {
-              setLocalZoom(100);
-              if (onZoomChange) onZoomChange(100);
-            }}
-            style={{
-              width: '100%',
-              height: 24,
-              backgroundColor: '#3B4EFF',
-              color: 'white',
-              border: 'none',
-              borderRadius: 4,
-              cursor: 'pointer',
-              fontSize: 11,
-              fontWeight: 500
-            }}
-            title="100%로 리셋"
-          >
-            리셋
-          </button>
         </div>
       </div>
+
+
 
       {/* 스크롤바 스타일링 */}
       <style>{`
+        /* 캔버스 컨테이너 스크롤바 스타일 */
         ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
+          width: 12px;
+          height: 12px;
         }
         ::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
+          background: #f0f1f5;
+          border-radius: 6px;
         }
         ::-webkit-scrollbar-thumb {
-          background: #c1c1c1;
-          border-radius: 4px;
+          background: #d1d5db;
+          border-radius: 6px;
+          border: 2px solid #f0f1f5;
         }
         ::-webkit-scrollbar-thumb:hover {
-          background: #a8a8a8;
+          background: #9ca3af;
+        }
+        ::-webkit-scrollbar-thumb:active {
+          background: #6b7280;
+        }
+        ::-webkit-scrollbar-corner {
+          background: #f0f1f5;
+        }
+        
+        /* Firefox 스크롤바 스타일 */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #d1d5db #f0f1f5;
         }
       `}</style>
     </div>

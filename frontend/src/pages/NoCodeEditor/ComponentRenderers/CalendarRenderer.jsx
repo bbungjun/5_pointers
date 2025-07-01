@@ -37,31 +37,68 @@ function CalendarRenderer({ comp, isEditor = false }) {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
   return (
-    <div className={`${isEditor ? 'w-auto h-auto' : 'w-full h-full'} bg-white rounded-lg shadow-sm border p-4`}>
+    <div style={{
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+      border: '1px solid #e5e7eb',
+      padding: '16px',
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '300px'
+    }}>
       {title && (
-        <h3 className="text-lg font-semibold text-center mb-4 text-gray-800">
+        <h3 style={{
+          fontSize: '18px',
+          fontWeight: '600',
+          textAlign: 'center',
+          marginBottom: '16px',
+          color: '#1f2937'
+        }}>
           {title}
         </h3>
       )}
       
       {/* 월/년 헤더 */}
-      <div className="text-center mb-4">
-        <h4 className="text-xl font-bold text-gray-700">
+      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+        <h4 style={{
+          fontSize: '20px',
+          fontWeight: 'bold',
+          color: '#374151'
+        }}>
           {monthNames[month]} {year}
         </h4>
       </div>
       
       {/* 요일 헤더 */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(7, 1fr)',
+        gap: '4px',
+        marginBottom: '8px'
+      }}>
         {dayNames.map(dayName => (
-          <div key={dayName} className="text-center text-sm font-medium text-gray-500 py-2">
+          <div key={dayName} style={{
+            textAlign: 'center',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#6b7280',
+            padding: '8px 0'
+          }}>
             {dayName}
           </div>
         ))}
       </div>
       
       {/* 달력 날짜들 */}
-      <div className="grid grid-cols-7 gap-1">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(7, 1fr)',
+        gap: '4px',
+        flex: 1
+      }}>
         {weeks.map((week, weekIndex) =>
           week.map((date, dayIndex) => {
             const isCurrentMonth = date.getMonth() === month;
