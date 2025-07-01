@@ -23,8 +23,8 @@ function GridGalleryRenderer({ comp, isEditor = false, onUpdate }) {
   const [imageSize, setImageSize] = useState(0);
 
   const {
-    containerWidth = 800,
-    containerHeight = 600,
+    containerWidth = comp.width || 400,
+    containerHeight = comp.height || 300,
     rows = 3,
     columns = 4,
     gap = 8,
@@ -88,8 +88,8 @@ function GridGalleryRenderer({ comp, isEditor = false, onUpdate }) {
 
   // 갤러리 컨테이너 스타일
   const galleryStyle = {
-    width: containerWidth + "px",
-    height: containerHeight + "px",
+    width: "100%",
+    height: "100%",
     backgroundColor,
     borderRadius: borderRadius + "px",
     padding: gap + "px",

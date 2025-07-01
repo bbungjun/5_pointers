@@ -24,12 +24,19 @@ function DdayRenderer({ comp, isEditor }) {
   const { ddayStr, diffHours, diffMinutes, diffSeconds } = getDdayDetail(targetDate);
   return (
     <div style={{
-      padding: 16,
-      borderRadius: 8,
+      width: '100%',
+      height: '100%',
+      padding: '16px',
+      borderRadius: '8px',
       background: '#fffbe6',
       border: '1px solid #ffe58f',
       textAlign: 'center',
-      minWidth: 120
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minWidth: '120px',
+      minHeight: '80px'
     }}>
       <div style={{ fontSize: 18, fontWeight: 700 }}>{title}</div>
       <div style={{ fontSize: 32, fontWeight: 900, color: '#faad14' }}>{ddayStr}</div>

@@ -39,7 +39,18 @@ function BankAccountRenderer({ comp, isEditor = false }) {
   };
   
   return (
-    <div className="w-full p-6 rounded-lg border" style={{ backgroundColor, minWidth: '400px' }}>
+    <div style={{
+      width: '100%',
+      height: '100%',
+      padding: '24px',
+      borderRadius: '8px',
+      border: '1px solid #e5e7eb',
+      backgroundColor,
+      minWidth: '250px',
+      minHeight: '150px',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
       {title && (
         <h3 className="text-lg font-semibold text-center mb-4 text-gray-800">
           {title}
