@@ -18,7 +18,7 @@ export class UsersService {
   ) {}
 
   async findByEmail(email: string): Promise<Users | undefined> {
-    return this.usersRepository.findOne({ where: { email }, select: ['id', 'email', 'nickname', 'provider', 'provider_id', 'password'] });
+    return this.usersRepository.findOne({ where: { email }, select: ['id', 'email', 'nickname', 'provider', 'provider_id', 'password', 'role'] });
   }
 
   async findBySocial(provider: AuthProvider, providerId: string): Promise<Users | undefined> {
@@ -27,12 +27,12 @@ export class UsersService {
 
   async createLocalUser(email: string, password: string): Promise<Users> {
     const hashed = await bcrypt.hash(password, 10);
-    const user = this.usersRepository.create({ email, password: hashed, provider: AuthProvider.LOCAL });
+    const user = this.usersRepository.create({ email, password: hashed, provider: AuthProvider.LOCAL, role: 'USER' });
     return this.usersRepository.save(user);
   }
 
   async createSocialUser(provider: AuthProvider, providerId: string, email?: string): Promise<Users> {
-    const user = this.usersRepository.create({ provider, provider_id: providerId, email });
+    const user = this.usersRepository.create({ provider, provider_id: providerId, email, role: 'USER' });
     return this.usersRepository.save(user);
   }
 

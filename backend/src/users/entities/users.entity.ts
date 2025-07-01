@@ -28,6 +28,9 @@ export class Users {
   @Column({ nullable: true, select: false })
   password: string;
 
+  @Column({ default: 'USER' })
+  role: string; // 'USER' | 'ADMIN'
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

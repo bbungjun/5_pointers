@@ -30,7 +30,7 @@ export class AuthService {
     console.log('Login - User object:', user);
     console.log('Login - User ID:', user.id, 'Type:', typeof user.id);
 
-    const payload = { userId: user.id, email: user.email, nickname: user.nickname };
+    const payload = { userId: user.id, email: user.email, nickname: user.nickname, role: user.role };
     console.log('Login - JWT payload:', payload);
     return {
       access_token: this.jwtService.sign(payload),
@@ -38,7 +38,7 @@ export class AuthService {
   }
 
   async socialLogin(user: any) {
-    const payload = { userId: user.id, email: user.email, nickname: user.nickname };
+    const payload = { userId: user.id, email: user.email, nickname: user.nickname, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
     };

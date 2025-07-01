@@ -806,6 +806,15 @@ function NoCodeEditor() {
   const [zoom, setZoom] = useState(100);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [viewport, setViewport] = useState('desktop');
+
+  // 템플릿 저장 모달 상태
+  const [isTemplateSaveOpen, setIsTemplateSaveOpen] = useState(false);
+  const [templateData, setTemplateData] = useState({
+    name: '',
+    category: 'wedding',
+    tags: ''
+  });
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(true); // 컴포넌트 라이브러리 토글 상태
 
   // 사용자 정보
@@ -814,6 +823,22 @@ function NoCodeEditor() {
     name: randomNickname(),
     color: randomColor()
   }));
+  
+  // 사용자 권한 확인
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          setIsAdmin(payload.role === 'ADMIN');
+        }
+      } catch (error) {
+        console.error('사용자 권한 확인 실패:', error);
+      }
+    };
+    checkUserRole();
+  }, []);
 
   // ref
   const canvasRef = useRef();
@@ -1010,6 +1035,37 @@ function NoCodeEditor() {
     // 뷰포트 변경 시 선택된 컴포넌트 해제 (UX 향상)
     setSelectedId(null);
   }, []);
+  
+  // 템플릿으로 저장
+  const handleSaveAsTemplate = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3000/templates/from-components', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          components: components, // 현재 에디터 상태
+          name: templateData.name,
+          category: templateData.category,
+          tags: templateData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+        })
+      });
+      
+      if (response.ok) {
+        alert('템플릿으로 저장되었습니다!');
+        setIsTemplateSaveOpen(false);
+        setTemplateData({ name: '', category: 'wedding', tags: '' });
+      } else {
+        alert('템플릿 저장에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('템플릿 저장 실패:', error);
+      alert('템플릿 저장에 실패했습니다.');
+    }
+  };
 
   // 새 섹션 추가 핸들러
   const handleAddSection = useCallback((sectionY) => {
@@ -1123,6 +1179,42 @@ function NoCodeEditor() {
           minWidth: selectedComp ? '120px' : '200px', // Inspector 열림 상태에 따라 조정
           justifyContent: 'flex-end'
         }}>
+          {/* 템플릿 저장 버튼 (관리자만) */}
+          {isAdmin && (
+            <button
+              onClick={() => setIsTemplateSaveOpen(true)}
+              style={{
+                padding: selectedComp ? '6px 12px' : '8px 16px',
+                background: '#28a745',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                fontSize: selectedComp ? 12 : 14,
+                fontWeight: 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: selectedComp ? 4 : 8,
+                transition: 'all 0.2s',
+                boxShadow: '0 2px 8px rgba(40, 167, 69, 0.2)',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#218838';
+                e.target.style.transform = 'translateY(-1px)';
+                e.target.style.boxShadow = '0 4px 16px rgba(40, 167, 69, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = '#28a745';
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 2px 8px rgba(40, 167, 69, 0.2)';
+              }}
+            >
+              <span>💾</span>
+              {!selectedComp && <span>템플릿 저장</span>}
+            </button>
+          )}
+          
           {/* 미리보기 버튼 */}
           <button
             onClick={() => setIsPreviewOpen(true)}
@@ -1247,6 +1339,134 @@ function NoCodeEditor() {
         onClose={() => setIsPreviewOpen(false)}
         pageContent={components}
       />
+      
+      {/* 템플릿 저장 모달 */}
+      {isTemplateSaveOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: 12,
+            padding: 24,
+            width: 400,
+            maxWidth: '90vw',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+          }}>
+            <h3 style={{ margin: '0 0 20px 0', fontSize: 18, fontWeight: 600 }}>
+              템플릿으로 저장
+            </h3>
+            
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500 }}>
+                템플릿 이름
+              </label>
+              <input
+                type="text"
+                value={templateData.name}
+                onChange={(e) => setTemplateData({...templateData, name: e.target.value})}
+                placeholder="템플릿 이름을 입력하세요"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: 6,
+                  fontSize: 14,
+                  outline: 'none'
+                }}
+              />
+            </div>
+            
+
+            
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500 }}>
+                카테고리
+              </label>
+              <select
+                value={templateData.category}
+                onChange={(e) => setTemplateData({...templateData, category: e.target.value})}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: 6,
+                  fontSize: 14,
+                  outline: 'none'
+                }}
+              >
+                <option value="wedding">웨딩</option>
+                <option value="events">이벤트</option>
+                <option value="portfolio">포트폴리오</option>
+              </select>
+            </div>
+            
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500 }}>
+                태그 (쉼표로 구분)
+              </label>
+              <input
+                type="text"
+                value={templateData.tags}
+                onChange={(e) => setTemplateData({...templateData, tags: e.target.value})}
+                placeholder="예: 결혼식, 초대장, 예쁜"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: 6,
+                  fontSize: 14,
+                  outline: 'none'
+                }}
+              />
+            </div>
+            
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => {
+                  setIsTemplateSaveOpen(false);
+                  setTemplateData({ name: '', category: 'wedding', tags: '' });
+                }}
+                style={{
+                  padding: '8px 16px',
+                  background: '#f8f9fa',
+                  color: '#6c757d',
+                  border: '1px solid #dee2e6',
+                  borderRadius: 6,
+                  fontSize: 14,
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSaveAsTemplate}
+                disabled={!templateData.name}
+                style={{
+                  padding: '8px 16px',
+                  background: templateData.name ? '#28a745' : '#6c757d',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  fontSize: 14,
+                  cursor: templateData.name ? 'pointer' : 'not-allowed'
+                }}
+              >
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
 

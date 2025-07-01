@@ -20,8 +20,8 @@ export class Pages {
   @Column()
   title: string;
 
-  @Column({ type: 'longblob', nullable: true })
-  content: Buffer;
+  @Column({ type: 'json', nullable: true })
+  content: any;
 
   @Column({ default: 'DRAFT' })
   status: string;
