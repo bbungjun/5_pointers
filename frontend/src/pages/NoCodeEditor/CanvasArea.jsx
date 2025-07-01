@@ -597,13 +597,7 @@ function CanvasArea({
   const containerWidth = actualCanvasSize.width + (viewport === 'mobile' ? 40 : leftPadding + 60); // 모바일: 40px, 데스크톱: 동적
   const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
   
-  // 디버깅: 캔버스 크기 정보 콘솔 출력
-  console.log('Canvas Size Debug:', {
-    actualCanvasSize,
-    containerWidth,
-    containerHeight,
-    extenderComponents: components.filter(comp => comp.id.startsWith('canvas-extender-')).length
-  });
+  // 캔버스 크기 계산 완료
 
   return (
     <div
@@ -772,21 +766,24 @@ function CanvasArea({
           ))}
 
           {/* 캔버스 내 컴포넌트 렌더링 */}
-          {components.map(comp => (
-            <CanvasComponent
-              key={comp.id}
-              comp={comp}
-              selected={selectedId === comp.id}
-              onSelect={onSelect}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
-              setSnapLines={setSnapLines}
-              zoom={localZoom}
-              viewport={viewport}
-              components={components}
-              getComponentDimensions={getComponentDimensions}
-            />
-          ))}
+          {components.map(comp => {
+            if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
+            return (
+              <CanvasComponent
+                key={comp.id}
+                comp={comp}
+                selected={selectedId === comp.id}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                setSnapLines={setSnapLines}
+                zoom={localZoom}
+                viewport={viewport}
+                components={components}
+                getComponentDimensions={getComponentDimensions}
+              />
+            );
+          })}
 
           {/* 실시간 커서 표시 */}
           {Object.entries(users).map(([nick, u]) =>

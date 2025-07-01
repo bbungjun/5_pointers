@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 function ButtonRenderer({ comp, isEditor = false }) {
+  console.log('버튼 컴포넌트 렌더링:', comp);
+  
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props.text);
   const inputRef = useRef();
