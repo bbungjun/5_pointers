@@ -20,7 +20,8 @@ function getComponentDimensions(type) {
     slideGallery: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 200 },
     mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
     calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 250, minHeight: 300 },
-    bankAccount: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 }
+    bankAccount: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
+    weddingInvite: { defaultWidth: 450, defaultHeight: 400, minWidth: 250, minHeight: 150 } 
   };
   return dimensions[type] || { defaultWidth: 120, defaultHeight: 40, minWidth: 80, minHeight: 30 };
 }

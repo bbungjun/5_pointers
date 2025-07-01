@@ -8,6 +8,8 @@ import DdayEditor from './ComponentEditors/DdayEditor.jsx';
 import WeddingContactEditor from './ComponentEditors/WeddingContactEditor.jsx';
 import ImageEditor from './ComponentEditors/ImageEditor.jsx';
 import BankAccountEditor from './ComponentEditors/BankAccountEditor.jsx';
+import WeddingInviteEditor from './ComponentEditors/WeddingInviteEditor';
+
 
 
 export default function ComponentEditor({ selectedComp, onUpdate }) {
@@ -34,6 +36,8 @@ export default function ComponentEditor({ selectedComp, onUpdate }) {
             return <ImageEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
         case 'bankAccount':
             return <BankAccountEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
+        case 'weddingInvite':
+            return <WeddingInviteEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
         default:
             return <p>Select a component to edit its properties.</p>;
     }

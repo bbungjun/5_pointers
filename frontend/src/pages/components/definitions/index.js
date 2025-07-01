@@ -12,7 +12,7 @@ import mapInfoDef from './map_info.json';
 import calendarDef from './calendar.json';
 import bankAccount from './bank-account.json';
 import commentDef from './comment.json';
-
+import weddingInviteDef from './wedding-invite.json';
 
 export const ComponentList = [
   buttonDef,
@@ -28,7 +28,8 @@ export const ComponentList = [
   mapInfoDef,
   bankAccount,
   calendarDef,
-  commentDef
+  commentDef,
+  weddingInviteDef
 ];
 
 // 기존 코드와의 호환성을 위해 ComponentDefinitions도 export
