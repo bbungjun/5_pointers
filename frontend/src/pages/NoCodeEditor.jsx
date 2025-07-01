@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 
 // 모듈화된 컴포넌트들
 import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
@@ -33,6 +33,7 @@ import { useCollaboration } from '../hooks/useCollaboration';
 
 function NoCodeEditor() {
   const { roomId } = useParams();
+  const location = useLocation();
 
   // 기본 상태
   const [components, setComponents] = useState([]);
@@ -117,6 +118,41 @@ function NoCodeEditor() {
       console.log('협업 서버에 연결되었습니다.');
     }
   }, [isConnected]);
+
+  // YJS 초기화
+  const [ydoc] = useState(() => new Y.Doc());
+  
+  useEffect(() => {
+    const wsProvider = new WebsocketProvider('wss://demos.yjs.dev', roomId, ydoc);
+
+    // 컴포넌트 리스트 동기화
+    const yComponents = ydoc.getArray('components');
+    const updateComponents = () => {
+      setComponents(yComponents.toArray());
+    };
+    yComponents.observeDeep(updateComponents);
+    updateComponents();
+
+    return () => {
+      yComponents.unobserveDeep(updateComponents);
+      wsProvider.destroy();
+      ydoc.destroy();
+    };
+  }, [roomId, ydoc]);
+
+  // 템플릿 로딩 - YJS에 추가
+  useEffect(() => {
+    const templateComponents = location.state?.templateComponents;
+    if (templateComponents && Array.isArray(templateComponents) && ydoc) {
+      console.log('템플릿 컴포넌트 로딩:', templateComponents);
+      const yComponents = ydoc.getArray('components');
+      if (yComponents.length === 0) {
+        templateComponents.forEach(comp => {
+          yComponents.push([comp]);
+        });
+      }
+    }
+  }, [location.state, ydoc]);
 
   // viewport 변경 시 캔버스 높이 초기화
   useEffect(() => {
@@ -238,8 +274,8 @@ function NoCodeEditor() {
   const selectedComp = components.find(c => c.id === selectedId);
   
   // 활성 사용자 정보 (디버깅용)
-  const activeUsers = getActiveUsers();
-  console.log('활성 사용자:', activeUsers.length);
+  // const activeUsers = getActiveUsers();
+  // console.log('활성 사용자:', activeUsers.length);
 
   // 브라우저 전체 확대/축소(Ctrl+스크롤, Ctrl+키, 트랙패드 pinch) 완벽 차단
   useEffect(() => {
