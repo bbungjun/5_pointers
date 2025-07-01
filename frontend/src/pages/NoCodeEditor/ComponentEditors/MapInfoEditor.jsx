@@ -1,123 +1,140 @@
 import React from 'react';
-import { TextEditor } from '../PropertyEditors';
+import {
+  TextEditor,
+  NumberEditor,
+  FontFamilyEditor,
+  TextStyleEditor,
+  ColorEditor
+} from '../PropertyEditors';
 
 function MapInfoEditor({ selectedComp, onUpdate }) {
-  const sections = selectedComp.props.sections || [];
+  const {
+    fontSize = 14,
+    fontFamily = '"Noto Sans KR", "맑은 고딕", "Malgun Gothic", sans-serif"',
+    fontWeight = 'normal',
+    fontStyle = 'normal',
+    textDecoration = 'none',
+    color = '#222',
+    bgColor = '#fff',
+    sections = [],
+  } = selectedComp.props;
 
-  const updateProperty = (propKey, value) => {
-    const updatedComp = {
+  // 공통 스타일 업데이트
+  const updateCommon = (key, value) => {
+    onUpdate({
       ...selectedComp,
       props: {
         ...selectedComp.props,
-        [propKey]: value,
-      },
-    };
-    onUpdate(updatedComp);
+        [key]: value
+      }
+    });
   };
 
+  // 섹션 내용 업데이트
   const updateSection = (index, key, value) => {
     const newSections = sections.map((section, idx) =>
       idx === index ? { ...section, [key]: value } : section
     );
-    updateProperty('sections', newSections);
+    updateCommon('sections', newSections);
   };
 
+  // 섹션 추가/삭제
   const handleAddSection = () => {
-    updateProperty('sections', [...sections, { header: '', content: '' }]);
+    updateCommon('sections', [
+      ...sections,
+      { header: '', content: '' }
+    ]);
   };
-
   const handleRemoveSection = (index) => {
-    const newSections = sections.filter((_, idx) => idx !== index);
-    updateProperty('sections', newSections);
+    updateCommon('sections', sections.filter((_, idx) => idx !== index));
   };
 
   return (
     <div>
-      {/* 상단 카드 */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 20,
-        padding: '8px 12px',
-        backgroundColor: '#f0f2f5',
-        borderRadius: 6
-      }}>
-        <span style={{ fontSize: 16 }}>📍</span>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#1d2129' }}>
-            장소 안내
-          </div>
-          <div style={{ fontSize: 11, color: '#65676b' }}>
-            {selectedComp.id}
-          </div>
-        </div>
+      {/* 공통 스타일 */}
+      <div style={{ fontSize: 12, color: '#65676b', fontWeight: 600, marginBottom: 12 }}>
+        공통 스타일
       </div>
+      <NumberEditor
+        value={fontSize}
+        onChange={v => updateCommon('fontSize', v)}
+        label="글자 크기"
+        min={8}
+        max={48}
+        suffix="px"
+      />
+      <FontFamilyEditor
+        value={fontFamily}
+        onChange={v => updateCommon('fontFamily', v)}
+        label="폰트"
+      />
+      <TextStyleEditor
+        label="텍스트 스타일"
+        boldValue={fontWeight === 'bold'}
+        italicValue={fontStyle === 'italic'}
+        underlineValue={textDecoration === 'underline'}
+        onBoldChange={v => updateCommon('fontWeight', v ? 'bold' : 'normal')}
+        onItalicChange={v => updateCommon('fontStyle', v ? 'italic' : 'normal')}
+        onUnderlineChange={v => updateCommon('textDecoration', v ? 'underline' : 'none')}
+        currentFont={fontFamily}
+      />
+      <ColorEditor
+        value={color}
+        onChange={v => updateCommon('color', v)}
+        label="글자색"
+      />
+      <ColorEditor
+        value={bgColor}
+        onChange={v => updateCommon('bgColor', v)}
+        label="배경색"
+      />
 
-      {/* 섹션 목록 */}
+      <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
+
+      {/* 안내 항목 리스트 */}
+      <div style={{ fontSize: 12, color: '#65676b', fontWeight: 600, marginBottom: 12 }}>
+        안내 항목
+      </div>
       {sections.map((section, idx) => (
-        <div
-          key={idx}
-          style={{
-            border: '1px solid #ddd',
-            padding: '12px',
-            borderRadius: 6,
-            marginBottom: 16,
-            position: 'relative'
-          }}
-        >
-          {/* 삭제 버튼 */}
+        <div key={idx} style={{
+          border: '1px solid #eee',
+          borderRadius: 6,
+          marginBottom: 12,
+          background: '#fafbfc',
+          padding: 12,
+          position: 'relative'
+        }}>
           <button
             style={{
               position: 'absolute',
-              top: 6,
+              top: 8,
               right: 8,
               border: 'none',
               background: 'transparent',
               color: '#888',
               cursor: 'pointer',
-              fontSize: 18,
-              lineHeight: 1,
+              fontSize: 18
             }}
             onClick={() => handleRemoveSection(idx)}
+            title="섹션 삭제"
           >
             ×
           </button>
-
-          {/* 제목 */}
           <TextEditor
             value={section.header}
-            onChange={(value) => updateSection(idx, 'header', value)}
+            onChange={v => updateSection(idx, 'header', v)}
             label="제목"
-            placeholder="지하철 안내"
+            placeholder="예: 버스 안내"
           />
-
-          {/* 내용 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 12 }}>
-            <label style={{ fontSize: 12, color: '#333' }}>내용</label>
-            <textarea
-              value={section.content}
-              onChange={(e) => updateSection(idx, 'content', e.target.value)}
-              placeholder="안내 내용을 입력하세요"
-              style={{
-                width: '100%',
-                minHeight: 80,
-                padding: '6px 10px',
-                border: '1px solid #ccc',
-                borderRadius: 4,
-                fontSize: 14,
-                fontFamily: 'inherit',
-                resize: 'vertical'
-              }}
-            />
-          </div>
+          <TextEditor
+            value={section.content}
+            onChange={v => updateSection(idx, 'content', v)}
+            label="내용"
+            placeholder="예: 간선버스: 147, 241 / 지선버스: 4211, 4412"
+            multiline
+          />
         </div>
       ))}
-
-      {/* 구분선 */}
-      <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
-
-      {/* 추가 버튼 */}
       <button
         onClick={handleAddSection}
         style={{
@@ -130,7 +147,7 @@ function MapInfoEditor({ selectedComp, onUpdate }) {
           fontWeight: 500
         }}
       >
-        + 섹션 추가
+        + 안내 항목 추가
       </button>
     </div>
   );
