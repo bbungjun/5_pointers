@@ -96,19 +96,7 @@ export function useCollaboration({
 
   // 컴포넌트 추가 함수
   const addComponent = (component) => {
-    console.log('addComponent 호출:', { 
-      component, 
-      hasRef: !!componentsArrayRef.current,
-      ydoc: !!ydoc 
-    });
-    
-    if (!componentsArrayRef.current) {
-      console.log('componentsArrayRef.current가 null입니다');
-      return;
-    }
-
     componentsArrayRef.current.push([component]);
-    console.log('YJS에 컴포넌트 추가 완료');
   };
 
   // 컴포넌트 삭제 함수
