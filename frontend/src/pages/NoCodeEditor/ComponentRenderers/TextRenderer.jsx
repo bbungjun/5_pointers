@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getResponsiveValue, getResponsiveScale } from '../utils/editorUtils';
 
-function TextRenderer({ comp, isEditor = false }) {
+function TextRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props.text);
   const inputRef = useRef();
@@ -35,6 +36,9 @@ function TextRenderer({ comp, isEditor = false }) {
     }
   };
 
+  // 반응형 스케일링 적용
+  const responsiveFontSize = getResponsiveValue(comp.props.fontSize || 20, viewport, 'fontSize');
+
   if (editing && isEditor) {
     return (
       <input
@@ -44,7 +48,7 @@ function TextRenderer({ comp, isEditor = false }) {
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         className="w-32 border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-        style={{ fontSize: comp.props.fontSize }}
+        style={{ fontSize: responsiveFontSize }}
       />
     );
   }
@@ -60,7 +64,7 @@ function TextRenderer({ comp, isEditor = false }) {
       }`}
       style={{
         color: comp.props.color, 
-        fontSize: comp.props.fontSize
+        fontSize: responsiveFontSize
       }}
       onDoubleClick={handleDoubleClick}
     >

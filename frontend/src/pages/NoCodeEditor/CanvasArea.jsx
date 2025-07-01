@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { LiveCursors, CollaborativeSelections } from '../../components/collaboration/LiveCursors';
+import { VIEWPORT_SIZES } from './utils/editorUtils';
 
 // 그리드 크기 상수 import 또는 선언
 const GRID_SIZE = 50;
@@ -11,8 +12,8 @@ function AddSectionButton({ canvasHeight, viewport, onAddSection }) {
   // 현재 캔버스의 높이 사용 (더미 컴포넌트 필요 없음)
   const currentMaxY = canvasHeight;
 
-  // 캔버스 너비 계산
-  const canvasWidth = viewport === 'mobile' ? 375 : 1920;
+  // 캔버스 너비 계산 (VIEWPORT_SIZES 사용)
+  const canvasWidth = VIEWPORT_SIZES[viewport]?.width || 1920;
 
   return (
     <div style={{
@@ -433,12 +434,14 @@ function CanvasArea({
     
     return {
       position: 'relative',
-      width: viewport === 'mobile' ? 375 : 1920,
+      width: VIEWPORT_SIZES[viewport]?.width || 1920,
       height: effectiveHeight,
       background: showGrid ? 
-        `radial-gradient(circle, #e1e5e9 1px, transparent 1px)` : 
+        `linear-gradient(to right, #e1e5e9 1px, transparent 1px),
+         linear-gradient(to bottom, #e1e5e9 1px, transparent 1px)` : 
         '#fff',
       backgroundSize: showGrid ? `${GRID_SIZE}px ${GRID_SIZE}px` : 'auto',
+      backgroundPosition: showGrid ? '0 0' : 'initial',
       border: '1px solid #e1e5e9',
       borderRadius: 12,
       margin: '0 auto',
@@ -452,7 +455,7 @@ function CanvasArea({
 
   // 확장된 캔버스의 실제 크기 계산 (섹션 추가 버튼으로만 확장)
   const getActualCanvasSize = () => {
-    const baseCanvasWidth = viewport === 'mobile' ? 375 : 1920;
+    const baseCanvasWidth = VIEWPORT_SIZES[viewport]?.width || 1920;
     
     // canvasHeight prop을 사용하여 캔버스 높이 계산 (더미 컴포넌트 불필요)
     const effectiveHeight = canvasHeight || (viewport === 'mobile' ? 667 : 1080);

@@ -13,146 +13,87 @@ function EditorHeader({
   isAdmin
 }) {
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: isLibraryOpen ? 240 : 0, // ComponentLibrary 상태에 따라 동적 오프셋
-      right: selectedComp ? 340 : 0, // Inspector 너비만큼 오프셋
-      height: 60,
-      background: 'rgba(255, 255, 255, 0.95)',
-      borderBottom: '1px solid #e1e5e9',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 24px',
-      zIndex: 100,
-      backdropFilter: 'blur(10px)',
-      transition: 'right 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-    }}>
+    <div 
+      className={`
+        fixed top-0 h-16 
+        bg-white/95 backdrop-blur-sm border-b border-blue-200/30 
+        flex items-center justify-between 
+        z-50 transition-all duration-300 ease-in-out
+        ${isLibraryOpen ? 'left-60' : 'left-0'}
+        ${selectedComp ? 'right-[340px] px-4' : 'right-0 px-6'}
+        shadow-sm
+      `}
+    >
       {/* 좌측: 로고와 컴포넌트 개수 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: 20,
-          fontWeight: 700,
-          color: '#1d2129'
-        }}>
-          페이지레고
+      <div className="flex items-center gap-4 min-w-0 flex-shrink-0">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent whitespace-nowrap">
+          PAGE CUBE
         </h1>
-        <div style={{
-          padding: '4px 8px',
-          background: '#e3f2fd',
-          color: '#1976d2',
-          borderRadius: 4,
-          fontSize: 12,
-          fontWeight: 500
-        }}>
-          {components.length}개 컴포넌트
+        <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium whitespace-nowrap">
+          {components.length}개
         </div>
       </div>
 
       {/* 중앙: 뷰포트 컨트롤러 */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        flex: 1,
-        maxWidth: selectedComp ? '300px' : '400px', // Inspector 열림 상태에 따라 조정
-        transition: 'max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-      }}>
-        <ViewportController
-          currentViewport={viewport}
-          onViewportChange={onViewportChange}
-        />
+      <div className="flex-1 flex justify-center mx-4 min-w-0">
+        <div className={`transition-all duration-300 ${selectedComp ? 'max-w-xs' : 'max-w-md'}`}>
+          <ViewportController
+            currentViewport={viewport}
+            onViewportChange={onViewportChange}
+          />
+        </div>
       </div>
 
-      {/* 우측: 미리보기 버튼과 기타 */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: 12,
-        minWidth: selectedComp ? '120px' : '200px', // Inspector 열림 상태에 따라 조정
-        justifyContent: 'flex-end'
-      }}>
+      {/* 우측: 버튼들 */}
+      <div className={`flex items-center min-w-0 flex-shrink-0 ${selectedComp ? 'gap-2' : 'gap-3'}`}>
         {/* 템플릿 저장 버튼 (관리자만) */}
         {isAdmin && (
           <button
             onClick={onTemplateSaveOpen}
-            style={{
-              padding: selectedComp ? '6px 12px' : '8px 16px',
-              background: '#28a745',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: selectedComp ? 12 : 14,
-              fontWeight: 500,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: selectedComp ? 4 : 8,
-              transition: 'all 0.2s',
-              boxShadow: '0 2px 8px rgba(40, 167, 69, 0.2)',
-              whiteSpace: 'nowrap'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = '#218838';
-              e.target.style.transform = 'translateY(-1px)';
-              e.target.style.boxShadow = '0 4px 16px rgba(40, 167, 69, 0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = '#28a745';
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 2px 8px rgba(40, 167, 69, 0.2)';
-            }}
+            className={`
+              ${selectedComp ? 'px-2 py-2' : 'px-4 py-2'}
+              bg-gradient-to-r from-emerald-500 to-green-500 
+              hover:from-emerald-600 hover:to-green-600
+              text-white font-medium rounded-lg
+              transition-all duration-200 transform hover:scale-105 hover:shadow-lg
+              flex items-center gap-2 whitespace-nowrap
+              ${selectedComp ? 'text-sm' : 'text-sm'}
+            `}
           >
-            <span>💾</span>
-            {!selectedComp && <span>템플릿 저장</span>}
+            <span className="text-base">💾</span>
+            {!selectedComp && <span className="hidden sm:inline">템플릿 저장</span>}
           </button>
         )}
         
         {/* 미리보기 버튼 */}
         <button
           onClick={onPreviewOpen}
-          style={{
-            padding: selectedComp ? '6px 12px' : '8px 16px', // Inspector 열림시 작게
-            background: '#3B4EFF',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            fontSize: selectedComp ? 12 : 14, // Inspector 열림시 작게
-            fontWeight: 500,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: selectedComp ? 4 : 8, // Inspector 열림시 작게
-            transition: 'all 0.2s',
-            boxShadow: '0 2px 8px rgba(59, 78, 255, 0.2)',
-            whiteSpace: 'nowrap'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.background = '#2c39d4';
-            e.target.style.transform = 'translateY(-1px)';
-            e.target.style.boxShadow = '0 4px 16px rgba(59, 78, 255, 0.3)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = '#3B4EFF';
-            e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 2px 8px rgba(59, 78, 255, 0.2)';
-          }}
+          className={`
+            ${selectedComp ? 'px-2 py-2' : 'px-4 py-2'}
+            bg-gradient-to-r from-blue-600 to-indigo-600 
+            hover:from-blue-700 hover:to-indigo-700
+            text-white font-medium rounded-lg
+            transition-all duration-200 transform hover:scale-105 hover:shadow-lg
+            flex items-center gap-2 whitespace-nowrap
+            ${selectedComp ? 'text-sm' : 'text-sm'}
+          `}
         >
-          <span>🔍</span>
-          {!selectedComp && <span>미리보기</span>} {/* Inspector 열림시 텍스트 숨김 */}
+          <span className="text-base">🔍</span>
+          {!selectedComp && <span className="hidden sm:inline">미리보기</span>}
         </button>
 
-        {/* Room ID 표시 (Inspector 열림시 숨김) */}
+        {/* Room ID 표시 - 작은 화면에서는 숨김 */}
         {!selectedComp && (
-          <div style={{
-            padding: '4px 8px',
-            background: '#f0f2f5',
-            borderRadius: 4,
-            fontSize: 12,
-            color: '#65676b'
-          }}>
-            Room: {roomId}
+          <div className="hidden md:flex px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium">
+            <span className="hidden lg:inline">Room: </span>
+            <span className="font-mono">{roomId}</span>
+          </div>
+        )}
+
+        {/* 작은 화면용 Room ID (Inspector 닫힌 상태에서만) */}
+        {!selectedComp && (
+          <div className="md:hidden flex px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs font-mono">
+            {roomId.slice(0, 6)}
           </div>
         )}
       </div>

@@ -450,23 +450,6 @@ function NoCodeEditor() {
         onSave={handleSaveAsTemplate}
       />
 
-      {/* 연결 상태 표시 */}
-      {!isConnected && (
-        <div style={{
-          position: 'fixed',
-          bottom: '40px', // 스크롤바 위로 올림
-          left: isLibraryOpen ? '260px' : '20px', // 라이브러리 상태에 따라 위치 조정
-          padding: '8px 12px',
-          backgroundColor: '#ff9800',
-          color: 'white',
-          borderRadius: '6px',
-          fontSize: '12px',
-          zIndex: 999 // 스크롤바보다 낮은 z-index
-        }}>
-          협업 서버 연결 중...
-        </div>
-      )}
-
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}
       <style>{`
         body, html { overflow: hidden !important; height: 100%; }
