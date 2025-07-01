@@ -2,6 +2,8 @@ import React from 'react';
 
 export default function MapInfoRenderer({ comp }) {
   const {
+    containerWidth = comp.width || 300,
+    containerHeight = comp.height || 275,
     sections = [],
     fontSize = 14,
     fontFamily = '"Noto Sans KR", "맑은 고딕", "Malgun Gothic", sans-serif"',
@@ -15,7 +17,17 @@ export default function MapInfoRenderer({ comp }) {
   const toPx = v => (typeof v === 'number' ? `${v}px` : v || undefined);
 
   return (
-    <div style={{ padding: 8, background: bgColor, borderRadius: 8 }}>
+    <div
+      style={{
+        padding: 8,
+        background: bgColor,
+        borderRadius: 8,
+        width: containerWidth,
+        height: containerHeight,
+        boxSizing: 'border-box',
+        overflow: 'auto'
+      }}
+    >
       {sections.map((sec, idx) => (
         <div
           key={idx}
