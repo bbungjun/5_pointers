@@ -13,3 +13,4 @@ export { default as MapInfoEditor } from './MapInfoEditor';
 export { default as CalendarEditor } from './CalendarEditor';
 export { default as BankAccountEditor } from './BankAccountEditor';
 export { default as CommentEditor } from './CommentEditor';
+export { default as WeddingInviteEditor} from "./WeddingInviteEditor";

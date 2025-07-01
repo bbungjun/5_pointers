@@ -137,7 +137,7 @@ function NoCodeEditor() {
         const dimensions = getComponentDimensions(type);
         const width = dimensions.defaultWidth;
         const height = dimensions.defaultHeight;
-        
+
         const snappedX = Math.round(e.nativeEvent.offsetX / effectiveGridSize) * effectiveGridSize;
         const snappedY = Math.round(e.nativeEvent.offsetY / effectiveGridSize) * effectiveGridSize;
         
@@ -146,7 +146,7 @@ function NoCodeEditor() {
         
         let clampedX = clamp(snappedX, 0, maxX);
         let clampedY = clamp(snappedY, 0, maxY);
-        
+
         const newComponent = {
           id: Math.random().toString(36).slice(2, 10),
           type,
@@ -158,12 +158,13 @@ function NoCodeEditor() {
         };
         
         const collisionResult = resolveCollision(newComponent, components, getComponentDimensions);
+
         clampedX = collisionResult.x;
         clampedY = collisionResult.y;
-        
+
         clampedX = clamp(clampedX, 0, maxX);
         clampedY = clamp(clampedY, 0, maxY);
-        
+
         // 협업 기능으로 컴포넌트 추가
         addComponent({
           ...newComponent,
@@ -183,8 +184,6 @@ function NoCodeEditor() {
   const handleUpdate = comp => {
     // 협업 기능으로 컴포넌트 업데이트
     updateComponent(comp.id, comp);
-      
-    // 스냅라인 계산
     const lines = calculateSnapLines(comp, components, zoom, viewport, getComponentDimensions);
     setSnapLines(lines);
   };
@@ -209,7 +208,7 @@ function NoCodeEditor() {
 
   // 속성 인스펙터
   const selectedComp = components.find(c => c.id === selectedId);
-  
+
   // 활성 사용자 정보 (디버깅용)
   const activeUsers = getActiveUsers();
   console.log('활성 사용자:', activeUsers.length);
@@ -362,6 +361,7 @@ function NoCodeEditor() {
         roomId={roomId}
         isAdmin={isAdmin}
       />
+
 
       {/* 좌측: 컴포넌트 라이브러리 (토글 가능) */}
       <ComponentLibrary 

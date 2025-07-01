@@ -33,6 +33,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.BankAccountEditor;
       case 'comment':
         return ComponentEditors.CommentEditor;
+      case 'weddingInvite':
+        return ComponentEditors.WeddingInviteEditor;
       default:
         console.warn(`Unknown component type: ${componentType}`);
         return null;
@@ -213,6 +215,7 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
 
             {/* 컴포넌트별 독립 에디터 렌더링 */}
             {(() => {
+
               const ComponentEditor = getComponentEditor(selectedComp.type);
               
               if (!ComponentEditor) {

@@ -89,8 +89,6 @@ function AddSectionButton({ components, viewport, onAddSection, getComponentDime
   );
 }
 
-
-
 function CanvasArea({
   canvasRef,
   containerRef,
