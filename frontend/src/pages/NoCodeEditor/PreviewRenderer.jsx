@@ -11,6 +11,8 @@ import GridGalleryRenderer from './ComponentRenderers/GridGalleryRenderer';
 import SlideGalleryRenderer from './ComponentRenderers/SlideGalleryRenderer';
 import MapInfoRenderer from './ComponentRenderers/MapInfoRenderer';
 import CalendarRenderer from './ComponentRenderers/CalendarRenderer';
+import BankAccountRenderer from './ComponentRenderers/BankAccountRenderer';
+import CommentRenderer from './ComponentRenderers/CommentRenderer';
 
 // 컴포넌트 definitions import
 import buttonDef from '../components/definitions/button.json';
@@ -26,6 +28,7 @@ import gridGalleryDef from '../components/definitions/grid-gallery.json';
 import slideGalleryDef from '../components/definitions/slide-gallery.json';
 import mapInfoDef from '../components/definitions/map_info.json';
 import calendarDef from '../components/definitions/calendar.json';
+import commentDef from '../components/definitions/comment.json';
 
 // 컴포넌트 정의들을 맵으로 구성
 const componentDefinitions = {
@@ -41,7 +44,8 @@ const componentDefinitions = {
   gridGallery: gridGalleryDef,
   slideGallery: slideGalleryDef,
   mapInfo: mapInfoDef,
-  calendar: calendarDef
+  calendar: calendarDef,
+  comment: commentDef
 };
 
 /**
@@ -108,136 +112,7 @@ const PreviewRenderer = ({ pageContent }) => {
         case 'comment':
           return <CommentRenderer comp={compWithMergedProps} isEditor={true} />;
         case 'bankAccount':
-          return (
-            <div style={{
-              padding: '16px',
-              background: mergedProps.backgroundColor || '#ffffff',
-              border: '1px solid #e1e5e9',
-              borderRadius: 8,
-              fontFamily: 'inherit'
-            }}>
-              <div style={{
-                fontSize: 16,
-                fontWeight: 600,
-                color: '#1d2129',
-                marginBottom: 12
-              }}>
-                💒 {mergedProps.title || '축의금 계좌 안내'}
-              </div>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 12
-              }}>
-                {/* 신랑 측 계좌들 */}
-                <div style={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: '#495057',
-                  marginBottom: 8
-                }}>
-                  신랑 측
-                </div>
-                <div style={{
-                  padding: '12px',
-                  background: '#f8f9fa',
-                  borderRadius: 6,
-                  border: '1px solid #e9ecef'
-                }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
-                    {mergedProps.groomSide?.groom?.name || '신랑'}
-                  </div>
-                  <div style={{ fontSize: 12, color: '#6c757d' }}>
-                    {mergedProps.groomSide?.groom?.bank || '은행'} {mergedProps.groomSide?.groom?.account || '계좌번호'}
-                  </div>
-                </div>
-                {mergedProps.groomSide?.groomFather?.enabled && (
-                  <div style={{
-                    padding: '12px',
-                    background: '#f8f9fa',
-                    borderRadius: 6,
-                    border: '1px solid #e9ecef'
-                  }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
-                      {mergedProps.groomSide?.groomFather?.name || '신랑 아버지'}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#6c757d' }}>
-                      {mergedProps.groomSide?.groomFather?.bank || '은행'} {mergedProps.groomSide?.groomFather?.account || '계좌번호'}
-                    </div>
-                  </div>
-                )}
-                {mergedProps.groomSide?.groomMother?.enabled && (
-                  <div style={{
-                    padding: '12px',
-                    background: '#f8f9fa',
-                    borderRadius: 6,
-                    border: '1px solid #e9ecef'
-                  }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
-                      {mergedProps.groomSide?.groomMother?.name || '신랑 어머니'}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#6c757d' }}>
-                      {mergedProps.groomSide?.groomMother?.bank || '은행'} {mergedProps.groomSide?.groomMother?.account || '계좌번호'}
-                    </div>
-                  </div>
-                )}
-
-                {/* 신부 측 계좌들 */}
-                <div style={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: '#495057',
-                  marginBottom: 8,
-                  marginTop: 16
-                }}>
-                  신부 측
-                </div>
-                <div style={{
-                  padding: '12px',
-                  background: '#f8f9fa',
-                  borderRadius: 6,
-                  border: '1px solid #e9ecef'
-                }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
-                    {mergedProps.brideSide?.bride?.name || '신부'}
-                  </div>
-                  <div style={{ fontSize: 12, color: '#6c757d' }}>
-                    {mergedProps.brideSide?.bride?.bank || '은행'} {mergedProps.brideSide?.bride?.account || '계좌번호'}
-                  </div>
-                </div>
-                {mergedProps.brideSide?.brideFather?.enabled && (
-                  <div style={{
-                    padding: '12px',
-                    background: '#f8f9fa',
-                    borderRadius: 6,
-                    border: '1px solid #e9ecef'
-                  }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
-                      {mergedProps.brideSide?.brideFather?.name || '신부 아버지'}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#6c757d' }}>
-                      {mergedProps.brideSide?.brideFather?.bank || '은행'} {mergedProps.brideSide?.brideFather?.account || '계좌번호'}
-                    </div>
-                  </div>
-                )}
-                {mergedProps.brideSide?.brideMother?.enabled && (
-                  <div style={{
-                    padding: '12px',
-                    background: '#f8f9fa',
-                    borderRadius: 6,
-                    border: '1px solid #e9ecef'
-                  }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
-                      {mergedProps.brideSide?.brideMother?.name || '신부 어머니'}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#6c757d' }}>
-                      {mergedProps.brideSide?.brideMother?.bank || '은행'} {mergedProps.brideSide?.brideMother?.account || '계좌번호'}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
+          return <BankAccountRenderer comp={compWithMergedProps} isEditor={true} />;
         default:
           return (
             <div style={{
@@ -274,6 +149,32 @@ const PreviewRenderer = ({ pageContent }) => {
     );
   };
 
+  // 확장된 캔버스 크기 계산
+  const calculateCanvasSize = () => {
+    if (!pageContent || !Array.isArray(pageContent) || pageContent.length === 0) {
+      return { width: 1920, height: 1080 };
+    }
+
+    // 모든 컴포넌트의 최대 위치 계산
+    let maxX = 1920;
+    let maxY = 1080;
+
+    pageContent.forEach(comp => {
+      if (comp.id && comp.id.startsWith('canvas-extender-')) {
+        // 확장 컴포넌트는 캔버스 크기 계산에 포함
+        maxY = Math.max(maxY, comp.y + (comp.height || 0) + 100);
+      } else {
+        // 일반 컴포넌트의 경우 실제 위치 + 크기로 계산
+        maxX = Math.max(maxX, comp.x + (comp.width || 200));
+        maxY = Math.max(maxY, comp.y + (comp.height || 100) + 100);
+      }
+    });
+
+    return { width: maxX, height: maxY };
+  };
+
+  const canvasSize = calculateCanvasSize();
+
   if (!pageContent || !Array.isArray(pageContent)) {
     return (
       <div style={{
@@ -299,15 +200,17 @@ const PreviewRenderer = ({ pageContent }) => {
   return (
     <div style={{
       position: 'relative',
-      width: '1920px', // 캔버스 고정 크기
-      height: '1080px',
+      width: `${canvasSize.width}px`,
+      height: `${canvasSize.height}px`,
       background: '#ffffff',
       margin: '0 auto',
       minHeight: '100vh',
-      overflow: 'hidden'
+      overflow: 'visible'
     }}>
-      {/* 모든 컴포넌트 렌더링 */}
-      {pageContent.map(renderComponent)}
+      {/* 모든 컴포넌트 렌더링 (확장 컴포넌트 제외) */}
+      {pageContent
+        .filter(comp => !comp.id.startsWith('canvas-extender-'))
+        .map(renderComponent)}
       
       {/* 페이지 하단 여백 (필요시) */}
       <div style={{ 

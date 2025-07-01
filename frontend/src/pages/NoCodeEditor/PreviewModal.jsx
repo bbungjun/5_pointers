@@ -194,7 +194,6 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
         <div style={{ display: 'flex', gap: 8 }}>
           {[
             { mode: 'desktop', icon: '🖥️', label: '데스크톱' },
-            { mode: 'tablet', icon: '📱', label: '태블릿' },
             { mode: 'mobile', icon: '📱', label: '모바일' },
           ].map(({ mode, icon, label }) => (
             <button
@@ -355,7 +354,6 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
         }}
       >
         {viewMode === 'desktop' && '데스크톱 화면에서 보는 모습입니다'}
-        {viewMode === 'tablet' && `태블릿 화면 (${viewport.width}×${viewport.height})에서 보는 모습입니다`}
         {viewMode === 'mobile' && `모바일 화면 (${viewport.width}×${viewport.height})에서 보는 모습입니다`}
       </div>
     </div>

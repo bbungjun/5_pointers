@@ -38,15 +38,20 @@ function WeddingContactRenderer({ comp }) {
   const p = comp.props;
   return (
     <div style={{
+      width: '100%',
+      height: '100%',
       background: '#fff',
       border: '1px solid #ddd',
-      borderRadius: 12,
-      padding: 24,
-      minWidth: 320,
-      maxWidth: 400,
+      borderRadius: '12px',
+      padding: '20px',
       color: '#333',
       fontFamily: 'inherit',
       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+      minWidth: '250px',
+      minHeight: '200px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between'
     }}>
       {/* 상단 신랑/신부 */}
       <div style={{ display: 'flex', marginBottom: 24 }}>

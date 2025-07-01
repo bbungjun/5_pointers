@@ -1,8 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useYjsCollaboration } from './useYjsCollaboration';
 import { useLiveCursors } from './useLiveCursors';
-import { useComments } from './useComments';
-import { useVersionHistory } from './useVersionHistory';
 
 /**
  * 통합 협업 훅 - 모든 Y.js 협업 기능을 하나로 관리
@@ -30,28 +28,7 @@ export function useCollaboration({
     updateCursorPosition 
   } = useLiveCursors(awareness, canvasRef);
 
-  // 주석 시스템 관리
-  const {
-    comments,
-    commentMode,
-    addComment,
-    addReply,
-    toggleResolveComment,
-    deleteComment,
-    getCommentsForComponent,
-    toggleCommentMode
-  } = useComments(ydoc, userInfo);
 
-  // 버전 히스토리 관리
-  const {
-    versions,
-    isCreatingSnapshot,
-    isRestoring,
-    createSnapshot,
-    restoreVersion,
-    deleteVersion,
-    renameVersion
-  } = useVersionHistory(ydoc, provider);
 
   // 컴포넌트 데이터 동기화를 위한 Y.Array 설정
   const componentsArrayRef = useRef(null);
@@ -175,31 +152,12 @@ export function useCollaboration({
   return {
     // 연결 상태
     isConnected,
-    isRestoring,
 
     // 라이브 커서 및 선택
     otherCursors,
     otherSelections,
     updateCursorPosition,
     updateSelection,
-
-    // 주석 시스템
-    comments,
-    commentMode,
-    addComment,
-    addReply,
-    toggleResolveComment,
-    deleteComment,
-    getCommentsForComponent,
-    toggleCommentMode,
-
-    // 버전 히스토리
-    versions,
-    isCreatingSnapshot,
-    createSnapshot,
-    restoreVersion,
-    deleteVersion,
-    renameVersion,
 
     // 컴포넌트 동기화
     updateComponent,
