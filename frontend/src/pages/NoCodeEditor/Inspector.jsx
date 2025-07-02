@@ -35,6 +35,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.CommentEditor;
       case 'weddingInvite':
         return ComponentEditors.WeddingInviteEditor;
+      case 'musicPlayer':
+        return ComponentEditors.MusicEditor;
       default:
         console.warn(`Unknown component type: ${componentType}`);
         return null;
@@ -58,7 +60,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       slideGallery: '🎞️',
       mapInfo: '📍',
       calendar: '🗓️',
-      weddingInvite: '💌'
+      weddingInvite: '💌',
+      musicPlayer: '🎵'
     };
     return icons[type] || '📦';
   };
@@ -80,7 +83,8 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       bankAccount: 'Bank Account',
       comment: 'Comment',
       mapInfo: 'Map Info',
-      weddingInvite: 'Wedding Invite'
+      weddingInvite: 'Wedding Invite',
+      musicPlayer: 'Music Player'  
     };
     return labels[type] || 'Component';
   };
