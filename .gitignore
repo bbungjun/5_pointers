@@ -110,7 +110,6 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
 
 # Vuepress build output
 .vuepress/dist
@@ -138,3 +137,31 @@ mysql-mcp-server/
 # Deployed sites (if these are generated)
 deployed-sites/
 
+
+uploads/
+
+# 백업 파일들
+*.backup
+*.bak
+
+# 테스트 파일들
+/tmp/test-*
+test-*.png
+test-*.jpg
+test-*.jpeg
+test-*.gif
+
+# 업로드된 파일들만 무시 (디렉토리 구조는 유지)
+backend/public/uploads/**/*
+!backend/public/uploads/**/.gitkeep
+
+# 백업 파일들
+*.backup
+*.bak
+
+# 테스트 파일들
+/tmp/test-*
+test-*.png
+test-*.jpg
+test-*.jpeg
+test-*.gif

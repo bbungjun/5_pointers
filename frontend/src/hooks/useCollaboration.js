@@ -30,6 +30,28 @@ export function useCollaboration({
 
 
 
+  // DB 복구 상태 추적
+  const hasRestoredRef = useRef(false);
+
+  // DB에서 복구하는 함수
+  const restoreFromDatabase = async (roomId, yArray) => {
+    try {
+      console.log("🔄 Y.js 문서가 비어있음, DB에서 복구 시도...");
+      const response = await fetch(`/api/users/pages/room/${roomId}/content`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.components && data.components.length > 0) {
+          console.log("✅ DB에서 복구:", data.components.length, "개 컴포넌트");
+          yArray.insert(0, data.components); // Y.js 문서에 직접 삽입
+          return true;
+        }
+      }
+    } catch (error) {
+      console.log("📝 새 문서 시작 (복구 실패 또는 데이터 없음)");
+    }
+    return false;
+  };
+
   // 컴포넌트 데이터 동기화를 위한 Y.Array 설정
   const componentsArrayRef = useRef(null);
 
@@ -38,6 +60,7 @@ export function useCollaboration({
 
     // Y.js에서 컴포넌트 데이터를 관리하는 Y.Array 생성
     const yComponents = ydoc.getArray?.('components');
+    console.log("🔍 Y.js 배열 상태:", { yComponents: !!yComponents, length: yComponents?.length });
     if (!yComponents) return;
     componentsArrayRef.current = yComponents;
 
@@ -54,7 +77,6 @@ export function useCollaboration({
     // 초기 데이터 로드
     handleComponentsChange();
 
-    // Y.js 변화 이벤트 리스너 등록
     try {
       yComponents.observe(handleComponentsChange);
     } catch (error) {
@@ -68,7 +90,26 @@ export function useCollaboration({
         console.error('Y.js 컴포넌트 리스너 해제 실패:', error);
       }
     };
-  }, [ydoc, onComponentsUpdate]);
+  }, [ydoc, onComponentsUpdate, isConnected, roomId]);
+
+  // Y.js 연결 완료 후 복구 처리
+  useEffect(() => {
+    if (!ydoc || hasRestoredRef.current) return;
+
+    const yComponents = ydoc.getArray?.("components");
+    console.log("🔍 Y.js 배열 상태:", { yComponents: !!yComponents, length: yComponents?.length });
+    if (!yComponents) return;
+
+    // 약간의 지연 후 복구 시도 (Y.js 초기화 완료 대기)
+    setTimeout(() => {
+    // 연결 완료 후 Y.js 문서가 비어있으면 복구
+    if (yComponents.length === 0) {
+      console.log("🔗 Y.js 연결 완료, 복구 시작...");
+      hasRestoredRef.current = true;
+      restoreFromDatabase(roomId, yComponents);
+    }
+    }, 1000); // 1초 후 복구 시도
+  }, [ydoc, roomId]);
 
   // 선택된 컴포넌트 변화를 Awareness에 반영
   useEffect(() => {

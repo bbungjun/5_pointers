@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users, AuthProvider } from './entities/users.entity'
-import { Pages } from './entities/pages.entity'
+import { Pages, PageStatus } from './entities/pages.entity'
 import { Submissions } from './entities/submissions.entity'
 import * as bcrypt from 'bcryptjs';
 
@@ -36,18 +36,90 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async createPage(userId: number, subdomain: string, title: string = 'Untitled'): Promise<Pages> {
+  // 내 페이지 목록 조회
+  async getMyPages(userId: number): Promise<Pages[]> {
+    return this.pagesRepository.find({ 
+      where: { owner: { id: userId } },
+      order: { updatedAt: 'DESC' }
+    });
+  }
+
+  // 페이지 단일 조회
+  async getPage(userId: number, pageId: string): Promise<Pages> {
+    const page = await this.pagesRepository.findOne({
+      where: { id: pageId, owner: { id: userId } }
+    });
+    
+    if (!page) {
+      throw new Error('Page not found');
+    }
+    
+    return page;
+  }
+
+  // 페이지 제목 수정
+  async updatePageTitle(userId: number, pageId: string, title: string): Promise<Pages> {
+    const page = await this.pagesRepository.findOne({
+      where: { id: pageId, owner: { id: userId } }
+    });
+    
+    if (!page) {
+      throw new Error('Page not found');
+    }
+    
+    page.title = title;
+    return this.pagesRepository.save(page);
+  }
+
+  // 페이지 삭제
+  async deletePage(userId: number, pageId: string): Promise<{ message: string }> {
+    const page = await this.pagesRepository.findOne({
+      where: { id: pageId, owner: { id: userId } }
+    });
+    
+    if (!page) {
+      throw new Error('Page not found');
+    }
+    
+    await this.pagesRepository.remove(page);
+    return { message: 'Page deleted successfully' };
+  }
+
+  // 페이지 생성 리팩토링
+  async createPage(userId: number, body: { subdomain?: string; title?: string; templateId?: string }): Promise<Pages> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) throw new Error('User not found');
+    
+    let content = null;
+    
+    // templateId가 있으면 템플릿에서 content 가져오기
+    if (body.templateId) {
+      const templatesRepository = this.pagesRepository.manager.getRepository('Templates');
+      const template = await templatesRepository.findOne({ where: { id: body.templateId } });
+      if (template && template.content) {
+        // 컴포넌트 ID 재발급
+        content = this.regenerateComponentIds(template.content);
+      }
+    }
     
     const page = this.pagesRepository.create({
       owner: user,
       userId: userId,
-      subdomain,
-      title,
-      status: 'DRAFT'
+      subdomain: body.subdomain || `page-${Date.now()}`,
+      title: body.title || 'Untitled',
+      content: content,
+      status: PageStatus.DRAFT
     });
+    
     return this.pagesRepository.save(page);
+  }
+
+  // 컴포넌트 ID 재발급 함수
+  private regenerateComponentIds(components: any[]): any[] {
+    return components.map(comp => ({
+      ...comp,
+      id: Math.random().toString(36).slice(2, 10)
+    }));
   }
 
   async deployPage(pageId: string, components: any[], domain: string): Promise<any> {
@@ -325,5 +397,72 @@ export class UsersService {
         })();
       </script>
     `;
+  }
+
+  // 🔄 새로고침 복구 시스템 - roomId로 페이지 콘텐츠 조회
+  async getPageContentByRoom(roomId: string): Promise<any> {
+    const page = await this.pagesRepository.findOne({ 
+      where: { subdomain: roomId } 
+    });
+    
+    if (!page) {
+      // 페이지가 없으면 기본 구조 반환
+      return {
+        components: [],
+        canvasSettings: {
+          width: 1200,
+          height: 800,
+          backgroundColor: "#ffffff"
+        },
+        lastModified: new Date(),
+        version: 1
+      };
+    }
+    
+    return page.content || {
+      components: [],
+      canvasSettings: {
+        width: 1200,
+        height: 800,
+        backgroundColor: "#ffffff"
+      },
+      lastModified: page.updatedAt,
+      version: 1
+    };
+  }
+
+  // 🔄 새로고침 복구 시스템 - roomId로 페이지 콘텐츠 저장
+  async savePageContentByRoom(roomId: string, content: any): Promise<any> {
+    // 먼저 페이지가 존재하는지 확인
+    let page = await this.pagesRepository.findOne({ 
+      where: { subdomain: roomId } 
+    });
+    
+    if (!page) {
+      // 페이지가 없으면 새로 생성 (기본 사용자 ID 1로 임시 설정)
+      page = this.pagesRepository.create({
+        subdomain: roomId,
+        title: `Room ${roomId}`,
+        userId: 1, // 임시 사용자 ID
+        content: content,
+        status: "DRAFT"
+      });
+      await this.pagesRepository.save(page);
+    } else {
+      // 기존 페이지 업데이트
+      await this.pagesRepository.update(
+        { subdomain: roomId },
+        { 
+          content: content,
+          updatedAt: new Date()
+        }
+      );
+    }
+    
+    return {
+      success: true,
+      message: "Content saved successfully",
+      lastModified: new Date()
+    };
   }
 }

@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import AppEditor from "./pages/AppEditor";
 import NoCodeEditor from './pages/NoCodeEditor';
 import InvitationHandler from './pages/InvitationHandler';
+import RecoveryTest from "./pages/RecoveryTest";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

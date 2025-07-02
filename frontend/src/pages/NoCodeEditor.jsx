@@ -30,6 +30,7 @@ import { API_BASE_URL } from '../config';
 import { ComponentDefinitions } from './components/definitions';
 
 // 협업 기능 imports
+import useAutoSave from "../hooks/useAutoSave";
 import { useCollaboration } from '../hooks/useCollaboration';
 
 function NoCodeEditor() {
@@ -37,6 +38,14 @@ function NoCodeEditor() {
   const location = useLocation();
   // 기본 상태
   const [components, setComponents] = useState([]);
+  
+  // 컴포넌트 업데이트 + 자동저장 래퍼 (먼저 선언)
+  const handleComponentsUpdate = useCallback((newComponents) => {
+    setComponents(newComponents);
+  }, []);
+  
+  const { isSaving, saveNow } = useAutoSave(roomId, components, { width: 1200, height: 800 }, 3000);
+  
   const [selectedId, setSelectedId] = useState(null);
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
   const [zoom, setZoom] = useState(100);
@@ -240,62 +249,59 @@ function NoCodeEditor() {
     loadPageData();
   }, [roomId, collaboration.ydoc, collaboration.updateAllComponents, isInitialDataLoaded]);
 
- // 템플릿 로딩 - YJS 초기화 대기
-  const loadedTemplateRef = useRef(null);
+
+ // 페이지 데이터 로딩
+  const [pageLoaded, setPageLoaded] = useState(false);
+  const [pageTitle, setPageTitle] = useState('Untitled');
   
   useEffect(() => {
-    const templateComponents = location.state?.templateComponents;
-    if (templateComponents && Array.isArray(templateComponents) && collaboration.ydoc && isInitialDataLoaded) {
-      // 이전에 로딩한 템플릿과 다른지 확인
-      const templateKey = JSON.stringify(templateComponents.map(c => c.id));
-      if (loadedTemplateRef.current !== templateKey) {
-        console.log('🎨 새로운 템플릿 로딩:', templateComponents.length, '개');
-        templateComponents.forEach((comp, index) => {
-          console.log(`addComponent ${index} 호출:`, comp);
-          addComponent(comp);
-          console.log(`addComponent ${index} 완료`);
-        });
-        loadedTemplateRef.current = templateKey;
-        console.log('✅ 템플릿 로딩 완료');
-      }
-    } else if (templateComponents && !isInitialDataLoaded) {
-      console.log('⏳ 초기 데이터 로딩 대기 중...', { hasYdoc: !!collaboration.ydoc });
-    }
-  }, [location.state, addComponent, collaboration.ydoc, isInitialDataLoaded]);
-
-  // 컴포넌트 변경사항 자동 저장
-  useEffect(() => {
-    if (!isInitialDataLoaded || components.length === 0) return;
-    
-    console.log('💾 컴포넌트 변경 감지, 자동 저장 준비');
-    
-    const saveToDatabase = async () => {
+    const loadPageData = async () => {
+      if (!roomId || pageLoaded) return;
+      
       try {
-        const response = await fetch(`${API_BASE_URL}/users/page/${roomId}/components`, {
-          method: 'PUT',
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        
+        const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}`, {
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-          },
-          body: JSON.stringify({ components })
+            'Authorization': `Bearer ${token}`
+          }
         });
         
         if (response.ok) {
-          console.log('💾 페이지 데이터 자동 저장 완료');
-        } else {
-          console.log('⚠️ 페이지 데이터 저장 실패');
+          const pageData = await response.json();
+          console.log('페이지 데이터 로딩:', pageData);
+          
+          if (pageData.content && Array.isArray(pageData.content)) {
+            // YJS가 준비되면 추가, 아니면 직접 상태 설정
+            if (collaboration.ydoc) {
+              pageData.content.forEach(comp => {
+                addComponent(comp);
+              });
+            } else {
+              setComponents(pageData.content);
+            }
+          }
+          setPageTitle(pageData.title || 'Untitled');
+          setPageLoaded(true);
         }
       } catch (error) {
-        console.error('❌ 페이지 데이터 저장 중 오류:', error);
+        console.error('페이지 데이터 로딩 실패:', error);
       }
     };
     
-    // 2초 후에 저장 (debounce 효과)
-    const timeoutId = setTimeout(saveToDatabase, 2000);
-    
-    return () => clearTimeout(timeoutId);
-  }, [components, roomId, isInitialDataLoaded]);
-
+    loadPageData();
+  }, [roomId, pageLoaded]);
+  
+  // YJS가 나중에 초기화되면 데이터 동기화
+  useEffect(() => {
+    if (collaboration.ydoc && components.length > 0 && !collaboration.ydoc.getArray('components').length) {
+      components.forEach(comp => {
+        addComponent(comp);
+      });
+    }
+  }, [collaboration.ydoc, components, addComponent]);
+  
   // viewport 변경 시 캔버스 높이 초기화
   useEffect(() => {
     const baseHeight = viewport === 'mobile' ? 667 : 1080;
