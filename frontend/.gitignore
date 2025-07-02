@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 tailwindcss*
+
+# 음악 파일 무시
+public/music/

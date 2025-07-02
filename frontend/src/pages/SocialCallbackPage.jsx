@@ -61,7 +61,19 @@ function SocialCallbackPage({ onLogin }) {
             
             console.log('SocialCallbackPage - 최종 사용할 nickname:', nickname);
             onLogin({ nickname });
-            navigate('/dashboard');
+            
+            // 초대 링크에서 왔는지 확인하고 리디렉션
+            const redirectUrl = localStorage.getItem('redirectUrl');
+            if (redirectUrl) {
+              // 리디렉션 URL 정리
+              localStorage.removeItem('redirectUrl');
+              console.log('소셜 로그인 후 원래 목적지로 이동:', redirectUrl);
+              // 전체 URL로 이동 (초대 링크 처리를 위해)
+              window.location.href = redirectUrl;
+            } else {
+              // 기본 대시보드로 이동
+              navigate('/dashboard');
+            }
           } else {
             alert(data.message || '소셜 로그인 실패');
             navigate('/login');

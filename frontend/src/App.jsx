@@ -8,6 +8,7 @@ import SocialCallbackPage from './pages/SocialCallbackPage';
 import Dashboard from "./pages/Dashboard";
 import AppEditor from "./pages/AppEditor";
 import NoCodeEditor from './pages/NoCodeEditor';
+import InvitationHandler from './pages/InvitationHandler';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -59,6 +60,7 @@ function App() {
           element={<SocialCallbackPage onLogin={handleLogin} />}
         />
         <Route path="/editor/:roomId" element={<NoCodeEditor />} />
+        <Route path="/invite/:invitationToken" element={<InvitationHandler />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </BrowserRouter>

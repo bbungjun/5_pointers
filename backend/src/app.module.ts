@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TemplatesModule } from './templates/templates.module';
+import { InvitationsModule } from './invitations/invitations.module';
 
 import { GeneratorModule } from './generator/generator.module';
 
@@ -29,6 +30,7 @@ import { Templates } from './users/entities/templates.entity';
     AuthModule,
     UsersModule,
     TemplatesModule,
+    InvitationsModule,
     GeneratorModule,
   ],
 })

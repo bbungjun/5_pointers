@@ -67,7 +67,7 @@ export function LiveCursors({ cursors, zoom = 100, viewport = 'desktop' }) {
         );
       })}
       
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -140,7 +140,7 @@ export function CollaborativeSelections({ selections, components, zoom = 100, vi
         })
       )}
       
-      <style jsx>{`
+      <style>{`
         @keyframes pulseSelection {
           0%, 100% {
             opacity: 1;

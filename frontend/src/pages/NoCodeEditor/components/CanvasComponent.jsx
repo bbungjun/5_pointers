@@ -6,6 +6,7 @@ import AttendRenderer from '../ComponentRenderers/AttendRenderer';
 import MapView from '../ComponentEditors/MapView';
 import DdayRenderer from '../ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from '../ComponentRenderers/WeddingContactRenderer.jsx';
+import WeddingInviteRenderer from '../ComponentRenderers/WeddingInviteRenderer';
 import ImageRenderer from '../ComponentRenderers/ImageRenderer';
 import GridGalleryRenderer from '../ComponentRenderers/GridGalleryRenderer';
 import SlideGalleryRenderer from '../ComponentRenderers/SlideGalleryRenderer';
@@ -14,8 +15,7 @@ import CalendarRenderer from '../ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from '../ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import { clamp, resolveCollision, calculateSnapPosition, calculateSnapLines } from '../utils/editorUtils';
-import WeddingInviteRenderer from '../ComponentRenderers/WeddingInviteRenderer';
-
+import MusicRenderer from '../ComponentRenderers/MusicRenderer';
 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
@@ -72,7 +72,7 @@ function CanvasComponent({
     }
     
     // 고정 크기 컴포넌트들 (리사이즈가 어려운 컴포넌트들)
-    if (['attend', 'dday', 'weddingContact', 'calendar', 'bankAccount', 'comment'].includes(comp.type)) {
+    if (['attend', 'dday', 'weddingContact', 'weddingInvite', 'calendar', 'bankAccount', 'comment'].includes(comp.type)) {
       // 이런 컴포넌트들은 내부 레이아웃이 복잡하므로 기본 크기를 우선 사용
       return {
         width: comp.width || componentDimensions.defaultWidth,
@@ -140,35 +140,37 @@ function CanvasComponent({
 
     switch (comp.type) {
       case 'button':
-        return <ButtonRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+        return <ButtonRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'text':
-        return <TextRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+        return <TextRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'link':
-        return <LinkRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+        return <LinkRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'attend':
-        return <AttendRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+        return <AttendRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'map':
-        return <MapView {...comp.props} viewport={viewport} />;
+        return <MapView {...comp.props} />;
       case 'dday':
-        return <DdayRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+        return <DdayRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'weddingContact':
-        return <WeddingContactRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+        return <WeddingContactRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+      case 'weddingInvite':
+        return <WeddingInviteRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'image':
-        return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+        return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'gridGallery':
-        return <GridGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+        return <GridGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'slideGallery':
-        return <SlideGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+        return <SlideGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'mapInfo':
-        return <MapInfoRenderer comp={comp} isEditor={true} viewport={viewport} />;
+        return <MapInfoRenderer comp={comp} isEditor={true} />;
       case 'calendar':
-        return <CalendarRenderer comp={comp} isEditor={true} viewport={viewport} />;
+        return <CalendarRenderer comp={comp} isEditor={true} />;
       case 'bankAccount':
-        return <BankAccountRenderer comp={comp} isEditor={true} viewport={viewport} />;
+        return <BankAccountRenderer comp={comp} isEditor={true} />;
       case 'comment':
         return <CommentRenderer comp={comp} isEditor={true} viewport={viewport} />;
-      case 'weddingInvite':
-        return <WeddingInviteRenderer comp={comp} isEditor={true} viewport={viewport} />;
+      case 'musicPlayer':
+        return <MusicRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       default:
         return <span>{comp.props.text}</span>;
     }
