@@ -28,6 +28,9 @@ export default function MusicRenderer({ comp, isEditor = false }) {
 
     // 재생/일시정지 토글
     const togglePlay = () => {
+        // 다른 오디오 정지
+        window.dispatchEvent(new Event('stopAllMusic'));
+
         if (!musicData) return; // 음악 없으면 아무 동작 안함
         if (!audioRef.current) return;
         if (isPlaying) {
@@ -51,6 +54,16 @@ export default function MusicRenderer({ comp, isEditor = false }) {
             audio.removeEventListener('pause', onPause);
         };
     }, [musicData]);
+
+    // stopAllMusic 이벤트 수신 시 음악 정지
+    useEffect(() => {
+        const stopMusic = () => {
+            audioRef.current?.pause();
+            setIsPlaying(false);
+        };
+        window.addEventListener('stopAllMusic', stopMusic);
+        return () => window.removeEventListener('stopAllMusic', stopMusic);
+    }, []);
 
     return (
         <div style={{

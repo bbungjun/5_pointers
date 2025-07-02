@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { musicLibrary } from '../../../data/musicLibrary';
 
 export default function MusicEditor({ selectedComp, onUpdate }) {
@@ -25,6 +25,9 @@ export default function MusicEditor({ selectedComp, onUpdate }) {
 
     // 미리듣기 핸들러
     const togglePreview = (music) => {
+        // 다른 오디오 정지
+        window.dispatchEvent(new Event('stopAllMusic'));
+
         if (isPreviewPlaying && previewMusicId === music.id) {
             previewAudioRef.current?.pause();
             setIsPreviewPlaying(false);
@@ -38,6 +41,17 @@ export default function MusicEditor({ selectedComp, onUpdate }) {
             }
         }
     };
+
+    // stopAllMusic 이벤트 수신 시 미리듣기 정지
+    useEffect(() => {
+        const stopPreview = () => {
+            previewAudioRef.current?.pause();
+            setIsPreviewPlaying(false);
+            setPreviewMusicId(null);
+        };
+        window.addEventListener('stopAllMusic', stopPreview);
+        return () => window.removeEventListener('stopAllMusic', stopPreview);
+    }, []);
 
     return (
         <div>
