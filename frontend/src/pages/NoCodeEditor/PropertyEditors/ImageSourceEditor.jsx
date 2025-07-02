@@ -16,19 +16,41 @@ function ImageSourceEditor({ label, value, onChange }) {
       return;
     }
 
+    // 파일 크기 검증 (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("파일 크기는 5MB 이하여야 합니다.");
+      return;
+    }
+
     setIsUploading(true);
 
     try {
-      // Base64로 변환 (임시 방식 - 실제로는 서버 업로드)
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        onChange(e.target.result);
-        setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
+      // 🚀 서버 업로드 방식으로 변경
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await fetch("/api/users/upload/image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`업로드 실패: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // 서버에서 반환된 URL을 사용
+        onChange(result.imageUrl);
+        console.log("이미지 업로드 성공:", result);
+      } else {
+        throw new Error("서버에서 업로드 실패 응답");
+      }
     } catch (error) {
       console.error("파일 업로드 실패:", error);
-      alert("파일 업로드에 실패했습니다.");
+      alert("파일 업로드에 실패했습니다: " + error.message);
+    } finally {
       setIsUploading(false);
     }
   };
@@ -46,62 +68,42 @@ function ImageSourceEditor({ label, value, onChange }) {
   };
 
   return (
-    <div style={{ marginBottom: "12px" }}>
-      <label
-        style={{
-          display: "block",
-          marginBottom: "6px",
-          fontSize: "12px",
-          fontWeight: "500",
-          color: "#374151",
-        }}
-      >
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ display: "block", marginBottom: "8px", fontWeight: "500", fontSize: "14px" }}>
         {label}
       </label>
 
-      {/* 탭 버튼들 */}
-      <div
-        style={{
-          display: "flex",
-          marginBottom: "8px",
-          backgroundColor: "#f3f4f6",
-          borderRadius: "6px",
-          padding: "2px",
-        }}
-      >
+      {/* 탭 버튼 */}
+      <div style={{ display: "flex", marginBottom: "12px", borderBottom: "1px solid #e5e7eb" }}>
         <button
           type="button"
           onClick={() => setActiveTab("upload")}
           style={{
-            flex: 1,
-            padding: "6px 12px",
+            padding: "8px 16px",
             border: "none",
-            borderRadius: "4px",
-            fontSize: "12px",
-            cursor: "pointer",
-            backgroundColor: activeTab === "upload" ? "#3b82f6" : "transparent",
+            background: activeTab === "upload" ? "#3b82f6" : "transparent",
             color: activeTab === "upload" ? "white" : "#6b7280",
-            transition: "all 0.2s ease",
+            cursor: "pointer",
+            borderRadius: "4px 4px 0 0",
+            fontSize: "14px",
           }}
         >
-          📁 파일 업로드
+          파일 업로드
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("url")}
           style={{
-            flex: 1,
-            padding: "6px 12px",
+            padding: "8px 16px",
             border: "none",
-            borderRadius: "4px",
-            fontSize: "12px",
-            cursor: "pointer",
-            backgroundColor: activeTab === "url" ? "#3b82f6" : "transparent",
+            background: activeTab === "url" ? "#3b82f6" : "transparent",
             color: activeTab === "url" ? "white" : "#6b7280",
-            transition: "all 0.2s ease",
+            cursor: "pointer",
+            borderRadius: "4px 4px 0 0",
+            fontSize: "14px",
           }}
         >
-          🔗 URL
+          URL 입력
         </button>
       </div>
 
@@ -123,28 +125,60 @@ function ImageSourceEditor({ label, value, onChange }) {
               width: "100%",
               padding: "12px",
               border: "2px dashed #d1d5db",
-              borderRadius: "6px",
-              backgroundColor: "white",
+              borderRadius: "8px",
+              background: isUploading ? "#f9fafb" : "#fafafa",
               cursor: isUploading ? "not-allowed" : "pointer",
               fontSize: "14px",
               color: "#6b7280",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              if (!isUploading) {
-                e.target.style.borderColor = "#3b82f6";
-                e.target.style.backgroundColor = "#f8fafc";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isUploading) {
-                e.target.style.borderColor = "#d1d5db";
-                e.target.style.backgroundColor = "white";
-              }
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
             }}
           >
-            {isUploading ? "업로드 중..." : "📁 이미지 파일 선택"}
+            {isUploading ? (
+              <>
+                <div
+                  style={{
+                    width: "16px",
+                    height: "16px",
+                    border: "2px solid #d1d5db",
+                    borderTop: "2px solid #3b82f6",
+                    borderRadius: "50%",
+                    animation: "spin 1s linear infinite",
+                  }}
+                />
+                업로드 중...
+              </>
+            ) : (
+              <>
+                📁 이미지 파일 선택 (최대 5MB)
+              </>
+            )}
           </button>
+          
+          {/* 현재 이미지 미리보기 */}
+          {value && !isUploading && (
+            <div style={{ marginTop: "12px", textAlign: "center" }}>
+              <img
+                src={value}
+                alt="미리보기"
+                style={{
+                  maxWidth: "200px",
+                  maxHeight: "150px",
+                  objectFit: "contain",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "4px",
+                }}
+                onError={(e) => {
+                  e.target.style.display = "none";
+                }}
+              />
+              <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                현재 이미지
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -170,13 +204,13 @@ function ImageSourceEditor({ label, value, onChange }) {
             type="button"
             onClick={handleUrlSubmit}
             style={{
-              padding: "8px 12px",
+              padding: "8px 16px",
+              background: "#3b82f6",
+              color: "white",
               border: "none",
               borderRadius: "4px",
-              backgroundColor: "#3b82f6",
-              color: "white",
-              fontSize: "12px",
               cursor: "pointer",
+              fontSize: "14px",
             }}
           >
             적용
@@ -184,44 +218,15 @@ function ImageSourceEditor({ label, value, onChange }) {
         </div>
       )}
 
-      {/* 미리보기 */}
-      {value && (
-        <div
-          style={{
-            marginTop: "8px",
-            padding: "8px",
-            border: "1px solid #e5e7eb",
-            borderRadius: "4px",
-            backgroundColor: "#f9fafb",
-          }}
-        >
-          <img
-            src={value}
-            alt="미리보기"
-            style={{
-              width: "100%",
-              height: "60px",
-              objectFit: "cover",
-              borderRadius: "4px",
-            }}
-            onError={(e) => {
-              e.target.style.display = "none";
-              e.target.nextSibling.style.display = "block";
-            }}
-          />
-          <div
-            style={{
-              display: "none",
-              textAlign: "center",
-              padding: "20px",
-              color: "#ef4444",
-              fontSize: "12px",
-            }}
-          >
-            이미지를 불러올 수 없습니다
-          </div>
-        </div>
-      )}
+      {/* CSS 애니메이션 */}
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   );
 }
