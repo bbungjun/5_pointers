@@ -31,24 +31,6 @@ export class InvitationsService {
    * 초대 이메일 발송 (AWS SES 사용)
    */
   private async sendInvitationEmail(email: string, invitationToken: string, pageName: string, inviterName: string) {
-    const inviteUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/invite/${invitationToken}`;
-    
-    // 개발 모드이거나 AWS SES 설정이 없는 경우 콘솔 출력만
-    const hasAwsConfig = process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.SES_FROM_EMAIL;
-    
-    if (process.env.NODE_ENV === 'development' && !hasAwsConfig) {
-      console.log(`
-        📧 [개발 모드] 초대 이메일 내용 (실제 발송되지 않음)
-        수신자: ${email}
-        제목: ${inviterName}님이 '${pageName}' 페이지에 당신을 초대했습니다.
-        내용: 다음 링크를 클릭하여 협업에 참여하세요: ${inviteUrl}
-        만료시간: 7일
-        
-        💡 실제 이메일 발송을 원한다면 AWS SES 설정을 완료하세요.
-      `);
-      return; // 성공으로 처리
-    }
-
     try {
       // AWS SES를 통한 실제 이메일 발송
       await this.emailService.sendInvitationEmail(email, invitationToken, pageName, inviterName);
@@ -60,8 +42,9 @@ export class InvitationsService {
       
       // 개발 모드에서는 콘솔에 백업 메시지 출력
       if (process.env.NODE_ENV === 'development') {
+        const inviteUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/invite/${invitationToken}`;
         console.log(`
-          📧 [개발 모드] 초대 이메일 내용 (백업)
+          📧 [개발 모드] 초대 이메일 내용
           수신자: ${email}
           제목: ${inviterName}님이 '${pageName}' 페이지에 당신을 초대했습니다.
           내용: 다음 링크를 클릭하여 협업에 참여하세요: ${inviteUrl}
