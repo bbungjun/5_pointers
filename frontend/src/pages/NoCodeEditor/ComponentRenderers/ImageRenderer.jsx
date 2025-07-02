@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { getResponsiveValue, getResponsiveScale } from '../utils/editorUtils';
 
-function ImageRenderer({ comp, isEditor = false, onUpdate, viewport = 'desktop' }) {
+function ImageRenderer({ comp, isEditor = false, onUpdate }) {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -15,16 +14,10 @@ function ImageRenderer({ comp, isEditor = false, onUpdate, viewport = 'desktop' 
     setImageError(true);
   };
 
-  // 반응형 스케일링 적용
-  const scale = getResponsiveScale(viewport);
-  const responsiveWidth = getResponsiveValue(comp.props.width || 200, viewport, 'size');
-  const responsiveHeight = getResponsiveValue(comp.props.height || 150, viewport, 'size');
-  const responsiveBorderRadius = Math.max(0, Math.round((comp.props.borderRadius || 0) * scale));
-  
   const containerStyle = {
-    width: responsiveWidth + 'px',
-    height: responsiveHeight + 'px',
-    borderRadius: responsiveBorderRadius + 'px',
+    width: (comp.props.width || 200) + 'px',
+    height: (comp.props.height || 150) + 'px',
+    borderRadius: (comp.props.borderRadius || 0) + 'px',
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
@@ -41,12 +34,12 @@ function ImageRenderer({ comp, isEditor = false, onUpdate, viewport = 'desktop' 
         <div style={{
           textAlign: 'center',
           color: '#9ca3af',
-          fontSize: Math.max(12, Math.round(14 * scale)) + 'px'
+          fontSize: '14px'
         }}>
-          <div style={{ fontSize: Math.max(16, Math.round(24 * scale)) + 'px', marginBottom: Math.max(4, Math.round(8 * scale)) + 'px' }}>🖼️</div>
+          <div style={{ fontSize: '24px', marginBottom: '8px' }}>🖼️</div>
           <div>이미지를 선택하세요</div>
           {isEditor && (
-            <div style={{ fontSize: Math.max(10, Math.round(12 * scale)) + 'px', marginTop: Math.max(2, Math.round(4 * scale)) + 'px', color: '#6b7280' }}>
+            <div style={{ fontSize: '12px', marginTop: '4px', color: '#6b7280' }}>
               속성 패널에서 업로드
             </div>
           )}

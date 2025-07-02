@@ -80,7 +80,7 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
           // 새 루트 생성 및 렌더링
           rootRef.current = createRoot(rootElement);
           rootRef.current.render(
-            <PreviewRenderer pageContent={pageContent} viewport={viewMode} />
+            <PreviewRenderer pageContent={pageContent} />
           );
         }
       } catch (error) {
