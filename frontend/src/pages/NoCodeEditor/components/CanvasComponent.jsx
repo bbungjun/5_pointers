@@ -15,6 +15,7 @@ import BankAccountRenderer from '../ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import { clamp, resolveCollision, calculateSnapPosition, calculateSnapLines } from '../utils/editorUtils';
 import WeddingInviteRenderer from '../ComponentRenderers/WeddingInviteRenderer';
+import MusicRenderer from '../ComponentRenderers/MusicRenderer';
 
 
 // 그리드 크기 상수
@@ -169,6 +170,8 @@ function CanvasComponent({
         return <CommentRenderer comp={comp} isEditor={true} viewport={viewport} />;
       case 'weddingInvite':
         return <WeddingInviteRenderer comp={comp} isEditor={true} viewport={viewport} />;
+      case 'musicPlayer':
+        return <MusicRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       default:
         return <span>{comp.props.text}</span>;
     }

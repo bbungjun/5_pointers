@@ -11,6 +11,7 @@ export { default as SlideGalleryRenderer } from "./SlideGalleryRenderer";
 export { default as MapView } from "./MapView";
 export { default as MapInfoRenderer } from './MapInfoRenderer';
 export { default as WeddingInviteRenderer } from './WeddingInviteRenderer'; 
+export { default as MusicRenderer } from './MusicRenderer';
 
 
 // 개별 import (getRendererByType 함수에서 사용)
@@ -26,6 +27,7 @@ import SlideGalleryRenderer from "./SlideGalleryRenderer";
 import MapView from "./MapView";
 import MapInfoRenderer from './MapInfoRenderer';
 import WeddingInviteRenderer from './WeddingInviteRenderer'; 
+import MusicRenderer from './MusicRenderer';
 
 
 // 컴포넌트 타입별 렌더러 매핑 함수
@@ -55,6 +57,8 @@ export function getRendererByType(type) {
       return MapInfoRenderer;
     case 'weddingInvite':
       return WeddingInviteRenderer;
+    case 'musicPlayer':
+      return MusicRenderer;
     default:
       return null;
   }
