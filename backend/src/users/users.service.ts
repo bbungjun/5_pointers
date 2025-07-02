@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Users, AuthProvider } from './entities/users.entity'
 import { Pages, PageStatus } from './entities/pages.entity'
 import { Submissions } from './entities/submissions.entity'
+import { PageMembers } from './entities/page_members.entity'
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -15,6 +16,8 @@ export class UsersService {
     private pagesRepository: Repository<Pages>,
     @InjectRepository(Submissions)
     private submissionsRepository: Repository<Submissions>,
+    @InjectRepository(PageMembers)
+    private pageMembersRepository: Repository<PageMembers>,
   ) {}
 
   async findByEmail(email: string): Promise<Users | undefined> {
@@ -445,7 +448,7 @@ export class UsersService {
         title: `Room ${roomId}`,
         userId: 1, // 임시 사용자 ID
         content: content,
-        status: "DRAFT"
+        status: PageStatus.DRAFT
       });
       await this.pagesRepository.save(page);
     } else {
