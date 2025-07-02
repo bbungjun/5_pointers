@@ -1,5 +1,4 @@
 import React from 'react';
-import { getResponsiveStyles, getResponsiveValue, VIEWPORT_SIZES } from './utils/editorUtils';
 import ButtonRenderer from './ComponentRenderers/ButtonRenderer';
 import TextRenderer from './ComponentRenderers/TextRenderer';
 import LinkRenderer from './ComponentRenderers/LinkRenderer';
@@ -7,6 +6,7 @@ import AttendRenderer from './ComponentRenderers/AttendRenderer';
 import MapView from './ComponentEditors/MapView';
 import DdayRenderer from './ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './ComponentRenderers/WeddingContactRenderer';
+import WeddingInviteRenderer from './ComponentRenderers/WeddingInviteRenderer';
 import ImageRenderer from './ComponentRenderers/ImageRenderer';
 import GridGalleryRenderer from './ComponentRenderers/GridGalleryRenderer';
 import SlideGalleryRenderer from './ComponentRenderers/SlideGalleryRenderer';
@@ -24,6 +24,7 @@ import attendDef from '../components/definitions/attend.json';
 import imageDef from '../components/definitions/image.json';
 import ddayDef from '../components/definitions/d-day.json';
 import weddingContactDef from '../components/definitions/wedding-contact.json';
+import weddingInviteDef from '../components/definitions/wedding-invite.json';
 import bankAccountDef from '../components/definitions/bank-account.json';
 import gridGalleryDef from '../components/definitions/grid-gallery.json';
 import slideGalleryDef from '../components/definitions/slide-gallery.json';
@@ -41,6 +42,7 @@ const componentDefinitions = {
   image: imageDef,
   dday: ddayDef,
   weddingContact: weddingContactDef,
+  weddingInvite: weddingInviteDef,
   bankAccount: bankAccountDef,
   gridGallery: gridGalleryDef,
   slideGallery: slideGalleryDef,
@@ -57,7 +59,7 @@ const componentDefinitions = {
  * 2. 실제 배포 환경과 동일한 모습을 보여줌
  * 3. 드래그, 선택, 편집 등의 에디터 기능은 포함하지 않음
  */
-const PreviewRenderer = ({ pageContent, viewport = 'desktop' }) => {
+const PreviewRenderer = ({ pageContent }) => {
   // 컴포넌트의 props와 defaultProps를 병합하는 함수
   const getMergedProps = (comp) => {
     const definition = componentDefinitions[comp.type];
@@ -69,10 +71,14 @@ const PreviewRenderer = ({ pageContent, viewport = 'desktop' }) => {
   const renderComponent = (comp) => {
     const mergedProps = getMergedProps(comp);
     
-    // 반응형 스타일 적용
-    const baseStyle = getResponsiveStyles(comp, viewport, {
+    const baseStyle = {
+      position: 'absolute',
+      left: comp.x,
+      top: comp.y,
+      width: comp.width || 'auto',
+      height: comp.height || 'auto',
       // 편집 관련 스타일 제거 (border, cursor 등)
-    });
+    };
 
     // 병합된 props로 새로운 comp 객체 생성
     const compWithMergedProps = {
@@ -83,33 +89,35 @@ const PreviewRenderer = ({ pageContent, viewport = 'desktop' }) => {
     const componentContent = (() => {
       switch (comp.type) {
         case 'button':
-          return <ButtonRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <ButtonRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'text':
-          return <TextRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <TextRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'link':
-          return <LinkRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <LinkRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'attend':
-          return <AttendRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <AttendRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'map':
-          return <MapView {...mergedProps} isEditor={false} viewport={viewport} />;
+          return <MapView {...mergedProps} isEditor={false} />;
         case 'dday':
-          return <DdayRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <DdayRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'weddingContact':
-          return <WeddingContactRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <WeddingContactRenderer comp={compWithMergedProps} isEditor={false} />;
+        case 'weddingInvite':
+          return <WeddingInviteRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'image':
-          return <ImageRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <ImageRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'gridGallery':
-          return <GridGalleryRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <GridGalleryRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'slideGallery':
-          return <SlideGalleryRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <SlideGalleryRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'mapInfo':
-          return <MapInfoRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <MapInfoRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'calendar':
-          return <CalendarRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <CalendarRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'comment':
-          return <CommentRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <CommentRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'bankAccount':
-          return <BankAccountRenderer comp={compWithMergedProps} isEditor={false} viewport={viewport} />;
+          return <BankAccountRenderer comp={compWithMergedProps} isEditor={false} />;
         default:
           return (
             <div style={{
@@ -143,29 +151,24 @@ const PreviewRenderer = ({ pageContent, viewport = 'desktop' }) => {
     );
   };
 
-  // 확장된 캔버스 크기 계산 (반응형)
+  // 확장된 캔버스 크기 계산
   const calculateCanvasSize = () => {
-    const baseSize = VIEWPORT_SIZES[viewport] || VIEWPORT_SIZES.desktop;
-    
     if (!pageContent || !Array.isArray(pageContent) || pageContent.length === 0) {
-      return baseSize;
+      return { width: 1920, height: 1080 };
     }
 
-    // 모든 컴포넌트의 최대 위치 계산 (반응형 스케일링 적용)
-    let maxX = baseSize.width;
-    let maxY = baseSize.height;
+    // 모든 컴포넌트의 최대 위치 계산
+    let maxX = 1920;
+    let maxY = 1080;
 
     pageContent.forEach(comp => {
       if (comp.id && comp.id.startsWith('canvas-extender-')) {
         // 확장 컴포넌트는 캔버스 크기 계산에 포함
-        const responsiveY = getResponsiveValue(comp.y + (comp.height || 0) + 100, viewport, 'position');
-        maxY = Math.max(maxY, responsiveY);
+        maxY = Math.max(maxY, comp.y + (comp.height || 0) + 100);
       } else {
-        // 일반 컴포넌트의 경우 실제 위치 + 크기로 계산 (반응형 적용)
-        const responsiveX = getResponsiveValue(comp.x + (comp.width || 200), viewport, 'position');
-        const responsiveY = getResponsiveValue(comp.y + (comp.height || 100) + 100, viewport, 'position');
-        maxX = Math.max(maxX, responsiveX);
-        maxY = Math.max(maxY, responsiveY);
+        // 일반 컴포넌트의 경우 실제 위치 + 크기로 계산
+        maxX = Math.max(maxX, comp.x + (comp.width || 200));
+        maxY = Math.max(maxY, comp.y + (comp.height || 100) + 100);
       }
     });
 

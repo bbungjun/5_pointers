@@ -10,6 +10,7 @@ import Inspector from './NoCodeEditor/Inspector';
 import PreviewModal from './NoCodeEditor/PreviewModal';
 import EditorHeader from './NoCodeEditor/components/EditorHeader';
 import TemplateModal from './NoCodeEditor/components/TemplateModal';
+import InviteModal from './NoCodeEditor/components/InviteModal';
 import CanvasComponent from './NoCodeEditor/components/CanvasComponent';
 import UserCursor from './NoCodeEditor/components/UserCursor';
 
@@ -49,9 +50,40 @@ function NoCodeEditor() {
     category: 'wedding',
     tags: ''
   });
+
+  // 초대 모달 상태
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(true); // 컴포넌트 라이브러리 토글 상태
   const [canvasHeight, setCanvasHeight] = useState(viewport === 'mobile' ? 667 : 1080); // 캔버스 높이 관리
+
+  // JWT Base64URL 디코딩 함수 (한글 지원)
+  const decodeJWTPayload = (token) => {
+    try {
+      // Base64URL을 Base64로 변환
+      let base64 = token.split('.')[1];
+      base64 = base64.replace(/-/g, '+').replace(/_/g, '/');
+      
+      // 패딩 추가
+      while (base64.length % 4) {
+        base64 += '=';
+      }
+      
+      // UTF-8로 안전하게 디코딩
+      const binaryString = atob(base64);
+      const bytes = new Uint8Array(binaryString.length);
+      
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const utf8String = new TextDecoder('utf-8').decode(bytes);
+      return JSON.parse(utf8String);
+    } catch (error) {
+      console.error('JWT 디코딩 실패:', error);
+      return null;
+    }
+  };
 
   // 사용자 정보 및 권한 관리
   const [userInfo] = useState(() => {
@@ -60,20 +92,20 @@ function NoCodeEditor() {
     let nickname = `게스트${Math.floor(Math.random() * 1000)}`; // 더 친근한 fallback
     let isAdminUser = false;
     
-    try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const payload = JSON.parse(atob(token.split('.')[1]));
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = decodeJWTPayload(token);
+      if (payload) {
         userId = payload.userId || userId;
         nickname = payload.nickname || '사용자';
         isAdminUser = payload.role === 'ADMIN';
         
         console.log('사용자 정보:', { userId, nickname, role: payload.role });
       } else {
-        console.log('로그인하지 않은 사용자:', nickname);
+        console.log('JWT 토큰 파싱 실패, 게스트로 설정');
       }
-    } catch (error) {
-      console.error('토큰 파싱 실패:', error);
+    } else {
+      console.log('로그인하지 않은 사용자:', nickname);
     }
     
     // 관리자 권한 설정
@@ -376,7 +408,7 @@ function NoCodeEditor() {
 
   return (
     <div style={{
-      minHeight: '100vh', width: '100vw', display: 'flex',
+      minHeight: '100vh', width: '100vw', display: 'flex', flexDirection: 'column',
       background: '#fff', color: '#222', fontFamily: 'Inter, sans-serif', overflow: 'hidden'
     }}>
       {/* 에디터 헤더 */}
@@ -388,75 +420,84 @@ function NoCodeEditor() {
         onViewportChange={handleViewportChange}
         onPreviewOpen={() => setIsPreviewOpen(true)}
         onTemplateSaveOpen={() => setIsTemplateSaveOpen(true)}
+        onInviteOpen={() => setIsInviteOpen(true)}
         roomId={roomId}
         isAdmin={isAdmin}
       />
 
-      {/* 좌측: 컴포넌트 라이브러리 (토글 가능) */}
-      <ComponentLibrary 
-        onDragStart={(e, type) => {
-          e.dataTransfer.setData('componentType', type);
-          e.dataTransfer.effectAllowed = 'copy';
-        }}
-        components={components}
-        roomId={roomId}
-        isOpen={isLibraryOpen}
-        onToggle={() => setIsLibraryOpen(!isLibraryOpen)}
-      />
-
-      {/* 중앙: 캔버스 */}
-      <div style={{ 
-        flex: 1, 
-        minWidth: 0, 
-        height: '100vh', // 전체 화면 높이
+      {/* 하단: 라이브러리, 캔버스, 인스펙터 */}
+      <div style={{
+        flex: 1,
         display: 'flex',
-        position: 'relative',
-        overflow: 'hidden' // 내부 컴포넌트에서 스크롤 처리
+        height: 'calc(100vh - 64px)', // 헤더 높이만큼 제외 (h-16 = 64px)
+        overflow: 'hidden'
       }}>
-      <CanvasArea
-          containerRef={containerRef}
-        canvasRef={canvasRef}
-        components={components}
-        selectedId={selectedId}
-          users={{}} // 기존 users 대신 빈 객체
-          nickname={userInfo.name}
-        snapLines={snapLines}
-          setSnapLines={setSnapLines}
-        onDrop={e => { handleDrop(e); }}
-        onDragOver={e => e.preventDefault()}
-        onClick={() => handleSelect(null)}
-          onMouseMove={() => {}} // 커서 추적은 협업 훅에서 처리
-          onMouseUp={() => {}}
-        onSelect={handleSelect}
-        onUpdate={handleUpdate}
-        onDelete={handleDelete}
-          onAddSection={handleAddSection} // 새 섹션 추가 핸들러
-        CanvasComponent={CanvasComponent}
-        UserCursor={UserCursor}
-          zoom={zoom}
-          onZoomChange={handleZoomChange}
-          viewport={viewport}
-          canvasHeight={canvasHeight} // 캔버스 높이 전달
-          isInspectorOpen={!!selectedComp}
-          isLibraryOpen={isLibraryOpen} // 라이브러리 상태 전달
-          updateCursorPosition={updateCursorPosition} // 협업 커서 위치 업데이트
-          // 협업 기능 props 추가
-          otherCursors={otherCursors}
-          otherSelections={otherSelections}
-          getComponentDimensions={getComponentDimensions} // 컴포넌트 크기 함수
-        />
-      </div>
-
-      {/* 우측: 속성 인스펙터 */}
-      {selectedComp && (
-        <Inspector
-          selectedComp={selectedComp}
-          onUpdate={handleUpdate}
-          color={userInfo.color}
-          nickname={userInfo.name}
+        {/* 좌측: 컴포넌트 라이브러리 (토글 가능) */}
+        <ComponentLibrary 
+          onDragStart={(e, type) => {
+            e.dataTransfer.setData('componentType', type);
+            e.dataTransfer.effectAllowed = 'copy';
+          }}
+          components={components}
           roomId={roomId}
+          isOpen={isLibraryOpen}
+          onToggle={() => setIsLibraryOpen(!isLibraryOpen)}
         />
-      )}
+
+        {/* 중앙: 캔버스 */}
+        <div style={{ 
+          flex: 1, 
+          minWidth: 0, 
+          height: '100%', // 부모 컨테이너 높이에 맞춤
+          display: 'flex',
+          position: 'relative',
+          overflow: 'hidden' // 내부 컴포넌트에서 스크롤 처리
+        }}>
+        <CanvasArea
+            containerRef={containerRef}
+          canvasRef={canvasRef}
+          components={components}
+          selectedId={selectedId}
+            users={{}} // 기존 users 대신 빈 객체
+            nickname={userInfo.name}
+          snapLines={snapLines}
+            setSnapLines={setSnapLines}
+          onDrop={e => { handleDrop(e); }}
+          onDragOver={e => e.preventDefault()}
+          onClick={() => handleSelect(null)}
+            onMouseMove={() => {}} // 커서 추적은 협업 훅에서 처리
+            onMouseUp={() => {}}
+          onSelect={handleSelect}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
+            onAddSection={handleAddSection} // 새 섹션 추가 핸들러
+          CanvasComponent={CanvasComponent}
+          UserCursor={UserCursor}
+            zoom={zoom}
+            onZoomChange={handleZoomChange}
+            viewport={viewport}
+            canvasHeight={canvasHeight} // 캔버스 높이 전달
+            isInspectorOpen={!!selectedComp}
+            isLibraryOpen={isLibraryOpen} // 라이브러리 상태 전달
+            updateCursorPosition={updateCursorPosition} // 협업 커서 위치 업데이트
+            // 협업 기능 props 추가
+            otherCursors={otherCursors}
+            otherSelections={otherSelections}
+            getComponentDimensions={getComponentDimensions} // 컴포넌트 크기 함수
+          />
+        </div>
+
+        {/* 우측: 속성 인스펙터 */}
+        {selectedComp && (
+          <Inspector
+            selectedComp={selectedComp}
+            onUpdate={handleUpdate}
+            color={userInfo.color}
+            nickname={userInfo.name}
+            roomId={roomId}
+          />
+        )}
+      </div>
 
       {/* 미리보기 모달 */}
       <PreviewModal
@@ -475,6 +516,13 @@ function NoCodeEditor() {
         templateData={templateData}
         setTemplateData={setTemplateData}
         onSave={handleSaveAsTemplate}
+      />
+
+      {/* 초대 모달 */}
+      <InviteModal
+        isOpen={isInviteOpen}
+        onClose={() => setIsInviteOpen(false)}
+        pageId={roomId}
       />
 
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}
