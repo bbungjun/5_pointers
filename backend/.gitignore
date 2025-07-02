@@ -54,3 +54,10 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# File uploads - 업로드된 파일들만 무시 (디렉토리 구조는 유지)
+public/uploads/**/*
+!public/uploads/**/.gitkeep
+
+# 백업 파일들
+*.backup
