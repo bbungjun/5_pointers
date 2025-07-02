@@ -1,21 +1,32 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 /**
  * 다른 사용자들의 실시간 커서를 렌더링하는 컴포넌트
  */
-export function LiveCursors({ cursors, zoom = 100, viewport = 'desktop' }) {
+export function LiveCursors({ cursors = [], zoom = 100, viewport = 'desktop' }) {
   const scale = zoom / 100;
+  
+  // 디버깅 로그
+  useEffect(() => {
+    console.log('LiveCursors 렌더링:', { 
+      cursorsCount: cursors?.length || 0, 
+      isArray: Array.isArray(cursors),
+      cursors
+    });
+  }, [cursors]);
   
   return (
     <>
-      {cursors.map((cursor, index) => {
+      {Array.isArray(cursors) && cursors.length > 0 ? cursors.map((cursor, index) => {
+        if (!cursor || !cursor.user) return null;
+        
         // 커서 좌표를 현재 줌 레벨에 맞게 변환
         const displayX = cursor.x * scale;
         const displayY = cursor.y * scale;
         
         return (
           <div
-            key={`cursor-${cursor.user.id}-${index}`}
+            key={`cursor-${cursor.user.id || index}-${index}`}
             style={{
               position: 'absolute',
               left: displayX,
@@ -38,7 +49,7 @@ export function LiveCursors({ cursors, zoom = 100, viewport = 'desktop' }) {
           >
             <path
               d="M3 3L21 12L12 21L9 12L3 3Z"
-              fill={cursor.user.color}
+              fill={cursor.user.color || '#3B4EFF'}
               stroke="white"
               strokeWidth="1"
             />
@@ -50,7 +61,7 @@ export function LiveCursors({ cursors, zoom = 100, viewport = 'desktop' }) {
               position: 'absolute',
               left: 16,
               top: -4,
-              backgroundColor: cursor.user.color,
+              backgroundColor: cursor.user.color || '#3B4EFF',
               color: 'white',
               padding: '4px 8px',
               borderRadius: '6px',
@@ -61,11 +72,11 @@ export function LiveCursors({ cursors, zoom = 100, viewport = 'desktop' }) {
               animation: 'fadeIn 0.2s ease-out'
             }}
           >
-            {cursor.user.name}
+            {cursor.user.name || '사용자'}
           </div>
         </div>
         );
-      })}
+      }) : null}
       
       <style>{`
         @keyframes fadeIn {
@@ -86,12 +97,22 @@ export function LiveCursors({ cursors, zoom = 100, viewport = 'desktop' }) {
 /**
  * 다른 사용자가 선택한 컴포넌트에 테두리를 표시하는 컴포넌트
  */
-export function CollaborativeSelections({ selections, components, zoom = 100, viewport = 'desktop' }) {
+export function CollaborativeSelections({ selections = [], components = [], zoom = 100, viewport = 'desktop' }) {
   const scale = zoom / 100;
+  
+  // 디버깅 로그
+  useEffect(() => {
+    console.log('CollaborativeSelections 렌더링:', { 
+      selectionsCount: selections?.length || 0, 
+      isArray: Array.isArray(selections),
+      selections
+    });
+  }, [selections]);
+  
   return (
     <>
-      {selections.map((selection, index) => 
-        selection.componentIds.map(componentId => {
+      {Array.isArray(selections) && selections.length > 0 ? selections.map((selection, index) => 
+        Array.isArray(selection.componentIds) ? selection.componentIds.map(componentId => {
           const component = components.find(c => c.id === componentId);
           if (!component) return null;
 
@@ -103,14 +124,14 @@ export function CollaborativeSelections({ selections, components, zoom = 100, vi
 
           return (
             <div
-              key={`selection-${selection.user.id}-${componentId}`}
+              key={`selection-${selection.user?.id || index}-${componentId}`}
               style={{
                 position: 'absolute',
                 left: scaledX - 2,
                 top: scaledY - 2,
                 width: scaledWidth + 4,
                 height: scaledHeight + 4,
-                border: `2px solid ${selection.user.color}`,
+                border: `2px solid ${selection.user?.color || '#3B4EFF'}`,
                 borderRadius: '4px',
                 pointerEvents: 'none',
                 zIndex: 8,
@@ -123,7 +144,7 @@ export function CollaborativeSelections({ selections, components, zoom = 100, vi
                   position: 'absolute',
                   top: -28,
                   left: 0,
-                  backgroundColor: selection.user.color,
+                  backgroundColor: selection.user?.color || '#3B4EFF',
                   color: 'white',
                   padding: '4px 8px',
                   borderRadius: '4px',
@@ -133,12 +154,12 @@ export function CollaborativeSelections({ selections, components, zoom = 100, vi
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
               >
-                {selection.user.name}님이 편집 중
+                {selection.user?.name || '사용자'}님이 편집 중
               </div>
             </div>
           );
-        })
-      )}
+        }) : null
+      ) : null}
       
       <style>{`
         @keyframes pulseSelection {
@@ -152,4 +173,4 @@ export function CollaborativeSelections({ selections, components, zoom = 100, vi
       `}</style>
     </>
   );
-} 
+}

@@ -109,21 +109,41 @@ function NoCodeEditor() {
         nickname = payload.nickname || '사용자';
         isAdminUser = payload.role === 'ADMIN';
         
-        console.log('사용자 정보:', { userId, nickname, role: payload.role });
+        console.log('로그인된 사용자 정보:', { userId, nickname, role: payload.role });
       } else {
         console.log('JWT 토큰 파싱 실패, 게스트로 설정');
       }
     } else {
-      console.log('로그인하지 않은 사용자:', nickname);
+      // 게스트 사용자를 위한 일관된 ID 생성 (브라우저별로 고유하지만 일관됨)
+      let guestId = localStorage.getItem('guestUserId');
+      if (!guestId) {
+        guestId = 'guest_' + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem('guestUserId', guestId);
+      }
+      userId = guestId;
+      nickname = `게스트 (${guestId.slice(-4)})`;
+      console.log('게스트 사용자:', { userId, nickname });
     }
     
     // 관리자 권한 설정
     setIsAdmin(isAdminUser);
     
+    // userId 기반으로 일관된 색상 생성 (같은 사용자는 항상 같은 색상)
+    const generateConsistentColor = (id) => {
+      let hash = 0;
+      for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      
+      const hue = Math.abs(hash) % 360;
+      // 적당한 채도와 밝기로 가독성 좋은 색상 생성
+      return `hsl(${hue}, 70%, 50%)`;
+    };
+    
     return {
       id: userId,
       name: nickname,
-      color: randomColor()
+      color: generateConsistentColor(userId)
     };
   });
 
@@ -147,21 +167,87 @@ function NoCodeEditor() {
   // 협업 상태 구조분해할당
   const {
     isConnected,
-    otherCursors,
-    otherSelections,
+    otherCursors: otherCursorsMap,
+    otherSelections: otherSelectionsMap,
     updateComponent,
     addComponent,
     removeComponent,
     updateCursorPosition,
-    getActiveUsers
+    getActiveUsers,
+    ydoc,
+    provider
   } = collaboration;
+  
+  // Map을 배열로 변환
+  const otherCursors = Array.isArray(otherCursorsMap) ? otherCursorsMap : 
+                      otherCursorsMap instanceof Map ? Array.from(otherCursorsMap.values()) : [];
+  const otherSelections = Array.isArray(otherSelectionsMap) ? otherSelectionsMap : 
+                         otherSelectionsMap instanceof Map ? Array.from(otherSelectionsMap.values()) : [];
 
-  // 연결 상태 표시 (선택사항)
+  // 연결 상태 및 협업 디버깅
   useEffect(() => {
+    console.log('=== 협업 상태 변경 ===');
+    console.log('Room ID:', roomId);
+    console.log('사용자 정보:', userInfo);
+    console.log('연결 상태:', isConnected);
+    console.log('활성 사용자 수:', getActiveUsers().length);
+    console.log('활성 사용자 목록:', getActiveUsers());
+    console.log('다른 커서 수:', otherCursors?.length || 0);
+    console.log('다른 선택 수:', otherSelections?.length || 0);
+    console.log('========================');
+    
     if (isConnected) {
-      console.log('협업 서버에 연결되었습니다.');
+      console.log('✅ 협업 서버에 연결되었습니다.');
+    } else {
+      console.log('❌ 협업 서버 연결이 끊어졌습니다.');
     }
-  }, [isConnected]);
+  }, [isConnected, roomId, userInfo, otherCursors, otherSelections]);
+
+  // 초기 페이지 데이터 로딩
+  const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+  
+  useEffect(() => {
+    const loadPageData = async () => {
+      if (!collaboration.ydoc || isInitialDataLoaded) return;
+      
+      console.log('🔄 페이지 데이터 로딩 시작...');
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/page/${roomId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          }
+        });
+        
+        if (response.ok) {
+          const pageData = await response.json();
+          console.log('📦 서버에서 페이지 데이터 받음:', pageData);
+          
+          // Pages 엔티티에서는 content 필드에 컴포넌트 데이터가 저장됨
+          const existingComponents = pageData.content || [];
+          
+          if (Array.isArray(existingComponents) && existingComponents.length > 0) {
+            console.log('🔄 기존 페이지 컴포넌트 Y.js에 동기화:', existingComponents.length, '개');
+            
+            // Y.js에 기존 컴포넌트들 한 번에 추가
+            collaboration.updateAllComponents?.(existingComponents);
+            
+            console.log('✅ 기존 페이지 컴포넌트 동기화 완료');
+          } else {
+            console.log('📝 빈 페이지 - 새로 시작');
+          }
+        } else {
+          console.log('⚠️ 페이지 데이터 로딩 실패 - 빈 페이지로 시작');
+        }
+      } catch (error) {
+        console.error('❌ 페이지 데이터 로딩 중 오류:', error);
+      } finally {
+        setIsInitialDataLoaded(true);
+      }
+    };
+    
+    loadPageData();
+  }, [roomId, collaboration.ydoc, collaboration.updateAllComponents, isInitialDataLoaded]);
 
 
  // 페이지 데이터 로딩
@@ -272,14 +358,19 @@ function NoCodeEditor() {
         let clampedX = clamp(snappedX, 0, maxX);
         let clampedY = clamp(snappedY, 0, maxY);
         
+        // 유니크한 ID 생성 - 타임스탬프 추가
+        const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        
         const newComponent = {
-          id: Math.random().toString(36).slice(2, 10),
+          id: uniqueId,
           type,
           x: clampedX,
           y: clampedY,
           width,
           height,
-          props: { ...compDef.defaultProps }
+          props: { ...compDef.defaultProps },
+          createdBy: userInfo.id, // 생성자 정보 추가
+          createdAt: Date.now() // 생성 시간 추가
         };
         
         const collisionResult = resolveCollision(newComponent, components, getComponentDimensions);
@@ -289,12 +380,19 @@ function NoCodeEditor() {
         clampedX = clamp(clampedX, 0, maxX);
         clampedY = clamp(clampedY, 0, maxY);
         
+        console.log('컴포넌트 추가 요청:', uniqueId, type, { x: clampedX, y: clampedY });
+        
         // 협업 기능으로 컴포넌트 추가
         addComponent({
           ...newComponent,
           x: clampedX,
           y: clampedY
         });
+        
+        // 추가된 컴포넌트 자동 선택
+        setTimeout(() => {
+          setSelectedId(uniqueId);
+        }, 100);
       }
     }
   };
@@ -306,12 +404,24 @@ function NoCodeEditor() {
 
   // 속성 변경 (스냅라인 포함)
   const handleUpdate = comp => {
+    console.log('컴포넌트 업데이트 요청:', comp.id, '위치:', comp.x, comp.y);
+    
     // 협업 기능으로 컴포넌트 업데이트
     updateComponent(comp.id, comp);
-      
-      // 스냅라인 계산
+    
+    // 스냅라인 계산
     const lines = calculateSnapLines(comp, components, zoom, viewport, getComponentDimensions);
-      setSnapLines(lines);
+    setSnapLines(lines);
+    
+    // 현재 컴포넌트 상태 확인
+    setTimeout(() => {
+      const updatedComp = components.find(c => c.id === comp.id);
+      if (updatedComp) {
+        console.log('컴포넌트 업데이트 후 상태:', updatedComp.id, '위치:', updatedComp.x, updatedComp.y);
+      } else {
+        console.warn('컴포넌트 업데이트 후 찾을 수 없음:', comp.id);
+      }
+    }, 100);
   };
 
   // 컴포넌트 삭제
