@@ -6,6 +6,7 @@ import AttendRenderer from '../ComponentRenderers/AttendRenderer';
 import MapView from '../ComponentEditors/MapView';
 import DdayRenderer from '../ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from '../ComponentRenderers/WeddingContactRenderer.jsx';
+import WeddingInviteRenderer from '../ComponentRenderers/WeddingInviteRenderer';
 import ImageRenderer from '../ComponentRenderers/ImageRenderer';
 import GridGalleryRenderer from '../ComponentRenderers/GridGalleryRenderer';
 import SlideGalleryRenderer from '../ComponentRenderers/SlideGalleryRenderer';
@@ -14,6 +15,7 @@ import CalendarRenderer from '../ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from '../ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import { clamp, resolveCollision, calculateSnapPosition, calculateSnapLines } from '../utils/editorUtils';
+import MusicRenderer from '../ComponentRenderers/MusicRenderer';
 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
@@ -29,7 +31,8 @@ function CanvasComponent({
   zoom = 100, 
   viewport = 'desktop', 
   components = [],
-  getComponentDimensions 
+  getComponentDimensions,
+  canvasHeight // 확장된 캔버스 높이
 }) {
   const ref = useRef();
 
@@ -51,18 +54,11 @@ function CanvasComponent({
   // 확장된 캔버스 크기 계산 공통 함수
   const getExtendedCanvasSize = () => {
     const baseWidth = viewport === 'mobile' ? 375 : 1920;
-    const baseHeight = viewport === 'mobile' ? 667 : 1080;
     
-    // 확장 컴포넌트들의 최대 Y 위치 계산
-    const extenderComponents = components?.filter(c => c.id.startsWith('canvas-extender-')) || [];
-    let maxExtendedHeight = baseHeight;
+    // canvasHeight prop을 사용하여 확장된 캔버스 높이 계산 (더미 컴포넌트 불필요)
+    const effectiveHeight = canvasHeight || (viewport === 'mobile' ? 667 : 1080);
     
-    if (extenderComponents.length > 0) {
-      const extenderMaxY = Math.max(...extenderComponents.map(c => c.y + c.height));
-      maxExtendedHeight = Math.max(baseHeight, extenderMaxY);
-    }
-    
-    return { width: baseWidth, height: maxExtendedHeight };
+    return { width: baseWidth, height: effectiveHeight };
   };
   
   // 컴포넌트별 실제 크기 계산 (props와 comp 모두 고려)
@@ -76,7 +72,7 @@ function CanvasComponent({
     }
     
     // 고정 크기 컴포넌트들 (리사이즈가 어려운 컴포넌트들)
-    if (['attend', 'dday', 'weddingContact', 'calendar', 'bankAccount', 'comment'].includes(comp.type)) {
+    if (['attend', 'dday', 'weddingContact', 'weddingInvite', 'calendar', 'bankAccount', 'comment'].includes(comp.type)) {
       // 이런 컴포넌트들은 내부 레이아웃이 복잡하므로 기본 크기를 우선 사용
       return {
         width: comp.width || componentDimensions.defaultWidth,
@@ -157,6 +153,8 @@ function CanvasComponent({
         return <DdayRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'weddingContact':
         return <WeddingContactRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+      case 'weddingInvite':
+        return <WeddingInviteRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'image':
         return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
       case 'gridGallery':
@@ -170,7 +168,9 @@ function CanvasComponent({
       case 'bankAccount':
         return <BankAccountRenderer comp={comp} isEditor={true} />;
       case 'comment':
-        return <CommentRenderer comp={comp} isEditor={true} />;
+        return <CommentRenderer comp={comp} isEditor={true} viewport={viewport} />;
+      case 'musicPlayer':
+        return <MusicRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       default:
         return <span>{comp.props.text}</span>;
     }

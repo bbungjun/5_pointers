@@ -5,38 +5,39 @@ function MainPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center transform hover:scale-105 transition-transform duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-center border border-blue-200/30">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Page Cube</h1>
-          <p className="text-gray-600 text-lg">Create your website in minutes</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3">
+            PAGE CUBE
+          </h1>
+          <p className="text-slate-600 text-lg font-medium leading-relaxed">
+            당신만의 특별한 웹사이트를<br/>
+            <span className="text-blue-600 font-semibold">몇 분 만에</span> 완성하세요
+          </p>
         </div>
         
         <div className="space-y-4">
           <button
-            className="w-full py-3 px-6 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors duration-200 transform hover:scale-105 active:scale-95"
+            className="w-full py-4 px-6 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl font-semibold transition-all duration-300 border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md"
             onClick={() => navigate('/login')}
           >
-            Login
+            로그인
           </button>
           
           <button
-            className="w-full py-3 px-6 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors duration-200 transform hover:scale-105 active:scale-95"
+            className="w-full py-4 px-6 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl font-semibold transition-all duration-300 border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md"
             onClick={() => navigate('/signup')}
           >
-            Sign Up
+            회원가입
           </button>
           
           <button
-            className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+            className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border-0"
             onClick={() => navigate('/login')}
           >
-            Get Started Now
+            🚀 지금 시작하기
           </button>
-        </div>
-        
-        <div className="mt-8 text-sm text-gray-500">
-          <p>Build beautiful websites with our drag & drop editor</p>
         </div>
       </div>
     </div>

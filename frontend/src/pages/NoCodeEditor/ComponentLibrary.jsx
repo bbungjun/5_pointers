@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ComponentList } from '../components/definitions';
+import { API_BASE_URL } from '../../config';
 
 function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onToggle }) {
   const [showDomainInput, setShowDomainInput] = useState(false);
@@ -49,7 +50,7 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
         headers['Authorization'] = `Bearer ${token}`;
       }
       
-      const response = await fetch(`http://localhost:3000/users/pages/${roomId}/deploy`, {
+      const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}/deploy`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -89,7 +90,7 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
           onClick={onToggle}
           style={{
             position: 'fixed',
-            top: 80, // 헤더 높이(60px) + 여유공간(20px)
+            top: 84, // 헤더 높이(64px) + 여유공간(20px)
             left: 20,
             width: 50,
             height: 50,
@@ -124,9 +125,9 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
       <div
         style={{
           position: 'fixed',
-          top: 0,
+          top: 64, // 헤더 높이만큼 아래로
           left: isOpen ? 0 : -240,
-          height: '100vh',
+          height: 'calc(100vh - 64px)', // 헤더 높이만큼 제외
           zIndex: 100,
           overflowY: 'auto',
           width: 240,
@@ -134,7 +135,6 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
           borderRight: '1px solid #e1e5e9',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '100vh',
           boxShadow: '2px 0 8px rgba(0,0,0,0.05)',
           transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}

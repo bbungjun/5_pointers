@@ -17,25 +17,27 @@ export function randomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-// 컴포넌트 타입별 기본 크기와 최소 크기 정의
+// 컴포넌트 타입별 기본 크기와 최소 크기 정의 (50px 그리드에 맞춤)
 export function getComponentDimensions(type) {
   const dimensions = {
-    button: { defaultWidth: 120, defaultHeight: 48, minWidth: 80, minHeight: 32 },
-    text: { defaultWidth: 200, defaultHeight: 30, minWidth: 50, minHeight: 20 },
-    image: { defaultWidth: 200, defaultHeight: 150, minWidth: 50, minHeight: 50 },
+    button: { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 },
+    text: { defaultWidth: 200, defaultHeight: 50, minWidth: 100, minHeight: 50 },
+    image: { defaultWidth: 200, defaultHeight: 150, minWidth: 100, minHeight: 100 },
     map: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 150 },
-    link: { defaultWidth: 150, defaultHeight: 30, minWidth: 50, minHeight: 20 },
-    attend: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
-    dday: { defaultWidth: 200, defaultHeight: 100, minWidth: 150, minHeight: 80 },
+    link: { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 },
+    attend: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
+    dday: { defaultWidth: 200, defaultHeight: 100, minWidth: 150, minHeight: 100 },
     weddingContact: { defaultWidth: 300, defaultHeight: 250, minWidth: 250, minHeight: 200 },
+    weddingInvite: { defaultWidth: 450, defaultHeight: 400, minWidth: 300, minHeight: 250 },
     gridGallery: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 200 },
     slideGallery: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 200 },
-    mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 200, minHeight: 150 },
-    calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 250, minHeight: 300 },
-    bankAccount: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 },
-    comment: { defaultWidth: 300, defaultHeight: 180, minWidth: 250, minHeight: 150 }
+    mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
+    calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 300, minHeight: 350 },
+    bankAccount: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
+    comment: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
+    musicPlayer: { defaultWidth: 150, defaultHeight: 150, minWidth: 100, minHeight: 100 }
   };
-  return dimensions[type] || { defaultWidth: 120, defaultHeight: 40, minWidth: 80, minHeight: 30 };
+  return dimensions[type] || { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 };
 }
 
 // 충돌 감지 함수

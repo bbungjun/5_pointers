@@ -6,6 +6,7 @@ import AttendRenderer from './ComponentRenderers/AttendRenderer';
 import MapView from './ComponentEditors/MapView';
 import DdayRenderer from './ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './ComponentRenderers/WeddingContactRenderer';
+import WeddingInviteRenderer from './ComponentRenderers/WeddingInviteRenderer';
 import ImageRenderer from './ComponentRenderers/ImageRenderer';
 import GridGalleryRenderer from './ComponentRenderers/GridGalleryRenderer';
 import SlideGalleryRenderer from './ComponentRenderers/SlideGalleryRenderer';
@@ -23,6 +24,7 @@ import attendDef from '../components/definitions/attend.json';
 import imageDef from '../components/definitions/image.json';
 import ddayDef from '../components/definitions/d-day.json';
 import weddingContactDef from '../components/definitions/wedding-contact.json';
+import weddingInviteDef from '../components/definitions/wedding-invite.json';
 import bankAccountDef from '../components/definitions/bank-account.json';
 import gridGalleryDef from '../components/definitions/grid-gallery.json';
 import slideGalleryDef from '../components/definitions/slide-gallery.json';
@@ -40,6 +42,7 @@ const componentDefinitions = {
   image: imageDef,
   dday: ddayDef,
   weddingContact: weddingContactDef,
+  weddingInvite: weddingInviteDef,
   bankAccount: bankAccountDef,
   gridGallery: gridGalleryDef,
   slideGallery: slideGalleryDef,
@@ -86,33 +89,35 @@ const PreviewRenderer = ({ pageContent }) => {
     const componentContent = (() => {
       switch (comp.type) {
         case 'button':
-          return <ButtonRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <ButtonRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'text':
-          return <TextRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <TextRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'link':
-          return <LinkRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <LinkRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'attend':
-          return <AttendRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <AttendRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'map':
-          return <MapView {...mergedProps} isEditor={true} />;
+          return <MapView {...mergedProps} isEditor={false} />;
         case 'dday':
-          return <DdayRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <DdayRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'weddingContact':
-          return <WeddingContactRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <WeddingContactRenderer comp={compWithMergedProps} isEditor={false} />;
+        case 'weddingInvite':
+          return <WeddingInviteRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'image':
-          return <ImageRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <ImageRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'gridGallery':
-          return <GridGalleryRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <GridGalleryRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'slideGallery':
-          return <SlideGalleryRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <SlideGalleryRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'mapInfo':
-          return <MapInfoRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <MapInfoRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'calendar':
-          return <CalendarRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <CalendarRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'comment':
-          return <CommentRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <CommentRenderer comp={compWithMergedProps} isEditor={false} />;
         case 'bankAccount':
-          return <BankAccountRenderer comp={compWithMergedProps} isEditor={true} />;
+          return <BankAccountRenderer comp={compWithMergedProps} isEditor={false} />;
         default:
           return (
             <div style={{
@@ -134,14 +139,11 @@ const PreviewRenderer = ({ pageContent }) => {
         key={comp.id}
         data-component-type={comp.type}
         data-component-id={comp.id}
-        // 미리보기에서는 모든 편집 이벤트 차단
-        onDoubleClick={(e) => e.preventDefault()}
-        onClick={(e) => e.preventDefault()}
-        onMouseDown={(e) => e.preventDefault()}
+        // 미리보기에서는 실제 동작 허용 (링크, 버튼 등)
         style={{
           ...baseStyle,
-          pointerEvents: 'none', // 모든 마우스 이벤트 차단
-          userSelect: 'none'     // 텍스트 선택 차단
+          pointerEvents: 'auto', // 실제 동작 활성화 (링크, 버튼 클릭 등)
+          userSelect: 'text'     // 텍스트 선택 가능
         }}
       >
         {componentContent}

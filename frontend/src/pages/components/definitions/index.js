@@ -13,6 +13,7 @@ import calendarDef from './calendar.json';
 import bankAccount from './bank-account.json';
 import commentDef from './comment.json';
 import weddingInviteDef from './wedding-invite.json';
+import musicDef from './music.json';
 
 export const ComponentList = [
   buttonDef,
@@ -29,7 +30,8 @@ export const ComponentList = [
   bankAccount,
   calendarDef,
   commentDef,
-  weddingInviteDef
+  weddingInviteDef,
+  musicDef
 ];
 
 // 기존 코드와의 호환성을 위해 ComponentDefinitions도 export

@@ -24,5 +24,8 @@ dist-ssr
 *.sw?
 tailwindcss*
 
+# 음악 파일 무시
+public/music/
+
 # 백업 파일들
 *.backup

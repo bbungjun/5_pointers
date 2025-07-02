@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 
 // 모듈화된 컴포넌트들
 import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
@@ -10,6 +10,7 @@ import Inspector from './NoCodeEditor/Inspector';
 import PreviewModal from './NoCodeEditor/PreviewModal';
 import EditorHeader from './NoCodeEditor/components/EditorHeader';
 import TemplateModal from './NoCodeEditor/components/TemplateModal';
+import InviteModal from './NoCodeEditor/components/InviteModal';
 import CanvasComponent from './NoCodeEditor/components/CanvasComponent';
 import UserCursor from './NoCodeEditor/components/UserCursor';
 
@@ -23,6 +24,7 @@ import {
   resolveCollision,
   calculateSnapLines 
 } from './NoCodeEditor/utils/editorUtils';
+import { API_BASE_URL } from '../config';
 
 // 컴포넌트 정의
 import { ComponentDefinitions } from './components/definitions';
@@ -33,22 +35,17 @@ import { useCollaboration } from '../hooks/useCollaboration';
 
 function NoCodeEditor() {
   const { roomId } = useParams();
-
+  const location = useLocation();
   // 기본 상태
   const [components, setComponents] = useState([]);
-
+  
   // 컴포넌트 업데이트 + 자동저장 래퍼 (먼저 선언)
   const handleComponentsUpdate = useCallback((newComponents) => {
     setComponents(newComponents);
   }, []);
-
+  
   const { isSaving, saveNow } = useAutoSave(roomId, components, { width: 1200, height: 800 }, 3000);
-
-
-
-
-
-
+  
   const [selectedId, setSelectedId] = useState(null);
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
   const [zoom, setZoom] = useState(100);
@@ -62,38 +59,81 @@ function NoCodeEditor() {
     category: 'wedding',
     tags: ''
   });
+
+  // 초대 모달 상태
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(true); // 컴포넌트 라이브러리 토글 상태
+  const [canvasHeight, setCanvasHeight] = useState(viewport === 'mobile' ? 667 : 1080); // 캔버스 높이 관리
 
-  // 사용자 정보
-  const [userInfo] = useState(() => ({
-    id: Math.random().toString(36).slice(2, 10),
-    name: randomNickname(),
-    color: randomColor()
-  }));
-  
-  // 사용자 권한 확인
-  useEffect(() => {
-    const checkUserRole = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          setIsAdmin(payload.role === 'ADMIN');
-        }
-      } catch (error) {
-        console.error('사용자 권한 확인 실패:', error);
+  // JWT Base64URL 디코딩 함수 (한글 지원)
+  const decodeJWTPayload = (token) => {
+    try {
+      // Base64URL을 Base64로 변환
+      let base64 = token.split('.')[1];
+      base64 = base64.replace(/-/g, '+').replace(/_/g, '/');
+      
+      // 패딩 추가
+      while (base64.length % 4) {
+        base64 += '=';
       }
+      
+      // UTF-8로 안전하게 디코딩
+      const binaryString = atob(base64);
+      const bytes = new Uint8Array(binaryString.length);
+      
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const utf8String = new TextDecoder('utf-8').decode(bytes);
+      return JSON.parse(utf8String);
+    } catch (error) {
+      console.error('JWT 디코딩 실패:', error);
+      return null;
+    }
+  };
+
+  // 사용자 정보 및 권한 관리
+  const [userInfo] = useState(() => {
+    // JWT 토큰에서 사용자 정보 추출
+    let userId = Math.random().toString(36).slice(2, 10);
+    let nickname = `게스트${Math.floor(Math.random() * 1000)}`; // 더 친근한 fallback
+    let isAdminUser = false;
+    
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = decodeJWTPayload(token);
+      if (payload) {
+        userId = payload.userId || userId;
+        nickname = payload.nickname || '사용자';
+        isAdminUser = payload.role === 'ADMIN';
+        
+        console.log('사용자 정보:', { userId, nickname, role: payload.role });
+      } else {
+        console.log('JWT 토큰 파싱 실패, 게스트로 설정');
+      }
+    } else {
+      console.log('로그인하지 않은 사용자:', nickname);
+    }
+    
+    // 관리자 권한 설정
+    setIsAdmin(isAdminUser);
+    
+    return {
+      id: userId,
+      name: nickname,
+      color: randomColor()
     };
-    checkUserRole();
-  }, []);
-
-
-
+  });
 
   // ref
   const canvasRef = useRef();
   const containerRef = useRef();
+  
+  const handleComponentsUpdate = useCallback((newComponents) => {
+    setComponents(newComponents);
+  }, []);
 
   // 협업 기능 통합
   const collaboration = useCollaboration({
@@ -101,7 +141,7 @@ function NoCodeEditor() {
     userInfo,
     canvasRef,
     selectedComponentId: selectedId,
-    onComponentsUpdate: handleComponentsUpdate
+    onComponentsUpdate: setComponents
   });
 
   // 협업 상태 구조분해할당
@@ -122,6 +162,74 @@ function NoCodeEditor() {
       console.log('협업 서버에 연결되었습니다.');
     }
   }, [isConnected]);
+
+
+ // 페이지 데이터 로딩
+  const [pageLoaded, setPageLoaded] = useState(false);
+  const [pageTitle, setPageTitle] = useState('Untitled');
+  
+  useEffect(() => {
+    const loadPageData = async () => {
+      if (!roomId || pageLoaded) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        
+        const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const pageData = await response.json();
+          console.log('페이지 데이터 로딩:', pageData);
+          
+          if (pageData.content && Array.isArray(pageData.content)) {
+            // YJS가 준비되면 추가, 아니면 직접 상태 설정
+            if (collaboration.ydoc) {
+              pageData.content.forEach(comp => {
+                addComponent(comp);
+              });
+            } else {
+              setComponents(pageData.content);
+            }
+          }
+          setPageTitle(pageData.title || 'Untitled');
+          setPageLoaded(true);
+        }
+      } catch (error) {
+        console.error('페이지 데이터 로딩 실패:', error);
+      }
+    };
+    
+    loadPageData();
+  }, [roomId, pageLoaded]);
+  
+  // YJS가 나중에 초기화되면 데이터 동기화
+  useEffect(() => {
+    if (collaboration.ydoc && components.length > 0 && !collaboration.ydoc.getArray('components').length) {
+      components.forEach(comp => {
+        addComponent(comp);
+      });
+    }
+  }, [collaboration.ydoc, components, addComponent]);
+  
+  // viewport 변경 시 캔버스 높이 초기화
+  useEffect(() => {
+    const baseHeight = viewport === 'mobile' ? 667 : 1080;
+    setCanvasHeight(baseHeight);
+  }, [viewport]);
+
+  // 기존 더미 컴포넌트 제거 (초기화 시)
+  useEffect(() => {
+    const extenderComponents = components.filter(comp => comp.id.startsWith('canvas-extender-'));
+    if (extenderComponents.length > 0) {
+      console.log(`기존 더미 컴포넌트 ${extenderComponents.length}개를 제거합니다.`);
+      extenderComponents.forEach(comp => removeComponent(comp.id));
+    }
+  }, []); // 초기 로딩 시에만 실행
 
   // 컴포넌트 선택 시 해당 컴포넌트가 보이도록 스크롤 이동
   useEffect(() => {
@@ -154,16 +262,16 @@ function NoCodeEditor() {
         const dimensions = getComponentDimensions(type);
         const width = dimensions.defaultWidth;
         const height = dimensions.defaultHeight;
-
+        
         const snappedX = Math.round(e.nativeEvent.offsetX / effectiveGridSize) * effectiveGridSize;
         const snappedY = Math.round(e.nativeEvent.offsetY / effectiveGridSize) * effectiveGridSize;
         
         const maxX = viewport === 'mobile' ? Math.max(0, 375 - width) : Math.max(0, 1920 - width);
-        const maxY = viewport === 'mobile' ? Math.max(0, 667 - height) : Math.max(0, 1080 - height);
+        const maxY = Math.max(0, canvasHeight - height); // 확장된 캔버스 높이 사용
         
         let clampedX = clamp(snappedX, 0, maxX);
         let clampedY = clamp(snappedY, 0, maxY);
-
+        
         const newComponent = {
           id: Math.random().toString(36).slice(2, 10),
           type,
@@ -175,13 +283,12 @@ function NoCodeEditor() {
         };
         
         const collisionResult = resolveCollision(newComponent, components, getComponentDimensions);
-
         clampedX = collisionResult.x;
         clampedY = collisionResult.y;
-
+        
         clampedX = clamp(clampedX, 0, maxX);
         clampedY = clamp(clampedY, 0, maxY);
-
+        
         // 협업 기능으로 컴포넌트 추가
         addComponent({
           ...newComponent,
@@ -201,8 +308,10 @@ function NoCodeEditor() {
   const handleUpdate = comp => {
     // 협업 기능으로 컴포넌트 업데이트
     updateComponent(comp.id, comp);
+      
+      // 스냅라인 계산
     const lines = calculateSnapLines(comp, components, zoom, viewport, getComponentDimensions);
-    setSnapLines(lines);
+      setSnapLines(lines);
   };
 
   // 컴포넌트 삭제
@@ -225,8 +334,10 @@ function NoCodeEditor() {
 
   // 속성 인스펙터
   const selectedComp = components.find(c => c.id === selectedId);
-
+  
+  // 활성 사용자 정보 (디버깅용)
   const activeUsers = getActiveUsers();
+  console.log('활성 사용자:', activeUsers.length);
 
   // 브라우저 전체 확대/축소(Ctrl+스크롤, Ctrl+키, 트랙패드 pinch) 완벽 차단
   useEffect(() => {
@@ -270,9 +381,6 @@ function NoCodeEditor() {
     };
   }, []);
 
-
-
-
   // 줌 상태 변경 핸들러
   const handleZoomChange = (newZoom) => {
     setZoom(newZoom);
@@ -286,13 +394,12 @@ function NoCodeEditor() {
   }, []);
 
 
-
   
   // 템플릿으로 저장
   const handleSaveAsTemplate = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/templates/from-components', {
+      const response = await fetch(`${API_BASE_URL}/templates/from-components`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -321,37 +428,10 @@ function NoCodeEditor() {
 
   // 새 섹션 추가 핸들러
   const handleAddSection = useCallback((sectionY) => {
-    // 기존 더미 컴포넌트들 확인
-    const existingExtenders = components.filter(comp => comp.id.startsWith('canvas-extender-'));
-    
-    // 새로운 확장 위치 계산
-    const newExtenderY = sectionY + 200;
-    
-    // 기존 확장 영역보다 더 아래에 있는 경우에만 새로운 더미 컴포넌트 추가
-    const maxExistingY = existingExtenders.length > 0 
-      ? Math.max(...existingExtenders.map(comp => comp.y))
-      : 0;
-    
-    if (newExtenderY > maxExistingY) {
-      // 캔버스 높이를 확장하기 위해 투명한 더미 컴포넌트 추가
-      const dummyComponent = {
-        id: `canvas-extender-${Date.now()}`,
-        type: 'text',
-        x: 0,
-        y: newExtenderY,
-        width: 1,
-        height: 1,
-        props: {
-          text: '',
-          fontSize: 1,
-          color: 'transparent',
-          backgroundColor: 'transparent'
-        }
-      };
-      
-      // 더미 컴포넌트 추가하여 캔버스 확장
-      addComponent(dummyComponent);
-    }
+    // 현재 캔버스 높이에 새 섹션 높이를 추가 (더미 컴포넌트 없이)
+    const newCanvasHeight = Math.max(canvasHeight, sectionY + 400); // 400px 추가 공간
+    console.log('섹션 추가:', { currentHeight: canvasHeight, sectionY, newCanvasHeight });
+    setCanvasHeight(newCanvasHeight);
     
     // 새로 추가된 섹션으로 스크롤
     setTimeout(() => {
@@ -363,23 +443,14 @@ function NoCodeEditor() {
         });
       }
     }, 100);
-  }, [viewport, zoom, addComponent, components]);
+  }, [viewport, zoom, canvasHeight]);
 
   return (
     <div style={{
-      minHeight: '100vh', width: '100vw', display: 'flex',
+      minHeight: '100vh', width: '100vw', display: 'flex', flexDirection: 'column',
       background: '#fff', color: '#222', fontFamily: 'Inter, sans-serif', overflow: 'hidden'
     }}>
       {/* 에디터 헤더 */}
-      {isSaving && (
-        <div style={{
-          position: "fixed", top: "10px", right: "10px", 
-          background: "#4CAF50", color: "white", padding: "8px 12px", 
-          borderRadius: "6px", fontSize: "12px", zIndex: 1000
-        }}>
-          💾 저장 중...
-        </div>
-      )}
       <EditorHeader
         components={components}
         selectedComp={selectedComp}
@@ -388,75 +459,84 @@ function NoCodeEditor() {
         onViewportChange={handleViewportChange}
         onPreviewOpen={() => setIsPreviewOpen(true)}
         onTemplateSaveOpen={() => setIsTemplateSaveOpen(true)}
+        onInviteOpen={() => setIsInviteOpen(true)}
         roomId={roomId}
         isAdmin={isAdmin}
       />
 
-
-      {/* 좌측: 컴포넌트 라이브러리 (토글 가능) */}
-      <ComponentLibrary 
-        onDragStart={(e, type) => {
-          e.dataTransfer.setData('componentType', type);
-          e.dataTransfer.effectAllowed = 'copy';
-        }}
-        components={components}
-        roomId={roomId}
-        isOpen={isLibraryOpen}
-        onToggle={() => setIsLibraryOpen(!isLibraryOpen)}
-      />
-
-      {/* 중앙: 캔버스 */}
-      <div style={{ 
-        flex: 1, 
-        minWidth: 0, 
-        height: '100vh', // 전체 화면 높이
+      {/* 하단: 라이브러리, 캔버스, 인스펙터 */}
+      <div style={{
+        flex: 1,
         display: 'flex',
-        position: 'relative',
-        overflow: 'hidden' // 내부 컴포넌트에서 스크롤 처리
+        height: 'calc(100vh - 64px)', // 헤더 높이만큼 제외 (h-16 = 64px)
+        overflow: 'hidden'
       }}>
+        {/* 좌측: 컴포넌트 라이브러리 (토글 가능) */}
+        <ComponentLibrary 
+          onDragStart={(e, type) => {
+            e.dataTransfer.setData('componentType', type);
+            e.dataTransfer.effectAllowed = 'copy';
+          }}
+          components={components}
+          roomId={roomId}
+          isOpen={isLibraryOpen}
+          onToggle={() => setIsLibraryOpen(!isLibraryOpen)}
+        />
+
+        {/* 중앙: 캔버스 */}
+        <div style={{ 
+          flex: 1, 
+          minWidth: 0, 
+          height: '100%', // 부모 컨테이너 높이에 맞춤
+          display: 'flex',
+          position: 'relative',
+          overflow: 'hidden' // 내부 컴포넌트에서 스크롤 처리
+        }}>
         <CanvasArea
-          containerRef={containerRef}
+            containerRef={containerRef}
           canvasRef={canvasRef}
           components={components}
           selectedId={selectedId}
-          users={{}} // 기존 users 대신 빈 객체
-          nickname={userInfo.name}
+            users={{}} // 기존 users 대신 빈 객체
+            nickname={userInfo.name}
           snapLines={snapLines}
-          setSnapLines={setSnapLines}
+            setSnapLines={setSnapLines}
           onDrop={e => { handleDrop(e); }}
           onDragOver={e => e.preventDefault()}
           onClick={() => handleSelect(null)}
-          onMouseMove={() => {}} // 커서 추적은 협업 훅에서 처리
-          onMouseUp={() => {}}
+            onMouseMove={() => {}} // 커서 추적은 협업 훅에서 처리
+            onMouseUp={() => {}}
           onSelect={handleSelect}
           onUpdate={handleUpdate}
           onDelete={handleDelete}
-          onAddSection={handleAddSection} // 새 섹션 추가 핸들러
+            onAddSection={handleAddSection} // 새 섹션 추가 핸들러
           CanvasComponent={CanvasComponent}
           UserCursor={UserCursor}
-          zoom={zoom}
-          onZoomChange={handleZoomChange}
-          viewport={viewport}
-          isInspectorOpen={!!selectedComp}
-          isLibraryOpen={isLibraryOpen} // 라이브러리 상태 전달
-          updateCursorPosition={updateCursorPosition} // 협업 커서 위치 업데이트
-          // 협업 기능 props 추가
-          otherCursors={otherCursors}
-          otherSelections={otherSelections}
-          getComponentDimensions={getComponentDimensions} // 컴포넌트 크기 함수
-        />
-      </div>
+            zoom={zoom}
+            onZoomChange={handleZoomChange}
+            viewport={viewport}
+            canvasHeight={canvasHeight} // 캔버스 높이 전달
+            isInspectorOpen={!!selectedComp}
+            isLibraryOpen={isLibraryOpen} // 라이브러리 상태 전달
+            updateCursorPosition={updateCursorPosition} // 협업 커서 위치 업데이트
+            // 협업 기능 props 추가
+            otherCursors={otherCursors}
+            otherSelections={otherSelections}
+            getComponentDimensions={getComponentDimensions} // 컴포넌트 크기 함수
+          />
+        </div>
 
-      {/* 우측: 속성 인스펙터 */}
-      {selectedComp && (
-        <Inspector
-          selectedComp={selectedComp}
-          onUpdate={handleUpdate}
-          color={userInfo.color}
-          nickname={userInfo.name}
-          roomId={roomId}
-        />
-      )}
+        {/* 우측: 속성 인스펙터 */}
+        {selectedComp && (
+          <Inspector
+            selectedComp={selectedComp}
+            onUpdate={handleUpdate}
+            color={userInfo.color}
+            nickname={userInfo.name}
+            roomId={roomId}
+          />
+        )}
+      </div>
 
       {/* 미리보기 모달 */}
       <PreviewModal
@@ -477,22 +557,12 @@ function NoCodeEditor() {
         onSave={handleSaveAsTemplate}
       />
 
-      {/* 연결 상태 표시 */}
-      {!isConnected && (
-        <div style={{
-          position: 'fixed',
-          bottom: '40px', // 스크롤바 위로 올림
-          left: isLibraryOpen ? '260px' : '20px', // 라이브러리 상태에 따라 위치 조정
-          padding: '8px 12px',
-          backgroundColor: '#ff9800',
-          color: 'white',
-          borderRadius: '6px',
-          fontSize: '12px',
-          zIndex: 999 // 스크롤바보다 낮은 z-index
-        }}>
-          협업 서버 연결 중...
-        </div>
-      )}
+      {/* 초대 모달 */}
+      <InviteModal
+        isOpen={isInviteOpen}
+        onClose={() => setIsInviteOpen(false)}
+        pageId={roomId}
+      />
 
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}
       <style>{`

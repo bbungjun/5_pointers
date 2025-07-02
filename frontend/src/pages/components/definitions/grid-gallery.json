@@ -2,8 +2,8 @@
   "type": "gridGallery",
   "label": "그리드 갤러리",
   "defaultProps": {
-    "containerWidth": 800,
-    "containerHeight": 600,
+    "containerWidth": 400,
+    "containerHeight": 300,
     "rows": 3,
     "columns": 4,
     "gap": 8,
