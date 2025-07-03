@@ -13,33 +13,7 @@ function MapThumbnail() {
       padding: 8,
       gap: 4
     }}>
-      {/* 상단 - 주소 입력 필드 */}
-      <div style={{
-        height: 16,
-        backgroundColor: '#f9fafb',
-        border: '1px solid #d1d5db',
-        borderRadius: 4,
-        display: 'flex',
-        alignItems: 'center',
-        paddingLeft: 6,
-        paddingRight: 6
-      }}>
-        <div style={{
-          fontSize: 7,
-          color: '#9ca3af',
-          flex: 1
-        }}>
-          주소를 입력하세요
-        </div>
-        <div style={{
-          fontSize: 8,
-          color: '#6b7280'
-        }}>
-          🔍
-        </div>
-      </div>
-      
-      {/* 중앙 - 지도 영역 */}
+      {/* 지도 영역 */}
       <div style={{
         flex: 1,
         backgroundColor: '#f3f4f6',
@@ -59,25 +33,60 @@ function MapThumbnail() {
           bottom: 0,
           opacity: 0.1
         }}>
-          <div style={{ position: 'absolute', top: '33%', left: 0, right: 0, height: 1, backgroundColor: '#9ca3af' }} />
-          <div style={{ position: 'absolute', top: '66%', left: 0, right: 0, height: 1, backgroundColor: '#9ca3af' }} />
-          <div style={{ position: 'absolute', left: '33%', top: 0, bottom: 0, width: 1, backgroundColor: '#9ca3af' }} />
-          <div style={{ position: 'absolute', left: '66%', top: 0, bottom: 0, width: 1, backgroundColor: '#9ca3af' }} />
+          <div style={{ position: 'absolute', top: '25%', left: 0, right: 0, height: 1, backgroundColor: '#9ca3af' }} />
+          <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, backgroundColor: '#9ca3af' }} />
+          <div style={{ position: 'absolute', top: '75%', left: 0, right: 0, height: 1, backgroundColor: '#9ca3af' }} />
+          <div style={{ position: 'absolute', left: '25%', top: 0, bottom: 0, width: 1, backgroundColor: '#9ca3af' }} />
+          <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, backgroundColor: '#9ca3af' }} />
+          <div style={{ position: 'absolute', left: '75%', top: 0, bottom: 0, width: 1, backgroundColor: '#9ca3af' }} />
         </div>
         
-        {/* 위치 마커 */}
+        {/* 물방울 모양 위치 마커 */}
         <div style={{
-          fontSize: 14,
-          color: '#ef4444',
+          position: 'relative',
           zIndex: 1
         }}>
-          📍
+          {/* 마커 핀 (물방울 모양) */}
+          <div style={{
+            width: 12,
+            height: 12,
+            backgroundColor: '#ef4444',
+            borderRadius: '50% 50% 50% 0',
+            transform: 'rotate(-45deg)',
+            border: '1px solid #fff',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+            position: 'relative'
+          }}>
+            {/* 마커 내부 점 */}
+            <div style={{
+              width: 4,
+              height: 4,
+              backgroundColor: '#fff',
+              borderRadius: '50%',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%) rotate(45deg)'
+            }}></div>
+          </div>
+          
+          {/* 마커 그림자 */}
+          <div style={{
+            position: 'absolute',
+            top: 8,
+            left: 2,
+            width: 8,
+            height: 3,
+            backgroundColor: 'rgba(0,0,0,0.2)',
+            borderRadius: '50%',
+            filter: 'blur(1px)'
+          }}></div>
         </div>
       </div>
       
       {/* 하단 - 기능 설명 */}
       <div style={{
-        fontSize: 7,
+        fontSize: 8,
         color: '#64748b',
         textAlign: 'center'
       }}>
