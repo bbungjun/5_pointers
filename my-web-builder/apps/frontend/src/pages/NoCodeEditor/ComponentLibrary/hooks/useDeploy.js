@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { API_BASE_URL } from '../../../config';
+import { API_BASE_URL } from '../../../../config';
 
 export function useDeploy() {
   const [showDomainInput, setShowDomainInput] = useState(false);
