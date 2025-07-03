@@ -12,6 +12,7 @@ import WeddingContactThumbnail from './WeddingContactThumbnail';
 import DefaultThumbnail from './DefaultThumbnail';
 import GridGalleryThumbnail from './GridGalleryThumbnail';
 import SlideGalleryThumbnail from './SlideGalleryThumbnail';
+import MusicThumbnail from './MusicThumbnail';
 
 export const ThumbnailComponents = {
   button: ButtonThumbnail,
@@ -36,7 +37,8 @@ export const ThumbnailComponents = {
   'grid-gallery': GridGalleryThumbnail, // kebab-case alias
   slideGallery: SlideGalleryThumbnail, // 전용 슬라이드 갤러리 썸네일
   'slide-gallery': SlideGalleryThumbnail, // kebab-case alias
-  music: DefaultThumbnail, // use default for music
+  music: MusicThumbnail, // 전용 음악 플레이어 썸네일
+  musicPlayer: MusicThumbnail, // 음악 플레이어 컴포넌트
   default: DefaultThumbnail
 };
 
@@ -54,5 +56,6 @@ export {
   WeddingContactThumbnail,
   DefaultThumbnail,
   GridGalleryThumbnail,
-  SlideGalleryThumbnail
+  SlideGalleryThumbnail,
+  MusicThumbnail
 };
