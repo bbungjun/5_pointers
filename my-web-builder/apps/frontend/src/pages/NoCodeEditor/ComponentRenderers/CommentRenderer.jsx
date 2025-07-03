@@ -94,103 +94,252 @@ function CommentRenderer({ comp, isEditor = false }) {
       minHeight: '150px',
       display: 'flex',
       flexDirection: 'column',
-      overflow: 'auto'
+      overflow: 'auto',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">
+      <h3 style={{
+        fontSize: '18px',
+        fontWeight: '600',
+        marginBottom: '16px',
+        color: '#1f2937'
+      }}>
         {title || '축하 메세지를 남겨주세요'}
       </h3>
 
       {/* 댓글 작성 폼 */}
-      <form onSubmit={handleSubmitComment} className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <div className="grid grid-cols-2 gap-3 mb-3">
+      <form onSubmit={handleSubmitComment} style={{
+        marginBottom: '24px',
+        padding: '16px',
+        backgroundColor: '#f9fafb',
+        borderRadius: '8px'
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '12px',
+          marginBottom: '12px'
+        }}>
           <input
             type="text"
             placeholder="이름"
             value={newComment.author}
             onChange={(e) => setNewComment({...newComment, author: e.target.value})}
-            className="px-3 py-2 border rounded-lg text-sm outline-none focus:border-blue-500"
+            style={{
+              padding: '8px 12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              fontSize: '14px',
+              outline: 'none'
+            }}
+            onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+            onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
           />
           <input
             type="password"
             placeholder="비밀번호"
             value={newComment.password}
             onChange={(e) => setNewComment({...newComment, password: e.target.value})}
-            className="px-3 py-2 border rounded-lg text-sm outline-none focus:border-blue-500"
+            style={{
+              padding: '8px 12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              fontSize: '14px',
+              outline: 'none'
+            }}
+            onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+            onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
           />
         </div>
         <textarea
           placeholder={placeholder || "댓글을 남겨주세요"}
           value={newComment.content}
           onChange={(e) => setNewComment({...newComment, content: e.target.value})}
-          className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:border-blue-500 resize-none"
+          style={{
+            width: '100%',
+            padding: '8px 12px',
+            border: '1px solid #d1d5db',
+            borderRadius: '6px',
+            fontSize: '14px',
+            outline: 'none',
+            resize: 'none',
+            minHeight: '80px'
+          }}
+          onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+          onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
           rows="3"
         />
         <button
           type="submit"
           disabled={isEditor}
-          className={`mt-3 px-4 py-2 rounded-lg text-sm transition-colors ${
-            isEditor 
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-              : 'bg-blue-600 text-white hover:bg-blue-700'
-          }`}
+          style={{
+            marginTop: '12px',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            fontSize: '14px',
+            border: 'none',
+            cursor: isEditor ? 'not-allowed' : 'pointer',
+            backgroundColor: isEditor ? '#d1d5db' : '#2563eb',
+            color: isEditor ? '#6b7280' : '#ffffff',
+            transition: 'background-color 0.2s'
+          }}
+          onMouseOver={(e) => {
+            if (!isEditor) e.target.style.backgroundColor = '#1d4ed8';
+          }}
+          onMouseOut={(e) => {
+            if (!isEditor) e.target.style.backgroundColor = '#2563eb';
+          }}
         >
           {isEditor ? '배포 후 사용 가능' : '댓글 작성'}
         </button>
       </form>
 
       {/* 댓글 목록 */}
-      <div className="space-y-3">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {isEditor ? (
           // 에디터 모드에서 샘플 댓글 보여주기
           <>
-            <div className="relative p-4 bg-white border rounded-lg">
+            <div style={{
+              position: 'relative',
+              padding: '16px',
+              backgroundColor: '#ffffff',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px'
+            }}>
               <button
                 disabled={true}
-                className="absolute top-2 right-2 w-6 h-6 text-gray-300 cursor-not-allowed"
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  width: '24px',
+                  height: '24px',
+                  color: '#d1d5db',
+                  cursor: 'not-allowed',
+                  border: 'none',
+                  background: 'none',
+                  fontSize: '16px'
+                }}
               >
                 ×
               </button>
-              <div className="pr-8">
-                <div className="font-medium text-gray-800 mb-1">샘플 사용자</div>
-                <div className="text-gray-600 text-sm leading-relaxed">이곳에 댓글이 표시됩니다. 배포 후에 실제 댓글을 작성할 수 있습니다.</div>
-                <div className="text-xs text-gray-400 mt-2">
+              <div style={{ paddingRight: '32px' }}>
+                <div style={{
+                  fontWeight: '500',
+                  color: '#1f2937',
+                  marginBottom: '4px'
+                }}>샘플 사용자</div>
+                <div style={{
+                  color: '#4b5563',
+                  fontSize: '14px',
+                  lineHeight: '1.5'
+                }}>이곳에 댓글이 표시됩니다. 배포 후에 실제 댓글을 작성할 수 있습니다.</div>
+                <div style={{
+                  fontSize: '12px',
+                  color: '#9ca3af',
+                  marginTop: '8px'
+                }}>
                   {new Date().toLocaleDateString()}
                 </div>
               </div>
             </div>
-            <div className="relative p-4 bg-white border rounded-lg">
+            <div style={{
+              position: 'relative',
+              padding: '16px',
+              backgroundColor: '#ffffff',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px'
+            }}>
               <button
                 disabled={true}
-                className="absolute top-2 right-2 w-6 h-6 text-gray-300 cursor-not-allowed"
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  width: '24px',
+                  height: '24px',
+                  color: '#d1d5db',
+                  cursor: 'not-allowed',
+                  border: 'none',
+                  background: 'none',
+                  fontSize: '16px'
+                }}
               >
                 ×
               </button>
-              <div className="pr-8">
-                <div className="font-medium text-gray-800 mb-1">또 다른 사용자</div>
-                <div className="text-gray-600 text-sm leading-relaxed">댓글 예시입니다.</div>
-                <div className="text-xs text-gray-400 mt-2">
+              <div style={{ paddingRight: '32px' }}>
+                <div style={{
+                  fontWeight: '500',
+                  color: '#1f2937',
+                  marginBottom: '4px'
+                }}>또 다른 사용자</div>
+                <div style={{
+                  color: '#4b5563',
+                  fontSize: '14px',
+                  lineHeight: '1.5'
+                }}>댓글 예시입니다.</div>
+                <div style={{
+                  fontSize: '12px',
+                  color: '#9ca3af',
+                  marginTop: '8px'
+                }}>
                   {new Date().toLocaleDateString()}
                 </div>
               </div>
             </div>
           </>
         ) : comments.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
+          <div style={{
+            textAlign: 'center',
+            color: '#6b7280',
+            padding: '32px 0'
+          }}>
             첫 번째 댓글을 남겨보세요!
           </div>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} className="relative p-4 bg-white border rounded-lg">
+            <div key={comment.id} style={{
+              position: 'relative',
+              padding: '16px',
+              backgroundColor: '#ffffff',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px'
+            }}>
               <button
                 onClick={() => setShowDeleteModal(comment.id)}
-                className="absolute top-2 right-2 w-6 h-6 text-gray-400 hover:text-red-500 transition-colors"
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  width: '24px',
+                  height: '24px',
+                  color: '#9ca3af',
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: 'none',
+                  fontSize: '16px',
+                  transition: 'color 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.color = '#ef4444'}
+                onMouseOut={(e) => e.target.style.color = '#9ca3af'}
               >
                 ×
               </button>
-              <div className="pr-8">
-                <div className="font-medium text-gray-800 mb-1">{comment.author}</div>
-                <div className="text-gray-600 text-sm leading-relaxed">{comment.content}</div>
-                <div className="text-xs text-gray-400 mt-2">
+              <div style={{ paddingRight: '32px' }}>
+                <div style={{
+                  fontWeight: '500',
+                  color: '#1f2937',
+                  marginBottom: '4px'
+                }}>{comment.author}</div>
+                <div style={{
+                  color: '#4b5563',
+                  fontSize: '14px',
+                  lineHeight: '1.5'
+                }}>{comment.content}</div>
+                <div style={{
+                  fontSize: '12px',
+                  color: '#9ca3af',
+                  marginTop: '8px'
+                }}>
                   {new Date(comment.createdAt).toLocaleDateString()}
                 </div>
               </div>
@@ -201,22 +350,68 @@ function CommentRenderer({ comp, isEditor = false }) {
 
       {/* 삭제 확인 모달 */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-80">
-            <h3 className="text-lg font-semibold mb-4">댓글 삭제</h3>
-            <p className="text-gray-600 mb-4">댓글 작성 시 입력한 비밀번호를 입력해주세요.</p>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            padding: '24px',
+            borderRadius: '8px',
+            width: '320px'
+          }}>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              marginBottom: '16px'
+            }}>댓글 삭제</h3>
+            <p style={{
+              color: '#4b5563',
+              marginBottom: '16px'
+            }}>댓글 작성 시 입력한 비밀번호를 입력해주세요.</p>
             <input
               type="password"
               placeholder="비밀번호"
               value={deletePassword}
               onChange={(e) => setDeletePassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg mb-4 outline-none focus:border-blue-500"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                marginBottom: '16px',
+                outline: 'none'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
               onKeyPress={(e) => e.key === 'Enter' && handleDeleteComment()}
             />
-            <div className="flex gap-2">
+            <div style={{
+              display: 'flex',
+              gap: '8px'
+            }}>
               <button
                 onClick={handleDeleteComment}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  backgroundColor: '#dc2626',
+                  color: '#ffffff',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#b91c1c'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#dc2626'}
               >
                 삭제
               </button>
@@ -225,7 +420,18 @@ function CommentRenderer({ comp, isEditor = false }) {
                   setShowDeleteModal(null);
                   setDeletePassword('');
                 }}
-                className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  backgroundColor: '#d1d5db',
+                  color: '#374151',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#9ca3af'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#d1d5db'}
               >
                 취소
               </button>

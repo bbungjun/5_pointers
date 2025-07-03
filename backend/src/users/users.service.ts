@@ -38,20 +38,77 @@ export class UsersService {
 
   // 내 페이지 목록 조회
   async getMyPages(userId: number): Promise<Pages[]> {
-    return this.pagesRepository.find({ 
+    // 소유한 페이지들 가져오기
+    const ownedPages = await this.pagesRepository.find({ 
       where: { owner: { id: userId } },
       order: { updatedAt: 'DESC' }
     });
+
+    // 초대받은 페이지들 가져오기
+    const pageMembersRepository = this.pagesRepository.manager.getRepository('PageMembers');
+    const memberPages = await pageMembersRepository.find({
+      where: { 
+        user: { id: userId },
+        status: 'ACCEPTED'
+      },
+      relations: ['page'],
+      order: { createdAt: 'DESC' }
+    });
+
+    // 초대받은 페이지들의 정보 가져오기
+    const invitedPages = await Promise.all(
+      memberPages.map(async (member) => {
+        const page = await this.pagesRepository.findOne({
+          where: { id: member.page.id }
+        });
+        return page;
+      })
+    );
+
+    // 소유한 페이지와 초대받은 페이지 합치기
+    const allPages = [...ownedPages, ...invitedPages];
+    
+    // 최신 업데이트 순으로 정렬
+    return allPages.sort((a, b) => 
+      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
   }
 
   // 페이지 단일 조회
   async getPage(userId: number, pageId: string): Promise<Pages> {
-    const page = await this.pagesRepository.findOne({
+    // 먼저 페이지 소유자인지 확인
+    let page = await this.pagesRepository.findOne({
       where: { id: pageId, owner: { id: userId } }
     });
     
+    // 페이지 소유자가 아니면 멤버 권한 확인
     if (!page) {
-      throw new Error('Page not found');
+      console.log(`페이지 소유자가 아님, 멤버 권한 확인 중...`);
+      
+      // PageMembers 테이블에서 권한 확인
+      const pageMembersRepository = this.pagesRepository.manager.getRepository('PageMembers');
+      const member = await pageMembersRepository.findOne({
+        where: { 
+          page: { id: pageId },
+          user: { id: userId },
+          status: 'ACCEPTED'
+        }
+      });
+      
+      if (!member) {
+        console.error(`페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`);
+        throw new Error('Page not found');
+      }
+      
+      // 멤버인 경우 페이지 정보 가져오기
+      page = await this.pagesRepository.findOne({
+        where: { id: pageId }
+      });
+      
+      if (!page) {
+        console.error(`페이지를 찾을 수 없음: ${pageId}`);
+        throw new Error('Page not found');
+      }
     }
     
     return page;
@@ -75,13 +132,39 @@ export class UsersService {
   async updatePageContent(userId: number, pageId: string, content: any[]): Promise<Pages> {
     console.log(`DB 업데이트 시도: 페이지 ${pageId}, 사용자 ${userId}, 컴포넌트 ${content.length}개`);
     
-    const page = await this.pagesRepository.findOne({
+    // 먼저 페이지 소유자인지 확인
+    let page = await this.pagesRepository.findOne({
       where: { id: pageId, owner: { id: userId } }
     });
     
+    // 페이지 소유자가 아니면 멤버 권한 확인
     if (!page) {
-      console.error(`페이지를 찾을 수 없음: ${pageId}`);
-      throw new Error('Page not found');
+      console.log(`페이지 소유자가 아님, 멤버 권한 확인 중...`);
+      
+      // PageMembers 테이블에서 권한 확인
+      const pageMembersRepository = this.pagesRepository.manager.getRepository('PageMembers');
+      const member = await pageMembersRepository.findOne({
+        where: { 
+          page: { id: pageId },
+          user: { id: userId },
+          status: 'ACCEPTED'
+        }
+      });
+      
+      if (!member) {
+        console.error(`페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`);
+        throw new Error('Page not found');
+      }
+      
+      // 멤버인 경우 페이지 정보 가져오기
+      page = await this.pagesRepository.findOne({
+        where: { id: pageId }
+      });
+      
+      if (!page) {
+        console.error(`페이지를 찾을 수 없음: ${pageId}`);
+        throw new Error('Page not found');
+      }
     }
     
     console.log(`기존 컨텐츠: ${page.content?.length || 0}개 컴포넌트`);
@@ -139,7 +222,7 @@ export class UsersService {
   private regenerateComponentIds(components: any[]): any[] {
     return components.map(comp => ({
       ...comp,
-      id: Math.random().toString(36).slice(2, 10)
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}-${Math.random().toString(36).slice(2, 8)}`
     }));
   }
 
