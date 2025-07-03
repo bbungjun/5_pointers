@@ -1,0 +1,17 @@
+{
+  "type": "button",
+  "label": "버튼",
+  "defaultProps": {
+    "text": "클릭하세요",
+    "fontSize": 18,
+    "fontFamily": "\"Noto Sans KR\", \"맑은 고딕\", \"Malgun Gothic\", sans-serif",
+    "fontWeight": false,
+    "fontStyle": false,
+    "textDecoration": false,
+    "lineHeight": 1.2,
+    "letterSpacing": 0,
+    "textAlign": "center",
+    "color": "#fff",
+    "bg": "#3B4EFF"
+  }
+}

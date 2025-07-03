@@ -1,0 +1,18 @@
+{
+  "type": "weddingContact",
+  "label": "연락처 카드",
+  "defaultProps": {
+    "groomName": "신랑",
+    "groomPhone": "",
+    "brideName": "신부",
+    "bridePhone": "",
+    "groomFatherName": "",
+    "groomFatherPhone": "",
+    "groomMotherName": "",
+    "groomMotherPhone": "",
+    "brideFatherName": "",
+    "brideFatherPhone": "",
+    "brideMotherName": "",
+    "brideMotherPhone": ""
+  }
+} 

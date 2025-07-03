@@ -1,0 +1,12 @@
+{
+  "type": "image",
+  "label": "이미지",
+  "defaultProps": {
+    "src": "",
+    "alt": "이미지",
+    "width": 200,
+    "height": 150,
+    "objectFit": "cover",
+    "borderRadius": 0
+  }
+}

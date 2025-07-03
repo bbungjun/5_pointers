@@ -1,0 +1,10 @@
+{
+  "type": "link",
+  "label": "링크",
+  "defaultProps": {
+    "text": "여기를 클릭하세요",
+    "href": "https://www.google.com",
+    "fontSize": 16,
+    "color": "#3B4EFF"
+  }
+} 

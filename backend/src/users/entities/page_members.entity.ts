@@ -10,7 +10,7 @@ export class PageMembers {
   @ManyToOne(() => Pages, page => page.members, { onDelete: 'CASCADE' })
   page: Pages;
 
-  @ManyToOne(() => Users, user => user.pageMembers, { onDelete: 'CASCADE', nullable: true })
+  @ManyToOne(() => Users, user => user.pageMembers, { onDelete: 'CASCADE' })
   user: Users;
 
   @Column({ default: 'EDITOR' })
@@ -19,11 +19,10 @@ export class PageMembers {
   @Column({ default: 'PENDING' })
   status: string;
 
-  // 초대 기능을 위한 추가 필드들
   @Column({ nullable: true })
   email: string;
 
-  @Column({ nullable: true, unique: true })
+  @Column({ nullable: true })
   invitation_token: string;
 
   @Column({ nullable: true })
