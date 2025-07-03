@@ -50,7 +50,7 @@ function MapThumbnail() {
           <div style={{
             width: 12,
             height: 12,
-            backgroundColor: '#ef4444',
+            backgroundColor: '#3b82f6',  // 빨간색 → 파란색으로 변경
             borderRadius: '50% 50% 50% 0',
             transform: 'rotate(-45deg)',
             border: '1px solid #fff',
