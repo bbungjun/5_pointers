@@ -11,42 +11,38 @@ function ComponentCard({ component, onDragStart }) {
       onDragStart={e => onDragStart(e, component.type)}
       style={{
         width: '100%', 
-        marginBottom: 8, 
-        padding: 12,
-        background: '#fff', 
-        borderRadius: 8,
+        marginBottom: 16, 
+        padding: '12px 16px',
         cursor: 'grab', 
-        boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-        border: '1px solid #eee',
-        transition: 'all 0.2s ease'
+        transition: 'all 0.2s ease',
+        borderRadius: 8
       }}
       onMouseEnter={e => {
         e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        e.currentTarget.style.backgroundColor = '#f8f9fa';
       }}
       onMouseLeave={e => {
         e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.1)';
+        e.currentTarget.style.backgroundColor = 'transparent';
       }}
     >
+      {/* 컴포넌트 이름 */}
       <div style={{
-        fontSize: 9, 
+        fontSize: 12, 
         fontWeight: 600, 
-        color: '#888',
-        marginBottom: 8, 
-        textAlign: 'center', 
-        textTransform: 'uppercase',
-        letterSpacing: 0.5
+        color: '#374151',
+        marginBottom: 12, 
+        textAlign: 'center'
       }}>
         {component.label}
       </div>
+      
+      {/* 썸네일 - 배경 사각형 제거 */}
       <div style={{
-        height: 60, 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        background: '#f8f9fa', 
-        borderRadius: 4
+        minHeight: 60
       }}>
         <ThumbnailComponent label={component.label} />
       </div>
