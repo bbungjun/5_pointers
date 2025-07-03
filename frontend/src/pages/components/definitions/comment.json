@@ -1,9 +1,0 @@
-{
-  "type": "comment",
-  "label": "댓글",
-  "defaultProps": {
-    "title": "축하 메세지를 남겨주세요",
-    "placeholder": "축하메세지를 남겨주세요",
-    "backgroundColor": "#ffffff"
-  }
-}

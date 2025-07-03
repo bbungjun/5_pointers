@@ -1,9 +1,0 @@
-{
-  "type": "calendar",
-  "label": "Calendar",
-  "defaultProps": {
-    "weddingDate": "2024-12-25",
-    "title": "Wedding Day",
-    "highlightColor": "#ff6b9d"
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "type": "dday",
-  "label": "D-Day",
-  "icon": "📅",
-  "defaultProps": {
-    "title": "D-Day",
-    "targetDate": "2024-12-31"
-  }
-} 
