@@ -7,13 +7,13 @@ export function LiveCursors({ cursors = [], zoom = 100, viewport = 'desktop' }) 
   const scale = zoom / 100;
   
   // 디버깅 로그
-  useEffect(() => {
-    console.log('LiveCursors 렌더링:', { 
-      cursorsCount: cursors?.length || 0, 
-      isArray: Array.isArray(cursors),
-      cursors
-    });
-  }, [cursors]);
+  // useEffect(() => {
+  //   console.log('LiveCursors 렌더링:', { 
+  //     cursorsCount: cursors?.length || 0, 
+  //     isArray: Array.isArray(cursors),
+  //     cursors
+  //   });
+  // }, [cursors]);
   
   return (
     <>
@@ -101,13 +101,13 @@ export function CollaborativeSelections({ selections = [], components = [], zoom
   const scale = zoom / 100;
   
   // 디버깅 로그
-  useEffect(() => {
-    console.log('CollaborativeSelections 렌더링:', { 
-      selectionsCount: selections?.length || 0, 
-      isArray: Array.isArray(selections),
-      selections
-    });
-  }, [selections]);
+  // useEffect(() => {
+  //   console.log('CollaborativeSelections 렌더링:', { 
+  //     selectionsCount: selections?.length || 0, 
+  //     isArray: Array.isArray(selections),
+  //     selections
+  //   });
+  // }, [selections]);
   
   return (
     <>

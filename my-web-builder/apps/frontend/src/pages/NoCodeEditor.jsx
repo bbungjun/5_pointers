@@ -31,12 +31,17 @@ import { ComponentDefinitions } from './components/definitions';
 
 // 협업 기능 imports
 import { useCollaboration } from '../hooks/useCollaboration';
+import useAutoSave from '../hooks/useAutoSave';
+import SaveStatusIndicator from '../components/SaveStatusIndicator';
 
 function NoCodeEditor() {
   const { roomId } = useParams();
   const location = useLocation();
   // 기본 상태
   const [components, setComponents] = useState([]);
+  
+  // 자동저장 기능
+  const autoSave = useAutoSave(roomId, components); // roomId가 실제로는 pageId역할
   const [selectedId, setSelectedId] = useState(null);
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
   const [zoom, setZoom] = useState(100);
@@ -171,24 +176,24 @@ function NoCodeEditor() {
   const otherSelections = Array.isArray(otherSelectionsMap) ? otherSelectionsMap : 
                          otherSelectionsMap instanceof Map ? Array.from(otherSelectionsMap.values()) : [];
 
-  // 연결 상태 및 협업 디버깅
-  useEffect(() => {
-    console.log('=== 협업 상태 변경 ===');
-    console.log('Room ID:', roomId);
-    console.log('사용자 정보:', userInfo);
-    console.log('연결 상태:', isConnected);
-    console.log('활성 사용자 수:', getActiveUsers().length);
-    console.log('활성 사용자 목록:', getActiveUsers());
-    console.log('다른 커서 수:', otherCursors?.length || 0);
-    console.log('다른 선택 수:', otherSelections?.length || 0);
-    console.log('========================');
+  // // 연결 상태 및 협업 디버깅
+  // useEffect(() => {
+  //   console.log('=== 협업 상태 변경 ===');
+  //   console.log('Room ID:', roomId);
+  //   console.log('사용자 정보:', userInfo);
+  //   console.log('연결 상태:', isConnected);
+  //   console.log('활성 사용자 수:', getActiveUsers().length);
+  //   console.log('활성 사용자 목록:', getActiveUsers());
+  //   console.log('다른 커서 수:', otherCursors?.length || 0);
+  //   console.log('다른 선택 수:', otherSelections?.length || 0);
+  //   console.log('========================');
     
-    if (isConnected) {
-      console.log('✅ 협업 서버에 연결되었습니다.');
-    } else {
-      console.log('❌ 협업 서버 연결이 끊어졌습니다.');
-    }
-  }, [isConnected, roomId, userInfo, otherCursors, otherSelections]);
+  //   if (isConnected) {
+  //     console.log('✅ 협업 서버에 연결되었습니다.');
+  //   } else {
+  //     console.log('❌ 협업 서버 연결이 끊어졌습니다.');
+  //   }
+  // }, [isConnected, roomId, userInfo, otherCursors, otherSelections]);
 
   // 초기 페이지 데이터 로딩
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
@@ -200,7 +205,7 @@ function NoCodeEditor() {
       console.log('🔄 페이지 데이터 로딩 시작...');
       
       try {
-        const response = await fetch(`${API_BASE_URL}/users/page/${roomId}`, {
+        const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
           }
@@ -267,13 +272,13 @@ function NoCodeEditor() {
     
     const saveToDatabase = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/users/page/${roomId}/components`, {
-          method: 'PUT',
+        const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}/content`, {
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
           },
-          body: JSON.stringify({ components })
+          body: JSON.stringify({ content: components })
         });
         
         if (response.ok) {
@@ -437,7 +442,7 @@ function NoCodeEditor() {
   
   // 활성 사용자 정보 (디버깅용)
   const activeUsers = getActiveUsers();
-  console.log('활성 사용자:', activeUsers.length);
+  // console.log('활성 사용자:', activeUsers.length);
 
   // 브라우저 전체 확대/축소(Ctrl+스크롤, Ctrl+키, 트랙패드 pinch) 완벽 차단
   useEffect(() => {
@@ -662,6 +667,15 @@ function NoCodeEditor() {
         isOpen={isInviteOpen}
         onClose={() => setIsInviteOpen(false)}
         pageId={roomId}
+      />
+
+      {/* 자동저장 상태 표시 */}
+      <SaveStatusIndicator
+        isSaving={autoSave.isSaving}
+        lastSaved={autoSave.lastSaved}
+        saveError={autoSave.saveError}
+        saveCount={autoSave.saveCount}
+        onSaveNow={autoSave.saveNow}
       />
 
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}

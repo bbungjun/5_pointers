@@ -26,7 +26,7 @@ wss.on('connection', (ws, req) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const roomname = url.searchParams.get('room') || 'default';
   
-  console.log(`새로운 연결: Room ${roomname}`);
+  // console.log(`새로운 연결: Room ${roomname}`);
   
   // Y.js 문서 가져오기 또는 생성
   if (!docs.has(roomname)) {
@@ -49,24 +49,24 @@ wss.on('connection', (ws, req) => {
   });
   
   ws.on('close', () => {
-    console.log(`연결 종료: Room ${roomname}`);
+    // console.log(`연결 종료: Room ${roomname}`);
   });
   
   ws.on('error', (error) => {
-    console.error('WebSocket 오류:', error);
+    // console.error('WebSocket 오류:', error);
   });
 });
 
 server.listen(port, host, () => {
-  console.log(`🚀 Y.js WebSocket 서버가 ${host}:${port}에서 실행 중입니다`);
-  console.log('협업 기능 테스트를 시작할 수 있습니다!');
-});
+//   console.log(`🚀 Y.js WebSocket 서버가 ${host}:${port}에서 실행 중입니다`);
+//   console.log('협업 기능 테스트를 시작할 수 있습니다!');
+// });
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  console.log('\n서버를 종료합니다...');
+  // console.log('\n서버를 종료합니다...');
   server.close(() => {
-    console.log('서버가 종료되었습니다.');
+    // console.log('서버가 종료되었습니다.');
     process.exit(0);
   });
 }); 
