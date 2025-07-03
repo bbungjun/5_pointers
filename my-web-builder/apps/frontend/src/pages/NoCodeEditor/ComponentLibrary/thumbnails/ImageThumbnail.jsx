@@ -1,34 +1,73 @@
 import React from 'react';
-import ImageRenderer from '../../ComponentRenderers/ImageRenderer';
 
 function ImageThumbnail() {
-  // 썸네일용 props (이미지 없는 상태로 플레이스홀더 표시)
-  const thumbnailProps = {
-    props: {
-      width: 160,
-      height: 120,
-      borderRadius: 8,
-      src: null, // 이미지 없음 - 플레이스홀더 표시
-      alt: '이미지',
-      objectFit: 'cover'
-    }
-  };
-
   return (
     <div style={{
       width: 80,
       height: 60,
-      overflow: 'hidden',
-      borderRadius: 4,
+      borderRadius: 6,
+      border: '2px dashed #d1d5db',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#f9fafb',
       position: 'relative'
     }}>
+      {/* 이미지 아이콘 - SVG 스타일 */}
       <div style={{
-        width: 160,
-        height: 120,
-        transform: 'scale(0.5)', // 50% 축소 (80/160 = 0.5)
-        transformOrigin: 'top left'
+        width: 24,
+        height: 24,
+        backgroundColor: '#e5e7eb',
+        borderRadius: 4,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 4,
+        position: 'relative'
       }}>
-        <ImageRenderer comp={thumbnailProps} isEditor={false} />
+        {/* 산 모양 아이콘 */}
+        <div style={{
+          width: 0,
+          height: 0,
+          borderLeft: '4px solid transparent',
+          borderRight: '4px solid transparent',
+          borderBottom: '6px solid #9ca3af',
+          position: 'absolute',
+          bottom: 2,
+          left: 4
+        }}></div>
+        <div style={{
+          width: 0,
+          height: 0,
+          borderLeft: '3px solid transparent',
+          borderRight: '3px solid transparent',
+          borderBottom: '4px solid #9ca3af',
+          position: 'absolute',
+          bottom: 2,
+          right: 4
+        }}></div>
+        
+        {/* 태양 */}
+        <div style={{
+          width: 4,
+          height: 4,
+          borderRadius: '50%',
+          backgroundColor: '#fbbf24',
+          position: 'absolute',
+          top: 3,
+          right: 3
+        }}></div>
+      </div>
+      
+      {/* 텍스트 */}
+      <div style={{
+        fontSize: 8,
+        color: '#6b7280',
+        textAlign: 'center',
+        lineHeight: 1.2
+      }}>
+        이미지 추가
       </div>
     </div>
   );
