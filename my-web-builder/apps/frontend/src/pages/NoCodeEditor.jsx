@@ -31,12 +31,14 @@ import { ComponentDefinitions } from './components/definitions';
 
 // 협업 기능 imports
 import { useCollaboration } from '../hooks/useCollaboration';
+import { getUserColor } from '../utils/userColors';
 import useAutoSave from '../hooks/useAutoSave';
 import SaveStatusIndicator from '../components/SaveStatusIndicator';
 
 function NoCodeEditor() {
   const { roomId } = useParams();
   const location = useLocation();
+
   // 기본 상태
   const [components, setComponents] = useState([]);
   
@@ -83,63 +85,55 @@ function NoCodeEditor() {
       }
       
       const utf8String = new TextDecoder('utf-8').decode(bytes);
-      return JSON.parse(utf8String);
+      const payload = JSON.parse(utf8String);
+      
+      console.log('JWT 디코딩 성공:', payload);
+      return payload;
     } catch (error) {
       console.error('JWT 디코딩 실패:', error);
       return null;
     }
   };
 
+  // App.jsx에서 로그인 체크를 처리하므로 여기서는 제거
+
   // 사용자 정보 및 권한 관리
   const [userInfo] = useState(() => {
-    // JWT 토큰에서 사용자 정보 추출
-    let userId = Math.random().toString(36).slice(2, 10);
-    let nickname = `게스트${Math.floor(Math.random() * 1000)}`; // 더 친근한 fallback
-    let isAdminUser = false;
-    
+    // 로그인된 사용자만 접근 가능하므로 토큰이 반드시 존재함
     const token = localStorage.getItem('token');
-    if (token) {
-      const payload = decodeJWTPayload(token);
-      if (payload) {
-        userId = payload.userId || userId;
-        nickname = payload.nickname || '사용자';
-        isAdminUser = payload.role === 'ADMIN';
-        
-        console.log('로그인된 사용자 정보:', { userId, nickname, role: payload.role });
-      } else {
-        console.log('JWT 토큰 파싱 실패, 게스트로 설정');
-      }
-    } else {
-      // 게스트 사용자를 위한 일관된 ID 생성 (브라우저별로 고유하지만 일관됨)
-      let guestId = localStorage.getItem('guestUserId');
-      if (!guestId) {
-        guestId = 'guest_' + Math.random().toString(36).slice(2, 10);
-        localStorage.setItem('guestUserId', guestId);
-      }
-      userId = guestId;
-      nickname = `게스트 (${guestId.slice(-4)})`;
-      console.log('게스트 사용자:', { userId, nickname });
+    console.log('현재 토큰:', token ? '존재함' : '없음');
+    
+    const payload = decodeJWTPayload(token);
+    console.log('JWT 페이로드:', payload);
+    
+    if (!payload) {
+      console.error('토큰이 유효하지 않습니다.');
+      return null;
     }
+    
+    // 모든 가능한 필드명을 확인
+    console.log('JWT 페이로드의 모든 키:', Object.keys(payload));
+    console.log('JWT 페이로드의 모든 값:', payload);
+    
+    const userId = payload.userId || payload.id || payload.sub || Math.random().toString(36).slice(2, 10);
+    const nickname = payload.nickname || payload.name || payload.email?.split('@')[0] || '사용자';
+    const isAdminUser = payload.role === 'ADMIN';
+    
+    console.log('최종 사용자 정보:', { 
+      userId, 
+      nickname, 
+      role: payload.role,
+      payloadKeys: Object.keys(payload),
+      rawPayload: payload
+    });
     
     // 관리자 권한 설정
     setIsAdmin(isAdminUser);
     
-    // userId 기반으로 일관된 색상 생성 (같은 사용자는 항상 같은 색상)
-    const generateConsistentColor = (id) => {
-      let hash = 0;
-      for (let i = 0; i < id.length; i++) {
-        hash = id.charCodeAt(i) + ((hash << 5) - hash);
-      }
-      
-      const hue = Math.abs(hash) % 360;
-      // 적당한 채도와 밝기로 가독성 좋은 색상 생성
-      return `hsl(${hue}, 70%, 50%)`;
-    };
-    
     return {
       id: userId,
       name: nickname,
-      color: generateConsistentColor(userId)
+      color: getUserColor(userId)
     };
   });
 
@@ -176,24 +170,12 @@ function NoCodeEditor() {
   const otherSelections = Array.isArray(otherSelectionsMap) ? otherSelectionsMap : 
                          otherSelectionsMap instanceof Map ? Array.from(otherSelectionsMap.values()) : [];
 
-  // // 연결 상태 및 협업 디버깅
-  // useEffect(() => {
-  //   console.log('=== 협업 상태 변경 ===');
-  //   console.log('Room ID:', roomId);
-  //   console.log('사용자 정보:', userInfo);
-  //   console.log('연결 상태:', isConnected);
-  //   console.log('활성 사용자 수:', getActiveUsers().length);
-  //   console.log('활성 사용자 목록:', getActiveUsers());
-  //   console.log('다른 커서 수:', otherCursors?.length || 0);
-  //   console.log('다른 선택 수:', otherSelections?.length || 0);
-  //   console.log('========================');
-    
-  //   if (isConnected) {
-  //     console.log('✅ 협업 서버에 연결되었습니다.');
-  //   } else {
-  //     console.log('❌ 협업 서버 연결이 끊어졌습니다.');
-  //   }
-  // }, [isConnected, roomId, userInfo, otherCursors, otherSelections]);
+    if (isConnected) {
+      // console.log('✅ 협업 서버에 연결되었습니다.');
+    } else {
+      // console.log('❌ 협업 서버 연결이 끊어졌습니다.');
+    }
+  }, [isConnected, roomId, userInfo, otherCursors, otherSelections]);
 
   // 페이지 데이터 로딩 (빠른 렌더링)
   const [pageLoaded, setPageLoaded] = useState(false);
@@ -392,7 +374,6 @@ function NoCodeEditor() {
   
   // 활성 사용자 정보 (디버깅용)
   const activeUsers = getActiveUsers();
-  // console.log('활성 사용자:', activeUsers.length);
 
   // 브라우저 전체 확대/축소(Ctrl+스크롤, Ctrl+키, 트랙패드 pinch) 완벽 차단
   useEffect(() => {
@@ -499,6 +480,8 @@ function NoCodeEditor() {
       }
     }, 100);
   }, [viewport, zoom, canvasHeight]);
+
+  // App.jsx에서 로그인 체크를 처리하므로 여기서는 제거
 
   return (
     <div style={{

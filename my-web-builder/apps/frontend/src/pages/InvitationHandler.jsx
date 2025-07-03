@@ -21,6 +21,20 @@ function InvitationHandler() {
   const [error, setError] = useState(null);
   const [invitationInfo, setInvitationInfo] = useState(null);
 
+  // 안전한 Base64URL 디코딩 함수
+  const safeBase64Decode = (str) => {
+    try {
+      // Base64URL을 Base64로 변환
+      const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+      // 패딩 추가
+      const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+      return atob(padded);
+    } catch (error) {
+      console.error('Base64URL 디코딩 오류:', error);
+      throw error;
+    }
+  };
+
   // 로그인 상태 확인 함수
   const isLoggedIn = () => {
     const token = localStorage.getItem('token');
@@ -28,7 +42,7 @@ function InvitationHandler() {
     
     try {
       // JWT 토큰의 만료 시간 확인
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(safeBase64Decode(token.split('.')[1]));
       const currentTime = Date.now() / 1000;
       return payload.exp > currentTime;
     } catch (error) {
