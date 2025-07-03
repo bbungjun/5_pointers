@@ -50,20 +50,24 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
         headers['Authorization'] = `Bearer ${token}`;
       }
       
-      const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}/deploy`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          components: components || [],
-          domain: domainName.trim()
-        })
-      });
+     const response = await fetch(`${API_BASE_URL}/generator/deploy`, {
+  method: 'POST',
+  headers,
+  body: JSON.stringify({
+    projectId: roomId,
+    userId: 'user1', // 임시 사용자 ID
+    components: components || [],
+    domain: domainName.trim()
+  })
+});
       
       if (response.ok) {
         const data = await response.json();
         setDeployedUrl(`http://${domainName.trim()}.localhost:3001`);
         setShowDomainInput(false);
-        alert(`배포 완료! 도메인: ${domainName.trim()}`);
+        alert(`배포 완료! 
+도메인: ${domainName.trim()}
+접속 URL: http://${domainName.trim()}.localhost:3001`);
       } else {
         const errorData = await response.text();
         console.error('배포 실패 응답:', response.status, errorData);

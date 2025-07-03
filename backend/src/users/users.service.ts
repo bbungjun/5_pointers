@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Users, AuthProvider } from './entities/users.entity'
-import { Pages, PageStatus } from './entities/pages.entity'
-import { Submissions } from './entities/submissions.entity'
-import { PageMembers } from './entities/page_members.entity'
+import { Users, AuthProvider } from './entities/users.entity';
+import { Pages, PageStatus } from './entities/pages.entity';
+import { Submissions } from './entities/submissions.entity';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -16,8 +15,6 @@ export class UsersService {
     private pagesRepository: Repository<Pages>,
     @InjectRepository(Submissions)
     private submissionsRepository: Repository<Submissions>,
-    @InjectRepository(PageMembers)
-    private pageMembersRepository: Repository<PageMembers>,
   ) {}
 
   async findByEmail(email: string): Promise<Users | undefined> {
@@ -289,6 +286,28 @@ export class UsersService {
     return { message: 'Comment deleted successfully' };
   }
 
+  // 페이지 콘텐츠 조회 (roomId 기반)
+  async getPageContentByRoom(roomId: string): Promise<any> {
+    const page = await this.pagesRepository.findOne({ where: { id: roomId } });
+    if (!page) {
+      throw new Error('Page not found');
+    }
+    return { content: page.content || [] };
+  }
+
+  // 페이지 콘텐츠 저장 (roomId 기반)
+  async savePageContentByRoom(roomId: string, content: any): Promise<any> {
+    const page = await this.pagesRepository.findOne({ where: { id: roomId } });
+    if (!page) {
+      throw new Error('Page not found');
+    }
+    
+    page.content = content;
+    await this.pagesRepository.save(page);
+    
+    return { message: 'Content saved successfully', content };
+  }
+
   generateCommentHTML(comp: any): string {
     const style = `position: absolute; left: ${comp.x}px; top: ${comp.y}px;`;
     const title = comp.props.title || '축하 메세지를 남겨주세요';
@@ -400,72 +419,5 @@ export class UsersService {
         })();
       </script>
     `;
-  }
-
-  // 🔄 새로고침 복구 시스템 - roomId로 페이지 콘텐츠 조회
-  async getPageContentByRoom(roomId: string): Promise<any> {
-    const page = await this.pagesRepository.findOne({ 
-      where: { subdomain: roomId } 
-    });
-    
-    if (!page) {
-      // 페이지가 없으면 기본 구조 반환
-      return {
-        components: [],
-        canvasSettings: {
-          width: 1200,
-          height: 800,
-          backgroundColor: "#ffffff"
-        },
-        lastModified: new Date(),
-        version: 1
-      };
-    }
-    
-    return page.content || {
-      components: [],
-      canvasSettings: {
-        width: 1200,
-        height: 800,
-        backgroundColor: "#ffffff"
-      },
-      lastModified: page.updatedAt,
-      version: 1
-    };
-  }
-
-  // 🔄 새로고침 복구 시스템 - roomId로 페이지 콘텐츠 저장
-  async savePageContentByRoom(roomId: string, content: any): Promise<any> {
-    // 먼저 페이지가 존재하는지 확인
-    let page = await this.pagesRepository.findOne({ 
-      where: { subdomain: roomId } 
-    });
-    
-    if (!page) {
-      // 페이지가 없으면 새로 생성 (기본 사용자 ID 1로 임시 설정)
-      page = this.pagesRepository.create({
-        subdomain: roomId,
-        title: `Room ${roomId}`,
-        userId: 1, // 임시 사용자 ID
-        content: content,
-        status: PageStatus.DRAFT
-      });
-      await this.pagesRepository.save(page);
-    } else {
-      // 기존 페이지 업데이트
-      await this.pagesRepository.update(
-        { subdomain: roomId },
-        { 
-          content: content,
-          updatedAt: new Date()
-        }
-      );
-    }
-    
-    return {
-      success: true,
-      message: "Content saved successfully",
-      lastModified: new Date()
-    };
   }
 }
