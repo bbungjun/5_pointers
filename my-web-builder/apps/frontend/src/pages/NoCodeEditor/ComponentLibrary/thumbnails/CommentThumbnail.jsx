@@ -11,27 +11,27 @@ function CommentThumbnail() {
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      padding: 8
+      padding: 6  // 8 → 6으로 축소
     }}>
       {/* 상단 - 댓글 작성 폼 */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 3,
-        marginBottom: 6
+        gap: 2,  // 3 → 2로 축소
+        marginBottom: 4  // 6 → 4로 축소
       }}>
         {/* 이름 입력 */}
         <div style={{
-          height: 8,
+          height: 6,  // 8 → 6으로 축소
           backgroundColor: '#f9fafb',
           border: '1px solid #e5e7eb',
-          borderRadius: 3,
+          borderRadius: 2,  // 3 → 2로 축소
           display: 'flex',
           alignItems: 'center',
-          paddingLeft: 4
+          paddingLeft: 3  // 4 → 3으로 축소
         }}>
           <div style={{
-            fontSize: 6,
+            fontSize: 5,  // 6 → 5로 축소
             color: '#9ca3af'
           }}>
             이름
@@ -40,16 +40,16 @@ function CommentThumbnail() {
         
         {/* 댓글 입력 */}
         <div style={{
-          height: 12,
+          height: 8,  // 12 → 8로 축소
           backgroundColor: '#f9fafb',
           border: '1px solid #e5e7eb',
-          borderRadius: 3,
+          borderRadius: 2,  // 3 → 2로 축소
           display: 'flex',
           alignItems: 'flex-start',
-          padding: '2px 4px'
+          padding: '1px 3px'  // 2px 4px → 1px 3px로 축소
         }}>
           <div style={{
-            fontSize: 6,
+            fontSize: 5,  // 6 → 5로 축소
             color: '#9ca3af'
           }}>
             댓글을 입력하세요
@@ -61,14 +61,14 @@ function CommentThumbnail() {
           alignSelf: 'flex-end'
         }}>
           <div style={{
-            width: 20,
-            height: 6,
+            width: 18,  // 20 → 18로 축소
+            height: 5,  // 6 → 5로 축소
             backgroundColor: '#3b82f6',
             borderRadius: 2,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 5,
+            fontSize: 4,  // 5 → 4로 축소
             color: '#ffffff',
             fontWeight: '500'
           }}>
@@ -82,7 +82,7 @@ function CommentThumbnail() {
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        gap: 4
+        gap: 3  // 4 → 3으로 축소
       }}>
         {/* 댓글 1 */}
         <div style={{
@@ -91,7 +91,7 @@ function CommentThumbnail() {
           gap: 1
         }}>
           <div style={{
-            fontSize: 6,
+            fontSize: 5,  // 6 → 5로 축소
             fontWeight: '600',
             color: '#374151'
           }}>
@@ -101,7 +101,7 @@ function CommentThumbnail() {
             height: 2,
             backgroundColor: '#d1d5db',
             borderRadius: 1,
-            width: '85%'
+            width: '80%'  // 85% → 80%로 축소
           }}></div>
         </div>
         
@@ -112,7 +112,7 @@ function CommentThumbnail() {
           gap: 1
         }}>
           <div style={{
-            fontSize: 6,
+            fontSize: 5,  // 6 → 5로 축소
             fontWeight: '600',
             color: '#374151'
           }}>
@@ -127,13 +127,13 @@ function CommentThumbnail() {
               height: 2,
               backgroundColor: '#d1d5db',
               borderRadius: 1,
-              width: '90%'
+              width: '85%'  // 90% → 85%로 축소
             }}></div>
             <div style={{
               height: 2,
               backgroundColor: '#d1d5db',
               borderRadius: 1,
-              width: '70%'
+              width: '65%'  // 70% → 65%로 축소
             }}></div>
           </div>
         </div>
