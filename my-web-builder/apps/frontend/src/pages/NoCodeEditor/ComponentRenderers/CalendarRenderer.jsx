@@ -135,7 +135,7 @@ function CalendarRenderer({ comp, isEditor = false }) {
       <div className="mt-4 text-center">
         <div className="text-sm text-gray-600">
           Wedding Date: <span className="font-semibold" style={{ color: highlightColor }}>
-            {targetDate.toLocaleDateString()}
+            {targetDate.toLocaleDateString('en-US')}
           </span>
         </div>
       </div>
