@@ -22,10 +22,17 @@ function MusicThumbnail() {
         alignItems: 'center',
         justifyContent: 'center',
         boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-        fontSize: 20,
-        color: '#ffffff'
+        position: 'relative'
       }}>
-        􀊖
+        {/* 재생 버튼 삼각형 */}
+        <div style={{
+          width: 0,
+          height: 0,
+          borderLeft: '8px solid #ffffff',
+          borderTop: '6px solid transparent',
+          borderBottom: '6px solid transparent',
+          marginLeft: '2px'
+        }}></div>
       </div>
     </div>
   );
