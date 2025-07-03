@@ -36,7 +36,7 @@ wss.on('connection', (ws, req) => {
     roomname = pathSegments[pathSegments.length - 1]; // 마지막 세그먼트가 룸 이름
   }
   
-  // console.log(`새로운 연결: Room ${roomname}`);
+  console.log(`새로운 연결: Room ${roomname}`);
   
   // 룸별 클라이언트 목록 초기화
   if (!roomClients.has(roomname)) {
@@ -87,20 +87,20 @@ wss.on('connection', (ws, req) => {
   });
   
   ws.on('error', (error) => {
-    // console.error('WebSocket 오류:', error);
+    console.error('WebSocket 오류:', error);
   });
 });
 
 server.listen(port, host, () => {
-//   console.log(`🚀 Y.js WebSocket 서버가 ${host}:${port}에서 실행 중입니다`);
-//   console.log('협업 기능 테스트를 시작할 수 있습니다!');
-// });
+  console.log(`🚀 Y.js WebSocket 서버가 ${host}:${port}에서 실행 중입니다`);
+  console.log('협업 기능 테스트를 시작할 수 있습니다!');
+});
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  // console.log('\n서버를 종료합니다...');
+  console.log('\n서버를 종료합니다...');
   server.close(() => {
-    // console.log('서버가 종료되었습니다.');
+    console.log('서버가 종료되었습니다.');
     process.exit(0);
   });
 }); 
