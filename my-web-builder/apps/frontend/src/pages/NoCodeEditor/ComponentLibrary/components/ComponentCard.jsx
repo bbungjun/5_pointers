@@ -16,20 +16,20 @@ function ComponentCard({ component, onDragStart }) {
         cursor: 'grab', 
         transition: 'all 0.2s ease',
         borderRadius: 8,
-        border: '1px solid #e5e7eb', // 미세한 테두리 추가
+        border: '1px solid #e5e7eb',
         backgroundColor: 'transparent'
       }}
       onMouseEnter={e => {
         e.currentTarget.style.transform = 'translateY(-2px)';
         e.currentTarget.style.backgroundColor = '#f8f9fa';
-        e.currentTarget.style.borderColor = '#d1d5db'; // 호버 시 테두리 색상 변경
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; // 미세한 그림자 추가
+        e.currentTarget.style.borderColor = '#d1d5db';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
       }}
       onMouseLeave={e => {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.backgroundColor = 'transparent';
-        e.currentTarget.style.borderColor = '#e5e7eb'; // 원래 테두리 색상
-        e.currentTarget.style.boxShadow = 'none'; // 그림자 제거
+        e.currentTarget.style.borderColor = '#e5e7eb';
+        e.currentTarget.style.boxShadow = 'none';
       }}
     >
       {/* 컴포넌트 이름 */}
@@ -43,12 +43,13 @@ function ComponentCard({ component, onDragStart }) {
         {component.label}
       </div>
       
-      {/* 썸네일 */}
+      {/* 썸네일 - 고정된 크기 영역 */}
       <div style={{
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        minHeight: 60
+        height: 75,  // 고정 높이
+        width: '100%'
       }}>
         <ThumbnailComponent label={component.label} />
       </div>
