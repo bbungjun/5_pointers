@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
  * @param {Array} components - 컴포넌트 배열
  * @param {number} debounceMs - 디바운스 시간 (기본 3초)
  */
-function useAutoSave(pageId, components, debounceMs = 3000) {
+function useAutoSave(pageId, components, debounceMs = 2000) {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
   const [saveError, setSaveError] = useState(null);

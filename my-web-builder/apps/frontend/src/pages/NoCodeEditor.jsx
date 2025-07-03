@@ -195,107 +195,57 @@ function NoCodeEditor() {
   //   }
   // }, [isConnected, roomId, userInfo, otherCursors, otherSelections]);
 
-  // 초기 페이지 데이터 로딩
-  const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+  // 페이지 데이터 로딩 (빠른 렌더링)
+  const [pageLoaded, setPageLoaded] = useState(false);
   
   useEffect(() => {
     const loadPageData = async () => {
-      if (!collaboration.ydoc || isInitialDataLoaded) return;
-      
-      console.log('🔄 페이지 데이터 로딩 시작...');
+      if (!roomId || pageLoaded) return;
       
       try {
+        const token = localStorage.getItem('token');
         const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+            'Authorization': `Bearer ${token || ''}`
           }
         });
         
         if (response.ok) {
           const pageData = await response.json();
-          console.log('📦 서버에서 페이지 데이터 받음:', pageData);
+          console.log('📦 페이지 데이터 로딩:', pageData);
           
-          // Pages 엔티티에서는 content 필드에 컴포넌트 데이터가 저장됨
-          const existingComponents = pageData.content || [];
-          
-          if (Array.isArray(existingComponents) && existingComponents.length > 0) {
-            console.log('🔄 기존 페이지 컴포넌트 Y.js에 동기화:', existingComponents.length, '개');
-            
-            // Y.js에 기존 컴포넌트들 한 번에 추가
-            collaboration.updateAllComponents?.(existingComponents);
-            
-            console.log('✅ 기존 페이지 컴포넌트 동기화 완료');
-          } else {
-            console.log('📝 빈 페이지 - 새로 시작');
+          if (pageData.content && Array.isArray(pageData.content)) {
+            // YJS가 준비되면 추가, 아니면 직접 상태 설정
+            if (collaboration.ydoc) {
+              pageData.content.forEach(comp => {
+                addComponent(comp);
+              });
+            } else {
+              setComponents(pageData.content);
+            }
           }
-        } else {
-          console.log('⚠️ 페이지 데이터 로딩 실패 - 빈 페이지로 시작');
+          setPageLoaded(true);
         }
       } catch (error) {
-        console.error('❌ 페이지 데이터 로딩 중 오류:', error);
-      } finally {
-        setIsInitialDataLoaded(true);
+        console.error('페이지 데이터 로딩 실패:', error);
       }
     };
     
     loadPageData();
-  }, [roomId, collaboration.ydoc, collaboration.updateAllComponents, isInitialDataLoaded]);
-
- // 템플릿 로딩 - YJS 초기화 대기
-  const loadedTemplateRef = useRef(null);
+  }, [roomId, pageLoaded]);
   
+  // YJS가 나중에 초기화되면 데이터 동기화
   useEffect(() => {
-    const templateComponents = location.state?.templateComponents;
-    if (templateComponents && Array.isArray(templateComponents) && collaboration.ydoc && isInitialDataLoaded) {
-      // 이전에 로딩한 템플릿과 다른지 확인
-      const templateKey = JSON.stringify(templateComponents.map(c => c.id));
-      if (loadedTemplateRef.current !== templateKey) {
-        console.log('🎨 새로운 템플릿 로딩:', templateComponents.length, '개');
-        templateComponents.forEach((comp, index) => {
-          console.log(`addComponent ${index} 호출:`, comp);
-          addComponent(comp);
-          console.log(`addComponent ${index} 완료`);
-        });
-        loadedTemplateRef.current = templateKey;
-        console.log('✅ 템플릿 로딩 완료');
-      }
-    } else if (templateComponents && !isInitialDataLoaded) {
-      console.log('⏳ 초기 데이터 로딩 대기 중...', { hasYdoc: !!collaboration.ydoc });
+    if (collaboration.ydoc && components.length > 0 && !collaboration.ydoc.getArray('components').length) {
+      components.forEach(comp => {
+        addComponent(comp);
+      });
     }
-  }, [location.state, addComponent, collaboration.ydoc, isInitialDataLoaded]);
+  }, [collaboration.ydoc, components, addComponent]);
 
-  // 컴포넌트 변경사항 자동 저장
-  useEffect(() => {
-    if (!isInitialDataLoaded || components.length === 0) return;
-    
-    console.log('💾 컴포넌트 변경 감지, 자동 저장 준비');
-    
-    const saveToDatabase = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}/content`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-          },
-          body: JSON.stringify({ content: components })
-        });
-        
-        if (response.ok) {
-          console.log('💾 페이지 데이터 자동 저장 완료');
-        } else {
-          console.log('⚠️ 페이지 데이터 저장 실패');
-        }
-      } catch (error) {
-        console.error('❌ 페이지 데이터 저장 중 오류:', error);
-      }
-    };
-    
-    // 2초 후에 저장 (debounce 효과)
-    const timeoutId = setTimeout(saveToDatabase, 2000);
-    
-    return () => clearTimeout(timeoutId);
-  }, [components, roomId, isInitialDataLoaded]);
+
+
+
 
   // viewport 변경 시 캔버스 높이 초기화
   useEffect(() => {
