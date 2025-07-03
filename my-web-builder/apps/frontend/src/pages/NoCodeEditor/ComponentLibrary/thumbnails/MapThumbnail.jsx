@@ -5,126 +5,161 @@ function MapThumbnail() {
     <div style={{
       width: 100,
       height: 75,
-      backgroundColor: '#f0f9ff',
+      backgroundColor: '#e8f4f8',  // 연한 청록색 (물/바다 느낌)
       borderRadius: 8,
-      border: '1px solid #e0e7ff',
-      padding: 8,
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      position: 'relative',
-      overflow: 'hidden'
+      border: '1px solid #d1d5db',
+      overflow: 'hidden',
+      position: 'relative'
     }}>
-      {/* 지도 배경 패턴 */}
+      {/* 지형 영역들 */}
+      {/* 육지 영역 1 */}
       <div style={{
         position: 'absolute',
-        top: 0,
+        top: 10,
+        left: 15,
+        width: 35,
+        height: 25,
+        backgroundColor: '#f3f4f6',  // 연한 회색 (육지)
+        borderRadius: '8px 12px 6px 10px',
+        border: '1px solid #d6d3d1'
+      }}></div>
+      
+      {/* 육지 영역 2 */}
+      <div style={{
+        position: 'absolute',
+        top: 25,
+        right: 12,
+        width: 28,
+        height: 20,
+        backgroundColor: '#f3f4f6',
+        borderRadius: '6px 8px 10px 4px',
+        border: '1px solid #d6d3d1'
+      }}></div>
+      
+      {/* 공원/녹지 영역 */}
+      <div style={{
+        position: 'absolute',
+        top: 45,
+        left: 20,
+        width: 25,
+        height: 15,
+        backgroundColor: '#dcfce7',  // 연한 초록 (공원)
+        borderRadius: '4px 6px 8px 3px',
+        border: '1px solid #bbf7d0'
+      }}></div>
+      
+      {/* 도로들 */}
+      {/* 주요 도로 (수평) */}
+      <div style={{
+        position: 'absolute',
+        top: 35,
         left: 0,
         right: 0,
+        height: 3,
+        backgroundColor: '#fbbf24',  // 노란색 도로
+        border: '1px solid #f59e0b'
+      }}></div>
+      
+      {/* 주요 도로 (수직) */}
+      <div style={{
+        position: 'absolute',
+        left: 45,
+        top: 0,
         bottom: 0,
-        opacity: 0.1
+        width: 3,
+        backgroundColor: '#fbbf24',
+        border: '1px solid #f59e0b'
+      }}></div>
+      
+      {/* 보조 도로들 */}
+      <div style={{
+        position: 'absolute',
+        top: 20,
+        left: 10,
+        width: 30,
+        height: 2,
+        backgroundColor: '#e5e7eb',
+        borderRadius: 1
+      }}></div>
+      
+      <div style={{
+        position: 'absolute',
+        top: 50,
+        right: 15,
+        width: 25,
+        height: 2,
+        backgroundColor: '#e5e7eb',
+        borderRadius: 1
+      }}></div>
+      
+      {/* 위치 마커 */}
+      <div style={{
+        position: 'absolute',
+        top: 28,
+        left: 42,
+        width: 0,
+        height: 0,
+        borderLeft: '6px solid transparent',
+        borderRight: '6px solid transparent',
+        borderBottom: '10px solid #dc2626',  // 빨간 마커
+        zIndex: 10
       }}>
-        {/* 수평 격자선들 */}
-        <div style={{ position: 'absolute', left: 0, right: 0, top: '12.5%', height: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', left: 0, right: 0, top: '25%', height: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', left: 0, right: 0, top: '37.5%', height: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', left: 0, right: 0, top: '62.5%', height: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', left: 0, right: 0, top: '75%', height: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', left: 0, right: 0, top: '87.5%', height: 1, backgroundColor: '#3b82f6' }} />
-        
-        {/* 수직 격자선들 */}
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '10%', width: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '20%', width: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '30%', width: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '40%', width: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '60%', width: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '70%', width: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '80%', width: 1, backgroundColor: '#3b82f6' }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '90%', width: 1, backgroundColor: '#3b82f6' }} />
+        {/* 마커 내부 점 */}
+        <div style={{
+          position: 'absolute',
+          top: 6,
+          left: -2,
+          width: 4,
+          height: 4,
+          backgroundColor: '#fff',
+          borderRadius: '50%'
+        }}></div>
       </div>
       
-      {/* 상단 - 지도 제목 */}
+      {/* 마커 그림자 */}
       <div style={{
-        fontSize: 10,
+        position: 'absolute',
+        top: 38,
+        left: 44,
+        width: 8,
+        height: 3,
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        borderRadius: '50%',
+        filter: 'blur(1px)'
+      }}></div>
+      
+      {/* 상단 제목 오버레이 */}
+      <div style={{
+        position: 'absolute',
+        top: 4,
+        left: 4,
+        right: 4,
+        backgroundColor: 'rgba(255,255,255,0.9)',
+        borderRadius: 4,
+        padding: '2px 6px',
+        fontSize: 8,
         fontWeight: '600',
-        color: '#1e40af',
+        color: '#374151',
         textAlign: 'center',
-        marginBottom: 4,
-        zIndex: 1
+        backdropFilter: 'blur(2px)'
       }}>
         지도
       </div>
       
-      {/* 중앙 - 위치 마커와 도로 */}
+      {/* 하단 위치 정보 오버레이 */}
       <div style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        zIndex: 1
+        position: 'absolute',
+        bottom: 4,
+        left: 4,
+        right: 4,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        borderRadius: 4,
+        padding: '2px 6px',
+        fontSize: 7,
+        color: '#fff',
+        textAlign: 'center'
       }}>
-        {/* 도로 라인들 */}
-        <div style={{
-          position: 'absolute',
-          width: '80%',
-          height: 2,
-          backgroundColor: '#94a3b8',
-          borderRadius: 1,
-          top: '30%'
-        }}></div>
-        <div style={{
-          position: 'absolute',
-          width: 2,
-          height: '60%',
-          backgroundColor: '#94a3b8',
-          borderRadius: 1,
-          left: '40%'
-        }}></div>
-        
-        {/* 위치 마커 */}
-        <div style={{
-          width: 16,
-          height: 20,
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          {/* 마커 핀 */}
-          <div style={{
-            width: 12,
-            height: 12,
-            backgroundColor: '#ef4444',
-            borderRadius: '50% 50% 50% 0',
-            transform: 'rotate(-45deg)',
-            border: '2px solid #fff',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-          }}>
-            <div style={{
-              width: 4,
-              height: 4,
-              backgroundColor: '#fff',
-              borderRadius: '50%',
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%) rotate(45deg)'
-            }}></div>
-            </div>
-        </div>
-      </div>
-      
-      {/* 하단 - 위치 정보 */}
-      <div style={{
-        fontSize: 8,
-        color: '#64748b',
-        textAlign: 'center',
-        zIndex: 1
-      }}>
-        위치 표시
+        📍 위치 표시
       </div>
     </div>
   );
