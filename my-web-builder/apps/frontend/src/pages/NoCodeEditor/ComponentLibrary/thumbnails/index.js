@@ -13,6 +13,7 @@ import DefaultThumbnail from './DefaultThumbnail';
 import GridGalleryThumbnail from './GridGalleryThumbnail';
 import SlideGalleryThumbnail from './SlideGalleryThumbnail';
 import MusicThumbnail from './MusicThumbnail';
+import WeddingInviteThumbnail from './WeddingInviteThumbnail';
 
 export const ThumbnailComponents = {
   button: ButtonThumbnail,
@@ -31,8 +32,8 @@ export const ThumbnailComponents = {
   'map_info': MapThumbnail, // underscore alias
   weddingContact: WeddingContactThumbnail,
   'wedding-contact': WeddingContactThumbnail, // kebab-case alias
-  weddingInvite: WeddingContactThumbnail, // reuse wedding contact
-  'wedding-invite': WeddingContactThumbnail, // kebab-case alias
+  weddingInvite: WeddingInviteThumbnail, // 실제 렌더러 기반 썸네일
+  'wedding-invite': WeddingInviteThumbnail, // kebab-case alias
   gridGallery: GridGalleryThumbnail, // 전용 그리드 갤러리 썸네일
   'grid-gallery': GridGalleryThumbnail, // kebab-case alias
   slideGallery: SlideGalleryThumbnail, // 전용 슬라이드 갤러리 썸네일
@@ -57,5 +58,6 @@ export {
   DefaultThumbnail,
   GridGalleryThumbnail,
   SlideGalleryThumbnail,
-  MusicThumbnail
+  MusicThumbnail,
+  WeddingInviteThumbnail
 };
