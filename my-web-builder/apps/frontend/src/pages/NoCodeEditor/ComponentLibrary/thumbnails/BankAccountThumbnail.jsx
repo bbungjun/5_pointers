@@ -10,25 +10,27 @@ function BankAccountThumbnail() {
       border: '1px solid #e5e7eb',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center',
-      padding: 8,
-      gap: 6
+      justifyContent: 'space-between',
+      padding: 8
     }}>
       {/* 상단 - 제목 */}
       <div style={{
         fontSize: 10,
         fontWeight: '600',
         color: '#475569',
-        textAlign: 'center'
+        textAlign: 'center',
+        marginBottom: 4
       }}>
         계좌 정보
       </div>
       
-      {/* 드롭다운 버튼들 */}
+      {/* 중앙 - 드롭다운 버튼들 */}
       <div style={{
+        flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        gap: 4
+        justifyContent: 'center',
+        gap: 3
       }}>
         {/* 신랑 측 드롭다운 */}
         <div style={{
@@ -37,14 +39,14 @@ function BankAccountThumbnail() {
           justifyContent: 'space-between',
           backgroundColor: '#f1f5f9',
           border: '1px solid #e2e8f0',
-          borderRadius: 4,
-          padding: '4px 6px',
+          borderRadius: 3,
+          padding: '3px 5px',
           fontSize: 7,
           color: '#374151'
         }}>
           <span>신랑 측 계좌번호</span>
           <span style={{
-            fontSize: 6,
+            fontSize: 5,
             color: '#6b7280'
           }}>
             ▼
@@ -58,14 +60,14 @@ function BankAccountThumbnail() {
           justifyContent: 'space-between',
           backgroundColor: '#f1f5f9',
           border: '1px solid #e2e8f0',
-          borderRadius: 4,
-          padding: '4px 6px',
+          borderRadius: 3,
+          padding: '3px 5px',
           fontSize: 7,
           color: '#374151'
         }}>
           <span>신부 측 계좌번호</span>
           <span style={{
-            fontSize: 6,
+            fontSize: 5,
             color: '#6b7280'
           }}>
             ▼
@@ -76,62 +78,45 @@ function BankAccountThumbnail() {
       {/* 하단 - 계좌 정보 미리보기 */}
       <div style={{
         display: 'flex',
-        justifyContent: 'center',
         alignItems: 'center',
-        gap: 4,
-        marginTop: 2
+        justifyContent: 'center',
+        gap: 3,
+        marginTop: 4
       }}>
-        {/* 은행 아이콘 */}
-        <div style={{
-          width: 12,
-          height: 8,
-          backgroundColor: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 5
-        }}>
-          🏦
-        </div>
-        
-        {/* 계좌번호 표시 */}
+        {/* 계좌 정보 (회색 선들) */}
         <div style={{
           display: 'flex',
-          gap: 1
+          flexDirection: 'column',
+          gap: 2
         }}>
+          {/* 은행명 라인 */}
           <div style={{
-            width: 8,
             height: 2,
-            backgroundColor: '#e2e8f0',
-            borderRadius: 1
+            backgroundColor: '#d1d5db',
+            borderRadius: 1,
+            width: 24
           }}></div>
+          {/* 계좌번호 라인 */}
           <div style={{
-            width: 6,
             height: 2,
-            backgroundColor: '#e2e8f0',
-            borderRadius: 1
-          }}></div>
-          <div style={{
-            width: 10,
-            height: 2,
-            backgroundColor: '#e2e8f0',
-            borderRadius: 1
+            backgroundColor: '#d1d5db',
+            borderRadius: 1,
+            width: 32
           }}></div>
         </div>
         
         {/* 복사 버튼 */}
         <div style={{
-          width: 12,
-          height: 6,
+          width: 16,
+          height: 8,
           backgroundColor: '#374151',
           borderRadius: 2,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: 4,
-          color: '#ffffff'
+          fontSize: 5,
+          color: '#ffffff',
+          fontWeight: '500'
         }}>
           복사
         </div>
