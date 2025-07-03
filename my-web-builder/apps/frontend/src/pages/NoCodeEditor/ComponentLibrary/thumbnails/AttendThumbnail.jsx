@@ -3,24 +3,24 @@ import React from 'react';
 function AttendThumbnail() {
   return (
     <div style={{
-      width: 80,
-      height: 60,
+      width: 100,  // 80 → 100으로 확대
+      height: 75,  // 60 → 75로 확대
       backgroundColor: '#ffffff',
-      borderRadius: 6,
+      borderRadius: 8,  // 6 → 8로 확대
       border: '1px solid #e5e7eb',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      padding: 8,
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      padding: 12,  // 8 → 12로 확대
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between'
     }}>
       {/* 상단 - 제목 영역 */}
       <div style={{
-        fontSize: 8,
+        fontSize: 10,  // 8 → 10으로 확대
         fontWeight: '600',
         color: '#9ca3af',
         textAlign: 'center',
-        marginBottom: 4
+        marginBottom: 6  // 4 → 6으로 확대
       }}>
         참석 의사 전달
       </div>
@@ -31,25 +31,25 @@ function AttendThumbnail() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        gap: 2
+        gap: 3  // 2 → 3으로 확대
       }}>
         <div style={{
-          height: 2,
+          height: 3,  // 2 → 3으로 확대
           backgroundColor: '#d1d5db',
-          borderRadius: 1,
+          borderRadius: 1.5,
           width: '90%',
           alignSelf: 'center'
         }}></div>
         <div style={{
-          height: 2,
+          height: 3,  // 2 → 3으로 확대
           backgroundColor: '#d1d5db',
-          borderRadius: 1,
+          borderRadius: 1.5,
           width: '100%'
         }}></div>
         <div style={{
-          height: 2,
+          height: 3,  // 2 → 3으로 확대
           backgroundColor: '#d1d5db',
-          borderRadius: 1,
+          borderRadius: 1.5,
           width: '85%',
           alignSelf: 'center'
         }}></div>
@@ -57,16 +57,16 @@ function AttendThumbnail() {
       
       {/* 하단 - 버튼 */}
       <div style={{
-        height: 12,
+        height: 16,  // 12 → 16으로 확대
         backgroundColor: '#aeb8fa',
-        borderRadius: 4,
+        borderRadius: 6,  // 4 → 6으로 확대
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 4
+        marginTop: 6  // 4 → 6으로 확대
       }}>
         <span style={{
-          fontSize: 6,
+          fontSize: 8,  // 6 → 8로 확대
           fontWeight: 'bold',
           color: '#ffffff'
         }}>
