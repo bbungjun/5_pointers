@@ -647,11 +647,16 @@ function CanvasArea({
 
           {/* 캔버스 내 컴포넌트 렌더링 (더미 컴포넌트 제외) */}
           {components
-            .map(comp => {
+            .filter((comp, index, arr) => {
+              // 중복 ID 제거: 같은 ID를 가진 첫 번째 컴포넌트만 유지
+              const firstIndex = arr.findIndex(c => c.id === comp.id);
+              return firstIndex === index;
+            })
+            .map((comp, index) => {
               // if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
               return (
                 <CanvasComponent
-                  key={comp.id}
+                  key={`${comp.id}-${index}`}
                   comp={comp}
                   selected={selectedId === comp.id}
                   onSelect={onSelect}

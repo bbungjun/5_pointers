@@ -12,6 +12,10 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Body parser 설정 - 큰 요청 허용
+  app.use(require('express').json({ limit: '50mb' }));
+  app.use(require('express').urlencoded({ limit: '50mb', extended: true }));
+
   // 정적 파일 서빙 설정 (수정된 방식)
   const publicPath = join(__dirname, "..", "public");
   // console.log("Static files path:", publicPath);

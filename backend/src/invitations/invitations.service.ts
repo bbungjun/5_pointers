@@ -200,6 +200,12 @@ export class InvitationsService {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
 
+    // 이메일 일치 확인 (보안 강화)
+    if (invitation.email && invitation.email !== user.email) {
+      console.error(`이메일 불일치: 초대된 이메일 ${invitation.email}, 로그인한 이메일 ${user.email}`);
+      throw new BadRequestException('초대된 이메일과 로그인한 이메일이 일치하지 않습니다.');
+    }
+
     // 초대 수락 처리
     invitation.user = user;
     invitation.status = 'ACCEPTED';
