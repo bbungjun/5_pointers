@@ -14,7 +14,7 @@ async function bootstrap() {
 
   // 정적 파일 서빙 설정 (수정된 방식)
   const publicPath = join(__dirname, "..", "public");
-  console.log("Static files path:", publicPath);
+  // console.log("Static files path:", publicPath);
   
   // uploads 폴더를 직접 서빙
   app.useStaticAssets(join(publicPath, "uploads"), {

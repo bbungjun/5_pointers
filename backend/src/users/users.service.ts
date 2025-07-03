@@ -71,6 +71,27 @@ export class UsersService {
     return this.pagesRepository.save(page);
   }
 
+  // 페이지 컨텐츠 업데이트 (자동저장용)
+  async updatePageContent(userId: number, pageId: string, content: any[]): Promise<Pages> {
+    console.log(`DB 업데이트 시도: 페이지 ${pageId}, 사용자 ${userId}, 컴포넌트 ${content.length}개`);
+    
+    const page = await this.pagesRepository.findOne({
+      where: { id: pageId, owner: { id: userId } }
+    });
+    
+    if (!page) {
+      console.error(`페이지를 찾을 수 없음: ${pageId}`);
+      throw new Error('Page not found');
+    }
+    
+    console.log(`기존 컨텐츠: ${page.content?.length || 0}개 컴포넌트`);
+    page.content = content;
+    const savedPage = await this.pagesRepository.save(page);
+    console.log(`DB 저장 완료: ${savedPage.content?.length || 0}개 컴포넌트`);
+    
+    return savedPage;
+  }
+
   // 페이지 삭제
   async deletePage(userId: number, pageId: string): Promise<{ message: string }> {
     const page = await this.pagesRepository.findOne({

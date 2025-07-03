@@ -469,14 +469,14 @@ function CanvasArea({
   const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
   
   // 디버깅: 캔버스 크기 정보 콘솔 출력
-  console.log('Canvas Size Debug:', {
-    canvasHeight,
-    actualCanvasSize,
-    containerWidth,
-    containerHeight,
-    viewport,
-    extenderComponents: components.filter(comp => comp.id.startsWith('canvas-extender-')).length
-  });
+  // console.log('Canvas Size Debug:', {
+  //   canvasHeight,
+  //   actualCanvasSize,
+  //   containerWidth,
+  //   containerHeight,
+  //   viewport,
+  //   extenderComponents: components.filter(comp => comp.id.startsWith('canvas-extender-')).length
+  // });
 
   return (
     <div
@@ -648,7 +648,7 @@ function CanvasArea({
           {/* 캔버스 내 컴포넌트 렌더링 (더미 컴포넌트 제외) */}
           {components
             .map(comp => {
-              if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
+              // if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
               return (
                 <CanvasComponent
                   key={comp.id}

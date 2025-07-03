@@ -31,12 +31,17 @@ import { ComponentDefinitions } from './components/definitions';
 
 // 협업 기능 imports
 import { useCollaboration } from '../hooks/useCollaboration';
+import useAutoSave from '../hooks/useAutoSave';
+import SaveStatusIndicator from '../components/SaveStatusIndicator';
 
 function NoCodeEditor() {
   const { roomId } = useParams();
   const location = useLocation();
   // 기본 상태
   const [components, setComponents] = useState([]);
+  
+  // 자동저장 기능
+  const autoSave = useAutoSave(roomId, components); // roomId가 실제로는 pageId역할
   const [selectedId, setSelectedId] = useState(null);
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
   const [zoom, setZoom] = useState(100);
@@ -171,126 +176,76 @@ function NoCodeEditor() {
   const otherSelections = Array.isArray(otherSelectionsMap) ? otherSelectionsMap : 
                          otherSelectionsMap instanceof Map ? Array.from(otherSelectionsMap.values()) : [];
 
-  // 연결 상태 및 협업 디버깅
-  useEffect(() => {
-    console.log('=== 협업 상태 변경 ===');
-    console.log('Room ID:', roomId);
-    console.log('사용자 정보:', userInfo);
-    console.log('연결 상태:', isConnected);
-    console.log('활성 사용자 수:', getActiveUsers().length);
-    console.log('활성 사용자 목록:', getActiveUsers());
-    console.log('다른 커서 수:', otherCursors?.length || 0);
-    console.log('다른 선택 수:', otherSelections?.length || 0);
-    console.log('========================');
+  // // 연결 상태 및 협업 디버깅
+  // useEffect(() => {
+  //   console.log('=== 협업 상태 변경 ===');
+  //   console.log('Room ID:', roomId);
+  //   console.log('사용자 정보:', userInfo);
+  //   console.log('연결 상태:', isConnected);
+  //   console.log('활성 사용자 수:', getActiveUsers().length);
+  //   console.log('활성 사용자 목록:', getActiveUsers());
+  //   console.log('다른 커서 수:', otherCursors?.length || 0);
+  //   console.log('다른 선택 수:', otherSelections?.length || 0);
+  //   console.log('========================');
     
-    if (isConnected) {
-      console.log('✅ 협업 서버에 연결되었습니다.');
-    } else {
-      console.log('❌ 협업 서버 연결이 끊어졌습니다.');
-    }
-  }, [isConnected, roomId, userInfo, otherCursors, otherSelections]);
+  //   if (isConnected) {
+  //     console.log('✅ 협업 서버에 연결되었습니다.');
+  //   } else {
+  //     console.log('❌ 협업 서버 연결이 끊어졌습니다.');
+  //   }
+  // }, [isConnected, roomId, userInfo, otherCursors, otherSelections]);
 
-  // 초기 페이지 데이터 로딩
-  const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+  // 페이지 데이터 로딩 (빠른 렌더링)
+  const [pageLoaded, setPageLoaded] = useState(false);
   
   useEffect(() => {
     const loadPageData = async () => {
-      if (!collaboration.ydoc || isInitialDataLoaded) return;
-      
-      console.log('🔄 페이지 데이터 로딩 시작...');
+      if (!roomId || pageLoaded) return;
       
       try {
-        const response = await fetch(`${API_BASE_URL}/users/page/${roomId}`, {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+            'Authorization': `Bearer ${token || ''}`
           }
         });
         
         if (response.ok) {
           const pageData = await response.json();
-          console.log('📦 서버에서 페이지 데이터 받음:', pageData);
+          console.log('📦 페이지 데이터 로딩:', pageData);
           
-          // Pages 엔티티에서는 content 필드에 컴포넌트 데이터가 저장됨
-          const existingComponents = pageData.content || [];
-          
-          if (Array.isArray(existingComponents) && existingComponents.length > 0) {
-            console.log('🔄 기존 페이지 컴포넌트 Y.js에 동기화:', existingComponents.length, '개');
-            
-            // Y.js에 기존 컴포넌트들 한 번에 추가
-            collaboration.updateAllComponents?.(existingComponents);
-            
-            console.log('✅ 기존 페이지 컴포넌트 동기화 완료');
-          } else {
-            console.log('📝 빈 페이지 - 새로 시작');
+          if (pageData.content && Array.isArray(pageData.content)) {
+            // YJS가 준비되면 추가, 아니면 직접 상태 설정
+            if (collaboration.ydoc) {
+              pageData.content.forEach(comp => {
+                addComponent(comp);
+              });
+            } else {
+              setComponents(pageData.content);
+            }
           }
-        } else {
-          console.log('⚠️ 페이지 데이터 로딩 실패 - 빈 페이지로 시작');
+          setPageLoaded(true);
         }
       } catch (error) {
-        console.error('❌ 페이지 데이터 로딩 중 오류:', error);
-      } finally {
-        setIsInitialDataLoaded(true);
+        console.error('페이지 데이터 로딩 실패:', error);
       }
     };
     
     loadPageData();
-  }, [roomId, collaboration.ydoc, collaboration.updateAllComponents, isInitialDataLoaded]);
-
- // 템플릿 로딩 - YJS 초기화 대기
-  const loadedTemplateRef = useRef(null);
+  }, [roomId, pageLoaded]);
   
+  // YJS가 나중에 초기화되면 데이터 동기화
   useEffect(() => {
-    const templateComponents = location.state?.templateComponents;
-    if (templateComponents && Array.isArray(templateComponents) && collaboration.ydoc && isInitialDataLoaded) {
-      // 이전에 로딩한 템플릿과 다른지 확인
-      const templateKey = JSON.stringify(templateComponents.map(c => c.id));
-      if (loadedTemplateRef.current !== templateKey) {
-        console.log('🎨 새로운 템플릿 로딩:', templateComponents.length, '개');
-        templateComponents.forEach((comp, index) => {
-          console.log(`addComponent ${index} 호출:`, comp);
-          addComponent(comp);
-          console.log(`addComponent ${index} 완료`);
-        });
-        loadedTemplateRef.current = templateKey;
-        console.log('✅ 템플릿 로딩 완료');
-      }
-    } else if (templateComponents && !isInitialDataLoaded) {
-      console.log('⏳ 초기 데이터 로딩 대기 중...', { hasYdoc: !!collaboration.ydoc });
+    if (collaboration.ydoc && components.length > 0 && !collaboration.ydoc.getArray('components').length) {
+      components.forEach(comp => {
+        addComponent(comp);
+      });
     }
-  }, [location.state, addComponent, collaboration.ydoc, isInitialDataLoaded]);
+  }, [collaboration.ydoc, components, addComponent]);
 
-  // 컴포넌트 변경사항 자동 저장
-  useEffect(() => {
-    if (!isInitialDataLoaded || components.length === 0) return;
-    
-    console.log('💾 컴포넌트 변경 감지, 자동 저장 준비');
-    
-    const saveToDatabase = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/users/page/${roomId}/components`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-          },
-          body: JSON.stringify({ components })
-        });
-        
-        if (response.ok) {
-          console.log('💾 페이지 데이터 자동 저장 완료');
-        } else {
-          console.log('⚠️ 페이지 데이터 저장 실패');
-        }
-      } catch (error) {
-        console.error('❌ 페이지 데이터 저장 중 오류:', error);
-      }
-    };
-    
-    // 2초 후에 저장 (debounce 효과)
-    const timeoutId = setTimeout(saveToDatabase, 2000);
-    
-    return () => clearTimeout(timeoutId);
-  }, [components, roomId, isInitialDataLoaded]);
+
+
+
 
   // viewport 변경 시 캔버스 높이 초기화
   useEffect(() => {
@@ -437,7 +392,7 @@ function NoCodeEditor() {
   
   // 활성 사용자 정보 (디버깅용)
   const activeUsers = getActiveUsers();
-  console.log('활성 사용자:', activeUsers.length);
+  // console.log('활성 사용자:', activeUsers.length);
 
   // 브라우저 전체 확대/축소(Ctrl+스크롤, Ctrl+키, 트랙패드 pinch) 완벽 차단
   useEffect(() => {
@@ -662,6 +617,15 @@ function NoCodeEditor() {
         isOpen={isInviteOpen}
         onClose={() => setIsInviteOpen(false)}
         pageId={roomId}
+      />
+
+      {/* 자동저장 상태 표시 */}
+      <SaveStatusIndicator
+        isSaving={autoSave.isSaving}
+        lastSaved={autoSave.lastSaved}
+        saveError={autoSave.saveError}
+        saveCount={autoSave.saveCount}
+        onSaveNow={autoSave.saveNow}
       />
 
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}
