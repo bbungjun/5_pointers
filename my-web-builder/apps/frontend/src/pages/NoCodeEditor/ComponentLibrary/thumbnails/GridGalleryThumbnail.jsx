@@ -3,78 +3,111 @@ import React from 'react';
 function GridGalleryThumbnail() {
   return (
     <div style={{
-      width: 80, 
-      height: 60, 
-      background: '#f8f9fa', 
-      border: '1px solid #e1e5e9',
-      borderRadius: 4, 
-      padding: 4,
-      display: 'flex', 
+      width: 100,
+      height: 75,
+      backgroundColor: '#ffffff',
+      borderRadius: 8,
+      border: '1px solid #e5e7eb',
+      display: 'flex',
       flexDirection: 'column',
-      gap: 2
+      justifyContent: 'space-between',
+      padding: 8
     }}>
-      {/* 상단 행 - 2개 이미지 */}
+      {/* 상단 - 제목 */}
       <div style={{
-        display: 'flex',
-        gap: 2,
-        height: '48%'
+        fontSize: 10,
+        fontWeight: '600',
+        color: '#475569',
+        textAlign: 'center',
+        marginBottom: 4
       }}>
+        그리드 갤러리
+      </div>
+      
+      {/* 중앙 - 2x2 그리드 */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 3,
+        justifyContent: 'center'
+      }}>
+        {/* 상단 행 */}
         <div style={{
-          flex: 1,
-          background: '#e3f2fd',
-          borderRadius: 2,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 8,
-          color: '#1976d2'
+          gap: 3,
+          height: '48%'
         }}>
-          🖼️
+          <div style={{
+            flex: 1,
+            backgroundColor: '#f3f4f6',
+            borderRadius: 3,
+            border: '1px solid #e5e7eb',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 8,
+            color: '#9ca3af'
+          }}>
+            🖼️
+          </div>
+          <div style={{
+            flex: 1,
+            backgroundColor: '#f3f4f6',
+            borderRadius: 3,
+            border: '1px solid #e5e7eb',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 8,
+            color: '#9ca3af'
+          }}>
+            🖼️
+          </div>
         </div>
+        
+        {/* 하단 행 */}
         <div style={{
-          flex: 1,
-          background: '#f3e5f5',
-          borderRadius: 2,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 8,
-          color: '#7b1fa2'
+          gap: 3,
+          height: '48%'
         }}>
-          🖼️
+          <div style={{
+            flex: 1,
+            backgroundColor: '#f3f4f6',
+            borderRadius: 3,
+            border: '1px solid #e5e7eb',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 8,
+            color: '#9ca3af'
+          }}>
+            🖼️
+          </div>
+          <div style={{
+            flex: 1,
+            backgroundColor: '#f3f4f6',
+            borderRadius: 3,
+            border: '1px solid #e5e7eb',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 8,
+            color: '#9ca3af'
+          }}>
+            🖼️
+          </div>
         </div>
       </div>
       
-      {/* 하단 행 - 2개 이미지 */}
+      {/* 하단 - 설명 */}
       <div style={{
-        display: 'flex',
-        gap: 2,
-        height: '48%'
+        fontSize: 8,
+        color: '#64748b',
+        textAlign: 'center'
       }}>
-        <div style={{
-          flex: 1,
-          background: '#e8f5e8',
-          borderRadius: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 8,
-          color: '#2e7d32'
-        }}>
-          🖼️
-        </div>
-        <div style={{
-          flex: 1,
-          background: '#fff3e0',
-          borderRadius: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 8,
-          color: '#f57c00'
-        }}>
-          🖼️
-        </div>
+        격자형 사진 배치
       </div>
     </div>
   );

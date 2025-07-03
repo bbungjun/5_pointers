@@ -3,135 +3,135 @@ import React from 'react';
 function SlideGalleryThumbnail() {
   return (
     <div style={{
-      width: 80, 
-      height: 60, 
-      background: '#f8f9fa', 
-      border: '1px solid #e1e5e9',
-      borderRadius: 4, 
-      padding: 6,
-      display: 'flex', 
+      width: 100,
+      height: 75,
+      backgroundColor: '#ffffff',
+      borderRadius: 8,
+      border: '1px solid #e5e7eb',
+      display: 'flex',
       flexDirection: 'column',
-      position: 'relative',
-      overflow: 'hidden'
+      justifyContent: 'space-between',
+      padding: 8
     }}>
-      {/* 메인 슬라이드 영역 */}
+      {/* 상단 - 제목 */}
+      <div style={{
+        fontSize: 10,
+        fontWeight: '600',
+        color: '#475569',
+        textAlign: 'center',
+        marginBottom: 4
+      }}>
+        슬라이드 갤러리
+      </div>
+      
+      {/* 중앙 - 슬라이드 영역 */}
       <div style={{
         flex: 1,
-        position: 'relative',
-        borderRadius: 3,
-        overflow: 'hidden'
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative'
       }}>
-        {/* 현재 보이는 슬라이드 */}
+        {/* 메인 슬라이드 */}
         <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          width: 50,
+          height: 32,
+          backgroundColor: '#f3f4f6',
+          borderRadius: 4,
+          border: '1px solid #e5e7eb',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: 12,
-          color: '#fff',
-          fontWeight: 'bold'
+          fontSize: 10,
+          color: '#9ca3af',
+          position: 'relative'
         }}>
           🖼️
-        </div>
-        
-        {/* 다음 슬라이드 (살짝 보이는 효과) */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          right: '-60%',
-          width: '100%',
-          height: '100%',
-          background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 12,
-          color: '#fff',
-          fontWeight: 'bold',
-          opacity: 0.7
-        }}>
-          🖼️
-        </div>
-        
-        {/* 좌측 화살표 */}
-        <div style={{
-          position: 'absolute',
-          left: 2,
-          top: '50%',
-          transform: 'translateY(-50%)',
-          width: 12,
-          height: 12,
-          background: 'rgba(255,255,255,0.8)',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 6,
-          color: '#333',
-          fontWeight: 'bold'
-        }}>
-          ‹
-        </div>
-        
-        {/* 우측 화살표 */}
-        <div style={{
-          position: 'absolute',
-          right: 2,
-          top: '50%',
-          transform: 'translateY(-50%)',
-          width: 12,
-          height: 12,
-          background: 'rgba(255,255,255,0.8)',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 6,
-          color: '#333',
-          fontWeight: 'bold'
-        }}>
-          ›
+          
+          {/* 좌측 화살표 */}
+          <div style={{
+            position: 'absolute',
+            left: -8,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: 12,
+            height: 12,
+            backgroundColor: '#ffffff',
+            border: '1px solid #d1d5db',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 6,
+            color: '#6b7280',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+          }}>
+            ‹
+          </div>
+          
+          {/* 우측 화살표 */}
+          <div style={{
+            position: 'absolute',
+            right: -8,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: 12,
+            height: 12,
+            backgroundColor: '#ffffff',
+            border: '1px solid #d1d5db',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 6,
+            color: '#6b7280',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+          }}>
+            ›
+          </div>
         </div>
       </div>
       
-      {/* 하단 인디케이터 점들 */}
+      {/* 하단 - 인디케이터와 설명 */}
       <div style={{
         display: 'flex',
-        justifyContent: 'center',
+        flexDirection: 'column',
         alignItems: 'center',
-        gap: 2,
-        marginTop: 4,
-        height: 8
+        gap: 3
       }}>
+        {/* 인디케이터 점들 */}
         <div style={{
-          width: 4,
-          height: 4,
-          borderRadius: '50%',
-          background: '#3B4EFF'
-        }}></div>
+          display: 'flex',
+          gap: 2
+        }}>
+          <div style={{
+            width: 4,
+            height: 4,
+            borderRadius: '50%',
+            backgroundColor: '#3b82f6'
+          }}></div>
+          <div style={{
+            width: 3,
+            height: 3,
+            borderRadius: '50%',
+            backgroundColor: '#d1d5db'
+          }}></div>
+          <div style={{
+            width: 3,
+            height: 3,
+            borderRadius: '50%',
+            backgroundColor: '#d1d5db'
+          }}></div>
+        </div>
+        
+        {/* 설명 */}
         <div style={{
-          width: 3,
-          height: 3,
-          borderRadius: '50%',
-          background: '#ccc'
-        }}></div>
-        <div style={{
-          width: 3,
-          height: 3,
-          borderRadius: '50%',
-          background: '#ccc'
-        }}></div>
-        <div style={{
-          width: 3,
-          height: 3,
-          borderRadius: '50%',
-          background: '#ccc'
-        }}></div>
+          fontSize: 8,
+          color: '#64748b',
+          textAlign: 'center'
+        }}>
+          슬라이드 사진 보기
+        </div>
       </div>
     </div>
   );
