@@ -79,44 +79,46 @@ function BankAccountThumbnail() {
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: 3,
-        marginTop: 4
+        justifyContent: 'space-between',
+        marginTop: 4,
+        paddingRight: 2
       }}>
         {/* 계좌 정보 (회색 선들) */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 2
+          gap: 2,
+          flex: 1
         }}>
           {/* 은행명 라인 */}
           <div style={{
             height: 2,
             backgroundColor: '#d1d5db',
             borderRadius: 1,
-            width: 24
+            width: '60%'
           }}></div>
           {/* 계좌번호 라인 */}
           <div style={{
             height: 2,
             backgroundColor: '#d1d5db',
             borderRadius: 1,
-            width: 32
+            width: '75%'
           }}></div>
         </div>
         
         {/* 복사 버튼 */}
         <div style={{
-          width: 16,
+          width: 14,
           height: 8,
           backgroundColor: '#374151',
           borderRadius: 2,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: 5,
+          fontSize: 4,
           color: '#ffffff',
-          fontWeight: '500'
+          fontWeight: '500',
+          marginLeft: 4
         }}>
           복사
         </div>
