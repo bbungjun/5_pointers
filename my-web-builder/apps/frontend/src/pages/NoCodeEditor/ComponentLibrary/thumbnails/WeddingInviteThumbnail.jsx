@@ -1,57 +1,90 @@
 import React from 'react';
-import WeddingInviteRenderer from '../../ComponentRenderers/WeddingInviteRenderer';
 
 function WeddingInviteThumbnail() {
-  // 썸네일용 축소된 props
-  const thumbnailProps = {
-    props: {
-      containerWidth: 320,
-      containerHeight: 240,
-      title: "Our Love Story",
-      titleFontFamily: "Dancing Script, cursive, Noto Sans KR, 맑은 고딕, sans-serif",
-      titleFontSize: 12, // 축소
-      titleFontStyle: "italic",
-      titleColor: "#222",
-      titleAlign: "center",
-      
-      content: [
-        "서로가 마주보며 다져온 사랑을",
-        "이제 함께 한 곳을 바라보며",
-        "걸어갈 수 있는 큰 사랑으로 키우고자 합니다.",
-        "",
-        "저희 두 사람이 사랑의 이름으로",
-        "지켜나갈 수 있게 앞날을",
-        "축복해 주시면 감사하겠습니다."
-      ],
-      contentFontFamily: "Noto Sans KR, 맑은 고딕, sans-serif",
-      contentFontSize: 6, // 축소
-      contentFontWeight: "normal",
-      contentColor: "#444",
-      contentAlign: "center",
-      backgroundColor: "#fff"
-    }
-  };
-
   return (
     <div style={{
-      width: 80,
-      height: 60,
-      overflow: 'hidden',
-      borderRadius: 4,
-      border: '1px solid #e1e5e9',
-      position: 'relative',
-      backgroundColor: '#f8f9fa'
+      width: 100,
+      height: 75,
+      backgroundColor: '#ffffff',
+      borderRadius: 8,
+      border: '1px solid #e5e7eb',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      padding: 10
     }}>
+      {/* 상단 - 제목 */}
       <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: 320, // 실제 렌더러 크기
-        height: 240, // 실제 렌더러 크기
-        transform: 'scale(0.25)', // 25%로 축소 (80/320 = 0.25)
-        transformOrigin: 'top left'
+        fontSize: 10,
+        fontWeight: '600',
+        color: '#9ca3af',
+        textAlign: 'center',
+        fontStyle: 'italic',
+        marginBottom: 6
       }}>
-        <WeddingInviteRenderer comp={thumbnailProps} />
+        Our Love Story
+      </div>
+      
+      {/* 중앙 - 안내장 내용 (회색 선들) */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 2
+      }}>
+        {/* 첫 번째 줄 */}
+        <div style={{
+          height: 2,
+          backgroundColor: '#d1d5db',
+          borderRadius: 1,
+          width: '85%'
+        }}></div>
+        
+        {/* 두 번째 줄 */}
+        <div style={{
+          height: 2,
+          backgroundColor: '#d1d5db',
+          borderRadius: 1,
+          width: '90%'
+        }}></div>
+        
+        {/* 세 번째 줄 */}
+        <div style={{
+          height: 2,
+          backgroundColor: '#d1d5db',
+          borderRadius: 1,
+          width: '95%'
+        }}></div>
+        
+        {/* 빈 줄 */}
+        <div style={{ height: 4 }}></div>
+        
+        {/* 네 번째 줄 */}
+        <div style={{
+          height: 2,
+          backgroundColor: '#d1d5db',
+          borderRadius: 1,
+          width: '80%'
+        }}></div>
+        
+        {/* 다섯 번째 줄 */}
+        <div style={{
+          height: 2,
+          backgroundColor: '#d1d5db',
+          borderRadius: 1,
+          width: '88%'
+        }}></div>
+        
+        {/* 여섯 번째 줄 */}
+        <div style={{
+          height: 2,
+          backgroundColor: '#d1d5db',
+          borderRadius: 1,
+          width: '92%'
+        }}></div>
       </div>
     </div>
   );
