@@ -134,14 +134,14 @@ export class GeneratorService {
    */
   async getPageBySubdomain(subdomain: string) {
     try {
-      console.log('Searching for subdomain:', subdomain);
+      // console.log('Searching for subdomain:', subdomain);
       
       // submissions 테이블에서 모든 배포 데이터 조회
       const submissions = await this.submissionsRepository.find({
         where: { component_id: 'deployment' }
       });
       
-      console.log('Found submissions:', submissions.length);
+      // console.log('Found submissions:', submissions.length);
       
       // data JSON에서 여러 필드로 찾기 (우선순위: domain > subdomain > userDomain)
       const targetSubmission = submissions.find(submission => {
@@ -153,33 +153,33 @@ export class GeneratorService {
         const subdomainMatch = data.subdomain === subdomain;
         const userDomainMatch = data.userDomain === subdomain;
         
-        console.log('Checking submission:', {
-          id: submission.id,
-          domain: data.domain,
-          subdomain: data.subdomain,
-          userDomain: data.userDomain,
-          projectId: data.projectId,
-          searchTerm: subdomain,
-          domainMatch,
-          subdomainMatch,
-          userDomainMatch
-        });
+        // console.log('Checking submission:', {
+        //   id: submission.id,
+        //   domain: data.domain,
+        //   subdomain: data.subdomain,
+        //   userDomain: data.userDomain,
+        //   projectId: data.projectId,
+        //   searchTerm: subdomain,
+        //   domainMatch,
+        //   subdomainMatch,
+        //   userDomainMatch
+        // });
         
         return domainMatch || subdomainMatch || userDomainMatch;
       });
       
       if (!targetSubmission) {
-        console.log('No matching submission found for subdomain:', subdomain);
+        // console.log('No matching submission found for subdomain:', subdomain);
         throw new NotFoundException(`Subdomain "${subdomain}" not found`);
       }
       
-      console.log('Found matching submission:', targetSubmission.data);
+      // console.log('Found matching submission:', targetSubmission.data);
       
       return {
         components: targetSubmission.data.components || []
       };
     } catch (error) {
-      console.error('Error in getPageBySubdomain:', error);
+      // console.error('Error in getPageBySubdomain:', error);
       throw error;
     }
   }

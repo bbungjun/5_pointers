@@ -31,6 +31,15 @@ export class UsersController {
     return this.usersService.updatePageTitle(req.user.id, pageId, body.title);
   }
 
+  // 페이지 컨텐츠 업데이트 API (자동저장용)
+  @UseGuards(JwtAuthGuard)
+  @Patch('pages/:pageId/content')
+  async updatePageContent(@Request() req, @Param('pageId') pageId: string, @Body() body: { content: any[] }) {
+    const result = await this.usersService.updatePageContent(req.user.id, pageId, body.content);
+    console.log(`페이지 ${pageId} 컨텐츠 업데이트 완료:`, body.content.length, '개 컴포넌트');
+    return result;
+  }
+
   // 페이지 삭제 API
   @UseGuards(JwtAuthGuard)
   @Delete('pages/:pageId')

@@ -49,13 +49,13 @@ export class TemplatesService {
       throw new NotFoundException('페이지를 찾을 수 없습니다.');
     }
     
-    console.log('원본 페이지 데이터:', {
-      id: sourcePage.id,
-      title: sourcePage.title,
-      contentType: typeof sourcePage.content,
-      contentLength: Array.isArray(sourcePage.content) ? sourcePage.content.length : 'not array',
-      content: sourcePage.content
-    });
+    // console.log('원본 페이지 데이터:', {
+    //   id: sourcePage.id,
+    //   title: sourcePage.title,
+    //   contentType: typeof sourcePage.content,
+    //   contentLength: Array.isArray(sourcePage.content) ? sourcePage.content.length : 'not array',
+    //   content: sourcePage.content
+    // });
 
     // 작성자 조회
     const author = await this.usersRepository.findOne({
@@ -98,8 +98,8 @@ export class TemplatesService {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
 
-    console.log('템플릿 생성 - 컴포넌트 개수:', components.length);
-    console.log('컴포넌트 데이터:', components);
+    // console.log('템플릿 생성 - 컴포넌트 개수:', components.length);
+    // console.log('컴포넌트 데이터:', components);
 
     // 컴포넌트 배열로 템플릿 생성
     const template = this.templatesRepository.create({

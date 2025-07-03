@@ -112,7 +112,7 @@ export function CollaborativeSelections({ selections = [], components = [], zoom
     //   selections
     // });
   }, [selections]);
-  
+
   return (
     <>
       {Array.isArray(selections) && selections.length > 0 ? selections.map((selection, index) => 
