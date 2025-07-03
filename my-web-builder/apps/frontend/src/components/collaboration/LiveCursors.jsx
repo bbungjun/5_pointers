@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { addUserColor } from '../../utils/userColors';
 
 /**
  * 다른 사용자들의 실시간 커서를 렌더링하는 컴포넌트
@@ -8,17 +9,20 @@ export function LiveCursors({ cursors = [], zoom = 100, viewport = 'desktop' }) 
   
   // 디버깅 로그
   useEffect(() => {
-    console.log('LiveCursors 렌더링:', { 
-      cursorsCount: cursors?.length || 0, 
-      isArray: Array.isArray(cursors),
-      cursors
-    });
+    // console.log('LiveCursors 렌더링:', { 
+    //   cursorsCount: cursors?.length || 0, 
+    //   isArray: Array.isArray(cursors),
+    //   cursors
+    // });
   }, [cursors]);
   
   return (
     <>
       {Array.isArray(cursors) && cursors.length > 0 ? cursors.map((cursor, index) => {
         if (!cursor || !cursor.user) return null;
+        
+        // 사용자 정보에 고유 색상 추가
+        const userWithColor = addUserColor(cursor.user);
         
         // 커서 좌표를 현재 줌 레벨에 맞게 변환
         const displayX = cursor.x * scale;
@@ -49,7 +53,7 @@ export function LiveCursors({ cursors = [], zoom = 100, viewport = 'desktop' }) 
           >
             <path
               d="M3 3L21 12L12 21L9 12L3 3Z"
-              fill={cursor.user.color || '#3B4EFF'}
+              fill={userWithColor.color}
               stroke="white"
               strokeWidth="1"
             />
@@ -61,7 +65,7 @@ export function LiveCursors({ cursors = [], zoom = 100, viewport = 'desktop' }) 
               position: 'absolute',
               left: 16,
               top: -4,
-              backgroundColor: cursor.user.color || '#3B4EFF',
+              backgroundColor: userWithColor.color,
               color: 'white',
               padding: '4px 8px',
               borderRadius: '6px',
@@ -72,7 +76,7 @@ export function LiveCursors({ cursors = [], zoom = 100, viewport = 'desktop' }) 
               animation: 'fadeIn 0.2s ease-out'
             }}
           >
-            {cursor.user.name || '사용자'}
+            {userWithColor.name || '사용자'}
           </div>
         </div>
         );
@@ -102,11 +106,11 @@ export function CollaborativeSelections({ selections = [], components = [], zoom
   
   // 디버깅 로그
   useEffect(() => {
-    console.log('CollaborativeSelections 렌더링:', { 
-      selectionsCount: selections?.length || 0, 
-      isArray: Array.isArray(selections),
-      selections
-    });
+    // console.log('CollaborativeSelections 렌더링:', { 
+    //   selectionsCount: selections?.length || 0, 
+    //   isArray: Array.isArray(selections),
+    //   selections
+    // });
   }, [selections]);
   
   return (
@@ -115,6 +119,9 @@ export function CollaborativeSelections({ selections = [], components = [], zoom
         Array.isArray(selection.componentIds) ? selection.componentIds.map(componentId => {
           const component = components.find(c => c.id === componentId);
           if (!component) return null;
+
+          // 사용자 정보에 고유 색상 추가
+          const userWithColor = addUserColor(selection.user);
 
           // 컴포넌트 좌표와 크기를 스케일에 맞게 변환
           const scaledX = component.x * scale;
@@ -131,7 +138,7 @@ export function CollaborativeSelections({ selections = [], components = [], zoom
                 top: scaledY - 2,
                 width: scaledWidth + 4,
                 height: scaledHeight + 4,
-                border: `2px solid ${selection.user?.color || '#3B4EFF'}`,
+                border: `2px solid ${userWithColor.color}`,
                 borderRadius: '4px',
                 pointerEvents: 'none',
                 zIndex: 8,
@@ -144,7 +151,7 @@ export function CollaborativeSelections({ selections = [], components = [], zoom
                   position: 'absolute',
                   top: -28,
                   left: 0,
-                  backgroundColor: selection.user?.color || '#3B4EFF',
+                  backgroundColor: userWithColor.color,
                   color: 'white',
                   padding: '4px 8px',
                   borderRadius: '4px',
@@ -154,7 +161,7 @@ export function CollaborativeSelections({ selections = [], components = [], zoom
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
               >
-                {selection.user?.name || '사용자'}님이 편집 중
+                {userWithColor.name || '사용자'}님이 편집 중
               </div>
             </div>
           );

@@ -21,8 +21,39 @@ function SignupPage({ onLogin }) {
         });
         const data = await res.json();
         if (res.ok) {
-          onLogin({ nickname });
-          navigate('/dashboard');
+          // 회원가입 성공 후 자동 로그인
+          try {
+            const loginRes = await fetch(`${API_BASE_URL}/auth/login/local`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password }),
+            });
+            const loginData = await loginRes.json();
+            
+            if (loginRes.ok && loginData.access_token) {
+              localStorage.setItem('token', loginData.access_token);
+              onLogin({ nickname });
+              
+              // 초대 링크에서 왔는지 확인하고 리디렉션
+              const redirectUrl = localStorage.getItem('redirectUrl');
+              if (redirectUrl) {
+                localStorage.removeItem('redirectUrl');
+                console.log('회원가입 후 원래 목적지로 이동:', redirectUrl);
+                window.location.href = redirectUrl;
+              } else {
+                navigate('/dashboard');
+              }
+            } else {
+              // 자동 로그인 실패 시 일반 회원가입 완료 처리
+              onLogin({ nickname });
+              navigate('/dashboard');
+            }
+          } catch (loginErr) {
+            console.error('자동 로그인 실패:', loginErr);
+            // 자동 로그인 실패 시 일반 회원가입 완료 처리
+            onLogin({ nickname });
+            navigate('/dashboard');
+          }
         } else {
           setMsg(data.message || '회원가입 실패');
         }

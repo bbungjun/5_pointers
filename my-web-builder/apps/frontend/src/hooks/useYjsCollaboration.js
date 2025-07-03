@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
+import { addUserColor } from '../utils/userColors';
 
 export function useYjsCollaboration(roomId, userInfo) {
   const [isConnected, setIsConnected] = useState(false);
@@ -23,7 +24,7 @@ export function useYjsCollaboration(roomId, userInfo) {
     const roomName = `page:${roomId}`;
     const wsUrl = 'ws://localhost:1234'; // Y.js WebSocket 서버 URL
     
-    console.log('Y.js 서버 연결 시도:', wsUrl, 'Room:', roomName);
+    console.log('Y.js 서버 연결 시도:', wsUrl, 'Room:', roomName, 'User:', userInfo);
     
     // WebsocketProvider 초기화 - auth 필드에 토큰 전달 (핵심 수정사항)
     const provider = new WebsocketProvider(
@@ -50,17 +51,22 @@ export function useYjsCollaboration(roomId, userInfo) {
     // Awareness 인스턴스 - 커서 및 선택 상태 공유
     const awareness = provider.awareness;
 
-    // Awareness에 사용자 정보 설정
-    awareness.setLocalStateField('user', {
-      name: userInfo.name,
-      color: userInfo.color,
-      id: userInfo.id
-    });
-
     // 연결 상태 모니터링
     provider.on('status', (event) => {
       console.log('WebSocket 연결 상태:', event.status);
       setIsConnected(event.status === 'connected');
+      
+      // 연결 완료 후 사용자 정보 설정
+      if (event.status === 'connected') {
+        // 사용자 정보에 고유 색상 추가
+        const userWithColor = addUserColor(userInfo);
+        console.log('연결 완료, 사용자 정보 설정:', userWithColor);
+        awareness.setLocalStateField('user', {
+          name: userWithColor.name,
+          color: userWithColor.color,
+          id: userWithColor.id
+        });
+      }
     });
 
     // 연결 오류 처리
@@ -77,6 +83,16 @@ export function useYjsCollaboration(roomId, userInfo) {
     ydoc.on('update', (update, origin) => {
       console.log('Y.js 문서 업데이트 받음:', origin === provider ? '원격' : '로컬');
     });
+
+    // Awareness 변화 감지 (디버깅용)
+    // awareness.on('change', (event) => {
+    //   console.log('Awareness 변화 감지:', {
+    //     added: event.added,
+    //     updated: event.updated,
+    //     removed: event.removed,
+    //     states: awareness.getStates()
+    //   });
+    // });
 
     // 참조 저장
     ydocRef.current = ydoc;
