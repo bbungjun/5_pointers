@@ -34,56 +34,15 @@ wss.on('connection', (ws, req) => {
   }
   const doc = docs.get(roomname);
   
-  // 클라이언트에게 초기 상태 전송
-  const encoder = Y.encoding.createEncoder();
-  Y.encoding.writeVarUint(encoder, 0); // sync step 1
-  Y.syncProtocol.writeSyncStep1(encoder, doc);
-  ws.send(Y.encoding.toUint8Array(encoder));
-  
   // 메시지 핸들러
   ws.on('message', (message) => {
     try {
-      const uint8Array = new Uint8Array(message);
-      const decoder = Y.decoding.createDecoder(uint8Array);
-      const messageType = Y.decoding.readVarUint(decoder);
-      
-      switch (messageType) {
-        case 0: // sync
-          const syncMessageType = Y.decoding.readVarUint(decoder);
-          const encoder = Y.encoding.createEncoder();
-          
-          if (syncMessageType === 0) {
-            // sync step 1
-            Y.encoding.writeVarUint(encoder, 0);
-            Y.syncProtocol.writeSyncStep2(encoder, doc, decoder);
-          } else if (syncMessageType === 1) {
-            // sync step 2
-            Y.syncProtocol.readSyncStep2(decoder, doc, ws);
-          } else if (syncMessageType === 2) {
-            // update
-            Y.syncProtocol.readUpdate(decoder, doc, ws);
-          }
-          
-          if (Y.encoding.length(encoder) > 1) {
-            // 다른 클라이언트들에게 브로드캐스트
-            const message = Y.encoding.toUint8Array(encoder);
-            wss.clients.forEach((client) => {
-              if (client !== ws && client.readyState === client.OPEN) {
-                client.send(message);
-              }
-            });
-          }
-          break;
-          
-        case 1: // awareness
-          // awareness 정보를 다른 클라이언트들에게 브로드캐스트
-          wss.clients.forEach((client) => {
-            if (client !== ws && client.readyState === client.OPEN) {
-              client.send(uint8Array);
-            }
-          });
-          break;
-      }
+      // 메시지를 다른 클라이언트들에게 브로드캐스트
+      wss.clients.forEach((client) => {
+        if (client !== ws && client.readyState === client.OPEN) {
+          client.send(message);
+        }
+      });
     } catch (error) {
       console.error('메시지 처리 오류:', error);
     }
