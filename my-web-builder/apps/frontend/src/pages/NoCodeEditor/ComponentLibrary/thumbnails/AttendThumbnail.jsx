@@ -1,31 +1,32 @@
 import React from 'react';
+import AttendRenderer from '../../ComponentRenderers/AttendRenderer';
 
 function AttendThumbnail() {
+  // 썸네일용 축소된 props
+  const thumbnailProps = {
+    props: {
+      title: '참석 의사 전달',
+      description: '축하의 마음으로 참석해 주실\n모든 분을 정중히 모시고자 하오니,\n참석 여부를 알려주시면 감사하겠습니다.',
+      buttonText: '전달하기',
+      buttonColor: '#aeb8fa'
+    }
+  };
+
   return (
     <div style={{
-      width: 80, 
-      height: 60, 
-      background: '#fff', 
-      border: '1px solid #ddd',
-      borderRadius: 6, 
-      display: 'flex', 
-      flexDirection: 'column',
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      fontSize: 8,
-      color: '#666', 
-      textAlign: 'center', 
-      lineHeight: 1.2
+      width: 80,
+      height: 60,
+      overflow: 'hidden',
+      borderRadius: 4,
+      position: 'relative'
     }}>
-      <div style={{ fontWeight: 'bold', marginBottom: 2 }}>참석 의사</div>
-      <div style={{ 
-        background: '#3B4EFF', 
-        color: '#fff', 
-        padding: '2px 6px', 
-        borderRadius: 2, 
-        fontSize: 7 
+      <div style={{
+        width: 320,
+        height: 240,
+        transform: 'scale(0.25)', // 25% 축소 (80/320 = 0.25)
+        transformOrigin: 'top left'
       }}>
-        전달하기
+        <AttendRenderer comp={thumbnailProps} isEditor={false} />
       </div>
     </div>
   );
