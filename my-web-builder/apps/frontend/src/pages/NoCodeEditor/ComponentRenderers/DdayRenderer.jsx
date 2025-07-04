@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function DdayRenderer({ comp, isEditor }) {
+function DdayRenderer({ comp, isEditor, onPropsChange }) {
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
@@ -52,46 +52,61 @@ function DdayRenderer({ comp, isEditor }) {
     };
   }, [targetDate]);
 
-  const dropletStyle = {
-    width: '90px',
-    height: '100px',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)' 
-      : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,248,255,0.9) 100%)',
-    borderRadius: '50% 50% 50% 0',
-    transform: 'rotate(-45deg)',
+  // 물방울 속에 갇힌 느낌의 스타일
+  const bubbleStyle = {
+    width: '80px',
+    height: '80px',
+    borderRadius: '50%',
+    background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.3) 70%, rgba(255,255,255,0.1) 100%)',
+    boxShadow: `
+      0 0 20px rgba(255,255,255,0.5),
+      0 0 40px rgba(255,255,255,0.3),
+      0 0 60px rgba(255,255,255,0.1),
+      inset 0 0 20px rgba(255,255,255,0.2),
+      inset -10px -10px 20px rgba(0,0,0,0.1)
+    `,
+    border: '2px solid rgba(255,255,255,0.3)',
+    backdropFilter: 'blur(10px)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: theme === 'dark'
-      ? '0 8px 32px rgba(0,0,0,0.3), inset 0 2px 8px rgba(255,255,255,0.2)'
-      : '0 8px 32px rgba(0,0,0,0.15), inset 0 2px 8px rgba(255,255,255,0.8)',
-    border: '1px solid rgba(255,255,255,0.3)',
-    backdropFilter: 'blur(20px)',
     position: 'relative',
-    margin: '20px'
+    margin: '15px',
+    overflow: 'hidden'
   };
 
-  const dropletContentStyle = {
-    transform: 'rotate(45deg)',
-    textAlign: 'center',
-    color: theme === 'dark' ? '#1f2937' : '#1f2937'
+  // 물방울 내부 하이라이트 효과
+  const bubbleHighlight = {
+    position: 'absolute',
+    top: '15%',
+    left: '25%',
+    width: '25px',
+    height: '25px',
+    borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 70%, transparent 100%)',
+    filter: 'blur(2px)'
   };
 
   const numberStyle = {
-    fontSize: '24px',
+    fontSize: '20px',
     fontWeight: '700',
     lineHeight: '1',
-    marginBottom: '4px'
+    marginBottom: '2px',
+    color: theme === 'dark' ? '#ffffff' : '#1f2937',
+    textShadow: '0 1px 3px rgba(0,0,0,0.3)',
+    zIndex: 2,
+    position: 'relative'
   };
 
   const labelStyle = {
-    fontSize: '10px',
+    fontSize: '9px',
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    opacity: 0.8
+    color: theme === 'dark' ? 'rgba(255,255,255,0.8)' : 'rgba(31,41,55,0.7)',
+    zIndex: 2,
+    position: 'relative'
   };
 
   const backgroundOptions = [
@@ -102,11 +117,20 @@ function DdayRenderer({ comp, isEditor }) {
     { name: '하늘 배경', value: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800' }
   ];
 
+  const handleBackgroundChange = (newBackgroundImage) => {
+    if (onPropsChange) {
+      onPropsChange({
+        ...comp.props,
+        backgroundImage: newBackgroundImage
+      });
+    }
+  };
+
   const getContainerStyle = () => {
     const baseStyle = {
       width: '100%',
       height: '100%',
-      minHeight: '250px',
+      minHeight: '280px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
@@ -120,7 +144,7 @@ function DdayRenderer({ comp, isEditor }) {
     if (backgroundImage) {
       return {
         ...baseStyle,
-        background: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url(${backgroundImage})`,
+        background: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -135,6 +159,7 @@ function DdayRenderer({ comp, isEditor }) {
 
   return (
     <div style={getContainerStyle()}>
+      {/* 배경 선택 UI (편집 모드에서만 표시) */}
       {isEditor && (
         <div style={{
           position: 'absolute',
@@ -148,9 +173,7 @@ function DdayRenderer({ comp, isEditor }) {
         }}>
           <select 
             value={backgroundImage}
-            onChange={(e) => {
-              console.log('Background changed:', e.target.value);
-            }}
+            onChange={(e) => handleBackgroundChange(e.target.value)}
             style={{
               border: 'none',
               background: 'transparent',
@@ -167,6 +190,7 @@ function DdayRenderer({ comp, isEditor }) {
         </div>
       )}
 
+      {/* 제목 */}
       {title && (
         <h2 style={{
           fontSize: '28px',
@@ -181,51 +205,53 @@ function DdayRenderer({ comp, isEditor }) {
         </h2>
       )}
 
+      {/* 물방울 카운트다운 블록들 */}
       <div style={{
         display: 'flex',
-        gap: '10px',
+        gap: '5px',
         flexWrap: 'wrap',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: '20px'
+        marginBottom: '30px'
       }}>
-        <div style={dropletStyle}>
-          <div style={dropletContentStyle}>
-            <div style={numberStyle}>
-              {timeLeft.days.toString().padStart(2, '0')}
-            </div>
-            <div style={labelStyle}>Days</div>
+        {/* Days 물방울 */}
+        <div style={bubbleStyle}>
+          <div style={bubbleHighlight}></div>
+          <div style={numberStyle}>
+            {timeLeft.days.toString().padStart(2, '0')}
           </div>
+          <div style={labelStyle}>Days</div>
         </div>
 
-        <div style={dropletStyle}>
-          <div style={dropletContentStyle}>
-            <div style={numberStyle}>
-              {timeLeft.hours.toString().padStart(2, '0')}
-            </div>
-            <div style={labelStyle}>Hours</div>
+        {/* Hours 물방울 */}
+        <div style={bubbleStyle}>
+          <div style={bubbleHighlight}></div>
+          <div style={numberStyle}>
+            {timeLeft.hours.toString().padStart(2, '0')}
           </div>
+          <div style={labelStyle}>Hours</div>
         </div>
 
-        <div style={dropletStyle}>
-          <div style={dropletContentStyle}>
-            <div style={numberStyle}>
-              {timeLeft.minutes.toString().padStart(2, '0')}
-            </div>
-            <div style={labelStyle}>Minutes</div>
+        {/* Minutes 물방울 */}
+        <div style={bubbleStyle}>
+          <div style={bubbleHighlight}></div>
+          <div style={numberStyle}>
+            {timeLeft.minutes.toString().padStart(2, '0')}
           </div>
+          <div style={labelStyle}>Minutes</div>
         </div>
 
-        <div style={dropletStyle}>
-          <div style={dropletContentStyle}>
-            <div style={numberStyle}>
-              {timeLeft.seconds.toString().padStart(2, '0')}
-            </div>
-            <div style={labelStyle}>Seconds</div>
+        {/* Seconds 물방울 */}
+        <div style={bubbleStyle}>
+          <div style={bubbleHighlight}></div>
+          <div style={numberStyle}>
+            {timeLeft.seconds.toString().padStart(2, '0')}
           </div>
+          <div style={labelStyle}>Seconds</div>
         </div>
       </div>
 
+      {/* 목표 날짜 표시 */}
       <div style={{
         fontSize: '16px',
         fontWeight: '500',
