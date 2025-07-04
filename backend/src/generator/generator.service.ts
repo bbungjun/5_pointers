@@ -122,9 +122,10 @@ export class GeneratorService {
         throw new NotFoundException(`Subdomain "${subdomain}" not found`);
       }
       
-      // content 컬럼에서 컴포넌트 데이터 반환
+      // content 컬럼에서 컴포넌트 데이터와 페이지 ID 반환
       return {
-        components: page.content?.components || []
+        components: page.content?.components || [],
+        pageId: page.id
       };
     } catch (error) {
       throw error;
