@@ -3,7 +3,10 @@
   "label": "D-Day",
   "icon": "📅",
   "defaultProps": {
-    "title": "D-Day",
-    "targetDate": "2024-12-31"
+    "title": "우리의 결혼식까지",
+    "targetDate": "2024-12-31",
+    "backgroundColor": "#f8fafc",
+    "backgroundImage": "",
+    "theme": "light"
   }
-} 
+}
