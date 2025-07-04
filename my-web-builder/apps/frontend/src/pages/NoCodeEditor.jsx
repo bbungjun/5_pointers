@@ -172,7 +172,7 @@ function NoCodeEditor() {
 
   // 연결 상태 및 협업 디버깅
   useEffect(() => {
-    console.log('========================');
+    // console.log('========================');
     
     if (isConnected) {
       // console.log('✅ 협업 서버에 연결되었습니다.');
