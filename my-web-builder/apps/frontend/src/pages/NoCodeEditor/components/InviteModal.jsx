@@ -13,7 +13,6 @@ import { API_BASE_URL } from '../../../config';
  */
 function InviteModal({ isOpen, onClose, pageId }) {
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('EDITOR');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // 'success' | 'error'
@@ -40,8 +39,7 @@ function InviteModal({ isOpen, onClose, pageId }) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          email: email.trim(),
-          role
+          email: email.trim()
         })
       });
 
@@ -94,7 +92,6 @@ function InviteModal({ isOpen, onClose, pageId }) {
   // 모달 닫기 시 상태 초기화
   const handleClose = () => {
     setEmail('');
-    setRole('EDITOR');
     setMessage('');
     setMessageType('');
     onClose();
@@ -169,176 +166,67 @@ function InviteModal({ isOpen, onClose, pageId }) {
           color: '#6b7280',
           lineHeight: 1.5
         }}>
-          이메일 주소를 입력하여 다른 사용자를 이 페이지에 초대하세요.
+          이메일 주소를 입력하여 다른 사용자를 이 페이지에 초대하세요.<br/>
           초대받은 사용자는 이메일로 초대 링크를 받게 됩니다.
         </p>
 
-        {/* 폼 */}
+        {/* 이메일 입력 폼 */}
         <form onSubmit={handleSendInvitation}>
-          {/* 이메일 입력 */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
-              이메일 주소 *
-            </label>
             <input
               type="email"
+              placeholder="이메일 주소 입력"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@email.com"
+              onChange={e => setEmail(e.target.value)}
               style={{
                 width: '100%',
                 padding: '12px',
-                border: '2px solid #e5e7eb',
                 borderRadius: '8px',
-                fontSize: '14px',
-                outline: 'none',
-                transition: 'border-color 0.2s',
-                boxSizing: 'border-box'
+                border: '1px solid #e5e7eb',
+                fontSize: '16px',
+                fontFamily: 'inherit',
+                marginBottom: '8px'
               }}
-              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-              disabled={loading}
+              required
             />
           </div>
-
-          {/* 역할 선택 */}
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
-              역할
-            </label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '14px',
-                outline: 'none',
-                backgroundColor: 'white',
-                cursor: 'pointer',
-                boxSizing: 'border-box'
-              }}
-              disabled={loading}
-            >
-              <option value="VIEWER">보기 권한 (Viewer)</option>
-              <option value="EDITOR">편집 권한 (Editor)</option>
-              <option value="ADMIN">관리자 권한 (Admin)</option>
-            </select>
-          </div>
-
-          {/* 메시지 */}
-          {message && (
-            <div style={{
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
               padding: '12px',
               borderRadius: '8px',
-              marginBottom: '20px',
-              fontSize: '14px',
-              backgroundColor: messageType === 'success' ? '#dcfce7' : '#fef2f2',
-              color: messageType === 'success' ? '#166534' : '#dc2626',
-              border: `1px solid ${messageType === 'success' ? '#bbf7d0' : '#fecaca'}`
-            }}>
-              {message}
-            </div>
-          )}
-
-          {/* 버튼들 */}
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            justifyContent: 'flex-end'
-          }}>
-            <button
-              type="button"
-              onClick={handleClose}
-              style={{
-                padding: '12px 20px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                backgroundColor: 'white',
-                color: '#374151',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.backgroundColor = '#f9fafb';
-                e.target.style.borderColor = '#d1d5db';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.backgroundColor = 'white';
-                e.target.style.borderColor = '#e5e7eb';
-              }}
-              disabled={loading}
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              style={{
-                padding: '12px 20px',
-                border: 'none',
-                borderRadius: '8px',
-                backgroundColor: loading ? '#9ca3af' : '#3b82f6',
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                transition: 'background-color 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-              onMouseOver={(e) => {
-                if (!loading) {
-                  e.target.style.backgroundColor = '#2563eb';
-                }
-              }}
-              onMouseOut={(e) => {
-                if (!loading) {
-                  e.target.style.backgroundColor = '#3b82f6';
-                }
-              }}
-              disabled={loading}
-            >
-              {loading && (
-                <div style={{
-                  width: '16px',
-                  height: '16px',
-                  border: '2px solid transparent',
-                  borderTop: '2px solid white',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }} />
-              )}
-              {loading ? '발송 중...' : '📧 초대 보내기'}
-            </button>
-          </div>
+              background: 'linear-gradient(90deg, #7c3aed 0%, #f472b6 100%)',
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '16px',
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              marginBottom: '12px',
+              transition: 'background 0.2s'
+            }}
+          >
+            {loading ? '초대 중...' : '초대 보내기'}
+          </button>
         </form>
 
-        {/* 스피너 애니메이션 */}
-        <style>
-          {`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}
-        </style>
+        {/* 메시지 */}
+        {message && (
+          <div style={{
+            marginTop: '10px',
+            color: messageType === 'success' ? '#059669' : '#d32f2f',
+            background: messageType === 'success' ? '#ecfdf5' : '#ffebee',
+            borderRadius: '6px',
+            padding: '12px',
+            fontSize: '15px',
+            textAlign: 'center',
+            fontWeight: 500
+          }}>
+            {message}
+          </div>
+        )}
       </div>
     </div>
   );
