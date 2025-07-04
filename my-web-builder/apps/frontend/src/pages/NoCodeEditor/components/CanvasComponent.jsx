@@ -265,6 +265,7 @@ function CanvasComponent({
     if (isResizing) return;
     
     e.stopPropagation();
+    console.log('드래그 시작:', comp.id, '현재 위치:', comp.x, comp.y);
     setIsDragging(true);
     setDragStart({
       x: e.clientX,
@@ -315,6 +316,8 @@ function CanvasComponent({
       const lines = calculateSnapLines({ ...comp, x: newX, y: newY }, otherComponents, zoom, viewport, getComponentDimensions);
       setSnapLines(lines);
     }
+    
+    console.log('드래그 중:', comp.id, '새 위치:', newX, newY);
     
     onUpdate({
       ...comp,
