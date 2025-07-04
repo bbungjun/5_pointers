@@ -65,6 +65,6 @@ jobs:
           
           echo "✅ Deployment completed successfully!"
           
-          # 서비스 상태 확인
+          # 서비스 상태 확인 .
           echo "📊 Service status:"
           pm2 status
