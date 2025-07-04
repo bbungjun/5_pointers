@@ -1,79 +1,19 @@
-name: CI/CD Pipeline
+name: Deploy to EC2
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
-env:
-  NODE_VERSION: '18'
-
 jobs:
-  # 1단계: 코드 품질 검사
-  test:
-    name: Test & Lint
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run tests
-      run: npm test --if-present
-      
-    - name: Run linting
-      run: npm run lint --if-present
-
-  # 2단계: 빌드
-  build:
-    name: Build Applications
-    runs-on: ubuntu-latest
-    needs: test
-    strategy:
-      matrix:
-        app: [backend, editor, subdomain-nextjs]
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build ${{ matrix.app }}
-      run: |
-        if [ -d "apps/${{ matrix.app }}" ]; then
-          cd apps/${{ matrix.app }}
-          npm install
-          npm run build --if-present
-        elif [ -d "${{ matrix.app }}" ]; then
-          cd ${{ matrix.app }}
-          npm install
-          npm run build --if-present
-        fi
-
-  # 3단계: 배포 (main 브랜치만)
   deploy:
-    name: Deploy to EC2
+    name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [test, build]
     if: github.ref == 'refs/heads/main'
+    
     steps:
-    - name: Deploy to Production
+    - name: Deploy to EC2
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
@@ -89,44 +29,35 @@ jobs:
           echo "📥 Pulling latest code..."
           git pull origin main
           
-          # 의존성 설치
+          # 모노레포 의존성 설치
           echo "📦 Installing dependencies..."
-          npm install
+          cd my-web-builder
+          npm install -g pnpm
+          pnpm install
           
-          # 각 앱별 의존성 설치 및 빌드
-          echo "🔨 Building applications..."
+          # Backend 환경변수 설정
+          echo "🔧 Setting up backend environment..."
+          cd /home/ubuntu/5_pointers/backend
+          echo "NODE_ENV=production
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          DB_HOST=localhost
+          DB_PORT=3306
+          DB_USERNAME=root
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_DATABASE=jungle" > .env
           
-          # Backend 빌드
-          if [ -d "backend" ]; then
-            cd backend
-            npm install
-            npm run build --if-present
-            cd ..
-          fi
-          
-          # Editor 빌드
-          if [ -d "apps/editor" ]; then
-            cd apps/editor
-            npm install
-            npm run build --if-present
-            cd ../..
-          fi
-          
-          # Subdomain Next.js 빌드
-          if [ -d "apps/subdomain-nextjs" ]; then
-            cd apps/subdomain-nextjs
-            npm install
-            npm run build --if-present
-            cd ../..
-          fi
-          
-          # 서비스 재시작
+          # PM2 프로세스 재시작
           echo "🔄 Restarting services..."
           pm2 restart all || {
             echo "Starting new PM2 processes..."
-            pm2 start backend/dist/main.js --name "backend" || pm2 start backend/src/main.ts --name "backend"
-            pm2 start apps/editor/package.json --name "editor"
-            pm2 start apps/subdomain-nextjs/package.json --name "subdomain-nextjs"
+            
+            # Backend 시작
+            cd /home/ubuntu/5_pointers/backend
+            pm2 start npm --name backend -- run start:dev
+            
+            # Turbo 모노레포 시작
+            cd /home/ubuntu/5_pointers/my-web-builder
+            pm2 start "pnpm run dev" --name "turbo-dev"
           }
           
           # PM2 설정 저장
@@ -134,15 +65,6 @@ jobs:
           
           echo "✅ Deployment completed successfully!"
           
-          # 배포 상태 확인
+          # 서비스 상태 확인
           echo "📊 Service status:"
           pm2 status
-          
-    - name: Notify deployment status
-      if: always()
-      run: |
-        if [ "${{ job.status }}" == "success" ]; then
-          echo "✅ Deployment successful!"
-        else
-          echo "❌ Deployment failed!"
-        fi
