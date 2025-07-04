@@ -52,19 +52,20 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     };
   }, [targetDate]);
 
+  // 진짜 물방울처럼 투명한 스타일
   const bubbleStyle = {
     width: '60px',
     height: '60px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.3) 70%, rgba(255,255,255,0.1) 100%)',
+    background: 'radial-gradient(circle at 25% 25%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.1) 70%, rgba(255,255,255,0.05) 100%)',
     boxShadow: `
-      0 0 15px rgba(255,255,255,0.4),
-      0 0 30px rgba(255,255,255,0.2),
-      inset 0 0 15px rgba(255,255,255,0.2),
-      inset -7px -7px 15px rgba(0,0,0,0.1)
+      0 0 20px rgba(255,255,255,0.3),
+      0 0 40px rgba(255,255,255,0.1),
+      inset 0 0 20px rgba(255,255,255,0.3),
+      inset -8px -8px 20px rgba(0,0,0,0.05)
     `,
-    border: '1px solid rgba(255,255,255,0.3)',
-    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255,255,255,0.2)',
+    backdropFilter: 'blur(15px)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -73,15 +74,16 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     overflow: 'hidden'
   };
 
+  // 더 자연스러운 하이라이트
   const bubbleHighlight = {
     position: 'absolute',
-    top: '18%',
-    left: '28%',
-    width: '18px',
-    height: '18px',
+    top: '15%',
+    left: '20%',
+    width: '20px',
+    height: '20px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 70%, transparent 100%)',
-    filter: 'blur(1.5px)'
+    background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+    filter: 'blur(2px)'
   };
 
   const numberStyle = {
@@ -89,7 +91,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     fontWeight: '700',
     lineHeight: '1',
     color: theme === 'dark' ? '#ffffff' : '#1f2937',
-    textShadow: '0 1px 3px rgba(0,0,0,0.3)',
+    textShadow: '0 1px 3px rgba(0,0,0,0.4)',
     zIndex: 2,
     position: 'relative'
   };
@@ -103,6 +105,17 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     textAlign: 'center',
     marginTop: '4px',
     textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
+  };
+
+  // 콜론 스타일
+  const colonStyle = {
+    fontSize: '24px',
+    fontWeight: '700',
+    color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.8)' : 'rgba(31,41,55,0.6)',
+    textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
+    display: 'flex',
+    alignItems: 'center',
+    margin: '0 2px'
   };
 
   const getContainerStyle = () => {
@@ -138,10 +151,10 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
 
   return (
     <div style={getContainerStyle()}>
-      {/* 물방울과 단위를 세로로 배치한 블록들 */}
+      {/* 물방울과 단위를 세로로 배치한 블록들 + 콜론 */}
       <div style={{
         display: 'flex',
-        gap: '8px',
+        gap: '4px',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: '10px'
@@ -157,6 +170,9 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
           <div style={labelStyle}>Days</div>
         </div>
 
+        {/* 콜론 */}
+        <div style={colonStyle}>:</div>
+
         {/* Hours */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={bubbleStyle}>
@@ -168,6 +184,9 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
           <div style={labelStyle}>Hours</div>
         </div>
 
+        {/* 콜론 */}
+        <div style={colonStyle}>:</div>
+
         {/* Minutes */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={bubbleStyle}>
@@ -178,6 +197,9 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
           </div>
           <div style={labelStyle}>Minutes</div>
         </div>
+
+        {/* 콜론 */}
+        <div style={colonStyle}>:</div>
 
         {/* Seconds */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
