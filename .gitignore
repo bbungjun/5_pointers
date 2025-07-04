@@ -9,3 +9,5 @@ logs/
 *.log
 .deployed-sites/
 deployed-sites/
+backend/deployed-sites/
+my-web-builder/apps/api/deployed-sites/
