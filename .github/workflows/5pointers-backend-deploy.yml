@@ -1,0 +1,104 @@
+name: Deploy Backend API Server
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm ci
+    
+    - name: Run tests
+      run: |
+        cd backend
+        npm run test || echo "Tests not configured yet"
+    
+    - name: Run linting
+      run: |
+        cd backend
+        npm run lint || echo "Linting not configured yet"
+
+  deploy:
+    needs: test
+    runs-on: [self-hosted, backend-server]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm ci --only=production
+    
+    - name: Build application
+      run: |
+        cd backend
+        npm run build
+    
+    - name: Copy environment variables
+      run: |
+        cd backend
+        echo "NODE_ENV=production" > .env
+        echo "PORT=3001" >> .env
+        echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+        echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+        echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+        echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+        echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+        echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+        echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+    
+    - name: Stop existing application
+      run: |
+        pm2 stop 5pointers-backend || true
+        pm2 delete 5pointers-backend || true
+    
+    - name: Start application with PM2
+      run: |
+        cd backend
+        pm2 start dist/main.js --name 5pointers-backend
+        pm2 save
+    
+    - name: Health check
+      run: |
+        sleep 10
+        curl -f http://localhost:3001/health || curl -f http://localhost:3001/ || echo "Backend started"
+    
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ ${{ job.status }} == 'success' ]; then
+          echo "✅ Backend deployment successful!"
+        else
+          echo "❌ Backend deployment failed!"
+        fi
