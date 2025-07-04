@@ -4,8 +4,12 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
-  const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage || '';
   const theme = comp.props.theme || comp.defaultProps?.theme || 'light';
+  
+  // 로컬 상태로 배경 이미지 관리
+  const [currentBackgroundImage, setCurrentBackgroundImage] = useState(
+    comp.props.backgroundImage || comp.defaultProps?.backgroundImage || ''
+  );
   
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -52,7 +56,6 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     };
   }, [targetDate]);
 
-  // 제목 제거로 더 큰 물방울 가능
   const bubbleStyle = {
     width: '60px',
     height: '60px',
@@ -74,7 +77,6 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     overflow: 'hidden'
   };
 
-  // 더 큰 하이라이트 효과
   const bubbleHighlight = {
     position: 'absolute',
     top: '18%',
@@ -86,7 +88,6 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     filter: 'blur(1.5px)'
   };
 
-  // 물방울 안에는 숫자만
   const numberStyle = {
     fontSize: '18px',
     fontWeight: '700',
@@ -97,16 +98,15 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     position: 'relative'
   };
 
-  // 물방울 밖 단위 표시
   const labelStyle = {
     fontSize: '10px',
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.8)',
+    color: currentBackgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.8)',
     textAlign: 'center',
     marginTop: '4px',
-    textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
+    textShadow: currentBackgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
   };
 
   const backgroundOptions = [
@@ -118,11 +118,20 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
   ];
 
   const handleBackgroundChange = (newBackgroundImage) => {
+    // 로컬 상태 즉시 업데이트
+    setCurrentBackgroundImage(newBackgroundImage);
+    
+    // props 업데이트 시도 (있으면)
     if (onPropsChange) {
       onPropsChange({
         ...comp.props,
         backgroundImage: newBackgroundImage
       });
+    }
+    
+    // 컴포넌트 props 직접 업데이트 시도
+    if (comp.props) {
+      comp.props.backgroundImage = newBackgroundImage;
     }
   };
 
@@ -141,10 +150,10 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       overflow: 'hidden'
     };
 
-    if (backgroundImage) {
+    if (currentBackgroundImage) {
       return {
         ...baseStyle,
-        background: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${backgroundImage})`,
+        background: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${currentBackgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -172,7 +181,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
           zIndex: 10
         }}>
           <select 
-            value={backgroundImage}
+            value={currentBackgroundImage}
             onChange={(e) => handleBackgroundChange(e.target.value)}
             style={{
               border: 'none',
@@ -247,9 +256,9 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       <div style={{
         fontSize: '12px',
         fontWeight: '500',
-        color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.7)',
+        color: currentBackgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.7)',
         textAlign: 'center',
-        textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
+        textShadow: currentBackgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
         background: 'rgba(255,255,255,0.1)',
         padding: '4px 10px',
         borderRadius: '12px',
