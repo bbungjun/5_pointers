@@ -1,16 +1,19 @@
-name: Deploy to EC2
+name: Deploy to EC2 (DISABLED)
+
+# 이 워크플로우는 비활성화되었습니다.
+# self-hosted runners를 사용하는 개별 워크플로우들을 대신 사용합니다.
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
 
 jobs:
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: false  # 항상 false로 설정하여 실행 방지
     
     steps:
     - name: Deploy to EC2
@@ -48,23 +51,6 @@ jobs:
           
           # PM2 프로세스 재시작
           echo "🔄 Restarting services..."
-          pm2 restart all || {
-            echo "Starting new PM2 processes..."
-            
-            # Backend 시작
-            cd /home/ubuntu/5_pointers/backend
-            pm2 start npm --name backend -- run start:dev
-            
-            # Turbo 모노레포 시작
-            cd /home/ubuntu/5_pointers/my-web-builder
-            pm2 start "pnpm run dev" --name "turbo-dev"
-          }
-          
-          # PM2 설정 저장
-          pm2 save
+          pm2 restart all || pm2 start ecosystem.config.js
           
           echo "✅ Deployment completed successfully!"
-          
-          # 서비스 상태 확인 .
-          echo "📊 Service status:"
-          pm2 status
