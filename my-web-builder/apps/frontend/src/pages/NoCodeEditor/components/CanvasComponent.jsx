@@ -16,6 +16,7 @@ import BankAccountRenderer from '../ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import { clamp, resolveCollision, calculateSnapPosition, calculateSnapLines } from '../utils/editorUtils';
 import MusicRenderer from '../ComponentRenderers/MusicRenderer';
+import KakaoTalkShareRenderer from '../ComponentRenderers/KakaoTalkShareRenderer';
 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
@@ -171,6 +172,8 @@ function CanvasComponent({
         return <CommentRenderer comp={comp} isEditor={true} viewport={viewport} />;
       case 'musicPlayer':
         return <MusicRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+      case 'kakaotalkShare':
+        return <KakaoTalkShareRenderer comp={comp} isEditor={true} />;
       default:
         return <span>{comp.props.text}</span>;
     }

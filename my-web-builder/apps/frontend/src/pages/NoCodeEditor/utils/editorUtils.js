@@ -35,7 +35,8 @@ export function getComponentDimensions(type) {
     calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 300, minHeight: 350 },
     bankAccount: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
     comment: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
-    musicPlayer: { defaultWidth: 150, defaultHeight: 150, minWidth: 100, minHeight: 100 }
+    musicPlayer: { defaultWidth: 150, defaultHeight: 150, minWidth: 100, minHeight: 100 },
+    kakaotalkShare: { defaultWidth: 180, defaultHeight: 60, minWidth: 120, minHeight: 40 }
   };
   return dimensions[type] || { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 };
 }

@@ -10,7 +10,7 @@ import ImageEditor from './ComponentEditors/ImageEditor.jsx';
 import BankAccountEditor from './ComponentEditors/BankAccountEditor.jsx';
 import WeddingInviteEditor from './ComponentEditors/WeddingInviteEditor';
 import MusicEditor from './ComponentEditors/MusicEditor';
-
+import KakaoTalkShareEditor from './ComponentEditors/KakaoTalkShareEditor.jsx';
 
 
 export default function ComponentEditor({ selectedComp, onUpdate }) {
@@ -41,6 +41,8 @@ export default function ComponentEditor({ selectedComp, onUpdate }) {
             return <WeddingInviteEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
         case 'musicPlayer':
             return <MusicEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
+        case 'kakaotalkShare':
+            return <KakaoTalkShareEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
         default:
             return <p>Select a component to edit its properties.</p>;
     }

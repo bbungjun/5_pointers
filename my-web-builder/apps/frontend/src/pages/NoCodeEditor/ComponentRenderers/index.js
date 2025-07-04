@@ -15,6 +15,7 @@ export { default as BankAccountRenderer } from './BankAccountRenderer';
 export { default as CommentRenderer } from './CommentRenderer';
 export { default as WeddingInviteRenderer } from './WeddingInviteRenderer'; 
 export { default as MusicRenderer } from './MusicRenderer';
+export { default as KakaoTalkShareRenderer } from "./KakaoTalkShareRenderer";
 
 
 // 개별 import (getRendererByType 함수에서 사용)
@@ -34,6 +35,7 @@ import BankAccountRenderer from './BankAccountRenderer';
 import CommentRenderer from './CommentRenderer';
 import WeddingInviteRenderer from './WeddingInviteRenderer'; 
 import MusicRenderer from './MusicRenderer';
+import KakaoTalkShareRenderer from "./KakaoTalkShareRenderer";
 
 
 // 컴포넌트 타입별 렌더러 매핑 함수
@@ -71,6 +73,8 @@ export function getRendererByType(type) {
       return WeddingInviteRenderer;
     case 'musicPlayer':
       return MusicRenderer;
+    case 'kakaotalkShare':
+      return KakaoTalkShareRenderer;
     default:
       return null;
   }

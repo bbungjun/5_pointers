@@ -14,6 +14,7 @@ import bankAccount from './bank-account.json';
 import commentDef from './comment.json';
 import weddingInviteDef from './wedding-invite.json';
 import musicDef from './music.json';
+import kakaotalkShareDef from './kakaotalk-share.json';
 
 export const ComponentList = [
   buttonDef,
@@ -31,7 +32,8 @@ export const ComponentList = [
   calendarDef,
   commentDef,
   weddingInviteDef,
-  musicDef
+  musicDef,
+  kakaotalkShareDef
 ];
 
 // 기존 코드와의 호환성을 위해 ComponentDefinitions도 export
