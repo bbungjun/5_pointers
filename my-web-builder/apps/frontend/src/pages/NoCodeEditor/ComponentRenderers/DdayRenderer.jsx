@@ -5,7 +5,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
   const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage || '';
-  const theme = comp.props.theme || comp.defaultProps?.theme || 'light';
+  const textColor = comp.props.textColor || comp.defaultProps?.textColor || '#1f2937';
   
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -77,21 +77,21 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
   // 더 자연스러운 하이라이트
   const bubbleHighlight = {
     position: 'absolute',
-    top: '15%',
-    left: '20%',
-    width: '20px',
-    height: '20px',
+    top: '18%',
+    left: '28%',
+    width: '18px',
+    height: '18px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
-    filter: 'blur(2px)'
+    background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 70%, transparent 100%)',
+    filter: 'blur(1.5px)'
   };
 
   const numberStyle = {
     fontSize: '18px',
     fontWeight: '700',
     lineHeight: '1',
-    color: theme === 'dark' ? '#ffffff' : '#1f2937',
-    textShadow: '0 1px 3px rgba(0,0,0,0.4)',
+    color: textColor,
+    textShadow: '0 2px 4px rgba(0,0,0,0.6)',
     zIndex: 2,
     position: 'relative'
   };
@@ -101,7 +101,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.8)',
+    color: backgroundImage ? 'rgba(255,255,255,0.9)' : textColor,
     textAlign: 'center',
     marginTop: '4px',
     textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
@@ -111,7 +111,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
   const colonStyle = {
     fontSize: '24px',
     fontWeight: '700',
-    color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.8)' : 'rgba(31,41,55,0.6)',
+    color: backgroundImage ? 'rgba(255,255,255,0.8)' : textColor,
     textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
     display: 'flex',
     alignItems: 'center',
@@ -217,7 +217,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       <div style={{
         fontSize: '12px',
         fontWeight: '500',
-        color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.7)',
+        color: backgroundImage ? 'rgba(255,255,255,0.9)' : textColor,
         textAlign: 'center',
         textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
         background: 'rgba(255,255,255,0.1)',

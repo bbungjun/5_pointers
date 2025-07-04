@@ -1,13 +1,12 @@
 import React from 'react';
-import { TextEditor, DateEditor } from '../PropertyEditors';
+import { DateEditor } from '../PropertyEditors';
 
 function DdayEditor({ selectedComp, onUpdate }) {
   const { defaultProps = {} } = selectedComp;
-  const title = selectedComp.props.title ?? defaultProps.title ?? '';
   const targetDate = selectedComp.props.targetDate ?? defaultProps.targetDate ?? '';
   const backgroundColor = selectedComp.props.backgroundColor ?? defaultProps.backgroundColor ?? '#f8fafc';
   const backgroundImage = selectedComp.props.backgroundImage ?? defaultProps.backgroundImage ?? '';
-  const theme = selectedComp.props.theme ?? defaultProps.theme ?? 'light';
+  const textColor = selectedComp.props.textColor ?? defaultProps.textColor ?? '#1f2937';
 
   const backgroundOptions = [
     { name: '기본', value: '' },
@@ -39,16 +38,6 @@ function DdayEditor({ selectedComp, onUpdate }) {
           </div>
         </div>
       </div>
-
-      <TextEditor
-        value={title}
-        onChange={value => onUpdate({
-          ...selectedComp,
-          props: { ...selectedComp.props, title: value }
-        })}
-        label="제목"
-        placeholder="디데이 제목을 입력하세요"
-      />
       
       <DateEditor
         value={targetDate}
@@ -124,7 +113,7 @@ function DdayEditor({ selectedComp, onUpdate }) {
         </div>
       )}
 
-      {/* 테마 선택 */}
+      {/* 글자색 선택 */}
       <div style={{ marginBottom: 16 }}>
         <label style={{
           display: 'block',
@@ -133,27 +122,23 @@ function DdayEditor({ selectedComp, onUpdate }) {
           color: '#1d2129',
           marginBottom: 6
         }}>
-          테마
+          글자색
         </label>
-        <select
-          value={theme}
+        <input
+          type="color"
+          value={textColor}
           onChange={(e) => onUpdate({
             ...selectedComp,
-            props: { ...selectedComp.props, theme: e.target.value }
+            props: { ...selectedComp.props, textColor: e.target.value }
           })}
           style={{
             width: '100%',
-            padding: '8px 12px',
+            height: 40,
             border: '1px solid #ddd',
             borderRadius: 6,
-            fontSize: 13,
-            backgroundColor: '#fff',
             cursor: 'pointer'
           }}
-        >
-          <option value="light">라이트</option>
-          <option value="dark">다크</option>
-        </select>
+        />
       </div>
     </div>
   );
