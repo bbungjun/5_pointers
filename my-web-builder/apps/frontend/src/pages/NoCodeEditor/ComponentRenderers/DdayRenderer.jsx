@@ -111,7 +111,6 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
 
   const backgroundOptions = [
     { name: '기본', value: '' },
-    { name: '꽃 배경 1', value: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800' },
     { name: '꽃 배경 2', value: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800' },
     { name: '자연 배경', value: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800' },
     { name: '하늘 배경', value: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800' }
