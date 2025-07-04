@@ -1,5 +1,6 @@
 import React from 'react';
 import ViewportController from '../ViewportController';
+import NotificationToggle from '../../../components/NotificationToggle';
 
 function EditorHeader({
   components,

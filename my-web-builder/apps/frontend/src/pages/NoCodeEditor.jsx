@@ -172,7 +172,7 @@ function NoCodeEditor() {
 
   // 연결 상태 및 협업 디버깅
   useEffect(() => {
-    console.log('========================');
+    // console.log('========================');
     
     if (isConnected) {
       // console.log('✅ 협업 서버에 연결되었습니다.');
@@ -203,10 +203,12 @@ function NoCodeEditor() {
           if (pageData.content && Array.isArray(pageData.content)) {
             // YJS가 준비되면 추가, 아니면 직접 상태 설정
             if (collaboration.ydoc) {
+              console.log('Y.js가 준비됨, DB 데이터를 Y.js에 추가');
               pageData.content.forEach(comp => {
                 addComponent(comp);
               });
             } else {
+              console.log('Y.js가 준비되지 않음, React 상태에 직접 설정');
               setComponents(pageData.content);
             }
           }
@@ -223,6 +225,7 @@ function NoCodeEditor() {
   // YJS가 나중에 초기화되면 데이터 동기화
   useEffect(() => {
     if (collaboration.ydoc && components.length > 0 && !collaboration.ydoc.getArray('components').length) {
+      console.log('Y.js가 나중에 초기화됨, React 상태의 컴포넌트들을 Y.js에 동기화');
       components.forEach(comp => {
         addComponent(comp);
       });
@@ -289,8 +292,8 @@ function NoCodeEditor() {
         let clampedX = clamp(snappedX, 0, maxX);
         let clampedY = clamp(snappedY, 0, maxY);
         
-        // 유니크한 ID 생성 - 타임스탬프 추가
-        const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        // 유니크한 ID 생성 - 더 안전한 방식
+        const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}-${userInfo.id}-${Math.random().toString(36).slice(2, 8)}`;
         
         const newComponent = {
           id: uniqueId,
@@ -320,6 +323,16 @@ function NoCodeEditor() {
           y: clampedY
         });
         
+        // Y.js에 추가된 후 상태 확인
+        setTimeout(() => {
+          console.log('컴포넌트 추가 후 Y.js 상태 확인');
+          const yComponents = collaboration.ydoc?.getArray('components');
+          if (yComponents) {
+            const yjsComponents = yComponents.toArray();
+            console.log('Y.js 컴포넌트들:', yjsComponents.map(c => ({ id: c.id, type: c.type })));
+          }
+        }, 100);
+        
         // 추가된 컴포넌트 자동 선택
         setTimeout(() => {
           setSelectedId(uniqueId);
@@ -335,10 +348,40 @@ function NoCodeEditor() {
 
   // 속성 변경 (스냅라인 포함)
   const handleUpdate = comp => {
-    console.log('컴포넌트 업데이트 요청:', comp.id, '위치:', comp.x, comp.y);
+    console.log('컴포넌트 업데이트 요청:', comp.id, '타입:', comp.type);
+    console.log('업데이트할 컴포넌트 전체:', comp);
     
-    // 협업 기능으로 컴포넌트 업데이트
-    updateComponent(comp.id, comp);
+    // 기존 컴포넌트 찾기
+    const existingComp = components.find(c => c.id === comp.id);
+    if (!existingComp) {
+      console.warn('업데이트할 컴포넌트를 찾을 수 없음:', comp.id);
+      console.log('현재 컴포넌트들:', components.map(c => ({ id: c.id, type: c.type })));
+      return;
+    }
+    
+    console.log('기존 컴포넌트:', existingComp);
+    
+    // 변경된 속성만 추출
+    const updates = {};
+    Object.keys(comp).forEach(key => {
+      if (JSON.stringify(existingComp[key]) !== JSON.stringify(comp[key])) {
+        updates[key] = comp[key];
+        console.log(`속성 변경 감지: ${key}`, {
+          기존: existingComp[key],
+          새로운: comp[key]
+        });
+      }
+    });
+    
+    console.log('변경된 속성:', updates);
+    
+    // 협업 기능으로 컴포넌트 업데이트 (변경된 속성만)
+    if (Object.keys(updates).length > 0) {
+      console.log('Y.js 업데이트 호출:', comp.id, updates);
+      updateComponent(comp.id, updates);
+    } else {
+      console.log('변경된 속성이 없음');
+    }
     
     // 스냅라인 계산
     const lines = calculateSnapLines(comp, components, zoom, viewport, getComponentDimensions);
