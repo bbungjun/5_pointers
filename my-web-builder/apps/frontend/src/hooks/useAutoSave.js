@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { API_BASE_URL } from '../config';
 
 /**
  * 자동저장 Hook
@@ -24,7 +25,7 @@ function useAutoSave(pageId, components, debounceMs = 2000) {
       setSaveError(null);
       
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/users/pages/${pageId}/content`, {
+      const response = await fetch(`${API_BASE_URL}/users/pages/${pageId}/content`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../../config';
 
 function CommentRenderer({ comp, isEditor = false }) {
   const { title, placeholder, backgroundColor } = comp.props;
@@ -12,7 +13,7 @@ function CommentRenderer({ comp, isEditor = false }) {
     if (isEditor) return; // 에디터 모드에서는 API 호출 안함
     
     try {
-      const response = await fetch(`http://localhost:3000/pages/${comp.pageId}/comments/${comp.id}`);
+      const response = await fetch(`${API_BASE_URL}/pages/${comp.pageId}/comments/${comp.id}`);
       if (response.ok) {
         const data = await response.json();
         setComments(data);
@@ -31,7 +32,7 @@ function CommentRenderer({ comp, isEditor = false }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/pages/${comp.pageId}/comments/${comp.id}`, {
+      const response = await fetch(`${API_BASE_URL}/pages/${comp.pageId}/comments/${comp.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newComment)
@@ -57,7 +58,7 @@ function CommentRenderer({ comp, isEditor = false }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/pages/${comp.pageId}/comments/${comp.id}/${showDeleteModal}`, {
+      const response = await fetch(`${API_BASE_URL}/pages/${comp.pageId}/comments/${comp.id}/${showDeleteModal}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: deletePassword })
