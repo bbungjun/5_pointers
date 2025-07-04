@@ -5,7 +5,7 @@ function DdayRenderer({ comp, isEditor }) {
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
   const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage || '';
-  const theme = comp.props.theme || comp.defaultProps?.theme || 'light'; // 'light' or 'dark'
+  const theme = comp.props.theme || comp.defaultProps?.theme || 'light';
   
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -33,7 +33,6 @@ function DdayRenderer({ comp, isEditor }) {
           seconds: Math.max(0, seconds)
         });
       } else {
-        // 목표 날짜가 지났을 때 모든 값을 0으로 설정
         setTimeLeft({
           days: 0,
           hours: 0,
@@ -46,76 +45,92 @@ function DdayRenderer({ comp, isEditor }) {
     // 초기 계산
     calculateTimeLeft();
 
-    // 1초마다 업데이트 (에디터 모드가 아닐 때만)
-    let interval;
-    if (!isEditor) {
-      interval = setInterval(calculateTimeLeft, 1000);
-    }
+    // 편집 중에도 1초마다 업데이트
+    const interval = setInterval(calculateTimeLeft, 1000);
 
     return () => {
       if (interval) {
         clearInterval(interval);
       }
     };
-  }, [targetDate, isEditor]);
+  }, [targetDate]);
 
-  const blockStyle = {
-    backgroundColor: theme === 'dark' 
-      ? 'rgba(0, 0, 0, 0.7)' 
-      : 'rgba(255, 255, 255, 0.9)',
-    color: theme === 'dark' ? '#ffffff' : '#1f2937',
-    borderRadius: '12px',
-    padding: '16px 12px',
-    minWidth: '80px',
+  // 물방울 모양 블록 스타일
+  const dropletStyle = {
+    width: '90px',
+    height: '100px',
+    background: theme === 'dark' 
+      ? 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)' 
+      : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,248,255,0.9) 100%)',
+    borderRadius: '50% 50% 50% 0',
+    transform: 'rotate(-45deg)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: theme === 'dark'
+      ? '0 8px 32px rgba(0,0,0,0.3), inset 0 2px 8px rgba(255,255,255,0.2)'
+      : '0 8px 32px rgba(0,0,0,0.15), inset 0 2px 8px rgba(255,255,255,0.8)',
+    border: '1px solid rgba(255,255,255,0.3)',
+    backdropFilter: 'blur(20px)',
+    position: 'relative',
+    margin: '20px'
+  };
+
+  const dropletContentStyle = {
+    transform: 'rotate(45deg)',
     textAlign: 'center',
-    boxShadow: theme === 'dark' 
-      ? '0 4px 12px rgba(0, 0, 0, 0.3)' 
-      : '0 4px 12px rgba(0, 0, 0, 0.1)',
-    backdropFilter: 'blur(10px)',
-    border: theme === 'dark' 
-      ? '1px solid rgba(255, 255, 255, 0.1)' 
-      : '1px solid rgba(0, 0, 0, 0.1)'
+    color: theme === 'dark' ? '#1f2937' : '#1f2937'
   };
 
   const numberStyle = {
-    fontSize: '32px',
+    fontSize: '24px',
     fontWeight: '700',
     lineHeight: '1',
-    marginBottom: '8px'
+    marginBottom: '4px'
   };
 
   const labelStyle = {
-    fontSize: '12px',
-    fontWeight: '500',
+    fontSize: '10px',
+    fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: '1px',
+    letterSpacing: '0.5px',
     opacity: 0.8
   };
+
+  // 배경 이미지 옵션들
+  const backgroundOptions = [
+    { name: '기본', value: '' },
+    { name: '꽃 배경 1', value: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800' },
+    { name: '꽃 배경 2', value: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800' },
+    { name: '자연 배경', value: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800' },
+    { name: '하늘 배경', value: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800' }
+  ];
 
   const getBackgroundStyle = () => {
     if (backgroundImage) {
       return {
-        background: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${backgroundImage})`,
+        background: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       };
     }
     return {
-      background: backgroundColor
+      background: `linear-gradient(135deg, ${backgroundColor} 0%, #e0f2fe 100%)`
     };
   };
 
   const containerStyle = {
     width: '100%',
     height: '100%',
-    minHeight: '200px',
+    minHeight: '250px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     padding: '24px',
-    borderRadius: '12px',
+    borderRadius: '16px',
     position: 'relative',
     overflow: 'hidden',
     ...getBackgroundStyle()
@@ -123,68 +138,116 @@ function DdayRenderer({ comp, isEditor }) {
 
   return (
     <div style={containerStyle}>
+      {/* 배경 이미지 선택 UI (편집 모드에서만 표시) */}
+      {isEditor && (
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          background: 'rgba(255,255,255,0.9)',
+          borderRadius: '8px',
+          padding: '8px',
+          backdropFilter: 'blur(10px)',
+          zIndex: 10
+        }}>
+          <select 
+            value={backgroundImage}
+            onChange={(e) => {
+              // 실제 구현에서는 props 업데이트 로직 필요
+              console.log('Background changed:', e.target.value);
+            }}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+          >
+            {backgroundOptions.map(option => (
+              <option key={option.name} value={option.value}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* 제목 */}
       {title && (
         <h2 style={{
-          fontSize: '24px',
+          fontSize: '28px',
           fontWeight: '600',
-          marginBottom: '32px',
+          marginBottom: '40px',
           color: backgroundImage || theme === 'dark' ? '#ffffff' : '#1f2937',
           textAlign: 'center',
-          textShadow: backgroundImage ? '0 2px 4px rgba(0,0,0,0.5)' : 'none'
+          textShadow: backgroundImage ? '0 2px 8px rgba(0,0,0,0.7)' : 'none',
+          fontFamily: '"Noto Sans KR", sans-serif'
         }}>
           {title}
         </h2>
       )}
 
-      {/* 카운트다운 블록들 */}
+      {/* 물방울 카운트다운 블록들 */}
       <div style={{
         display: 'flex',
-        gap: '16px',
+        gap: '10px',
         flexWrap: 'wrap',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: '20px'
       }}>
-        {/* Days */}
-        <div style={blockStyle}>
-          <div style={numberStyle}>
-            {timeLeft.days.toString().padStart(2, '0')}
+        {/* Days 물방울 */}
+        <div style={dropletStyle}>
+          <div style={dropletContentStyle}>
+            <div style={numberStyle}>
+              {timeLeft.days.toString().padStart(2, '0')}
+            </div>
+            <div style={labelStyle}>Days</div>
           </div>
-          <div style={labelStyle}>Days</div>
         </div>
 
-        {/* Hours */}
-        <div style={blockStyle}>
-          <div style={numberStyle}>
-            {timeLeft.hours.toString().padStart(2, '0')}
+        {/* Hours 물방울 */}
+        <div style={dropletStyle}>
+          <div style={dropletContentStyle}>
+            <div style={numberStyle}>
+              {timeLeft.hours.toString().padStart(2, '0')}
+            </div>
+            <div style={labelStyle}>Hours</div>
           </div>
-          <div style={labelStyle}>Hours</div>
         </div>
 
-        {/* Minutes */}
-        <div style={blockStyle}>
-          <div style={numberStyle}>
-            {timeLeft.minutes.toString().padStart(2, '0')}
+        {/* Minutes 물방울 */}
+        <div style={dropletStyle}>
+          <div style={dropletContentStyle}>
+            <div style={numberStyle}>
+              {timeLeft.minutes.toString().padStart(2, '0')}
+            </div>
+            <div style={labelStyle}>Minutes</div>
           </div>
-          <div style={labelStyle}>Minutes</div>
         </div>
 
-        {/* Seconds */}
-        <div style={blockStyle}>
-          <div style={numberStyle}>
-            {timeLeft.seconds.toString().padStart(2, '0')}
+        {/* Seconds 물방울 */}
+        <div style={dropletStyle}>
+          <div style={dropletContentStyle}>
+            <div style={numberStyle}>
+              {timeLeft.seconds.toString().padStart(2, '0')}
+            </div>
+            <div style={labelStyle}>Seconds</div>
           </div>
-          <div style={labelStyle}>Seconds</div>
         </div>
       </div>
 
       {/* 목표 날짜 표시 */}
       <div style={{
-        marginTop: '24px',
-        fontSize: '14px',
-        color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.8)' : 'rgba(31,41,55,0.6)',
+        fontSize: '16px',
+        fontWeight: '500',
+        color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.7)',
         textAlign: 'center',
-        textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
+        textShadow: backgroundImage ? '0 1px 4px rgba(0,0,0,0.5)' : 'none',
+        background: 'rgba(255,255,255,0.1)',
+        padding: '8px 16px',
+        borderRadius: '20px',
+        backdropFilter: 'blur(10px)'
       }}>
         {new Date(targetDate).toLocaleDateString('ko-KR', {
           year: 'numeric',
