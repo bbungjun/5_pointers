@@ -5,7 +5,6 @@
   "defaultProps": {
     "targetDate": "2024-12-31",
     "backgroundColor": "#f8fafc",
-    "backgroundImage": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800",
-    "textColor": "#1f2937"
+    "backgroundImage": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800"
   }
 }

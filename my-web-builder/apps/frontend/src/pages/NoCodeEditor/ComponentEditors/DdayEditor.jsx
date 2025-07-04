@@ -6,7 +6,6 @@ function DdayEditor({ selectedComp, onUpdate }) {
   const targetDate = selectedComp.props.targetDate ?? defaultProps.targetDate ?? '';
   const backgroundColor = selectedComp.props.backgroundColor ?? defaultProps.backgroundColor ?? '#f8fafc';
   const backgroundImage = selectedComp.props.backgroundImage ?? defaultProps.backgroundImage ?? '';
-  const textColor = selectedComp.props.textColor ?? defaultProps.textColor ?? '#1f2937';
 
   const backgroundOptions = [
     { name: '기본', value: '' },
@@ -112,34 +111,6 @@ function DdayEditor({ selectedComp, onUpdate }) {
           />
         </div>
       )}
-
-      {/* 글자색 선택 */}
-      <div style={{ marginBottom: 16 }}>
-        <label style={{
-          display: 'block',
-          fontSize: 12,
-          fontWeight: 600,
-          color: '#1d2129',
-          marginBottom: 6
-        }}>
-          글자색
-        </label>
-        <input
-          type="color"
-          value={textColor}
-          onChange={(e) => onUpdate({
-            ...selectedComp,
-            props: { ...selectedComp.props, textColor: e.target.value }
-          })}
-          style={{
-            width: '100%',
-            height: 40,
-            border: '1px solid #ddd',
-            borderRadius: 6,
-            cursor: 'pointer'
-          }}
-        />
-      </div>
     </div>
   );
 }

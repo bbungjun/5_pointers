@@ -5,7 +5,6 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
   const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage || '';
-  const textColor = comp.props.textColor || comp.defaultProps?.textColor || '#1f2937';
   
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -90,7 +89,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     fontSize: '18px',
     fontWeight: '700',
     lineHeight: '1',
-    color: textColor,
+    color: '#ffffff',
     textShadow: '0 2px 4px rgba(0,0,0,0.6)',
     zIndex: 2,
     position: 'relative'
@@ -101,18 +100,18 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    color: backgroundImage ? 'rgba(255,255,255,0.9)' : textColor,
+    color: '#ffffff',
     textAlign: 'center',
     marginTop: '4px',
-    textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
+    textShadow: '0 1px 2px rgba(0,0,0,0.5)'
   };
 
   // 콜론 스타일
   const colonStyle = {
     fontSize: '24px',
     fontWeight: '700',
-    color: backgroundImage ? 'rgba(255,255,255,0.8)' : textColor,
-    textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
+    color: '#ffffff',
+    textShadow: '0 1px 2px rgba(0,0,0,0.5)',
     display: 'flex',
     alignItems: 'center',
     margin: '0 2px'
@@ -217,9 +216,9 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       <div style={{
         fontSize: '12px',
         fontWeight: '500',
-        color: backgroundImage ? 'rgba(255,255,255,0.9)' : textColor,
+        color: '#ffffff',
         textAlign: 'center',
-        textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
+        textShadow: '0 1px 2px rgba(0,0,0,0.5)',
         background: 'rgba(255,255,255,0.1)',
         padding: '4px 10px',
         borderRadius: '12px',
