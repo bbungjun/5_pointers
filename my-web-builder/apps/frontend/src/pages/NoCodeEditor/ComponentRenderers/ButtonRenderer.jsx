@@ -4,7 +4,7 @@ function ButtonRenderer({ comp, isEditor = false }) {
   // console.log('버튼 컴포넌트 렌더링:', comp);
   
   const [editing, setEditing] = useState(false);
-  const [editValue, setEditValue] = useState(comp.props.text);
+  const [editValue, setEditValue] = useState(comp.props?.text || '');
   const inputRef = useRef();
   const buttonRef = useRef();
 
@@ -16,22 +16,22 @@ function ButtonRenderer({ comp, isEditor = false }) {
 
   // 폰트 적용을 위한 useEffect
   useEffect(() => {
-    if (buttonRef.current && comp.props.fontFamily) {
+    if (buttonRef.current && comp.props?.fontFamily) {
       buttonRef.current.style.setProperty('font-family', comp.props.fontFamily, 'important');
     }
-  }, [comp.props.fontFamily]);
+  }, [comp.props?.fontFamily]);
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
     if (isEditor) {
       setEditing(true);
-      setEditValue(comp.props.text);
+      setEditValue(comp.props?.text || '');
     }
   };
 
   const handleBlur = () => {
     setEditing(false);
-    if (editValue !== comp.props.text) {
+    if (editValue !== (comp.props?.text || '')) {
       alert('버튼 텍스트가 변경되었습니다. (실제 구현에서는 onUpdate 콜백을 호출해야 합니다)');
     }
   };
@@ -39,21 +39,21 @@ function ButtonRenderer({ comp, isEditor = false }) {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       setEditing(false);
-      if (editValue !== comp.props.text) {
+      if (editValue !== (comp.props?.text || '')) {
         alert('버튼 텍스트가 변경되었습니다. (실제 구현에서는 onUpdate 콜백을 호출해야 합니다)');
       }
     }
   };
 
-  const fontStyle = comp.props.fontFamily || 'Arial, sans-serif';
-  const textAlign = comp.props.textAlign || 'center';
-  const lineHeight = comp.props.lineHeight || 1.2;
-  const letterSpacing = comp.props.letterSpacing || 0;
-  const fontWeight = comp.props.fontWeight ? 'bold' : 'normal';
-  const textDecoration = comp.props.textDecoration ? 'underline' : 'none';
+  const fontStyle = comp.props?.fontFamily || 'Arial, sans-serif';
+  const textAlign = comp.props?.textAlign || 'center';
+  const lineHeight = comp.props?.lineHeight || 1.2;
+  const letterSpacing = comp.props?.letterSpacing || 0;
+  const fontWeight = comp.props?.fontWeight ? 'bold' : 'normal';
+  const textDecoration = comp.props?.textDecoration ? 'underline' : 'none';
   
   // 기울임 처리 - 구글 독스 방식으로 강제 기울임 적용
-  const isItalic = comp.props.fontStyle;
+  const isItalic = comp.props?.fontStyle;
   const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
 
   if (editing && isEditor) {
@@ -65,7 +65,7 @@ function ButtonRenderer({ comp, isEditor = false }) {
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         style={{
-          fontSize: (comp.props.fontSize || 18) + 'px',
+          fontSize: (comp.props?.fontSize || 18) + 'px',
           fontFamily: fontStyle,
           textAlign: textAlign,
           lineHeight: lineHeight,
@@ -84,7 +84,7 @@ function ButtonRenderer({ comp, isEditor = false }) {
     );
   }
 
-  const textContent = comp.props.text || '클릭하세요';
+  const textContent = comp.props?.text || '클릭하세요';
 
   return (
     <div 
@@ -96,9 +96,9 @@ function ButtonRenderer({ comp, isEditor = false }) {
         alignItems: 'center', 
         justifyContent: textAlign === 'left' ? 'flex-start' : 
                        textAlign === 'right' ? 'flex-end' : 'center',
-        background: comp.props.bg || '#3B4EFF', 
-        color: comp.props.color || '#fff',
-        fontSize: (comp.props.fontSize || 18) + 'px', 
+        background: comp.props?.bg || '#3B4EFF', 
+        color: comp.props?.color || '#fff',
+        fontSize: (comp.props?.fontSize || 18) + 'px', 
         fontFamily: fontStyle,
         fontWeight: fontWeight,
         textDecoration: textDecoration,

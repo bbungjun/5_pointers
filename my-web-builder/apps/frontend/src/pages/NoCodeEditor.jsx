@@ -22,7 +22,10 @@ import {
   randomColor, 
   getComponentDimensions,
   resolveCollision,
-  calculateSnapLines 
+  calculateSnapLines,
+  getFinalStyles,
+  migrateToResponsive,
+  arrangeMobileComponents
 } from './NoCodeEditor/utils/editorUtils';
 import { API_BASE_URL } from '../config';
 
@@ -201,15 +204,30 @@ function NoCodeEditor() {
           console.log('📦 페이지 데이터 로딩:', pageData);
           
           if (pageData.content && Array.isArray(pageData.content)) {
+            console.log('📦 원본 컴포넌트들:', pageData.content.map(c => ({ 
+              id: c.id, 
+              x: c.x, 
+              y: c.y, 
+              responsive: c.responsive ? '이미 responsive' : '마이그레이션 필요' 
+            })));
+            
+            // 컴포넌트들을 responsive 구조로 마이그레이션
+            const migratedComponents = pageData.content.map(comp => migrateToResponsive(comp));
+            
+            console.log('🔄 마이그레이션된 컴포넌트들:', migratedComponents.map(c => ({ 
+              id: c.id, 
+              desktop: c.responsive?.desktop 
+            })));
+            
             // YJS가 준비되면 추가, 아니면 직접 상태 설정
             if (collaboration.ydoc) {
-              console.log('Y.js가 준비됨, DB 데이터를 Y.js에 추가');
-              pageData.content.forEach(comp => {
+              console.log('Y.js가 준비됨, DB 데이터를 Y.js에 추가 (responsive 마이그레이션 완료)');
+              migratedComponents.forEach(comp => {
                 addComponent(comp);
               });
             } else {
-              console.log('Y.js가 준비되지 않음, React 상태에 직접 설정');
-              setComponents(pageData.content);
+              console.log('Y.js가 준비되지 않음, React 상태에 직접 설정 (responsive 마이그레이션 완료)');
+              setComponents(migratedComponents);
             }
           }
           setPageLoaded(true);
@@ -295,33 +313,50 @@ function NoCodeEditor() {
         // 유니크한 ID 생성 - 더 안전한 방식
         const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}-${userInfo.id}-${Math.random().toString(36).slice(2, 8)}`;
         
-        const newComponent = {
+        // 충돌 방지를 위한 임시 컴포넌트 생성
+        const tempComponent = {
           id: uniqueId,
           type,
           x: clampedX,
           y: clampedY,
           width,
-          height,
-          props: { ...compDef.defaultProps },
-          createdBy: userInfo.id, // 생성자 정보 추가
-          createdAt: Date.now() // 생성 시간 추가
+          height
         };
         
-        const collisionResult = resolveCollision(newComponent, components, getComponentDimensions);
+        const collisionResult = resolveCollision(tempComponent, components, getComponentDimensions);
         clampedX = collisionResult.x;
         clampedY = collisionResult.y;
         
         clampedX = clamp(clampedX, 0, maxX);
         clampedY = clamp(clampedY, 0, maxY);
         
-        console.log('컴포넌트 추가 요청:', uniqueId, type, { x: clampedX, y: clampedY });
+        // responsive 구조로 새 컴포넌트 생성
+        const newComponent = {
+          id: uniqueId,
+          type,
+          responsive: {
+            desktop: {
+              x: clampedX,
+              y: clampedY,
+              width,
+              height,
+              props: { ...(compDef?.defaultProps || {}) }
+            }
+          },
+          // 호환성을 위한 기존 필드
+          x: clampedX,
+          y: clampedY,
+          width,
+          height,
+          props: { ...(compDef?.defaultProps || {}) },
+          createdBy: userInfo.id, // 생성자 정보 추가
+          createdAt: Date.now() // 생성 시간 추가
+        };
+        
+        console.log('🆕 새 컴포넌트 responsive 구조로 생성:', uniqueId, type, newComponent.responsive.desktop);
         
         // 협업 기능으로 컴포넌트 추가
-        addComponent({
-          ...newComponent,
-          x: clampedX,
-          y: clampedY
-        });
+        addComponent(newComponent);
         
         // Y.js에 추가된 후 상태 확인
         setTimeout(() => {
@@ -471,10 +506,148 @@ function NoCodeEditor() {
 
   // 뷰포트 전환 핸들러
   const handleViewportChange = useCallback((newViewport) => {
+    console.log(`🔄 뷰포트 변경: ${viewport} → ${newViewport}`);
+    
+    // 뷰포트 변경 시 현재 컴포넌트들의 responsive 구조 확인
+    if (components.length > 0) {
+      console.log('📊 뷰포트 변경 시 컴포넌트 상태 확인:');
+      components.forEach(comp => {
+        console.log(`  ${comp.id}:`, {
+          responsive: comp.responsive,
+          currentViewportStyles: getFinalStyles(comp, viewport),
+          newViewportStyles: getFinalStyles(comp, newViewport)
+        });
+      });
+    }
+    
     setViewport(newViewport);
     // 뷰포트 변경 시 선택된 컴포넌트 해제 (UX 향상)
     setSelectedId(null);
-  }, []);
+  }, [viewport, components]);
+
+  // 모바일 뷰포트 변경 시 캔버스 밖 컴포넌트들을 캔버스 안으로 자동 이동
+  const prevViewportRef = useRef(viewport);
+  const componentsRef = useRef(components);
+  const updateComponentRef = useRef(updateComponent);
+  const canvasHeightRef = useRef(canvasHeight);
+  const setCanvasHeightRef = useRef(setCanvasHeight);
+
+  // 최신 값으로 ref 업데이트
+  useEffect(() => {
+    componentsRef.current = components;
+    updateComponentRef.current = updateComponent;
+    canvasHeightRef.current = canvasHeight;
+    setCanvasHeightRef.current = setCanvasHeight;
+  }, [components, updateComponent, canvasHeight]);
+  
+  useEffect(() => {
+    const prevViewport = prevViewportRef.current;
+    prevViewportRef.current = viewport;
+    
+    // 모바일에서 데스크탑으로 돌아간 경우 상태 확인
+    if (prevViewport === 'mobile' && viewport === 'desktop') {
+      console.log('🖥️ 모바일에서 데스크탑으로 돌아감, 데스크탑 위치 복원 확인');
+      setTimeout(() => {
+        const currentComponents = componentsRef.current;
+        if (currentComponents.length > 0) {
+          console.log('📊 데스크탑 복원 시 컴포넌트 위치 확인:');
+          currentComponents.forEach(comp => {
+            const desktopStyles = getFinalStyles(comp, 'desktop');
+            const mobileStyles = getFinalStyles(comp, 'mobile');
+            console.log(`  ${comp.id}:`, {
+              responsive: comp.responsive,
+              desktop: desktopStyles,
+              mobile: mobileStyles,
+              currentlyRendering: desktopStyles
+            });
+          });
+        }
+      }, 100);
+    }
+    
+    // 다른 뷰포트에서 모바일로 변경된 경우에만 실행
+    if (prevViewport !== 'mobile' && viewport === 'mobile') {
+      // 타이머를 사용해서 viewport 변경 후 잠시 후에 실행 (컴포넌트 로딩 대기)
+              const timer = setTimeout(() => {
+        const currentComponents = componentsRef.current;
+        const currentUpdateComponent = updateComponentRef.current;
+        const currentCanvasHeight = canvasHeightRef.current;
+        const currentSetCanvasHeight = setCanvasHeightRef.current;
+        
+        console.log('🚀 모바일 자동 정렬 타이머 실행됨');
+        console.log('📊 현재 컴포넌트 수:', currentComponents.length);
+        
+        if (currentComponents.length > 0) {
+          console.log('🔄 모바일 뷰포트로 변경됨, 캔버스 밖 컴포넌트들을 자동 정렬합니다.');
+          
+          const MOBILE_CANVAS_WIDTH = 375;
+          
+          // 겹치지 않게 배치하기 위한 자동 정렬
+          const arrangeUpdates = arrangeMobileComponents(currentComponents, MOBILE_CANVAS_WIDTH, getComponentDimensions);
+          
+          if (arrangeUpdates.length > 0) {
+            console.log(`📱 캔버스 밖에 있는 컴포넌트 ${arrangeUpdates.length}개를 겹치지 않게 재배치합니다.`);
+            
+            // 캔버스 자동 확장: 배치된 컴포넌트들이 모두 들어갈 수 있는 높이 계산
+            let maxBottomY = 667; // 모바일 기본 높이
+            for (const update of arrangeUpdates) {
+              const bottomY = update.newPosition.y + update.newPosition.height + 40; // 여유 공간
+              maxBottomY = Math.max(maxBottomY, bottomY);
+            }
+            
+            // 캔버스 높이 확장
+            if (maxBottomY > currentCanvasHeight) {
+              console.log(`📐 캔버스 높이 자동 확장: ${currentCanvasHeight} → ${maxBottomY}`);
+              currentSetCanvasHeight(maxBottomY);
+            }
+            
+            // 모든 배치 업데이트 적용
+            for (const update of arrangeUpdates) {
+              const { component, newPosition } = update;
+              
+              console.log(`📦 컴포넌트 ${component.id} 재배치: (${update.originalPosition.x}, ${update.originalPosition.y}) → (${newPosition.x}, ${newPosition.y})`);
+              
+              // 데스크탑 위치를 명시적으로 보존하며 모바일 위치만 업데이트
+              const currentDesktopPosition = component.responsive?.desktop || {
+                x: component.x || 0,
+                y: component.y || 0,
+                width: component.width,
+                height: component.height,
+                props: component.props || {}
+              };
+              
+              console.log(`🔒 ${component.id} 데스크탑 위치 보존:`, currentDesktopPosition);
+              
+              const updatedResponsive = {
+                ...component.responsive,
+                desktop: currentDesktopPosition, // 데스크탑 위치 명시적으로 보존
+                mobile: {
+                  ...(component.responsive?.mobile || {}),
+                  x: newPosition.x,
+                  y: newPosition.y
+                }
+              };
+              
+              console.log(`🔄 ${component.id} responsive 업데이트:`, updatedResponsive);
+              console.log(`   기존 responsive:`, component.responsive);
+              console.log(`   새로운 responsive:`, updatedResponsive);
+              console.log(`   🔍 desktop 위치 보존 확인:`, updatedResponsive.desktop);
+              
+              currentUpdateComponent(component.id, { responsive: updatedResponsive });
+            }
+            
+            console.log('✅ 모바일 자동 정렬 완료 (충돌 방지 + 캔버스 확장 적용)');
+          } else {
+            console.log('📱 모든 컴포넌트가 이미 캔버스 안에 있습니다.');
+          }
+        } else {
+          console.log('⚠️ 컴포넌트가 없어서 모바일 자동 정렬을 건너뜁니다.');
+        }
+      }, 300); // 300ms 후 실행
+      
+      return () => clearTimeout(timer);
+    }
+  }, [viewport]); // viewport 변경만 감지
 
 
   
