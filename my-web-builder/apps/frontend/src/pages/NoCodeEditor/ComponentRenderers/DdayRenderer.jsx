@@ -51,10 +51,10 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     };
   }, [targetDate]);
 
-  // 진짜 물방울처럼 투명한 스타일
+  // 더 큰 물방울 스타일
   const bubbleStyle = {
-    width: '60px',
-    height: '60px',
+    width: '70px',
+    height: '70px',
     borderRadius: '50%',
     background: 'radial-gradient(circle at 25% 25%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.1) 70%, rgba(255,255,255,0.05) 100%)',
     boxShadow: `
@@ -78,55 +78,52 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     position: 'absolute',
     top: '18%',
     left: '28%',
-    width: '18px',
-    height: '18px',
+    width: '20px',
+    height: '20px',
     borderRadius: '50%',
     background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 70%, transparent 100%)',
     filter: 'blur(1.5px)'
   };
 
   const numberStyle = {
-    fontSize: '18px',
+    fontSize: '22px',
     fontWeight: '700',
     lineHeight: '1',
     color: '#ffffff',
-    textShadow: '0 2px 4px rgba(0,0,0,0.6)',
     zIndex: 2,
     position: 'relative'
   };
 
   const labelStyle = {
-    fontSize: '10px',
+    fontSize: '12px',
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
     color: '#ffffff',
     textAlign: 'center',
-    marginTop: '4px',
-    textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+    marginTop: '6px'
   };
 
   // 콜론 스타일
   const colonStyle = {
-    fontSize: '24px',
+    fontSize: '28px',
     fontWeight: '700',
     color: '#ffffff',
-    textShadow: '0 1px 2px rgba(0,0,0,0.5)',
     display: 'flex',
     alignItems: 'center',
-    margin: '0 2px'
+    margin: '0 3px'
   };
 
   const getContainerStyle = () => {
     const baseStyle = {
       width: '100%',
       height: '100%',
-      minHeight: '120px',
+      minHeight: '140px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: '10px',
+      padding: '12px',
       borderRadius: '12px',
       position: 'relative',
       overflow: 'hidden'
@@ -153,10 +150,10 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       {/* 물방울과 단위를 세로로 배치한 블록들 + 콜론 */}
       <div style={{
         display: 'flex',
-        gap: '4px',
+        gap: '6px',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: '10px'
+        marginBottom: '12px'
       }}>
         {/* Days */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -214,13 +211,12 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
 
       {/* 목표 날짜 표시 */}
       <div style={{
-        fontSize: '12px',
+        fontSize: '14px',
         fontWeight: '500',
         color: '#ffffff',
         textAlign: 'center',
-        textShadow: '0 1px 2px rgba(0,0,0,0.5)',
         background: 'rgba(255,255,255,0.1)',
-        padding: '4px 10px',
+        padding: '6px 12px',
         borderRadius: '12px',
         backdropFilter: 'blur(8px)'
       }}>
