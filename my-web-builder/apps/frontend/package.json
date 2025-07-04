@@ -23,6 +23,7 @@
     "react-router-dom": "^7.6.3",
     "react-select": "^5.8.3",
     "react-toastify": "^10.0.6",
+    "socket.io-client": "^4.8.1",
     "styled-components": "^6.1.13",
     "y-websocket": "^2.0.4",
     "yjs": "^13.6.20"
