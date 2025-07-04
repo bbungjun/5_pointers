@@ -1,20 +1,24 @@
-name: Deploy Frontend Editor
+name: Deploy Frontend Editor (DISABLED)
+
+# 이 워크플로우는 비활성화되었습니다.
+# 5pointers-frontend-deploy.yml을 대신 사용합니다.
 
 on:
-  push:
-    branches: [ main, develop ]
-    paths:
-      - 'my-web-builder/apps/editor/**'
-      - 'my-web-builder/packages/**'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'my-web-builder/apps/editor/**'
-      - 'my-web-builder/packages/**'
+  # push:
+  #   branches: [ main, develop ]
+  #   paths:
+  #     - 'my-web-builder/apps/editor/**'
+  #     - 'my-web-builder/packages/**'
+  # pull_request:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'my-web-builder/apps/editor/**'
+  #     - 'my-web-builder/packages/**'
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    if: false  # 항상 false로 설정하여 실행 방지
     steps:
     - uses: actions/checkout@v3
     
@@ -46,7 +50,7 @@ jobs:
   deploy:
     needs: test
     runs-on: [self-hosted, frontend-server]
-    if: github.ref == 'refs/heads/main'
+    if: false  # 항상 false로 설정하여 실행 방지
     
     steps:
     - uses: actions/checkout@v3
