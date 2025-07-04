@@ -52,58 +52,57 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     };
   }, [targetDate]);
 
-  // 물방울 속에 갇힌 느낌의 스타일
+  // 2×8 그리드에 맞춘 작은 물방울 스타일
   const bubbleStyle = {
-    width: '80px',
-    height: '80px',
+    width: '50px',
+    height: '50px',
     borderRadius: '50%',
     background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.3) 70%, rgba(255,255,255,0.1) 100%)',
     boxShadow: `
-      0 0 20px rgba(255,255,255,0.5),
-      0 0 40px rgba(255,255,255,0.3),
-      0 0 60px rgba(255,255,255,0.1),
-      inset 0 0 20px rgba(255,255,255,0.2),
-      inset -10px -10px 20px rgba(0,0,0,0.1)
+      0 0 10px rgba(255,255,255,0.4),
+      0 0 20px rgba(255,255,255,0.2),
+      inset 0 0 10px rgba(255,255,255,0.2),
+      inset -5px -5px 10px rgba(0,0,0,0.1)
     `,
-    border: '2px solid rgba(255,255,255,0.3)',
-    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255,255,255,0.3)',
+    backdropFilter: 'blur(8px)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    margin: '15px',
+    margin: '3px',
     overflow: 'hidden'
   };
 
-  // 물방울 내부 하이라이트 효과
+  // 작은 하이라이트 효과
   const bubbleHighlight = {
     position: 'absolute',
-    top: '15%',
-    left: '25%',
-    width: '25px',
-    height: '25px',
+    top: '20%',
+    left: '30%',
+    width: '12px',
+    height: '12px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 70%, transparent 100%)',
-    filter: 'blur(2px)'
+    background: 'radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 70%, transparent 100%)',
+    filter: 'blur(1px)'
   };
 
   const numberStyle = {
-    fontSize: '20px',
+    fontSize: '14px',
     fontWeight: '700',
     lineHeight: '1',
-    marginBottom: '2px',
+    marginBottom: '1px',
     color: theme === 'dark' ? '#ffffff' : '#1f2937',
-    textShadow: '0 1px 3px rgba(0,0,0,0.3)',
+    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
     zIndex: 2,
     position: 'relative'
   };
 
   const labelStyle = {
-    fontSize: '9px',
+    fontSize: '7px',
     fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: '0.5px',
+    letterSpacing: '0.3px',
     color: theme === 'dark' ? 'rgba(255,255,255,0.8)' : 'rgba(31,41,55,0.7)',
     zIndex: 2,
     position: 'relative'
@@ -130,13 +129,13 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     const baseStyle = {
       width: '100%',
       height: '100%',
-      minHeight: '280px',
+      minHeight: '120px',  // 2행 높이에 맞춤
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: '24px',
-      borderRadius: '16px',
+      padding: '8px',      // 패딩 축소
+      borderRadius: '12px',
       position: 'relative',
       overflow: 'hidden'
     };
@@ -163,12 +162,12 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       {isEditor && (
         <div style={{
           position: 'absolute',
-          top: '10px',
-          right: '10px',
+          top: '5px',
+          right: '5px',
           background: 'rgba(255,255,255,0.9)',
-          borderRadius: '8px',
-          padding: '8px',
-          backdropFilter: 'blur(10px)',
+          borderRadius: '6px',
+          padding: '4px',
+          backdropFilter: 'blur(8px)',
           zIndex: 10
         }}>
           <select 
@@ -177,7 +176,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
             style={{
               border: 'none',
               background: 'transparent',
-              fontSize: '12px',
+              fontSize: '10px',
               cursor: 'pointer'
             }}
           >
@@ -190,29 +189,28 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
         </div>
       )}
 
-      {/* 제목 */}
+      {/* 제목 (작게) */}
       {title && (
         <h2 style={{
-          fontSize: '28px',
+          fontSize: '16px',    // 28px → 16px
           fontWeight: '600',
-          marginBottom: '40px',
+          marginBottom: '8px', // 40px → 8px
           color: backgroundImage || theme === 'dark' ? '#ffffff' : '#1f2937',
           textAlign: 'center',
-          textShadow: backgroundImage ? '0 2px 8px rgba(0,0,0,0.7)' : 'none',
+          textShadow: backgroundImage ? '0 1px 4px rgba(0,0,0,0.7)' : 'none',
           fontFamily: '"Noto Sans KR", sans-serif'
         }}>
           {title}
         </h2>
       )}
 
-      {/* 물방울 카운트다운 블록들 */}
+      {/* 물방울 카운트다운 블록들 (한 줄 배치) */}
       <div style={{
         display: 'flex',
-        gap: '5px',
-        flexWrap: 'wrap',
+        gap: '2px',          // 5px → 2px
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: '30px'
+        marginBottom: '8px'  // 30px → 8px
       }}>
         {/* Days 물방울 */}
         <div style={bubbleStyle}>
@@ -251,17 +249,17 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
         </div>
       </div>
 
-      {/* 목표 날짜 표시 */}
+      {/* 목표 날짜 표시 (작게) */}
       <div style={{
-        fontSize: '16px',
+        fontSize: '11px',    // 16px → 11px
         fontWeight: '500',
         color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.7)',
         textAlign: 'center',
-        textShadow: backgroundImage ? '0 1px 4px rgba(0,0,0,0.5)' : 'none',
+        textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
         background: 'rgba(255,255,255,0.1)',
-        padding: '8px 16px',
-        borderRadius: '20px',
-        backdropFilter: 'blur(10px)'
+        padding: '4px 8px',  // 8px 16px → 4px 8px
+        borderRadius: '12px', // 20px → 12px
+        backdropFilter: 'blur(8px)'
       }}>
         {new Date(targetDate).toLocaleDateString('ko-KR', {
           year: 'numeric',
