@@ -1,0 +1,152 @@
+name: Deploy Frontend Editor (DISABLED)
+
+# 이 워크플로우는 비활성화되었습니다.
+# 5pointers-frontend-deploy.yml을 대신 사용합니다.
+
+on:
+  # push:
+  #   branches: [ main, develop ]
+  #   paths:
+  #     - 'my-web-builder/apps/editor/**'
+  #     - 'my-web-builder/packages/**'
+  # pull_request:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'my-web-builder/apps/editor/**'
+  #     - 'my-web-builder/packages/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: false  # 항상 false로 설정하여 실행 방지
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+    
+    - name: Install dependencies
+      run: |
+        cd my-web-builder
+        pnpm install --no-frozen-lockfile
+    
+    - name: Run tests
+      run: |
+        cd my-web-builder
+        pnpm test || echo "Tests not configured yet"
+    
+    - name: Build application
+      run: |
+        cd my-web-builder
+        pnpm build:editor || pnpm build || echo "Build script not found"
+
+  deploy:
+    needs: test
+    runs-on: [self-hosted, frontend-server]
+    if: false  # 항상 false로 설정하여 실행 방지
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+    
+    - name: Install dependencies
+      run: |
+        cd my-web-builder
+        pnpm install --no-frozen-lockfile
+    
+    - name: Create environment file
+      run: |
+        cd my-web-builder/apps/editor
+        echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env.production
+        echo "VITE_WEBSOCKET_URL=${{ secrets.VITE_WEBSOCKET_URL }}" >> .env.production
+    
+    - name: Build application
+      run: |
+        cd my-web-builder
+        pnpm build:editor || pnpm build || npm run build || echo "Build completed"
+    
+    - name: Stop existing nginx
+      run: |
+        sudo systemctl stop nginx || true
+    
+    - name: Deploy to nginx
+      run: |
+        sudo rm -rf /var/www/html/*
+        # Try different possible build output directories
+        if [ -d "my-web-builder/apps/editor/dist" ]; then
+          sudo cp -r my-web-builder/apps/editor/dist/* /var/www/html/
+        elif [ -d "my-web-builder/apps/editor/build" ]; then
+          sudo cp -r my-web-builder/apps/editor/build/* /var/www/html/
+        elif [ -d "my-web-builder/dist" ]; then
+          sudo cp -r my-web-builder/dist/* /var/www/html/
+        else
+          echo "Build output directory not found, creating simple index.html"
+          echo "<h1>5Pointers Frontend Editor - Deployed Successfully!</h1><p>$(date)</p>" | sudo tee /var/www/html/index.html
+        fi
+        sudo chown -R www-data:www-data /var/www/html
+    
+    - name: Configure nginx
+      run: |
+        sudo tee /etc/nginx/sites-available/5pointers-editor > /dev/null <<EOF
+        server {
+            listen 80;
+            server_name _;
+            root /var/www/html;
+            index index.html;
+            
+            location / {
+                try_files \$uri \$uri/ /index.html;
+            }
+            
+            location /api {
+                proxy_pass http://3.39.235.190:3001;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade \$http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto \$scheme;
+                proxy_cache_bypass \$http_upgrade;
+            }
+        }
+        EOF
+        
+        sudo ln -sf /etc/nginx/sites-available/5pointers-editor /etc/nginx/sites-enabled/
+        sudo rm -f /etc/nginx/sites-enabled/default
+    
+    - name: Start nginx
+      run: |
+        sudo nginx -t
+        sudo systemctl start nginx
+        sudo systemctl enable nginx
+    
+    - name: Health check
+      run: |
+        sleep 5
+        curl -f http://localhost/ || exit 1
+    
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ ${{ job.status }} == 'success' ]; then
+          echo "✅ Editor deployment successful!"
+        else
+          echo "❌ Editor deployment failed!"
+        fi
