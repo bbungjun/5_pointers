@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { API_BASE_URL } from '../config';
 
 /**
  * 페이지 복구 Hook
@@ -16,7 +17,7 @@ function usePageRecovery(roomId, options = {}) {
     if (!roomId) return null;
 
     try {
-      const response = await fetch(`/api/users/pages/room/${roomId}/content`);
+      const response = await fetch(`${API_BASE_URL}/users/pages/room/${roomId}/content`);
       
       if (!response.ok) {
         throw new Error(`페이지 조회 실패: ${response.status}`);

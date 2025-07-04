@@ -1,0 +1,8 @@
+Frontend Editor CI/CD Test
+==========================
+
+Timestamp: $(date)
+Purpose: Testing GitHub Actions deployment pipeline
+Frontend Editor Server: 3.35.227.214:80
+
+This file triggers the frontend editor deployment workflow.
