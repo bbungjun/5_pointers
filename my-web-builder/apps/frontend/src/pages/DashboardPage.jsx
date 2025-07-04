@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
+import InvitationNotifications from '../components/InvitationNotifications';
+import NotificationToggle from '../components/NotificationToggle';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 10);
@@ -211,7 +213,7 @@ function DashboardPage({ user, onLogout }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-blue-200/30">
+      <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-blue-200/30" style={{ position: 'relative', zIndex: 30 }}>
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex justify-between items-center">
             <div>
@@ -222,12 +224,17 @@ function DashboardPage({ user, onLogout }) {
                 환영합니다, <span className="text-blue-600 font-semibold">{user.nickname}</span>님
               </p>
             </div>
-            <button 
-              onClick={onLogout}
-              className="px-6 py-3 text-slate-600 hover:text-white bg-white/60 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 rounded-xl transition-all duration-300 backdrop-blur-sm border border-blue-200/50 font-medium shadow-sm hover:shadow-md"
-            >
-              로그아웃
-            </button>
+            <div className="flex items-center gap-4">
+              {/* 알림 토글 */}
+              <NotificationToggle />
+              
+              <button 
+                onClick={onLogout}
+                className="px-6 py-3 text-slate-600 hover:text-white bg-white/60 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 rounded-xl transition-all duration-300 backdrop-blur-sm border border-blue-200/50 font-medium shadow-sm hover:shadow-md"
+              >
+                로그아웃
+              </button>
+            </div>
           </div>
         </div>
       </div>

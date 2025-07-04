@@ -23,6 +23,17 @@ export class InvitationsController {
   }
 
   /**
+   * 사용자의 초대 목록 조회
+   * GET /api/invitations/my-invitations
+   */
+  @Get('invitations/my-invitations')
+  @UseGuards(JwtAuthGuard)
+  async getMyInvitations(@Request() req) {
+    const userId = req.user.userId;
+    return this.invitationsService.getMyInvitations(userId);
+  }
+
+  /**
    * 초대 토큰으로 초대 정보 조회 (로그인 불필요)
    * GET /api/invitations/{invitationToken}
    */
@@ -43,5 +54,19 @@ export class InvitationsController {
   ) {
     const userId = req.user.userId;
     return this.invitationsService.acceptInvitation(invitationToken, userId);
+  }
+
+  /**
+   * 초대 거절 (로그인 필요)
+   * POST /api/invitations/{invitationToken}/decline
+   */
+  @Post('invitations/:invitationToken/decline')
+  @UseGuards(JwtAuthGuard)
+  async declineInvitation(
+    @Param('invitationToken') invitationToken: string,
+    @Request() req
+  ) {
+    const userId = req.user.userId;
+    return this.invitationsService.declineInvitation(invitationToken, userId);
   }
 } 
