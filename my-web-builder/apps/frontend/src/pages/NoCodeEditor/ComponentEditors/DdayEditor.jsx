@@ -14,7 +14,7 @@ function DdayEditor({ selectedComp, onUpdate }) {
     { name: '꽃 배경 2', value: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800' },
     { name: '자연 배경', value: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800' },
     { name: '하늘 배경', value: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800' },
-    { name: '집 앞 꽃', value: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800' }
+    { name: '집 앞 꽃', value: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8JUVCJUIyJTlBJUVBJUJEJTgzJTIwJUVCJUIwJUIwJUVBJUIyJUJEJUVEJTk5JTk0JUVCJUE5JUI0fGVufDB8fDB8fHww' }
   ];
 
   return (
