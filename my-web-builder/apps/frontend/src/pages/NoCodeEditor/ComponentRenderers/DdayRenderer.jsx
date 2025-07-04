@@ -4,12 +4,8 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
+  const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage || '';
   const theme = comp.props.theme || comp.defaultProps?.theme || 'light';
-  
-  // 로컬 상태로 배경 이미지 관리
-  const [currentBackgroundImage, setCurrentBackgroundImage] = useState(
-    comp.props.backgroundImage || comp.defaultProps?.backgroundImage || ''
-  );
   
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -103,35 +99,10 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    color: currentBackgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.8)',
+    color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.8)',
     textAlign: 'center',
     marginTop: '4px',
-    textShadow: currentBackgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
-  };
-
-  const backgroundOptions = [
-    { name: '기본', value: '' },
-    { name: '꽃 배경 2', value: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800' },
-    { name: '자연 배경', value: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800' },
-    { name: '하늘 배경', value: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800' }
-  ];
-
-  const handleBackgroundChange = (newBackgroundImage) => {
-    // 로컬 상태 즉시 업데이트
-    setCurrentBackgroundImage(newBackgroundImage);
-    
-    // props 업데이트 시도 (있으면)
-    if (onPropsChange) {
-      onPropsChange({
-        ...comp.props,
-        backgroundImage: newBackgroundImage
-      });
-    }
-    
-    // 컴포넌트 props 직접 업데이트 시도
-    if (comp.props) {
-      comp.props.backgroundImage = newBackgroundImage;
-    }
+    textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
   };
 
   const getContainerStyle = () => {
@@ -149,10 +120,10 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       overflow: 'hidden'
     };
 
-    if (currentBackgroundImage) {
+    if (backgroundImage) {
       return {
         ...baseStyle,
-        background: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${currentBackgroundImage})`,
+        background: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -167,37 +138,6 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
 
   return (
     <div style={getContainerStyle()}>
-      {/* 배경 선택 UI (편집 모드에서만 표시) */}
-      {isEditor && (
-        <div style={{
-          position: 'absolute',
-          top: '5px',
-          right: '5px',
-          background: 'rgba(255,255,255,0.9)',
-          borderRadius: '6px',
-          padding: '4px',
-          backdropFilter: 'blur(8px)',
-          zIndex: 10
-        }}>
-          <select 
-            value={currentBackgroundImage}
-            onChange={(e) => handleBackgroundChange(e.target.value)}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              fontSize: '10px',
-              cursor: 'pointer'
-            }}
-          >
-            {backgroundOptions.map(option => (
-              <option key={option.name} value={option.value}>
-                {option.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
       {/* 물방울과 단위를 세로로 배치한 블록들 */}
       <div style={{
         display: 'flex',
@@ -255,9 +195,9 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       <div style={{
         fontSize: '12px',
         fontWeight: '500',
-        color: currentBackgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.7)',
+        color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.7)',
         textAlign: 'center',
-        textShadow: currentBackgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
+        textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
         background: 'rgba(255,255,255,0.1)',
         padding: '4px 10px',
         borderRadius: '12px',
