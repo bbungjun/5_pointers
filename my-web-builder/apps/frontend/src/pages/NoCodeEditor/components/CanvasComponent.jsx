@@ -14,7 +14,7 @@ import { MapInfoRenderer } from '../ComponentRenderers';
 import CalendarRenderer from '../ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from '../ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from '../ComponentRenderers/CommentRenderer';
-import { clamp, resolveCollision, calculateSnapPosition, calculateSnapLines } from '../utils/editorUtils';
+import { clamp, resolveCollision, calculateSnapPosition, calculateSnapLines, getFinalStyles } from '../utils/editorUtils';
 import MusicRenderer from '../ComponentRenderers/MusicRenderer';
 
 // 그리드 크기 상수
@@ -38,7 +38,7 @@ function CanvasComponent({
 
   // 더블클릭 시 텍스트 편집
   const [editing, setEditing] = useState(false);
-  const [editValue, setEditValue] = useState(comp.props.text);
+  const [editValue, setEditValue] = useState(comp.props?.text || '');
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0, corner: '' });
@@ -51,6 +51,14 @@ function CanvasComponent({
 
   const componentDimensions = getComponentDimensions(comp.type);
   
+  // 현재 뷰포트에 맞는 최종 스타일 계산
+  const finalStyles = getFinalStyles(comp, viewport);
+  const currentX = finalStyles.x;
+  const currentY = finalStyles.y;
+  const finalWidth = finalStyles.width;
+  const finalHeight = finalStyles.height;
+  const finalProps = finalStyles.props;
+  
   // 확장된 캔버스 크기 계산 공통 함수
   const getExtendedCanvasSize = () => {
     const baseWidth = viewport === 'mobile' ? 375 : 1920;
@@ -61,13 +69,13 @@ function CanvasComponent({
     return { width: baseWidth, height: effectiveHeight };
   };
   
-  // 컴포넌트별 실제 크기 계산 (props와 comp 모두 고려)
+  // 컴포넌트별 실제 크기 계산 (finalStyles 기반으로 수정)
   const getActualSize = () => {
     // 이미지 컴포넌트의 경우 props에서 크기를 가져옴
     if (comp.type === 'image') {
       return {
-        width: comp.props.width || comp.width || componentDimensions.defaultWidth,
-        height: comp.props.height || comp.height || componentDimensions.defaultHeight
+        width: finalProps?.width || finalWidth || componentDimensions.defaultWidth,
+        height: finalProps?.height || finalHeight || componentDimensions.defaultHeight
       };
     }
     
@@ -75,23 +83,23 @@ function CanvasComponent({
     if (['attend', 'dday', 'weddingContact', 'weddingInvite', 'calendar', 'bankAccount', 'comment'].includes(comp.type)) {
       // 이런 컴포넌트들은 내부 레이아웃이 복잡하므로 기본 크기를 우선 사용
       return {
-        width: comp.width || componentDimensions.defaultWidth,
-        height: comp.height || componentDimensions.defaultHeight
+        width: finalWidth || componentDimensions.defaultWidth,
+        height: finalHeight || componentDimensions.defaultHeight
       };
     }
     
     // 갤러리 컴포넌트들 (동적 크기 조정 가능)
     if (['gridGallery', 'slideGallery'].includes(comp.type)) {
       return {
-        width: comp.width || componentDimensions.defaultWidth,
-        height: comp.height || componentDimensions.defaultHeight
+        width: finalWidth || componentDimensions.defaultWidth,
+        height: finalHeight || componentDimensions.defaultHeight
       };
     }
     
     // 기본 컴포넌트들 (button, text, link 등)
     return {
-      width: comp.width || componentDimensions.defaultWidth,
-      height: comp.height || componentDimensions.defaultHeight
+      width: finalWidth || componentDimensions.defaultWidth,
+      height: finalHeight || componentDimensions.defaultHeight
     };
   };
   
@@ -111,21 +119,64 @@ function CanvasComponent({
   };
 
   const renderContent = () => {
+    // 현재 뷰포트에 맞는 컴포넌트 객체 생성
+    const componentWithFinalStyles = {
+      ...comp,
+      props: finalProps,
+      x: currentX,
+      y: currentY,
+      width: finalWidth,
+      height: finalHeight
+    };
+    
     if (editing) {
       return (
         <input
           ref={ref}
           value={editValue}
           onChange={e => setEditValue(e.target.value)}
-          onBlur={() => { setEditing(false); onUpdate({ ...comp, props: { ...comp.props, text: editValue } }); }}
+          onBlur={() => { 
+            setEditing(false); 
+            // responsive 구조로 텍스트 업데이트
+            const updatedResponsive = {
+              ...comp.responsive,
+              [viewport]: {
+                ...(comp.responsive?.[viewport] || {}),
+                props: {
+                  ...(comp.responsive?.[viewport]?.props || {}),
+                  text: editValue
+                }
+              }
+            };
+            onUpdate({ 
+              ...comp, 
+              responsive: updatedResponsive
+              // 호환성 필드 제거: responsive 구조만 사용하여 뷰포트별 독립성 보장
+            }); 
+          }}
           onKeyDown={e => {
             if (e.key === 'Enter') {
               setEditing(false);
-              onUpdate({ ...comp, props: { ...comp.props, text: editValue } });
+              // responsive 구조로 텍스트 업데이트
+              const updatedResponsive = {
+                ...comp.responsive,
+                [viewport]: {
+                  ...(comp.responsive?.[viewport] || {}),
+                  props: {
+                    ...(comp.responsive?.[viewport]?.props || {}),
+                    text: editValue
+                  }
+                }
+              };
+              onUpdate({ 
+                ...comp, 
+                responsive: updatedResponsive
+                // 호환성 필드 제거: responsive 구조만 사용하여 뷰포트별 독립성 보장
+              });
             }
           }}
           style={{
-            fontSize: comp.props.fontSize,
+            fontSize: finalProps?.fontSize,
             width: '100%',
             border: 'none',
             background: 'transparent',
@@ -140,39 +191,39 @@ function CanvasComponent({
 
     switch (comp.type) {
       case 'button':
-        return <ButtonRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <ButtonRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       case 'text':
-        return <TextRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <TextRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       case 'link':
-        return <LinkRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <LinkRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       case 'attend':
-        return <AttendRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <AttendRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       case 'map':
-        return <MapView {...comp.props} />;
+        return <MapView {...(finalProps || {})} />;
       case 'dday':
-        return <DdayRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <DdayRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       case 'weddingContact':
-        return <WeddingContactRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <WeddingContactRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       case 'weddingInvite':
-        return <WeddingInviteRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <WeddingInviteRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       case 'image':
-        return <ImageRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <ImageRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       case 'gridGallery':
-        return <GridGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <GridGalleryRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       case 'slideGallery':
-        return <SlideGalleryRenderer comp={comp} isEditor={true} onUpdate={onUpdate} />;
+        return <SlideGalleryRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       case 'mapInfo':
-        return <MapInfoRenderer comp={comp} isEditor={true} />;
+        return <MapInfoRenderer comp={componentWithFinalStyles} isEditor={true} />;
       case 'calendar':
-        return <CalendarRenderer comp={comp} isEditor={true} />;
+        return <CalendarRenderer comp={componentWithFinalStyles} isEditor={true} />;
       case 'bankAccount':
-        return <BankAccountRenderer comp={comp} isEditor={true} />;
+        return <BankAccountRenderer comp={componentWithFinalStyles} isEditor={true} />;
       case 'comment':
-        return <CommentRenderer comp={comp} isEditor={true} viewport={viewport} />;
+        return <CommentRenderer comp={componentWithFinalStyles} isEditor={true} viewport={viewport} />;
       case 'musicPlayer':
-        return <MusicRenderer comp={comp} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+        return <MusicRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       default:
-        return <span>{comp.props.text}</span>;
+        return <span>{finalProps?.text || ''}</span>;
     }
   };
 
@@ -229,27 +280,44 @@ function CanvasComponent({
     newWidth = Math.min(newWidth, maxWidth);
     newHeight = Math.min(newHeight, maxHeight);
     
+    // responsive 구조로 크기 업데이트
+    const updatedResponsive = {
+      ...comp.responsive,
+      [viewport]: {
+        ...(comp.responsive?.[viewport] || {}),
+        width: newWidth,
+        height: newHeight
+      }
+    };
+    
     // 컴포넌트 타입에 따라 다르게 업데이트
     if (comp.type === 'image') {
-      // 이미지 컴포넌트는 props에 크기 저장
+      // 이미지 컴포넌트는 props에도 크기 저장
+      const updatedResponsiveWithProps = {
+        ...updatedResponsive,
+        [viewport]: {
+          ...updatedResponsive[viewport],
+          props: {
+            ...(comp.responsive?.[viewport]?.props || {}),
+            width: newWidth,
+            height: newHeight
+          }
+        }
+      };
+      
       onUpdate({
         ...comp,
-        props: {
-          ...comp.props,
-          width: newWidth,
-          height: newHeight
-        },
-        width: newWidth,
-        height: newHeight
+        responsive: updatedResponsiveWithProps
+        // 호환성 필드 제거: responsive 구조만 사용하여 뷰포트별 독립성 보장
       });
-    } else {
-      // 다른 컴포넌트들은 comp 레벨에 크기 저장
-      onUpdate({
-        ...comp,
-        width: newWidth,
-        height: newHeight
-      });
-    }
+          } else {
+        // 다른 컴포넌트들도 responsive 구조만 사용
+        onUpdate({
+          ...comp,
+          responsive: updatedResponsive
+          // 호환성 필드 제거: responsive 구조만 사용하여 뷰포트별 독립성 보장
+        });
+      }
   };
 
   const handleResizeEnd = () => {
@@ -265,13 +333,13 @@ function CanvasComponent({
     if (isResizing) return;
     
     e.stopPropagation();
-    console.log('드래그 시작:', comp.id, '현재 위치:', comp.x, comp.y);
+    console.log('드래그 시작:', comp.id, '현재 위치:', currentX, currentY);
     setIsDragging(true);
     setDragStart({
       x: e.clientX,
       y: e.clientY,
-      compX: comp.x,
-      compY: comp.y
+      compX: currentX,
+      compY: currentY
     });
   };
 
@@ -284,8 +352,8 @@ function CanvasComponent({
     const canvasSize = getExtendedCanvasSize();
     
     // 뷰포트에 따른 드래그 경계 제한 (확장된 캔버스 크기 사용)
-    const maxX = Math.max(0, canvasSize.width - (comp.width || componentDimensions.defaultWidth));
-    const maxY = Math.max(0, canvasSize.height - (comp.height || componentDimensions.defaultHeight));
+    const maxX = Math.max(0, canvasSize.width - currentWidth);
+    const maxY = Math.max(0, canvasSize.height - currentHeight);
     
     // 기본 위치 계산 (그리드 스냅 적용)
     let newX = Math.round((dragStart.compX + deltaX) / effectiveGridSize) * effectiveGridSize;
@@ -319,10 +387,20 @@ function CanvasComponent({
     
     console.log('드래그 중:', comp.id, '새 위치:', newX, newY);
     
+    // responsive 구조로 업데이트
+    const updatedResponsive = {
+      ...comp.responsive,
+      [viewport]: {
+        ...(comp.responsive?.[viewport] || {}),
+        x: newX,
+        y: newY
+      }
+    };
+    
     onUpdate({
       ...comp,
-      x: newX,
-      y: newY
+      responsive: updatedResponsive
+      // 호환성 필드 제거: responsive 구조만 사용하여 뷰포트별 독립성 보장
     });
   };
 
@@ -374,10 +452,10 @@ function CanvasComponent({
       data-component-id={comp.id}
       style={{
         position: 'absolute',
-        left: comp.x, 
-        top: comp.y,
-        width: comp.width || componentDimensions.defaultWidth,
-        height: comp.height || componentDimensions.defaultHeight,
+        left: currentX, 
+        top: currentY,
+        width: currentWidth,
+        height: currentHeight,
         border: selected ? '2px solid #3B4EFF' : '1px solid transparent',
         cursor: isDragging ? 'grabbing' : 'grab',
         background: 'transparent',

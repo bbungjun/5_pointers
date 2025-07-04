@@ -7,7 +7,7 @@ function LinkEditor({ selectedComp, onUpdate }) {
     const updatedComp = {
       ...selectedComp,
       props: {
-        ...selectedComp.props,
+        ...(selectedComp.props || {}),
         [propKey]: value
       }
     };
@@ -39,21 +39,21 @@ function LinkEditor({ selectedComp, onUpdate }) {
 
       {/* 링크 전용 에디터들 */}
       <TextEditor
-        value={selectedComp.props.text}
+        value={selectedComp.props?.text || ''}
         onChange={(value) => updateProperty('text', value)}
         label="링크 텍스트"
         placeholder="링크 텍스트를 입력하세요"
       />
 
       <TextEditor
-        value={selectedComp.props.href}
+        value={selectedComp.props?.href || ''}
         onChange={(value) => updateProperty('href', value)}
         label="링크 URL"
         placeholder="https://example.com"
       />
 
       <NumberEditor
-        value={selectedComp.props.fontSize}
+        value={selectedComp.props?.fontSize || 16}
         onChange={(value) => updateProperty('fontSize', value)}
         label="글자 크기"
         min={8}
@@ -75,7 +75,7 @@ function LinkEditor({ selectedComp, onUpdate }) {
       </div>
 
       <ColorEditor
-        value={selectedComp.props.color}
+        value={selectedComp.props?.color || '#3B4EFF'}
         onChange={(value) => updateProperty('color', value)}
         label="글자 색상"
       />

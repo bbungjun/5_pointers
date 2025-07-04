@@ -9,7 +9,7 @@ function MainPage() {
       <div className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-center border border-blue-200/30">
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3">
-            PAGE CUBE팬더님
+          ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋPAGE CUBE
           </h1>
           <p className="text-slate-600 text-lg font-medium leading-relaxed">
             당신만의 특별한 웹사이트를<br/>
