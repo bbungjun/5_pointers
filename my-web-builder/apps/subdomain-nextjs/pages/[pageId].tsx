@@ -2,6 +2,9 @@ import { getRendererByType } from '@my-project/ui';
 import React from 'react';
 import { GetServerSideProps } from 'next';
 
+// API 기본 URL 설정
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+
 const DynamicPageRenderer = ({ components }: { components: ComponentData[] }) => {
   if (!components || components.length === 0) {
     return (
@@ -161,7 +164,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     console.log('Extracted subdomain:', subdomain);
     
     // 서버에서 백엔드 API 호출 (subdomain으로 조회)
-    const res = await fetch(`http://localhost:3000/generator/subdomain/${subdomain}`);
+    const res = await fetch(`${API_BASE_URL}/generator/subdomain/${subdomain}`);
     
     console.log('API response status:', res.status);
     
