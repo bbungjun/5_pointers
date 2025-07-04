@@ -52,60 +52,61 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     };
   }, [targetDate]);
 
-  // 2×8 그리드에 맞춘 작은 물방울 스타일
+  // 제목 제거로 더 큰 물방울 가능
   const bubbleStyle = {
-    width: '50px',
-    height: '50px',
+    width: '60px',
+    height: '60px',
     borderRadius: '50%',
     background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.3) 70%, rgba(255,255,255,0.1) 100%)',
     boxShadow: `
-      0 0 10px rgba(255,255,255,0.4),
-      0 0 20px rgba(255,255,255,0.2),
-      inset 0 0 10px rgba(255,255,255,0.2),
-      inset -5px -5px 10px rgba(0,0,0,0.1)
+      0 0 15px rgba(255,255,255,0.4),
+      0 0 30px rgba(255,255,255,0.2),
+      inset 0 0 15px rgba(255,255,255,0.2),
+      inset -7px -7px 15px rgba(0,0,0,0.1)
     `,
     border: '1px solid rgba(255,255,255,0.3)',
-    backdropFilter: 'blur(8px)',
+    backdropFilter: 'blur(10px)',
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    margin: '3px',
+    margin: '5px',
     overflow: 'hidden'
   };
 
-  // 작은 하이라이트 효과
+  // 더 큰 하이라이트 효과
   const bubbleHighlight = {
     position: 'absolute',
-    top: '20%',
-    left: '30%',
-    width: '12px',
-    height: '12px',
+    top: '18%',
+    left: '28%',
+    width: '18px',
+    height: '18px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 70%, transparent 100%)',
-    filter: 'blur(1px)'
+    background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 70%, transparent 100%)',
+    filter: 'blur(1.5px)'
   };
 
+  // 물방울 안에는 숫자만
   const numberStyle = {
-    fontSize: '14px',
+    fontSize: '18px',
     fontWeight: '700',
     lineHeight: '1',
-    marginBottom: '1px',
     color: theme === 'dark' ? '#ffffff' : '#1f2937',
-    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+    textShadow: '0 1px 3px rgba(0,0,0,0.3)',
     zIndex: 2,
     position: 'relative'
   };
 
+  // 물방울 밖 단위 표시
   const labelStyle = {
-    fontSize: '7px',
+    fontSize: '10px',
     fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: '0.3px',
-    color: theme === 'dark' ? 'rgba(255,255,255,0.8)' : 'rgba(31,41,55,0.7)',
-    zIndex: 2,
-    position: 'relative'
+    letterSpacing: '0.5px',
+    color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.8)',
+    textAlign: 'center',
+    marginTop: '4px',
+    textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
   };
 
   const backgroundOptions = [
@@ -129,12 +130,12 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     const baseStyle = {
       width: '100%',
       height: '100%',
-      minHeight: '120px',  // 2행 높이에 맞춤
+      minHeight: '120px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: '8px',      // 패딩 축소
+      padding: '10px',
       borderRadius: '12px',
       position: 'relative',
       overflow: 'hidden'
@@ -189,76 +190,69 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
         </div>
       )}
 
-      {/* 제목 (작게) */}
-      {title && (
-        <h2 style={{
-          fontSize: '16px',    // 28px → 16px
-          fontWeight: '600',
-          marginBottom: '8px', // 40px → 8px
-          color: backgroundImage || theme === 'dark' ? '#ffffff' : '#1f2937',
-          textAlign: 'center',
-          textShadow: backgroundImage ? '0 1px 4px rgba(0,0,0,0.7)' : 'none',
-          fontFamily: '"Noto Sans KR", sans-serif'
-        }}>
-          {title}
-        </h2>
-      )}
-
-      {/* 물방울 카운트다운 블록들 (한 줄 배치) */}
+      {/* 물방울과 단위를 세로로 배치한 블록들 */}
       <div style={{
         display: 'flex',
-        gap: '2px',          // 5px → 2px
+        gap: '8px',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: '8px'  // 30px → 8px
+        marginBottom: '10px'
       }}>
-        {/* Days 물방울 */}
-        <div style={bubbleStyle}>
-          <div style={bubbleHighlight}></div>
-          <div style={numberStyle}>
-            {timeLeft.days.toString().padStart(2, '0')}
+        {/* Days */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={bubbleStyle}>
+            <div style={bubbleHighlight}></div>
+            <div style={numberStyle}>
+              {timeLeft.days.toString().padStart(2, '0')}
+            </div>
           </div>
           <div style={labelStyle}>Days</div>
         </div>
 
-        {/* Hours 물방울 */}
-        <div style={bubbleStyle}>
-          <div style={bubbleHighlight}></div>
-          <div style={numberStyle}>
-            {timeLeft.hours.toString().padStart(2, '0')}
+        {/* Hours */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={bubbleStyle}>
+            <div style={bubbleHighlight}></div>
+            <div style={numberStyle}>
+              {timeLeft.hours.toString().padStart(2, '0')}
+            </div>
           </div>
           <div style={labelStyle}>Hours</div>
         </div>
 
-        {/* Minutes 물방울 */}
-        <div style={bubbleStyle}>
-          <div style={bubbleHighlight}></div>
-          <div style={numberStyle}>
-            {timeLeft.minutes.toString().padStart(2, '0')}
+        {/* Minutes */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={bubbleStyle}>
+            <div style={bubbleHighlight}></div>
+            <div style={numberStyle}>
+              {timeLeft.minutes.toString().padStart(2, '0')}
+            </div>
           </div>
           <div style={labelStyle}>Minutes</div>
         </div>
 
-        {/* Seconds 물방울 */}
-        <div style={bubbleStyle}>
-          <div style={bubbleHighlight}></div>
-          <div style={numberStyle}>
-            {timeLeft.seconds.toString().padStart(2, '0')}
+        {/* Seconds */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={bubbleStyle}>
+            <div style={bubbleHighlight}></div>
+            <div style={numberStyle}>
+              {timeLeft.seconds.toString().padStart(2, '0')}
+            </div>
           </div>
           <div style={labelStyle}>Seconds</div>
         </div>
       </div>
 
-      {/* 목표 날짜 표시 (작게) */}
+      {/* 목표 날짜 표시 */}
       <div style={{
-        fontSize: '11px',    // 16px → 11px
+        fontSize: '12px',
         fontWeight: '500',
         color: backgroundImage || theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,55,0.7)',
         textAlign: 'center',
         textShadow: backgroundImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
         background: 'rgba(255,255,255,0.1)',
-        padding: '4px 8px',  // 8px 16px → 4px 8px
-        borderRadius: '12px', // 20px → 12px
+        padding: '4px 10px',
+        borderRadius: '12px',
         backdropFilter: 'blur(8px)'
       }}>
         {new Date(targetDate).toLocaleDateString('ko-KR', {
