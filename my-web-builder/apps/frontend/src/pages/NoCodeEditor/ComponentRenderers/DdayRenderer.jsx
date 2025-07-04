@@ -42,10 +42,7 @@ function DdayRenderer({ comp, isEditor }) {
       }
     };
 
-    // 초기 계산
     calculateTimeLeft();
-
-    // 편집 중에도 1초마다 업데이트
     const interval = setInterval(calculateTimeLeft, 1000);
 
     return () => {
@@ -55,7 +52,6 @@ function DdayRenderer({ comp, isEditor }) {
     };
   }, [targetDate]);
 
-  // 물방울 모양 블록 스타일
   const dropletStyle = {
     width: '90px',
     height: '100px',
@@ -98,7 +94,6 @@ function DdayRenderer({ comp, isEditor }) {
     opacity: 0.8
   };
 
-  // 배경 이미지 옵션들
   const backgroundOptions = [
     { name: '기본', value: '' },
     { name: '꽃 배경 1', value: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800' },
@@ -107,38 +102,39 @@ function DdayRenderer({ comp, isEditor }) {
     { name: '하늘 배경', value: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800' }
   ];
 
-  const getBackgroundStyle = () => {
+  const getContainerStyle = () => {
+    const baseStyle = {
+      width: '100%',
+      height: '100%',
+      minHeight: '250px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: '24px',
+      borderRadius: '16px',
+      position: 'relative',
+      overflow: 'hidden'
+    };
+
     if (backgroundImage) {
       return {
+        ...baseStyle,
         background: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       };
     }
+
     return {
+      ...baseStyle,
       background: `linear-gradient(135deg, ${backgroundColor} 0%, #e0f2fe 100%)`
     };
   };
 
-  const containerStyle = {
-    width: '100%',
-    height: '100%',
-    minHeight: '250px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '24px',
-    borderRadius: '16px',
-    position: 'relative',
-    overflow: 'hidden',
-    ...getBackgroundStyle()
-  };
-
   return (
-    <div style={containerStyle}>
-      {/* 배경 이미지 선택 UI (편집 모드에서만 표시) */}
+    <div style={getContainerStyle()}>
       {isEditor && (
         <div style={{
           position: 'absolute',
@@ -153,7 +149,6 @@ function DdayRenderer({ comp, isEditor }) {
           <select 
             value={backgroundImage}
             onChange={(e) => {
-              // 실제 구현에서는 props 업데이트 로직 필요
               console.log('Background changed:', e.target.value);
             }}
             style={{
@@ -172,7 +167,6 @@ function DdayRenderer({ comp, isEditor }) {
         </div>
       )}
 
-      {/* 제목 */}
       {title && (
         <h2 style={{
           fontSize: '28px',
@@ -187,7 +181,6 @@ function DdayRenderer({ comp, isEditor }) {
         </h2>
       )}
 
-      {/* 물방울 카운트다운 블록들 */}
       <div style={{
         display: 'flex',
         gap: '10px',
@@ -196,7 +189,6 @@ function DdayRenderer({ comp, isEditor }) {
         alignItems: 'center',
         marginBottom: '20px'
       }}>
-        {/* Days 물방울 */}
         <div style={dropletStyle}>
           <div style={dropletContentStyle}>
             <div style={numberStyle}>
@@ -206,7 +198,6 @@ function DdayRenderer({ comp, isEditor }) {
           </div>
         </div>
 
-        {/* Hours 물방울 */}
         <div style={dropletStyle}>
           <div style={dropletContentStyle}>
             <div style={numberStyle}>
@@ -216,7 +207,6 @@ function DdayRenderer({ comp, isEditor }) {
           </div>
         </div>
 
-        {/* Minutes 물방울 */}
         <div style={dropletStyle}>
           <div style={dropletContentStyle}>
             <div style={numberStyle}>
@@ -226,7 +216,6 @@ function DdayRenderer({ comp, isEditor }) {
           </div>
         </div>
 
-        {/* Seconds 물방울 */}
         <div style={dropletStyle}>
           <div style={dropletContentStyle}>
             <div style={numberStyle}>
@@ -237,7 +226,6 @@ function DdayRenderer({ comp, isEditor }) {
         </div>
       </div>
 
-      {/* 목표 날짜 표시 */}
       <div style={{
         fontSize: '16px',
         fontWeight: '500',
