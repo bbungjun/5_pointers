@@ -1,63 +1,61 @@
 // ComponentRenderers 모듈들을 한 곳에서 export
-export { default as ButtonRenderer } from "./ButtonRenderer";
-export { default as TextRenderer } from "./TextRenderer";
-export { default as LinkRenderer } from "./LinkRenderer";
-export { default as AttendRenderer } from "./AttendRenderer";
-export { default as ImageRenderer } from "./ImageRenderer";
-export { default as DdayRenderer } from "./DdayRenderer.jsx";
-export { default as WeddingContactRenderer } from "./WeddingContactRenderer.jsx";
-export { default as GridGalleryRenderer } from "./GridGalleryRenderer";
-export { default as SlideGalleryRenderer } from "./SlideGalleryRenderer";
-export { default as MapView } from "./MapView";
-export { default as MapInfoRenderer } from './MapInfoRenderer';
-export { default as CalendarRenderer } from './CalendarRenderer';
-export { default as BankAccountRenderer } from './BankAccountRenderer';
-export { default as CommentRenderer } from './CommentRenderer';
-export { default as WeddingInviteRenderer } from './WeddingInviteRenderer'; 
-export { default as MusicRenderer } from './MusicRenderer';
-
+export { default as ButtonRenderer } from './ButtonRenderer.jsx';
+export { default as TextRenderer } from './TextRenderer.jsx';
+export { default as LinkRenderer } from './LinkRenderer.jsx';
+export { default as AttendRenderer } from './AttendRenderer.jsx';
+export { default as ImageRenderer } from './ImageRenderer.jsx';
+export { default as DdayRenderer } from './DdayRenderer.jsx';
+export { default as WeddingContactRenderer } from './WeddingContactRenderer.jsx';
+export { default as GridGalleryRenderer } from './GridGalleryRenderer.jsx';
+export { default as SlideGalleryRenderer } from './SlideGalleryRenderer.jsx';
+export { default as MapView } from './MapView.jsx';
+export { default as MapInfoRenderer } from './MapInfoRenderer.jsx';
+export { default as CalendarRenderer } from './CalendarRenderer.jsx';
+export { default as BankAccountRenderer } from './BankAccountRenderer.jsx';
+export { default as CommentRenderer } from './CommentRenderer.jsx';
+export { default as WeddingInviteRenderer } from './WeddingInviteRenderer.jsx';
+export { default as MusicRenderer } from './MusicRenderer.jsx';
 
 // 개별 import (getRendererByType 함수에서 사용)
-import ButtonRenderer from "./ButtonRenderer";
-import TextRenderer from "./TextRenderer";
-import LinkRenderer from "./LinkRenderer";
-import AttendRenderer from "./AttendRenderer";
-import ImageRenderer from "./ImageRenderer";
-import DdayRenderer from "./DdayRenderer.jsx";
-import WeddingContactRenderer from "./WeddingContactRenderer.jsx";
-import GridGalleryRenderer from "./GridGalleryRenderer";
-import SlideGalleryRenderer from "./SlideGalleryRenderer";
-import MapView from "./MapView";
-import MapInfoRenderer from './MapInfoRenderer';
-import CalendarRenderer from './CalendarRenderer';
-import BankAccountRenderer from './BankAccountRenderer';
-import CommentRenderer from './CommentRenderer';
-import WeddingInviteRenderer from './WeddingInviteRenderer'; 
-import MusicRenderer from './MusicRenderer';
-
+import ButtonRenderer from './ButtonRenderer.jsx';
+import TextRenderer from './TextRenderer.jsx';
+import LinkRenderer from './LinkRenderer.jsx';
+import AttendRenderer from './AttendRenderer.jsx';
+import ImageRenderer from './ImageRenderer.jsx';
+import DdayRenderer from './DdayRenderer.jsx';
+import WeddingContactRenderer from './WeddingContactRenderer.jsx';
+import GridGalleryRenderer from './GridGalleryRenderer.jsx';
+import SlideGalleryRenderer from './SlideGalleryRenderer.jsx';
+import MapView from './MapView.jsx';
+import MapInfoRenderer from './MapInfoRenderer.jsx';
+import CalendarRenderer from './CalendarRenderer.jsx';
+import BankAccountRenderer from './BankAccountRenderer.jsx';
+import CommentRenderer from './CommentRenderer.jsx';
+import WeddingInviteRenderer from './WeddingInviteRenderer.jsx';
+import MusicRenderer from './MusicRenderer.jsx';
 
 // 컴포넌트 타입별 렌더러 매핑 함수
 export function getRendererByType(type) {
   switch (type) {
-    case "button":
+    case 'button':
       return ButtonRenderer;
-    case "text":
+    case 'text':
       return TextRenderer;
-    case "link":
+    case 'link':
       return LinkRenderer;
-    case "attend":
+    case 'attend':
       return AttendRenderer;
-    case "image":
+    case 'image':
       return ImageRenderer;
-    case "map":
+    case 'map':
       return MapView;
-    case "dday":
+    case 'dday':
       return DdayRenderer;
-    case "weddingContact":
+    case 'weddingContact':
       return WeddingContactRenderer;
-    case "gridGallery":
+    case 'gridGallery':
       return GridGalleryRenderer;
-    case "slideGallery":
+    case 'slideGallery':
       return SlideGalleryRenderer;
     case 'mapInfo':
       return MapInfoRenderer;
