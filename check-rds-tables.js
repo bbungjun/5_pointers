@@ -8,7 +8,7 @@ async function checkRDSTables() {
       host: 'pointers-mysql-db.chiyuym88mcj.ap-northeast-2.rds.amazonaws.com',
       port: 3306,
       user: 'admin',
-      password: process.env.DB_PASSWORD || 'admin123!', // 일반적인 기본 비밀번호
+      password: process.env.DB_PASSWORD || 'Jungle5pointers2025!', // 일반적인 기본 비밀번호
       database: 'jungle',
       connectTimeout: 10000
     },
@@ -17,7 +17,7 @@ async function checkRDSTables() {
       host: 'pointers-mysql-db.chiyuym88mcj.ap-northeast-2.rds.amazonaws.com',
       port: 3306,
       user: 'root',
-      password: process.env.DB_PASSWORD || 'root123!',
+      password: process.env.DB_PASSWORD || 'Jungle5pointers2025!',
       database: 'jungle',
       connectTimeout: 10000
     }
