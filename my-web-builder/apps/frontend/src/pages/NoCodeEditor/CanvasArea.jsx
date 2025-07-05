@@ -518,14 +518,17 @@ function CanvasArea({
   };
 
   const actualCanvasSize = getActualCanvasSize();
-  // 좌측 패딩(라이브러리 상태에 따라) + 우측 패딩(Inspector 상태에 따라) + 여유 공간을 포함
-  const leftPadding = isLibraryOpen ? 280 : 40; // 라이브러리 열림/닫힘에 따라
-  const rightPadding = isInspectorOpen ? 400 : 60; // Inspector 열림: 400px (340px + 60px 여유), 닫힘: 60px
-  const isSmallViewport = viewport === 'mobile'; // 작은 뷰포트 확인
-  const containerWidth =
-    actualCanvasSize.width +
-    (isSmallViewport ? 40 : leftPadding + rightPadding); // Inspector 상태 반영
-  const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
+  const isSmallViewport = viewport === 'mobile' || viewport === 'tablet'; // 작은 뷰포트 확인 (모바일, 태블릿)
+
+  // 뷰포트별 패딩 계산 (모바일에서는 패널 상태 무시)
+  const leftPadding = isSmallViewport ? 20 : isLibraryOpen ? 280 : 40; // 모바일: 고정 20px, 데스크탑: 라이브러리 상태에 따라
+  const rightPadding = isSmallViewport ? 20 : isInspectorOpen ? 400 : 60; // 모바일: 고정 20px, 데스크탑: Inspector 상태에 따라
+
+  // 컨테이너 크기 계산
+  const containerWidth = actualCanvasSize.width + leftPadding + rightPadding;
+  const containerHeight = isSmallViewport
+    ? actualCanvasSize.height + 100 // 모바일: 간단한 여백
+    : actualCanvasSize.height + 600; // 데스크탑: 충분한 스크롤 공간 확보
 
   // 디버깅: 캔버스 크기 정보 콘솔 출력
   console.log('📊 Canvas Size Debug:', {
@@ -577,10 +580,10 @@ function CanvasArea({
           display: 'flex',
           justifyContent: 'center', // 캔버스 가운데 정렬
           alignItems: 'flex-start',
-          // 뷰포트별 패딩 조정 (좌측은 컴포넌트 라이브러리, 우측은 Inspector 상태에 따라 동적 조정)
+          // 뷰포트별 패딩 조정 (계산된 패딩 값 사용)
           padding: isSmallViewport
-            ? '20px'
-            : `40px ${rightPadding}px 200px ${leftPadding}px`, // 동적 패딩: 좌측(라이브러리), 우측(Inspector)
+            ? `20px ${rightPadding}px 40px ${leftPadding}px` // 모바일: 상단 20px, 하단 40px
+            : `40px ${rightPadding}px 400px ${leftPadding}px`, // 데스크탑: 상단 40px, 하단 400px
           boxSizing: 'border-box',
         }}
       >
