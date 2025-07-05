@@ -17,7 +17,11 @@ const getEnvVar = (key, defaultValue = '') => {
 };
 
 // API 서버 설정 - 환경변수 기반
-export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 'http://localhost:3000';
+export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 'https://Jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com';
+
+// Y.js WebSocket 서버 설정 - 환경변수 기반
+export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') || 
+  (getEnvVar('NODE_ENV') === 'production' ? 'wss://demos.yjs.dev' : 'ws://localhost:1234');
 
 // 소셜 로그인 설정
 export const GOOGLE_CLIENT_ID = getEnvVar('VITE_GOOGLE_CLIENT_ID') || getEnvVar('NEXT_PUBLIC_GOOGLE_CLIENT_ID') || '';
@@ -31,5 +35,6 @@ export const getRedirectUrl = (provider) => {
 
 console.log('🔧 API 설정:', {
   baseUrl: API_BASE_URL,
+  websocketUrl: YJS_WEBSOCKET_URL,
   frontend: getEnvVar('VITE_FRONTEND_URL') || getEnvVar('NEXT_PUBLIC_FRONTEND_URL') || 'http://localhost:5173'
 }); 
