@@ -83,7 +83,7 @@ const DynamicPageRenderer = ({ components, pageId }: { components: ComponentData
                 height: comp.height || 'auto'
               }}
             >
-              <RendererComponent comp={{...comp, pageId}} isEditor={false} onUpdate={() => {}} />
+              <RendererComponent comp={{...comp, pageId}} isEditor={false} onUpdate={() => {}} onPropsChange={() => {}} />
             </div>
           );
         } catch (error) {
