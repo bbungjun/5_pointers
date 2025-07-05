@@ -5,7 +5,7 @@ import { GetServerSideProps } from 'next';
 // API 기본 URL 설정
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
 
-const DynamicPageRenderer = ({ components }: { components: ComponentData[] }) => {
+const DynamicPageRenderer = ({ components, pageId }: { components: ComponentData[], pageId: string }) => {
   if (!components || components.length === 0) {
     return (
       <div style={{
@@ -83,7 +83,7 @@ const DynamicPageRenderer = ({ components }: { components: ComponentData[] }) =>
                 height: comp.height || 'auto'
               }}
             >
-              <RendererComponent comp={comp} isEditor={false} onUpdate={() => {}} />
+              <RendererComponent comp={{...comp, pageId}} isEditor={false} onUpdate={() => {}} />
             </div>
           );
         } catch (error) {
@@ -125,6 +125,7 @@ interface ComponentData {
 interface PageProps {
   pageData: {
     components: ComponentData[];
+    pageId?: string;
   } | null;
   pageId: string;
 }
@@ -143,7 +144,7 @@ const RenderedPage = ({ pageData, pageId }: PageProps) => {
     );
   }
 
-  return <DynamicPageRenderer components={pageData.components} />;
+  return <DynamicPageRenderer components={pageData.components} pageId={pageData.pageId || pageId} />;
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
