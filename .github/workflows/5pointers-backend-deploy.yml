@@ -56,13 +56,13 @@ jobs:
     - name: Install dependencies
       run: |
         cd backend
-        npm ci --only=production || npm install --only=production
+        npm ci || npm install
     
     - name: Build application
       run: |
         cd backend
         echo "Starting NestJS build..."
-        npm run build
+        npx nest build
         echo "Build completed successfully!"
         ls -la dist/
     
