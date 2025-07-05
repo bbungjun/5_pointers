@@ -1,0 +1,43 @@
+name: Emergency Backend Deploy
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/simple-server.js'
+      - '.github/workflows/emergency-backend-deploy.yml'
+
+jobs:
+  emergency-deploy:
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup PM2 environment
+      run: |
+        export HOME=/home/runner
+        export PM2_HOME=/home/runner/.pm2
+        mkdir -p $PM2_HOME
+    
+    - name: Stop existing processes
+      run: |
+        export HOME=/home/runner
+        export PM2_HOME=/home/runner/.pm2
+        pm2 stop all || echo "No processes running"
+        pm2 delete all || echo "No processes to delete"
+    
+    - name: Start simple server
+      run: |
+        export HOME=/home/runner
+        export PM2_HOME=/home/runner/.pm2
+        cd backend
+        pm2 start simple-server.js --name emergency-backend
+        pm2 save
+        pm2 list
+    
+    - name: Test server
+      run: |
+        sleep 5
+        curl -f http://localhost:3001/health || echo "Server starting..."

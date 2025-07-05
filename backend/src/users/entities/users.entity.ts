@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Pages } from './pages.entity';
 import { PageMembers } from './page_members.entity';
 
@@ -37,9 +44,9 @@ export class Users {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => Pages, page => page.owner)
+  @OneToMany(() => Pages, (page) => page.owner)
   pages: Pages[];
 
-  @OneToMany(() => PageMembers, member => member.user)
+  @OneToMany(() => PageMembers, (member) => member.user)
   pageMembers: PageMembers[];
 }

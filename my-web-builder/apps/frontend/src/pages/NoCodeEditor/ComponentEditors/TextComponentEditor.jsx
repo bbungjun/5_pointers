@@ -7,7 +7,7 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
     const updatedComp = {
       ...selectedComp,
       props: {
-        ...selectedComp.props,
+        ...(selectedComp.props || {}),
         [propKey]: value
       }
     };
@@ -39,14 +39,14 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
 
       {/* 텍스트 전용 에디터들 */}
       <TextEditor
-        value={selectedComp.props.text}
+        value={selectedComp.props?.text || ''}
         onChange={(value) => updateProperty('text', value)}
         label="내용"
         placeholder="텍스트 내용을 입력하세요"
       />
 
       <NumberEditor
-        value={selectedComp.props.fontSize}
+        value={selectedComp.props?.fontSize || 20}
         onChange={(value) => updateProperty('fontSize', value)}
         label="글자 크기"
         min={8}
@@ -68,7 +68,7 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
       </div>
 
       <ColorEditor
-        value={selectedComp.props.color}
+        value={selectedComp.props?.color || '#222'}
         onChange={(value) => updateProperty('color', value)}
         label="글자 색상"
       />

@@ -61,3 +61,6 @@ public/uploads/**/*
 
 # 백업 파일들
 *.backup
+
+# Deployed sites - 동적으로 생성되는 배포 사이트들
+deployed-sites/

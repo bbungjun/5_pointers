@@ -13,7 +13,7 @@ function ImageEditor({ selectedComp, onUpdate }) {
     const updatedComp = {
       ...selectedComp,
       props: {
-        ...selectedComp.props,
+        ...(selectedComp.props || {}),
         [propKey]: value
       }
     };
@@ -56,13 +56,13 @@ function ImageEditor({ selectedComp, onUpdate }) {
       </div>
 
       <ImageSourceEditor
-        value={selectedComp.props.src}
+        value={selectedComp.props?.src || ''}
         onChange={(value) => updateProperty('src', value)}
         label="이미지"
       />
 
       <TextEditor
-        value={selectedComp.props.alt}
+        value={selectedComp.props?.alt || ''}
         onChange={(value) => updateProperty('alt', value)}
         label="대체 텍스트"
         placeholder="이미지 설명을 입력하세요"
@@ -82,7 +82,7 @@ function ImageEditor({ selectedComp, onUpdate }) {
       </div>
 
       <NumberEditor
-        value={selectedComp.props.width}
+        value={selectedComp.props?.width || 200}
         onChange={(value) => updateProperty('width', value)}
         label="너비"
         min={10}
@@ -91,7 +91,7 @@ function ImageEditor({ selectedComp, onUpdate }) {
       />
 
       <NumberEditor
-        value={selectedComp.props.height}
+        value={selectedComp.props?.height || 150}
         onChange={(value) => updateProperty('height', value)}
         label="높이"
         min={10}
@@ -113,13 +113,13 @@ function ImageEditor({ selectedComp, onUpdate }) {
       </div>
 
       <ObjectFitEditor
-        value={selectedComp.props.objectFit}
+        value={selectedComp.props?.objectFit || 'cover'}
         onChange={(value) => updateProperty('objectFit', value)}
         label="맞춤 방식"
       />
 
       <BorderRadiusEditor
-        value={selectedComp.props.borderRadius}
+        value={selectedComp.props?.borderRadius || 0}
         onChange={(value) => updateProperty('borderRadius', value)}
         label="모서리 둥글기"
         max={50}

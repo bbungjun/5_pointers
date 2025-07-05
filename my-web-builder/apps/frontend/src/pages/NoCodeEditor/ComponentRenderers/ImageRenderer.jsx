@@ -15,9 +15,9 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
   };
 
   const containerStyle = {
-    width: (comp.props.width || 200) + 'px',
-    height: (comp.props.height || 150) + 'px',
-    borderRadius: (comp.props.borderRadius || 0) + 'px',
+    width: (comp.props?.width || 200) + 'px',
+    height: (comp.props?.height || 150) + 'px',
+    borderRadius: (comp.props?.borderRadius || 0) + 'px',
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
@@ -28,7 +28,7 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
   };
 
   // 이미지가 없는 경우 플레이스홀더
-  if (!comp.props.src) {
+  if (!comp.props?.src) {
     return (
       <div style={containerStyle}>
         <div style={{
@@ -82,14 +82,14 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
 
       {/* 실제 이미지 */}
       <img
-        src={comp.props.src}
-        alt={comp.props.alt || '이미지'}
+        src={comp.props?.src}
+        alt={comp.props?.alt || '이미지'}
         onLoad={handleImageLoad}
         onError={handleImageError}
         style={{
           width: '100%',
           height: '100%',
-          objectFit: comp.props.objectFit || 'cover',
+          objectFit: comp.props?.objectFit || 'cover',
           display: imageError ? 'none' : 'block'
         }}
       />

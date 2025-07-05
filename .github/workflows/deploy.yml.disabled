@@ -1,0 +1,56 @@
+name: Deploy to EC2 (DISABLED)
+
+# 이 워크플로우는 비활성화되었습니다.
+# self-hosted runners를 사용하는 개별 워크플로우들을 대신 사용합니다.
+
+on:
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: false  # 항상 false로 설정하여 실행 방지
+    
+    steps:
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          echo "🚀 Starting deployment..."
+          
+          # 프로젝트 디렉토리로 이동
+          cd /home/ubuntu/5_pointers
+          
+          # 최신 코드 가져오기
+          echo "📥 Pulling latest code..."
+          git pull origin main
+          
+          # 모노레포 의존성 설치
+          echo "📦 Installing dependencies..."
+          cd my-web-builder
+          npm install -g pnpm
+          pnpm install
+          
+          # Backend 환경변수 설정
+          echo "🔧 Setting up backend environment..."
+          cd /home/ubuntu/5_pointers/backend
+          echo "NODE_ENV=production
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          DB_HOST=localhost
+          DB_PORT=3306
+          DB_USERNAME=root
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_DATABASE=jungle" > .env
+          
+          # PM2 프로세스 재시작
+          echo "🔄 Restarting services..."
+          pm2 restart all || pm2 start ecosystem.config.js
+          
+          echo "✅ Deployment completed successfully!"

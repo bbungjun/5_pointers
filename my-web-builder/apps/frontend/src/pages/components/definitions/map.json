@@ -1,6 +1,6 @@
 {
   "type": "map",
-  "label": "Dynamic Map",
+  "label": "지도",
   "icon": "🗺️",
   "defaultProps": {
     "lat": 37.5665,
@@ -16,4 +16,4 @@
     { "name": "width", "type": "number", "label": "Width" },
     { "name": "height", "type": "number", "label": "Height" }
   ]
-} 
+}
