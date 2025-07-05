@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { addUserColor } from '../utils/userColors';
+import { YJS_WEBSOCKET_URL } from '../config';
 
 export function useYjsCollaboration(roomId, userInfo) {
   const [isConnected, setIsConnected] = useState(false);
@@ -22,7 +23,9 @@ export function useYjsCollaboration(roomId, userInfo) {
     
     // 일관된 방 이름 형식 사용 (중요: 페이지 ID만 사용, 사용자 정보 사용 안 함)
     const roomName = `page:${roomId}`;
-    const wsUrl = 'ws://localhost:1234'; // Y.js WebSocket 서버 URL
+    
+    // 환경에 따른 WebSocket URL 설정
+    const wsUrl = YJS_WEBSOCKET_URL;
     
     console.log('Y.js 서버 연결 시도:', wsUrl, 'Room:', roomName, 'User:', userInfo);
     
