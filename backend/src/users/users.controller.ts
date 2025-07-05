@@ -4,6 +4,7 @@ import { diskStorage } from "multer";
 import { extname, join } from "path";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
+import * as fs from "fs";
 
 
 @Controller("users")
@@ -68,7 +69,6 @@ export class UsersController {
           const uploadPath = join(process.cwd(), "public", "uploads", "images", String(year), month, day);
           
           // 디렉토리 생성 (동기적으로)
-          const fs = require("fs");
           fs.mkdirSync(uploadPath, { recursive: true });
           
           cb(null, uploadPath);

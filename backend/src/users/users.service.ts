@@ -5,6 +5,8 @@ import { Users, AuthProvider } from './entities/users.entity';
 import { Pages, PageStatus } from './entities/pages.entity';
 import { Submissions } from './entities/submissions.entity';
 import * as bcrypt from 'bcryptjs';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class UsersService {
@@ -234,8 +236,6 @@ export class UsersService {
     const html = this.generateHTML(components);
     
     // 파일 시스템에 HTML 저장
-    const fs = require('fs');
-    const path = require('path');
     const deployDir = path.join(process.cwd(), 'deployed-sites', domain);
     
     if (!fs.existsSync(deployDir)) {
