@@ -10,3 +10,4 @@ Changes:
 - Improve build process with better error handling and logging
 - Add dist directory cleanup for clean builds
 RDS Connection Success: #오후
+Emergency Backend Restart: #오후
