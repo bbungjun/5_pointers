@@ -33,6 +33,7 @@ import BankAccountRenderer from './BankAccountRenderer.jsx';
 import CommentRenderer from './CommentRenderer.jsx';
 import WeddingInviteRenderer from './WeddingInviteRenderer.jsx';
 import MusicRenderer from './MusicRenderer.jsx';
+import KakaoTalkShareRenderer from "./KakaoTalkShareRenderer.jsx";
 
 // 컴포넌트 타입별 렌더러 매핑 함수
 export function getRendererByType(type) {
@@ -69,6 +70,8 @@ export function getRendererByType(type) {
       return WeddingInviteRenderer;
     case 'musicPlayer':
       return MusicRenderer;
+    case 'kakaotalkShare':
+      return KakaoTalkShareRenderer;
     default:
       return null;
   }

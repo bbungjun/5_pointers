@@ -15,6 +15,8 @@ export { default as BankAccountRenderer } from '../../../apps/frontend/src/pages
 export { default as CommentRenderer } from '../../../apps/frontend/src/pages/NoCodeEditor/ComponentRenderers/CommentRenderer.jsx';
 export { default as WeddingInviteRenderer } from '../../../apps/frontend/src/pages/NoCodeEditor/ComponentRenderers/WeddingInviteRenderer.jsx';
 export { default as MusicRenderer } from '../../../apps/frontend/src/pages/NoCodeEditor/ComponentRenderers/MusicRenderer.jsx';
+export { default as KakaoTalkShareRenderer } from '../../../apps/frontend/src/pages/NoCodeEditor/ComponentRenderers/KakaoTalkShareRenderer';
+
 
 // getRendererByType 함수도 frontend에서 가져오기
 import { getRendererByType as frontendGetRendererByType } from '../../../apps/frontend/src/pages/NoCodeEditor/ComponentRenderers/index.js';

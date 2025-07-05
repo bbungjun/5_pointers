@@ -14,6 +14,7 @@ import bankAccount from './bank-account.json';
 import commentDef from './comment.json';
 import weddingInviteDef from './wedding-invite.json';
 import musicDef from './music.json';
+import kakaotalkShareDef from './kakaotalk-share.json';
 
 export const ComponentList = [
   // 상단 우선순위 컴포넌트들
@@ -32,6 +33,7 @@ export const ComponentList = [
   weddingInviteDef,   // 안내장
   musicDef,           // 음악
   mapInfoDef,         // 지도 정보
+  kakaotalkShareDef,  // 카카오톡 
   
   // 하단 기본 컴포넌트들
   buttonDef,        // 버튼
