@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import ViewportController from '../ViewportController';
 import NotificationToggle from '../../../components/NotificationToggle';
+import pageCubeLogo from '../../../assets/page-cube-logo.png';
 
 function EditorHeader({
   components,
@@ -12,10 +14,15 @@ function EditorHeader({
   onTemplateSaveOpen,
   onInviteOpen,
   roomId,
-  isAdmin
+  isAdmin,
 }) {
+  const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+    navigate('/dashboard');
+  };
   return (
-    <div 
+    <div
       className="
         h-16 w-full
         bg-white/95 backdrop-blur-sm border-b border-blue-200/30 
@@ -25,9 +32,20 @@ function EditorHeader({
     >
       {/* 좌측: 로고와 컴포넌트 개수 */}
       <div className="flex items-center gap-4 min-w-0 flex-shrink-0">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent whitespace-nowrap">
-          PAGE CUBE
-        </h1>
+        {/* 로고 */}
+        <div
+          className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
+          onClick={handleLogoClick}
+        >
+          <img
+            src={pageCubeLogo}
+            alt="Page Cube"
+            className="w-10 h-10 object-contain"
+          />
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent whitespace-nowrap">
+            PAGE CUBE
+          </h1>
+        </div>
         <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium whitespace-nowrap">
           {components.length}개
         </div>
@@ -59,11 +77,11 @@ function EditorHeader({
               text-sm
             "
           >
-                          <span className="text-base">💾</span>
-              <span className="hidden sm:inline">템플릿 저장</span>
+            <span className="text-base">💾</span>
+            <span className="hidden sm:inline">템플릿 저장</span>
           </button>
         )}
-        
+
         {/* 공유 버튼 */}
         <button
           onClick={onInviteOpen}
@@ -80,7 +98,7 @@ function EditorHeader({
           <span className="text-base">👥</span>
           <span className="hidden sm:inline">공유</span>
         </button>
-        
+
         {/* 미리보기 버튼 */}
         <button
           onClick={onPreviewOpen}
@@ -94,8 +112,8 @@ function EditorHeader({
             text-sm
           "
         >
-                      <span className="text-base">🔍</span>
-            <span className="hidden sm:inline">미리보기</span>
+          <span className="text-base">🔍</span>
+          <span className="hidden sm:inline">미리보기</span>
         </button>
 
         {/* Room ID 표시 - 작은 화면에서는 숨김 */}
@@ -113,4 +131,4 @@ function EditorHeader({
   );
 }
 
-export default EditorHeader; 
+export default EditorHeader;
