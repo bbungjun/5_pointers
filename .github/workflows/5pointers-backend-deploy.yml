@@ -111,7 +111,7 @@ jobs:
           pm2 start dist/main.js --name 5pointers-backend --env production
         else
           echo "❌ dist/main.js not found, creating fallback server"
-          cat > server.js << 'EOF'
+          cat > server.js << 'SERVEREOF'
 const express = require('express');
 const app = express();
 
@@ -135,9 +135,10 @@ app.get('/health', (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`5Pointers Backend Server running on port ${PORT}`);
+  console.log('5Pointers Backend Server running on port ' + PORT);
 });
-EOF
+SERVEREOF
+          
           pm2 start server.js --name 5pointers-backend --env production
         fi
         
