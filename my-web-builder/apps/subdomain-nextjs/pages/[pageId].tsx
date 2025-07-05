@@ -84,15 +84,14 @@ const DynamicPageRenderer = ({
   };
 
   const calculateCanvasSize = () => {
-    // 실제 화면 크기를 기준으로 캔버스 크기 결정
-    const screenWidth =
-      typeof window !== 'undefined' ? window.innerWidth : 1920;
-    const screenHeight =
-      typeof window !== 'undefined' ? window.innerHeight : 1080;
+    // 뷰포트별 기본 캔버스 크기 사용
+    const config = VIEWPORT_CONFIGS[viewport as keyof typeof VIEWPORT_CONFIGS];
+    const baseWidth = config.width;
+    const baseHeight = config.height;
 
     // 컴포넌트들의 최대 위치 계산
-    let maxX = 0;
-    let maxY = 0;
+    let maxX = baseWidth;
+    let maxY = baseHeight;
 
     components.forEach((comp) => {
       const finalStyles = getFinalStyles(comp, viewport);
@@ -100,10 +99,10 @@ const DynamicPageRenderer = ({
       maxY = Math.max(maxY, finalStyles.y + (finalStyles.height || 100) + 100);
     });
 
-    // 화면 크기와 컴포넌트 크기 중 더 큰 값을 사용하되, 최소 화면 크기는 보장
+    // 뷰포트 기본 크기와 컴포넌트 크기 중 더 큰 값 사용
     return {
-      width: Math.max(screenWidth, maxX),
-      height: Math.max(screenHeight, maxY),
+      width: Math.max(baseWidth, maxX),
+      height: Math.max(baseHeight, maxY),
     };
   };
 

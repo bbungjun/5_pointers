@@ -373,8 +373,8 @@ function CanvasArea({
         e.preventDefault();
         document.body.style.cursor = 'grab';
       }
-      // G 키로 그리드 토글
-      if (e.code === 'KeyG') {
+      // Shift + G 키로 그리드 토글
+      if (e.code === 'KeyG' && e.shiftKey) {
         e.preventDefault();
         setShowGrid((prev) => !prev);
       }
@@ -518,22 +518,30 @@ function CanvasArea({
   };
 
   const actualCanvasSize = getActualCanvasSize();
-  // 좌측 패딩(라이브러리 상태에 따라) + 우측 패딩(60px) + 여유 공간을 포함
+  // 좌측 패딩(라이브러리 상태에 따라) + 우측 패딩(Inspector 상태에 따라) + 여유 공간을 포함
   const leftPadding = isLibraryOpen ? 280 : 40; // 라이브러리 열림/닫힘에 따라
+  const rightPadding = isInspectorOpen ? 400 : 60; // Inspector 열림: 400px (340px + 60px 여유), 닫힘: 60px
   const isSmallViewport = viewport === 'mobile'; // 작은 뷰포트 확인
   const containerWidth =
-    actualCanvasSize.width + (isSmallViewport ? 40 : leftPadding + 60); // 작은 뷰포트: 40px, 큰 뷰포트: 동적
+    actualCanvasSize.width +
+    (isSmallViewport ? 40 : leftPadding + rightPadding); // Inspector 상태 반영
   const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
 
   // 디버깅: 캔버스 크기 정보 콘솔 출력
-  // console.log('Canvas Size Debug:', {
-  //   canvasHeight,
-  //   actualCanvasSize,
-  //   containerWidth,
-  //   containerHeight,
-  //   viewport,
-  //   extenderComponents: components.filter(comp => comp.id.startsWith('canvas-extender-')).length
-  // });
+  console.log('📊 Canvas Size Debug:', {
+    canvasHeight,
+    actualCanvasSize,
+    containerWidth,
+    containerHeight,
+    viewport,
+    isInspectorOpen,
+    isLibraryOpen,
+    leftPadding,
+    rightPadding,
+    extenderComponents: components.filter((comp) =>
+      comp.id.startsWith('canvas-extender-')
+    ).length,
+  });
 
   return (
     <div
@@ -543,10 +551,12 @@ function CanvasArea({
         position: 'relative',
         background: '#f0f1f5',
         cursor: isPanning ? 'grabbing' : 'default',
-        // 모든 뷰포트에서 스크롤 허용
+        // 모든 뷰포트에서 스크롤 허용 (더 강제적으로)
         overflowX: 'auto',
         overflowY: 'auto',
         paddingTop: '60px', // 헤더 높이만큼 상단 패딩
+        // 스크롤 활성화를 위한 추가 설정
+        scrollBehavior: 'smooth',
       }}
       ref={containerRef}
       onMouseDown={handleContainerMouseDown}
@@ -563,14 +573,14 @@ function CanvasArea({
         style={{
           width: `${containerWidth}px`, // 동적 너비 설정
           height: `${containerHeight}px`, // 동적 높이 설정
-          minWidth: '100%', // 최소 너비는 부모 컨테이너 크기
+          minWidth: `${containerWidth}px`, // 계산된 너비를 최소 너비로 설정
           display: 'flex',
-          justifyContent: 'flex-start', // 좌측 정렬로 변경
+          justifyContent: 'center', // 캔버스 가운데 정렬
           alignItems: 'flex-start',
-          // 뷰포트별 패딩 조정 (좌측은 컴포넌트 라이브러리 상태에 따라 동적 조정)
+          // 뷰포트별 패딩 조정 (좌측은 컴포넌트 라이브러리, 우측은 Inspector 상태에 따라 동적 조정)
           padding: isSmallViewport
             ? '20px'
-            : `40px 60px 200px ${isLibraryOpen ? '280px' : '40px'}`, // 라이브러리 열림: 280px, 닫힘: 40px
+            : `40px ${rightPadding}px 200px ${leftPadding}px`, // 동적 패딩: 좌측(라이브러리), 우측(Inspector)
           boxSizing: 'border-box',
         }}
       >
