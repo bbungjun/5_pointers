@@ -11,3 +11,4 @@ Changes:
 - Add dist directory cleanup for clean builds
 RDS Connection Success: #오후
 Emergency Backend Restart: #오후
+🚨 백엔드 서버 강제 재시작 #오후
