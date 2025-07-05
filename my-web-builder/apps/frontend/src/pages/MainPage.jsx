@@ -64,7 +64,7 @@ function MainPage({ onLogin }) {
             PAGE CUBE
           </h1>
           <p className="text-slate-600 text-lg font-medium leading-relaxed">
-            나만의 한 페이지 만들기
+            나ㅋㅋㅋㅋㅋㅋㅋㅋ1231231231231
           </p>
         </div>
 

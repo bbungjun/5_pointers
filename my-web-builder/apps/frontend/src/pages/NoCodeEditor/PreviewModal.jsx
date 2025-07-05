@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import PreviewRenderer from './PreviewRenderer';
+import { VIEWPORT_CONFIGS } from './utils/editorUtils';
 
 const PreviewModal = ({ isOpen, onClose, pageContent }) => {
   const [viewMode, setViewMode] = useState('desktop'); // 'desktop' | 'mobile'
@@ -9,15 +10,14 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
 
   // 뷰 모드별 크기 설정
   const getViewportSize = (mode) => {
-    switch (mode) {
-      case 'mobile':
-        return { width: 375, height: 667 };
-      case 'tablet':
-        return { width: 768, height: 1024 };
-      case 'desktop':
-      default:
-        return { width: '100%', height: '100%' };
+    if (mode === 'desktop') {
+      return { width: '100%', height: '100%' };
     }
+
+    const config = VIEWPORT_CONFIGS[mode];
+    return config
+      ? { width: config.width, height: config.height }
+      : { width: '100%', height: '100%' };
   };
 
   // iframe에 React 컴포넌트 렌더링
@@ -25,7 +25,7 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
     if (!isOpen || !iframeRef.current || !pageContent) return;
 
     const iframe = iframeRef.current;
-    
+
     // iframe이 완전히 로드될 때까지 대기
     const handleIframeLoad = () => {
       try {
@@ -80,7 +80,10 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
           // 새 루트 생성 및 렌더링
           rootRef.current = createRoot(rootElement);
           rootRef.current.render(
-            <PreviewRenderer pageContent={pageContent} />
+            <PreviewRenderer
+              pageContent={pageContent}
+              forcedViewport={viewMode}
+            />
           );
         }
       } catch (error) {
@@ -90,7 +93,7 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
 
     // iframe 로드 이벤트 리스너 등록
     iframe.addEventListener('load', handleIframeLoad);
-    
+
     // iframe이 이미 로드된 경우 즉시 실행
     if (iframe.contentDocument?.readyState === 'complete') {
       handleIframeLoad();
@@ -99,7 +102,7 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
     return () => {
       iframe.removeEventListener('load', handleIframeLoad);
     };
-  }, [isOpen, pageContent]);
+  }, [isOpen, pageContent, viewMode]);
 
   // 모달이 닫힐 때 정리
   useEffect(() => {
@@ -192,10 +195,7 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
 
         {/* 중앙: 뷰 모드 전환 버튼 */}
         <div style={{ display: 'flex', gap: 8 }}>
-          {[
-            { mode: 'desktop', icon: '🖥️', label: '데스크톱' },
-            { mode: 'mobile', icon: '📱', label: '모바일' },
-          ].map(({ mode, icon, label }) => (
+          {Object.entries(VIEWPORT_CONFIGS).map(([mode, config]) => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
@@ -225,8 +225,8 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
                 }
               }}
             >
-              <span>{icon}</span>
-              <span>{label}</span>
+              <span>{config.icon}</span>
+              <span>{config.label}</span>
             </button>
           ))}
         </div>
@@ -354,10 +354,11 @@ const PreviewModal = ({ isOpen, onClose, pageContent }) => {
         }}
       >
         {viewMode === 'desktop' && '데스크톱 화면에서 보는 모습입니다'}
-        {viewMode === 'mobile' && `모바일 화면 (${viewport.width}×${viewport.height})에서 보는 모습입니다`}
+        {viewMode === 'mobile' &&
+          `모바일 화면 (${viewport.width}×${viewport.height})에서 보는 모습입니다`}
       </div>
     </div>
   );
 };
 
-export default PreviewModal; 
+export default PreviewModal;

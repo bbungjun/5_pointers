@@ -33,14 +33,28 @@ const DynamicPageRenderer = ({
     );
   }
 
-    // 뷰포트 감지 (모바일/데스크톱)
+  // 뷰포트 감지 (데스크톱/태블릿/모바일)
   const [viewport, setViewport] = useState('desktop');
-  
+
+  // 뷰포트 설정
+  const VIEWPORT_CONFIGS = {
+    desktop: { width: 1920, height: 1080 },
+    tablet: { width: 768, height: 1024 },
+    mobile: { width: 375, height: 667 },
+  };
+
   useEffect(() => {
     const checkViewport = () => {
-      setViewport(window.innerWidth <= 768 ? 'mobile' : 'desktop');
+      const width = window.innerWidth;
+      if (width <= VIEWPORT_CONFIGS.mobile.width) {
+        setViewport('mobile');
+      } else if (width <= VIEWPORT_CONFIGS.tablet.width) {
+        setViewport('tablet');
+      } else {
+        setViewport('desktop');
+      }
     };
-    
+
     checkViewport();
     window.addEventListener('resize', checkViewport);
     return () => window.removeEventListener('resize', checkViewport);
@@ -49,7 +63,15 @@ const DynamicPageRenderer = ({
   // 반응형 스타일 계산 함수
   const getFinalStyles = (comp: ComponentData, currentViewport: string) => {
     const responsive = comp.responsive || {};
-    const viewportData = responsive[currentViewport] || {};
+    let viewportData: any = {};
+
+    if (currentViewport === 'mobile' && responsive.mobile) {
+      viewportData = responsive.mobile;
+    } else if (currentViewport === 'tablet' && responsive.tablet) {
+      viewportData = responsive.tablet;
+    } else if (currentViewport === 'desktop' && responsive.desktop) {
+      viewportData = responsive.desktop;
+    }
 
     return {
       x: viewportData.x !== undefined ? viewportData.x : comp.x,
@@ -62,15 +84,26 @@ const DynamicPageRenderer = ({
   };
 
   const calculateCanvasSize = () => {
-    let maxX = viewport === 'mobile' ? 375 : 1920;
-    let maxY = viewport === 'mobile' ? 667 : 1080;
+    // 뷰포트별 기본 캔버스 크기 사용
+    const config = VIEWPORT_CONFIGS[viewport as keyof typeof VIEWPORT_CONFIGS];
+    const baseWidth = config.width;
+    const baseHeight = config.height;
+
+    // 컴포넌트들의 최대 위치 계산
+    let maxX = baseWidth;
+    let maxY = baseHeight;
 
     components.forEach((comp) => {
       const finalStyles = getFinalStyles(comp, viewport);
       maxX = Math.max(maxX, finalStyles.x + (finalStyles.width || 200));
       maxY = Math.max(maxY, finalStyles.y + (finalStyles.height || 100) + 100);
     });
-    return { width: maxX, height: maxY };
+
+    // 뷰포트 기본 크기와 컴포넌트 크기 중 더 큰 값 사용
+    return {
+      width: Math.max(baseWidth, maxX),
+      height: Math.max(baseHeight, maxY),
+    };
   };
 
   const canvasSize = calculateCanvasSize();
@@ -79,94 +112,94 @@ const DynamicPageRenderer = ({
     <div
       style={{
         position: 'relative',
-        width: `${canvasSize.width}px`,
-        height: `${canvasSize.height}px`,
+        width: '100vw',
+        height: '100vh',
         background: '#ffffff',
-        margin: '0 auto',
+        margin: '0',
         minHeight: '100vh',
-        overflow: 'visible',
+        overflow: 'auto',
       }}
     >
-             {components.map((comp) => {
-         try {
-           const finalStyles = getFinalStyles(comp, viewport);
-           const RendererComponent = getRendererByType(comp.type);
-           
-           if (!RendererComponent) {
-             return (
-               <div
-                 key={comp.id}
-                 style={{
-                   position: 'absolute',
-                   left: finalStyles.x,
-                   top: finalStyles.y,
-                   padding: '8px 12px',
-                   background: '#f8f9fa',
-                   border: '1px solid #e9ecef',
-                   borderRadius: 4,
-                   fontSize: 14,
-                   color: '#6c757d',
-                 }}
-               >
-                 {finalStyles.props?.text || comp.type}
-               </div>
-             );
-           }
+      {components.map((comp) => {
+        try {
+          const finalStyles = getFinalStyles(comp, viewport);
+          const RendererComponent = getRendererByType(comp.type);
 
-           // 반응형 스타일이 적용된 컴포넌트 객체 생성
-           const componentWithFinalStyles = {
-             ...comp,
-             x: finalStyles.x,
-             y: finalStyles.y,
-             width: finalStyles.width,
-             height: finalStyles.height,
-             props: finalStyles.props,
-             pageId
-           };
+          if (!RendererComponent) {
+            return (
+              <div
+                key={comp.id}
+                style={{
+                  position: 'absolute',
+                  left: finalStyles.x,
+                  top: finalStyles.y,
+                  padding: '8px 12px',
+                  background: '#f8f9fa',
+                  border: '1px solid #e9ecef',
+                  borderRadius: 4,
+                  fontSize: 14,
+                  color: '#6c757d',
+                }}
+              >
+                {finalStyles.props?.text || comp.type}
+              </div>
+            );
+          }
 
-           return (
-             <div
-               key={comp.id}
-               style={{
-                 position: 'absolute',
-                 left: finalStyles.x,
-                 top: finalStyles.y,
-                 width: finalStyles.width || 'auto',
-                 height: finalStyles.height || 'auto',
-               }}
-             >
-               <RendererComponent
-                 comp={componentWithFinalStyles}
-                 isEditor={false}
-                 onUpdate={() => {}}
-                 onPropsChange={() => {}}
-                 viewport={viewport}
-               />
-             </div>
-           );
-         } catch (error) {
-           console.error('Error rendering component:', comp.type, error);
-           const finalStyles = getFinalStyles(comp, viewport);
-           return (
-             <div
-               key={comp.id}
-               style={{
-                 position: 'absolute',
-                 left: finalStyles.x,
-                 top: finalStyles.y,
-                 padding: '8px 12px',
-                 background: '#ffe6e6',
-                 border: '1px solid #ff9999',
-                 borderRadius: 4,
-                 fontSize: 14,
-                 color: '#cc0000',
-               }}
-             >
-               Error: {comp.type}
-             </div>
-           );
-         }
-       })}
+          // 반응형 스타일이 적용된 컴포넌트 객체 생성
+          const componentWithFinalStyles = {
+            ...comp,
+            x: finalStyles.x,
+            y: finalStyles.y,
+            width: finalStyles.width,
+            height: finalStyles.height,
+            props: finalStyles.props,
+            pageId,
+          };
+
+          return (
+            <div
+              key={comp.id}
+              style={{
+                position: 'absolute',
+                left: finalStyles.x,
+                top: finalStyles.y,
+                width: finalStyles.width || 'auto',
+                height: finalStyles.height || 'auto',
+              }}
+            >
+              <RendererComponent
+                comp={componentWithFinalStyles}
+                isEditor={false}
+                onUpdate={() => {}}
+                onPropsChange={() => {}}
+                viewport={viewport}
+              />
+            </div>
+          );
+        } catch (error) {
+          console.error('Error rendering component:', comp.type, error);
+          const finalStyles = getFinalStyles(comp, viewport);
+          return (
+            <div
+              key={comp.id}
+              style={{
+                position: 'absolute',
+                left: finalStyles.x,
+                top: finalStyles.y,
+                padding: '8px 12px',
+                background: '#ffe6e6',
+                border: '1px solid #ff9999',
+                borderRadius: 4,
+                fontSize: 14,
+                color: '#cc0000',
+              }}
+            >
+              Error: {comp.type}
+            </div>
+          );
+        }
+      })}
     </div>
   );
 };
@@ -181,6 +214,13 @@ interface ComponentData {
   props: any;
   responsive?: {
     mobile?: {
+      x?: number;
+      y?: number;
+      width?: number;
+      height?: number;
+      props?: any;
+    };
+    tablet?: {
       x?: number;
       y?: number;
       width?: number;

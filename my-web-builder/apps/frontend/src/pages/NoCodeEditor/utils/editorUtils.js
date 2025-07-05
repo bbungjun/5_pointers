@@ -8,105 +8,300 @@ export function clamp(val, min, max) {
 
 // 랜덤 닉네임/색상 생성
 export function randomNickname() {
-  const animals = ['Tiger', 'Bear', 'Fox', 'Wolf', 'Cat', 'Dog', 'Lion', 'Panda', 'Rabbit', 'Eagle'];
-  return animals[Math.floor(Math.random() * animals.length)] + Math.floor(Math.random() * 100);
+  const animals = [
+    'Tiger',
+    'Bear',
+    'Fox',
+    'Wolf',
+    'Cat',
+    'Dog',
+    'Lion',
+    'Panda',
+    'Rabbit',
+    'Eagle',
+  ];
+  return (
+    animals[Math.floor(Math.random() * animals.length)] +
+    Math.floor(Math.random() * 100)
+  );
 }
 
 export function randomColor() {
-  const colors = ['#3B4EFF', '#FF3B3B', '#00B894', '#FDCB6E', '#6C5CE7', '#00B8D9', '#FF7675', '#636E72'];
+  const colors = [
+    '#3B4EFF',
+    '#FF3B3B',
+    '#00B894',
+    '#FDCB6E',
+    '#6C5CE7',
+    '#00B8D9',
+    '#FF7675',
+    '#636E72',
+  ];
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
 // 컴포넌트 타입별 기본 크기와 최소 크기 정의 (50px 그리드에 맞춤)
 export function getComponentDimensions(type) {
   const dimensions = {
-    button: { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 },
-    text: { defaultWidth: 200, defaultHeight: 50, minWidth: 100, minHeight: 50 },
-    image: { defaultWidth: 200, defaultHeight: 150, minWidth: 100, minHeight: 100 },
-    map: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 150 },
-    link: { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 },
-    attend: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
-    dday: { defaultWidth: 200, defaultHeight: 100, minWidth: 150, minHeight: 100 },
-    weddingContact: { defaultWidth: 300, defaultHeight: 250, minWidth: 250, minHeight: 200 },
-    weddingInvite: { defaultWidth: 450, defaultHeight: 400, minWidth: 300, minHeight: 250 },
-    gridGallery: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 200 },
-    slideGallery: { defaultWidth: 400, defaultHeight: 300, minWidth: 200, minHeight: 200 },
-    mapInfo: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
-    calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 300, minHeight: 350 },
-    bankAccount: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
-    comment: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
-    musicPlayer: { defaultWidth: 150, defaultHeight: 150, minWidth: 100, minHeight: 100 },
-    kakaotalkShare: { defaultWidth: 180, defaultHeight: 60, minWidth: 120, minHeight: 40 }
+    button: {
+      defaultWidth: 150,
+      defaultHeight: 50,
+      minWidth: 100,
+      minHeight: 50,
+    },
+    text: {
+      defaultWidth: 200,
+      defaultHeight: 50,
+      minWidth: 100,
+      minHeight: 50,
+    },
+    image: {
+      defaultWidth: 200,
+      defaultHeight: 150,
+      minWidth: 100,
+      minHeight: 100,
+    },
+    map: {
+      defaultWidth: 400,
+      defaultHeight: 300,
+      minWidth: 200,
+      minHeight: 150,
+    },
+    link: {
+      defaultWidth: 150,
+      defaultHeight: 50,
+      minWidth: 100,
+      minHeight: 50,
+    },
+    attend: {
+      defaultWidth: 300,
+      defaultHeight: 200,
+      minWidth: 250,
+      minHeight: 150,
+    },
+    dday: {
+      defaultWidth: 200,
+      defaultHeight: 100,
+      minWidth: 150,
+      minHeight: 100,
+    },
+    weddingContact: {
+      defaultWidth: 300,
+      defaultHeight: 250,
+      minWidth: 250,
+      minHeight: 200,
+    },
+    weddingInvite: {
+      defaultWidth: 450,
+      defaultHeight: 400,
+      minWidth: 300,
+      minHeight: 250,
+    },
+    gridGallery: {
+      defaultWidth: 400,
+      defaultHeight: 300,
+      minWidth: 200,
+      minHeight: 200,
+    },
+    slideGallery: {
+      defaultWidth: 400,
+      defaultHeight: 300,
+      minWidth: 200,
+      minHeight: 200,
+    },
+    mapInfo: {
+      defaultWidth: 300,
+      defaultHeight: 200,
+      minWidth: 250,
+      minHeight: 150,
+    },
+    calendar: {
+      defaultWidth: 350,
+      defaultHeight: 400,
+      minWidth: 300,
+      minHeight: 350,
+    },
+    bankAccount: {
+      defaultWidth: 300,
+      defaultHeight: 200,
+      minWidth: 250,
+      minHeight: 150,
+    },
+    comment: {
+      defaultWidth: 300,
+      defaultHeight: 200,
+      minWidth: 250,
+      minHeight: 150,
+    },
+    musicPlayer: {
+      defaultWidth: 150,
+      defaultHeight: 150,
+      minWidth: 100,
+      minHeight: 100,
+    },
+    kakaotalkShare: {
+      defaultWidth: 180,
+      defaultHeight: 60,
+      minWidth: 120,
+      minHeight: 40,
+    },
   };
-  return dimensions[type] || { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 };
+  return (
+    dimensions[type] || {
+      defaultWidth: 150,
+      defaultHeight: 50,
+      minWidth: 100,
+      minHeight: 50,
+    }
+  );
 }
 
 // 충돌 감지 함수
-export function checkCollision(comp1, comp2, getComponentDimensionsFn = getComponentDimensions) {
+export function checkCollision(
+  comp1,
+  comp2,
+  getComponentDimensionsFn = getComponentDimensions
+) {
   const comp1Dimensions = getComponentDimensionsFn(comp1.type);
   const comp2Dimensions = getComponentDimensionsFn(comp2.type);
-  
+
   const comp1Width = comp1.width || comp1Dimensions.defaultWidth;
   const comp1Height = comp1.height || comp1Dimensions.defaultHeight;
   const comp2Width = comp2.width || comp2Dimensions.defaultWidth;
   const comp2Height = comp2.height || comp2Dimensions.defaultHeight;
-  
-  return !(comp1.x + comp1Width <= comp2.x || 
-           comp2.x + comp2Width <= comp1.x || 
-           comp1.y + comp1Height <= comp2.y || 
-           comp2.y + comp2Height <= comp1.y);
+
+  // 실제 겹침 검사
+  const comp1Left = comp1.x;
+  const comp1Right = comp1.x + comp1Width;
+  const comp1Top = comp1.y;
+  const comp1Bottom = comp1.y + comp1Height;
+
+  const comp2Left = comp2.x;
+  const comp2Right = comp2.x + comp2Width;
+  const comp2Top = comp2.y;
+  const comp2Bottom = comp2.y + comp2Height;
+
+  // 겹침 조건: 두 사각형이 겹치는 경우
+  const isOverlapping = !(
+    comp1Right <= comp2Left ||
+    comp2Right <= comp1Left ||
+    comp1Bottom <= comp2Top ||
+    comp2Bottom <= comp1Top
+  );
+
+  // 🔍 간단한 디버깅 로그 (겹침이 있을 때만 자세히)
+  if (isOverlapping) {
+    console.error(`🚨🚨🚨 checkCollision 겹침 발견!!! 🚨🚨🚨`);
+    console.error(
+      `   ${comp1.id || 'comp1'}: (${comp1Left}, ${comp1Top}) ~ (${comp1Right}, ${comp1Bottom}) [${comp1Width}x${comp1Height}]`
+    );
+    console.error(
+      `   ${comp2.id || 'comp2'}: (${comp2Left}, ${comp2Top}) ~ (${comp2Right}, ${comp2Bottom}) [${comp2Width}x${comp2Height}]`
+    );
+
+    // 겹침 영역 크기 계산
+    const overlapWidth =
+      Math.min(comp1Right, comp2Right) - Math.max(comp1Left, comp2Left);
+    const overlapHeight =
+      Math.min(comp1Bottom, comp2Bottom) - Math.max(comp1Top, comp2Top);
+    console.error(
+      `   🔥 겹침 영역 크기: ${overlapWidth}px x ${overlapHeight}px`
+    );
+  }
+
+  if (isOverlapping) {
+    console.warn(
+      `🚨 겹침 감지: ${comp1.id || 'comp1'} vs ${comp2.id || 'comp2'}`
+    );
+    console.warn(
+      `  comp1: (${comp1Left}, ${comp1Top}) ~ (${comp1Right}, ${comp1Bottom}) [${comp1Width}x${comp1Height}]`
+    );
+    console.warn(
+      `  comp2: (${comp2Left}, ${comp2Top}) ~ (${comp2Right}, ${comp2Bottom}) [${comp2Width}x${comp2Height}]`
+    );
+
+    // 겹침 영역 계산
+    const overlapLeft = Math.max(comp1Left, comp2Left);
+    const overlapRight = Math.min(comp1Right, comp2Right);
+    const overlapTop = Math.max(comp1Top, comp2Top);
+    const overlapBottom = Math.min(comp1Bottom, comp2Bottom);
+    const overlapWidth = overlapRight - overlapLeft;
+    const overlapHeight = overlapBottom - overlapTop;
+
+    console.warn(
+      `  겹침 영역: (${overlapLeft}, ${overlapTop}) ~ (${overlapRight}, ${overlapBottom}) [${overlapWidth}x${overlapHeight}]`
+    );
+  }
+
+  return isOverlapping;
 }
 
 // 충돌 방지 위치 계산 함수
-export function resolveCollision(draggedComp, otherComponents, getComponentDimensionsFn = getComponentDimensions) {
+export function resolveCollision(
+  draggedComp,
+  otherComponents,
+  getComponentDimensionsFn = getComponentDimensions
+) {
   const COLLISION_MARGIN = 10; // 컴포넌트 간 최소 간격
   let resolvedX = draggedComp.x;
   let resolvedY = draggedComp.y;
-  
+
   const draggedDimensions = getComponentDimensionsFn(draggedComp.type);
   const draggedWidth = draggedComp.width || draggedDimensions.defaultWidth;
   const draggedHeight = draggedComp.height || draggedDimensions.defaultHeight;
-  
+
   // 각 컴포넌트와의 충돌 검사 및 해결
   for (const other of otherComponents) {
     if (other.id === draggedComp.id) continue;
-    
+
     const tempComp = { ...draggedComp, x: resolvedX, y: resolvedY };
     if (checkCollision(tempComp, other, getComponentDimensionsFn)) {
       const otherDimensions = getComponentDimensionsFn(other.type);
       const otherWidth = other.width || otherDimensions.defaultWidth;
       const otherHeight = other.height || otherDimensions.defaultHeight;
-      
+
       // 4방향 중 가장 가까운 위치로 이동
       const moveOptions = [
         { x: other.x - draggedWidth - COLLISION_MARGIN, y: resolvedY }, // 왼쪽
-        { x: other.x + otherWidth + COLLISION_MARGIN, y: resolvedY },   // 오른쪽
+        { x: other.x + otherWidth + COLLISION_MARGIN, y: resolvedY }, // 오른쪽
         { x: resolvedX, y: other.y - draggedHeight - COLLISION_MARGIN }, // 위쪽
-        { x: resolvedX, y: other.y + otherHeight + COLLISION_MARGIN }   // 아래쪽
+        { x: resolvedX, y: other.y + otherHeight + COLLISION_MARGIN }, // 아래쪽
       ];
-      
+
       // 원래 위치에서 가장 가까운 옵션 선택
       let bestOption = moveOptions[0];
-      let minDistance = Math.sqrt(Math.pow(bestOption.x - draggedComp.x, 2) + Math.pow(bestOption.y - draggedComp.y, 2));
-      
+      let minDistance = Math.sqrt(
+        Math.pow(bestOption.x - draggedComp.x, 2) +
+          Math.pow(bestOption.y - draggedComp.y, 2)
+      );
+
       for (const option of moveOptions) {
-        const distance = Math.sqrt(Math.pow(option.x - draggedComp.x, 2) + Math.pow(option.y - draggedComp.y, 2));
+        const distance = Math.sqrt(
+          Math.pow(option.x - draggedComp.x, 2) +
+            Math.pow(option.y - draggedComp.y, 2)
+        );
         if (distance < minDistance && option.x >= 0 && option.y >= 0) {
           minDistance = distance;
           bestOption = option;
         }
       }
-      
+
       resolvedX = Math.max(0, bestOption.x);
       resolvedY = Math.max(0, bestOption.y);
     }
   }
-  
+
   return { x: resolvedX, y: resolvedY };
 }
 
 // 스냅 위치 계산 함수 (실제 스냅 기능 - 중앙선, 정렬, 그리드 스냅)
-export function calculateSnapPosition(draggedComp, otherComponents, gridSize = 50, viewport = 'desktop', getComponentDimensionsFn = getComponentDimensions) {
+export function calculateSnapPosition(
+  draggedComp,
+  otherComponents,
+  gridSize = 50,
+  viewport = 'desktop',
+  getComponentDimensionsFn = getComponentDimensions
+) {
   const SNAP_THRESHOLD = 12;
   let snappedX = draggedComp.x;
   let snappedY = draggedComp.y;
@@ -125,8 +320,9 @@ export function calculateSnapPosition(draggedComp, otherComponents, gridSize = 5
   const draggedCenterY = draggedComp.y + draggedHeight / 2;
 
   // 캔버스 크기 (뷰포트에 따라)
-  const canvasWidth = viewport === 'mobile' ? 375 : 1920;
-  const canvasHeight = viewport === 'mobile' ? 667 : 1080;
+  const canvasSize = getCanvasSize(viewport);
+  const canvasWidth = canvasSize.width;
+  const canvasHeight = canvasSize.height;
   const canvasCenterX = canvasWidth / 2;
   const canvasCenterY = canvasHeight / 2;
 
@@ -196,7 +392,7 @@ export function calculateSnapPosition(draggedComp, otherComponents, gridSize = 5
   if (!snapped) {
     const gridX = Math.round(draggedComp.x / gridSize) * gridSize;
     const gridY = Math.round(draggedComp.y / gridSize) * gridSize;
-    
+
     if (Math.abs(draggedComp.x - gridX) < SNAP_THRESHOLD / 2) {
       snappedX = gridX;
       snapped = true;
@@ -210,7 +406,7 @@ export function calculateSnapPosition(draggedComp, otherComponents, gridSize = 5
   return {
     x: snappedX,
     y: snappedY,
-    snapped
+    snapped,
   };
 }
 
@@ -223,51 +419,82 @@ export function getFinalStyles(component, viewport = 'desktop') {
       y: component.y || 0,
       width: component.width,
       height: component.height,
-      props: component.props || {}
+      props: component.props || {},
     };
-    console.log(`🎨 getFinalStyles (기존): ${component.id} → x:${result.x}, y:${result.y}, w:${result.width}, h:${result.height}`);
+    console.log(
+      `🎨 getFinalStyles (기존): ${component.id} → x:${result.x}, y:${result.y}, w:${result.width}, h:${result.height}`
+    );
     return result;
   }
-  
+
   // responsive 구조에서 뷰포트별 스타일 병합
   const baseStyles = component.responsive.desktop || {};
   const viewportStyles = component.responsive[viewport] || {};
-  
+
+  // 🔧 기본 사이즈 정보 가져오기 (undefined 방지)
+  const defaultDimensions = getComponentDimensions(component.type);
+
   // 더 안전한 fallback 처리 (undefined vs 0 구분)
   const result = {
-    x: viewportStyles.x !== undefined ? viewportStyles.x : (baseStyles.x !== undefined ? baseStyles.x : 0),
-    y: viewportStyles.y !== undefined ? viewportStyles.y : (baseStyles.y !== undefined ? baseStyles.y : 0),
-    width: viewportStyles.width !== undefined ? viewportStyles.width : baseStyles.width,
-    height: viewportStyles.height !== undefined ? viewportStyles.height : baseStyles.height,
-    props: { ...(baseStyles.props || {}), ...(viewportStyles.props || {}) }
+    x:
+      viewportStyles.x !== undefined
+        ? viewportStyles.x
+        : baseStyles.x !== undefined
+          ? baseStyles.x
+          : 0,
+    y:
+      viewportStyles.y !== undefined
+        ? viewportStyles.y
+        : baseStyles.y !== undefined
+          ? baseStyles.y
+          : 0,
+    width:
+      viewportStyles.width !== undefined
+        ? viewportStyles.width
+        : baseStyles.width !== undefined
+          ? baseStyles.width
+          : defaultDimensions.defaultWidth,
+    height:
+      viewportStyles.height !== undefined
+        ? viewportStyles.height
+        : baseStyles.height !== undefined
+          ? baseStyles.height
+          : defaultDimensions.defaultHeight,
+    props: { ...(baseStyles.props || {}), ...(viewportStyles.props || {}) },
   };
-  
-  console.log(`🎨 getFinalStyles (responsive): ${component.id} [${viewport}] → x:${result.x}, y:${result.y}, w:${result.width}, h:${result.height}`);
+
+  console.log(
+    `🎨 getFinalStyles (responsive): ${component.id} [${viewport}] → x:${result.x}, y:${result.y}, w:${result.width}, h:${result.height}`
+  );
   console.log(`   🔧 responsive 구조:`, component.responsive);
   console.log(`   📋 baseStyles (desktop):`, baseStyles);
   console.log(`   📱 viewportStyles (${viewport}):`, viewportStyles);
+  console.log(`   🎯 기본 사이즈:`, defaultDimensions);
   console.log(`   ✨ 최종 결과:`, result);
-  
+
   return result;
 }
 
 // 컴포넌트를 responsive 구조로 마이그레이션
 export function migrateToResponsive(component) {
   if (component.responsive) {
-    console.log(`✅ ${component.id} 이미 responsive 구조:`, component.responsive);
+    console.log(
+      `✅ ${component.id} 이미 responsive 구조:`,
+      component.responsive
+    );
     return component; // 이미 responsive 구조
   }
-  
+
   const originalPosition = {
     x: component.x || 0,
     y: component.y || 0,
     width: component.width,
-    height: component.height
+    height: component.height,
   };
-  
+
   console.log(`🔄 ${component.id} responsive 마이그레이션 시작:`);
   console.log(`   📍 원본 위치:`, originalPosition);
-  
+
   const migratedComponent = {
     ...component,
     responsive: {
@@ -276,257 +503,325 @@ export function migrateToResponsive(component) {
         y: originalPosition.y,
         width: originalPosition.width,
         height: originalPosition.height,
-        props: component.props || {}
-      }
+        props: component.props || {},
+      },
     },
     // 기존 필드들은 호환성을 위해 유지하되 responsive 우선
     x: originalPosition.x,
     y: originalPosition.y,
     width: originalPosition.width,
     height: originalPosition.height,
-    props: component.props || {}
+    props: component.props || {},
   };
-  
+
   console.log(`   🎯 마이그레이션 결과:`, migratedComponent.responsive);
-  console.log(`   🔒 데스크탑 위치 고정:`, migratedComponent.responsive.desktop);
-  
+  console.log(
+    `   🔒 데스크탑 위치 고정:`,
+    migratedComponent.responsive.desktop
+  );
+
   return migratedComponent;
 }
 
-// 모바일 자동 정렬: 캔버스 밖 컴포넌트들을 겹치지 않게 배치
-export function arrangeMobileComponents(components, mobileCanvasWidth = 375, getComponentDimensionsFn = getComponentDimensions) {
-  console.log('🔍 arrangeMobileComponents 호출됨');
-  console.log('📊 전체 컴포넌트 수:', components.length);
-  console.log('📏 모바일 캔버스 너비:', mobileCanvasWidth);
-  
-  const PADDING = 10;
-  const COMPONENT_SPACING = 20; // 컴포넌트 간 간격
-  
-  // 캔버스 밖에 있는 컴포넌트들과 캔버스 안에 있는 컴포넌트들 분리
-  const componentsOutsideCanvas = [];
-  const componentsInsideCanvas = [];
-  
-  for (const comp of components) {
-    const currentStyles = getFinalStyles(comp, 'mobile');
-    const compWidth = currentStyles.width || getComponentDimensionsFn(comp.type).defaultWidth;
-    
-    console.log(`🔎 컴포넌트 ${comp.id} 체크:`, {
-      x: currentStyles.x,
-      width: compWidth,
-      rightEdge: currentStyles.x + compWidth,
-      canvasWidth: mobileCanvasWidth,
-      isOutside: currentStyles.x + compWidth > mobileCanvasWidth
-    });
-    
-    if (currentStyles.x + compWidth > mobileCanvasWidth) {
-      componentsOutsideCanvas.push(comp);
-      console.log(`📤 캔버스 밖: ${comp.id} (x: ${currentStyles.x}, width: ${compWidth})`);
-    } else {
-      // 캔버스 안에 있는 컴포넌트들 (충돌 체크에 사용)
-      componentsInsideCanvas.push({
-        ...comp,
-        x: currentStyles.x,
-        y: currentStyles.y,
-        width: currentStyles.width || getComponentDimensionsFn(comp.type).defaultWidth,
-        height: currentStyles.height || getComponentDimensionsFn(comp.type).defaultHeight
-      });
-      console.log(`📥 캔버스 안: ${comp.id} (x: ${currentStyles.x}, width: ${compWidth})`);
-    }
+/**
+ * 컴포넌트들을 세로로 충돌 없이 정렬합니다.
+ * @param {Array} components - 전체 컴포넌트 배열
+ * @param {string} viewport - 대상 뷰포트 ('mobile' 또는 'tablet')
+ * @returns {Array} - 각 컴포넌트의 ID와 새로운 {x, y} 좌표가 담긴 업데이트 목록
+ */
+export function arrangeComponentsVertically(components, viewport) {
+  console.log(`🚀🚀🚀 [${viewport}] 뷰포트 자동 정렬 시작!!! 🚀🚀🚀`);
+  console.log(`📊 입력 컴포넌트 수: ${components?.length || 0}`);
+  console.log(`📱 타겟 뷰포트: ${viewport}`);
+
+  // 안전장치
+  if (!components || components.length === 0) {
+    console.log(`❌ 컴포넌트가 없음 - 정렬 중단`);
+    return [];
   }
-  
-  console.log(`📊 결과: 캔버스 밖 ${componentsOutsideCanvas.length}개, 캔버스 안 ${componentsInsideCanvas.length}개`);
-  
-  if (componentsOutsideCanvas.length === 0) {
-    console.log('✅ 배치할 컴포넌트가 없음');
-    return []; // 배치할 컴포넌트가 없음
-  }
-  
-  // y 위치순으로 정렬 (위에서 아래로)
-  const sortedComponents = [...componentsOutsideCanvas].sort((a, b) => {
-    const aStyles = getFinalStyles(a, 'mobile');
-    const bStyles = getFinalStyles(b, 'mobile');
+
+  const canvasWidth = getCanvasSize(viewport).width;
+  const PADDING = 10; // 캔버스 좌우 여백
+  const GAP = 10; // 컴포넌트 상하 간격
+  let currentY = PADDING;
+
+  console.log(`📐 캔버스 너비: ${canvasWidth}px`);
+  console.log(`📏 여백: ${PADDING}px, 간격: ${GAP}px`);
+
+  // 1. 컴포넌트들을 현재 Y 좌표 기준으로 정렬 (위에서 아래로)
+  console.log(`🔄 컴포넌트들을 Y좌표 기준으로 정렬 중...`);
+  const sortedComponents = [...components].sort((a, b) => {
+    const aStyles = getFinalStyles(a, viewport);
+    const bStyles = getFinalStyles(b, viewport);
+    console.log(`  - ${a.id}: Y=${aStyles.y} vs ${b.id}: Y=${bStyles.y}`);
     return aStyles.y - bStyles.y;
   });
-  
-  console.log(`📋 재정렬 대상 컴포넌트들 (위에서부터 순서대로):`);
+
+  console.log(`📋 정렬된 컴포넌트 순서:`);
   sortedComponents.forEach((comp, index) => {
-    const styles = getFinalStyles(comp, 'mobile');
-    console.log(`  ${index + 1}. ${comp.id}: y=${styles.y} (원래 위치)`);
+    const styles = getFinalStyles(comp, viewport);
+    console.log(
+      `  ${index + 1}. ${comp.id}: (${styles.x}, ${styles.y}) ${styles.width}x${styles.height}`
+    );
   });
-  
-  // 빈 공간을 찾는 함수
-  const findAvailablePosition = (compWidth, compHeight, originalX, existingComponents) => {
-    const startY = 20; // 최상단 시작 위치
-    const maxX = Math.max(0, mobileCanvasWidth - compWidth - PADDING);
-    
-    // 원래 x 위치를 고려하되, 캔버스 안에 들어가도록 조정
-    let preferredX = Math.max(PADDING, Math.min(originalX, maxX));
-    
-    console.log(`🎯 빈 공간 찾기: 원래 x=${originalX}, 조정된 x=${preferredX}, 컴포넌트 크기=${compWidth}x${compHeight}`);
-    
-    // 위에서부터 차례로 빈 공간 찾기
-    for (let testY = startY; testY < 2000; testY += 10) { // 10px씩 증가하며 체크
-      const testComp = {
-        x: preferredX,
-        y: testY,
-        width: compWidth,
-        height: compHeight
-      };
-      
-      // 기존 컴포넌트들과 충돌 체크
-      let hasCollision = false;
-      for (const existingComp of existingComponents) {
-        if (checkCollision(testComp, existingComp, getComponentDimensionsFn)) {
-          hasCollision = true;
-          break;
-        }
-      }
-      
-      if (!hasCollision) {
-        console.log(`✅ 빈 공간 발견: (${preferredX}, ${testY})`);
-        return { x: preferredX, y: testY };
-      }
-    }
-    
-    // 빈 공간을 찾지 못한 경우 맨 아래에 배치
-    let bottomMostY = startY;
-    if (existingComponents.length > 0) {
-      bottomMostY = Math.max(...existingComponents.map(comp => comp.y + comp.height)) + COMPONENT_SPACING;
-    }
-    
-    console.log(`⚠️ 빈 공간을 찾지 못해 맨 아래 배치: (${preferredX}, ${bottomMostY})`);
-    return { x: preferredX, y: bottomMostY };
-  };
-  
-  const arrangementUpdates = [];
-  
+
+  const updates = [];
+
+  // 2. 정렬된 순서대로 위에서부터 차곡차곡 쌓기
+  console.log(`🏗️ 차곡차곡 쌓기 시작...`);
   for (const comp of sortedComponents) {
-    const currentStyles = getFinalStyles(comp, 'mobile');
-    const compDimensions = getComponentDimensionsFn(comp.type);
-    const compWidth = currentStyles.width || compDimensions.defaultWidth;
-    const compHeight = currentStyles.height || compDimensions.defaultHeight;
-    
-    console.log(`🎯 ${comp.id} 배치 시작: 현재 위치 (${currentStyles.x}, ${currentStyles.y}), 크기 ${compWidth}x${compHeight}`);
-    
-    // 이미 배치된 모든 컴포넌트들 (캔버스 안 + 이미 배치된 컴포넌트들)
-    const allExistingComponents = [
-      ...componentsInsideCanvas,
-      ...arrangementUpdates.map(update => ({
-        ...update.component,
-        x: update.newPosition.x,
-        y: update.newPosition.y,
-        width: update.newPosition.width,
-        height: update.newPosition.height
-      }))
-    ];
-    
-    console.log(`🔍 빈 공간 찾기 - 기존 컴포넌트 ${allExistingComponents.length}개 고려`);
-    
-    // 가장 위쪽 빈 공간 찾기 (원래 x 위치 고려)
-    const availablePosition = findAvailablePosition(compWidth, compHeight, currentStyles.x, allExistingComponents);
-    
-    console.log(`📍 ${comp.id} 배치 위치 결정: (${availablePosition.x}, ${availablePosition.y})`);
-    
-    // 최종 위치 결정
-    const finalPosition = {
-      x: availablePosition.x,
-      y: availablePosition.y,
-      width: compWidth,
-      height: compHeight
-    };
-    
-    arrangementUpdates.push({
-      component: comp,
-      originalPosition: currentStyles,
-      newPosition: finalPosition
+    const finalStyles = getFinalStyles(comp, viewport);
+    const compDimensions = getComponentDimensions(comp.type);
+
+    // 새 위치 계산
+    const newX = PADDING;
+    const newY = currentY;
+
+    // 너비는 캔버스에 맞게 조정
+    const newWidth = Math.min(
+      finalStyles.width || compDimensions.defaultWidth,
+      canvasWidth - PADDING * 2
+    );
+
+    // 높이는 기존 높이 유지
+    const newHeight = finalStyles.height || compDimensions.defaultHeight;
+
+    console.log(`🧱 ${comp.id} 배치:`);
+    console.log(
+      `   - 기존 위치: (${finalStyles.x}, ${finalStyles.y}) ${finalStyles.width}x${finalStyles.height}`
+    );
+    console.log(`   - 새 위치: (${newX}, ${newY}) ${newWidth}x${newHeight}`);
+    console.log(`   - currentY: ${currentY} → ${currentY + newHeight + GAP}`);
+
+    // 업데이트 목록에 추가
+    updates.push({
+      id: comp.id,
+      updates: { x: newX, y: newY, width: newWidth, height: newHeight },
     });
-    
-    console.log(`✅ 컴포넌트 ${comp.id} 최종 배치: (${currentStyles.x}, ${currentStyles.y}) → (${finalPosition.x}, ${finalPosition.y})`);
+
+    // 다음 컴포넌트가 위치할 Y좌표 업데이트
+    currentY += newHeight + GAP;
   }
-  
-  return arrangementUpdates;
+
+  console.log(
+    `✅✅✅ [${viewport}] 자동 정렬 완료! ${updates.length}개 컴포넌트 재배치 ✅✅✅`
+  );
+  console.log(`📋 최종 업데이트 목록:`, updates);
+  return updates;
 }
 
-// 스냅라인 계산 함수 (정렬, 간격, 그리드, 중앙선 스냅 모두 지원)
-export function calculateSnapLines(draggedComp, allComponents, zoom = 100, viewport = 'desktop', getComponentDimensionsFn = getComponentDimensions) {
-  const SNAP_THRESHOLD = 8;
-  // 고정된 그리드 크기 사용 (줌 레벨에 관계없이 일관된 그리드)
-  const effectiveGridSize = GRID_SIZE; // 고정된 그리드 크기
+// 뷰포트 시스템 설정 (중앙 집중식 관리)
+export const VIEWPORT_CONFIGS = {
+  desktop: {
+    width: 1920,
+    height: 1080,
+    label: '데스크탑',
+    icon: '🖥️',
+    description: '1920px 이상',
+  },
+  tablet: {
+    width: 768,
+    height: 1024,
+    label: '태블릿',
+    icon: '📱',
+    description: '768px × 1024px',
+  },
+  mobile: {
+    width: 375,
+    height: 667,
+    label: '모바일',
+    icon: '📱',
+    description: '375px × 667px',
+  },
+};
+
+// 뷰포트별 캔버스 크기 가져오기
+export function getCanvasSize(viewport = 'desktop') {
+  const config = VIEWPORT_CONFIGS[viewport];
+  if (!config) {
+    console.warn(`Unknown viewport: ${viewport}, using desktop`);
+    return VIEWPORT_CONFIGS.desktop;
+  }
+  return { width: config.width, height: config.height };
+}
+
+/**
+ * 드래그 중인 컴포넌트에 대한 스냅라인을 계산합니다.
+ * @param {Object} draggedComp - 드래그 중인 컴포넌트
+ * @param {Array} otherComponents - 다른 컴포넌트들
+ * @param {number} zoom - 줌 레벨 (기본값: 100)
+ * @param {string} viewport - 현재 뷰포트 (기본값: 'desktop')
+ * @param {Function} getComponentDimensionsFn - 컴포넌트 크기 함수
+ * @returns {Object} - { vertical: [], horizontal: [] } 형태의 스냅라인 객체
+ */
+export function calculateSnapLines(
+  draggedComp,
+  otherComponents,
+  zoom = 100,
+  viewport = 'desktop',
+  getComponentDimensionsFn = getComponentDimensions
+) {
   const snapLines = { vertical: [], horizontal: [] };
-  if (!draggedComp) return snapLines;
+  const SNAP_THRESHOLD = 12; // 스냅 감지 거리
 
-  // 캔버스 크기 (뷰포트에 따라)
-  const canvasWidth = viewport === 'mobile' ? 375 : 1920;
-  const canvasHeight = viewport === 'mobile' ? 667 : 1080;
+  // 줌 스케일 계산
+  const scale = zoom / 100;
 
-  // 1. 중앙선 스냅 (Canvas Center)
+  // 드래그된 컴포넌트의 크기와 위치
   const draggedDimensions = getComponentDimensionsFn(draggedComp.type);
   const draggedWidth = draggedComp.width || draggedDimensions.defaultWidth;
   const draggedHeight = draggedComp.height || draggedDimensions.defaultHeight;
-  
+
+  const draggedLeft = draggedComp.x;
+  const draggedRight = draggedComp.x + draggedWidth;
+  const draggedTop = draggedComp.y;
+  const draggedBottom = draggedComp.y + draggedHeight;
+  const draggedCenterX = draggedComp.x + draggedWidth / 2;
+  const draggedCenterY = draggedComp.y + draggedHeight / 2;
+
+  // 캔버스 크기
+  const canvasSize = getCanvasSize(viewport);
+  const canvasWidth = canvasSize.width;
+  const canvasHeight = canvasSize.height;
   const canvasCenterX = canvasWidth / 2;
   const canvasCenterY = canvasHeight / 2;
-  const compCenterX = draggedComp.x + draggedWidth / 2;
-  const compCenterY = draggedComp.y + draggedHeight / 2;
-  
-  // 수직 중앙선 (캔버스 중앙)
-  if (Math.abs(compCenterX - canvasCenterX) < SNAP_THRESHOLD) {
-    snapLines.vertical.push({ x: canvasCenterX, type: 'center' });
-  }
-  
-  // 수평 중앙선 (캔버스 중앙)
-  if (Math.abs(compCenterY - canvasCenterY) < SNAP_THRESHOLD) {
-    snapLines.horizontal.push({ y: canvasCenterY, type: 'center' });
+
+  // 1. 캔버스 중앙선 스냅라인
+  if (Math.abs(draggedCenterX - canvasCenterX) < SNAP_THRESHOLD) {
+    snapLines.vertical.push({
+      x: canvasCenterX,
+      color: '#ff6b35', // 주황색 - 캔버스 중앙
+      opacity: 0.8,
+      thickness: 1,
+    });
   }
 
-  // 2. 정렬 스냅 (Alignment)
-  allComponents.forEach(other => {
-    if (other.id === draggedComp.id) return;
+  if (Math.abs(draggedCenterY - canvasCenterY) < SNAP_THRESHOLD) {
+    snapLines.horizontal.push({
+      y: canvasCenterY,
+      color: '#ff6b35', // 주황색 - 캔버스 중앙
+      opacity: 0.8,
+      thickness: 1,
+    });
+  }
+
+  // 2. 다른 컴포넌트들과의 정렬 스냅라인
+  for (const other of otherComponents) {
+    if (other.id === draggedComp.id) continue;
+
+    // 다른 컴포넌트의 최종 스타일 가져오기
+    const otherStyles = getFinalStyles(other, viewport);
     const otherDimensions = getComponentDimensionsFn(other.type);
-    const otherX = [other.x, other.x + (other.width || otherDimensions.defaultWidth) / 2, other.x + (other.width || otherDimensions.defaultWidth)];
-    const dragX = [draggedComp.x, draggedComp.x + (draggedComp.width || draggedDimensions.defaultWidth) / 2, draggedComp.x + (draggedComp.width || draggedDimensions.defaultWidth)];
-    otherX.forEach(ox => {
-      dragX.forEach(dx => {
-        if (Math.abs(ox - dx) < SNAP_THRESHOLD) {
-          snapLines.vertical.push({ x: ox, type: 'align' });
-        }
-      });
-    });
-    const otherY = [other.y, other.y + (other.height || otherDimensions.defaultHeight) / 2, other.y + (other.height || otherDimensions.defaultHeight)];
-    const dragY = [draggedComp.y, draggedComp.y + (draggedComp.height || draggedDimensions.defaultHeight) / 2, draggedComp.y + (draggedComp.height || draggedDimensions.defaultHeight)];
-    otherY.forEach(oy => {
-      dragY.forEach(dy => {
-        if (Math.abs(oy - dy) < SNAP_THRESHOLD) {
-          snapLines.horizontal.push({ y: oy, type: 'align' });
-        }
-      });
-    });
-  });
+    const otherWidth = otherStyles.width || otherDimensions.defaultWidth;
+    const otherHeight = otherStyles.height || otherDimensions.defaultHeight;
 
-  // 3. 간격 스냅 (Spacing)
-  allComponents.forEach(a => {
-    allComponents.forEach(b => {
-      if (a.id === b.id || a.id === draggedComp.id || b.id === draggedComp.id) return;
-      const spacingX = Math.abs(a.x - b.x);
-      const spacingY = Math.abs(a.y - b.y);
-      if (Math.abs(Math.abs(draggedComp.x - a.x) - spacingX) < SNAP_THRESHOLD && spacingX > 0) {
-        snapLines.vertical.push({ x: draggedComp.x, type: 'spacing', spacing: spacingX });
-      }
-      if (Math.abs(Math.abs(draggedComp.y - a.y) - spacingY) < SNAP_THRESHOLD && spacingY > 0) {
-        snapLines.horizontal.push({ y: draggedComp.y, type: 'spacing', spacing: spacingY });
-      }
-    });
-  });
+    const otherLeft = otherStyles.x;
+    const otherRight = otherStyles.x + otherWidth;
+    const otherTop = otherStyles.y;
+    const otherBottom = otherStyles.y + otherHeight;
+    const otherCenterX = otherStyles.x + otherWidth / 2;
+    const otherCenterY = otherStyles.y + otherHeight / 2;
 
-  // 4. 그리드 스냅 (Grid) - 줌 레벨 고려
-  const gridX = Math.round(draggedComp.x / effectiveGridSize) * effectiveGridSize;
-  const gridY = Math.round(draggedComp.y / effectiveGridSize) * effectiveGridSize;
-  if (Math.abs(draggedComp.x - gridX) < SNAP_THRESHOLD) {
-    snapLines.vertical.push({ x: gridX, type: 'grid' });
-  }
-  if (Math.abs(draggedComp.y - gridY) < SNAP_THRESHOLD) {
-    snapLines.horizontal.push({ y: gridY, type: 'grid' });
+    // 수직 정렬 스냅라인 (X축)
+    // 왼쪽 가장자리 정렬
+    if (Math.abs(draggedLeft - otherLeft) < SNAP_THRESHOLD) {
+      snapLines.vertical.push({
+        x: otherLeft,
+        color: '#FF0000', // 빨간색
+        opacity: 0.8,
+        thickness: 1,
+      });
+    }
+
+    // 오른쪽 가장자리 정렬
+    if (Math.abs(draggedRight - otherRight) < SNAP_THRESHOLD) {
+      snapLines.vertical.push({
+        x: otherRight,
+        color: '#FF0000', // 빨간색
+        opacity: 0.8,
+        thickness: 1,
+      });
+    }
+
+    // 중앙 정렬
+    if (Math.abs(draggedCenterX - otherCenterX) < SNAP_THRESHOLD) {
+      snapLines.vertical.push({
+        x: otherCenterX,
+        color: '#FF0000', // 빨간색
+        opacity: 0.8,
+        thickness: 1,
+      });
+    }
+
+    // 왼쪽과 오른쪽 경계 스냅
+    if (Math.abs(draggedLeft - otherRight) < SNAP_THRESHOLD) {
+      snapLines.vertical.push({
+        x: otherRight,
+        color: '#FF0000', // 빨간색
+        opacity: 0.8,
+        thickness: 1,
+      });
+    }
+
+    if (Math.abs(draggedRight - otherLeft) < SNAP_THRESHOLD) {
+      snapLines.vertical.push({
+        x: otherLeft,
+        color: '#FF0000', // 빨간색
+        opacity: 0.8,
+        thickness: 1,
+      });
+    }
+
+    // 수평 정렬 스냅라인 (Y축)
+    // 위쪽 가장자리 정렬
+    if (Math.abs(draggedTop - otherTop) < SNAP_THRESHOLD) {
+      snapLines.horizontal.push({
+        y: otherTop,
+        color: '#FF0000', // 빨간색
+        opacity: 0.8,
+        thickness: 1,
+      });
+    }
+
+    // 아래쪽 가장자리 정렬
+    if (Math.abs(draggedBottom - otherBottom) < SNAP_THRESHOLD) {
+      snapLines.horizontal.push({
+        y: otherBottom,
+        color: '#FF0000', // 빨간색
+        opacity: 0.8,
+        thickness: 1,
+      });
+    }
+
+    // 중앙 정렬
+    if (Math.abs(draggedCenterY - otherCenterY) < SNAP_THRESHOLD) {
+      snapLines.horizontal.push({
+        y: otherCenterY,
+        color: '#FF0000', // 빨간색
+        opacity: 0.8,
+        thickness: 1,
+      });
+    }
+
+    // 위쪽과 아래쪽 경계 스냅
+    if (Math.abs(draggedTop - otherBottom) < SNAP_THRESHOLD) {
+      snapLines.horizontal.push({
+        y: otherBottom,
+        color: '#FF0000', // 빨간색
+        opacity: 0.8,
+        thickness: 1,
+      });
+    }
+
+    if (Math.abs(draggedBottom - otherTop) < SNAP_THRESHOLD) {
+      snapLines.horizontal.push({
+        y: otherTop,
+        color: '#FF0000', // 빨간색
+        opacity: 0.8,
+        thickness: 1,
+      });
+    }
   }
 
   return snapLines;
-} 
+}
