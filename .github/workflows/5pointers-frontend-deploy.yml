@@ -28,7 +28,7 @@ jobs:
     - name: Clean and install dependencies
       run: |
         cd my-web-builder/apps/frontend
-        rm -rf node_modules package-lock.json
+        rm -rf node_modules package-lock.json dist
         npm install --legacy-peer-deps
     
     - name: Create environment file
@@ -36,11 +36,16 @@ jobs:
         cd my-web-builder/apps/frontend
         echo "VITE_API_URL=http://3.39.235.190:3001" > .env.production
         echo "VITE_WEBSOCKET_URL=ws://43.203.138.8:3003" >> .env.production
+        echo "Environment file created:"
+        cat .env.production
     
-    - name: Build application (Vite only - no TypeScript)
+    - name: Build application
       run: |
         cd my-web-builder/apps/frontend
-        npx vite build --mode production --force
+        echo "Starting Vite build..."
+        npm run build
+        echo "Build completed successfully!"
+        ls -la dist/
     
     - name: Stop existing nginx
       run: |

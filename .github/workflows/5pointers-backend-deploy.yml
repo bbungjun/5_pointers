@@ -61,7 +61,10 @@ jobs:
     - name: Build application
       run: |
         cd backend
-        npm run build || echo "Build completed"
+        echo "Starting NestJS build..."
+        npm run build
+        echo "Build completed successfully!"
+        ls -la dist/
     
     - name: Copy environment variables
       run: |
