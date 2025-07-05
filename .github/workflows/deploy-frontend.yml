@@ -31,12 +31,16 @@ jobs:
         cd my-web-builder
         npm ci
         
-    - name: Build application
+    - name: Create production environment file
       run: |
-        cd my-web-builder
-        npm run build
-      env:
-        VITE_API_URL: http://Jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com
+        cd my-web-builder/apps/frontend
+        echo "VITE_API_URL=${{ secrets.VITE_API_URL_PRODUCTION }}" > .env.production
+        echo "VITE_WEBSOCKET_URL=${{ secrets.VITE_WEBSOCKET_URL_PRODUCTION }}" >> .env.production
+        
+    - name: Build application for production
+      run: |
+        cd my-web-builder/apps/frontend
+        npm run build:production
         
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -48,7 +52,7 @@ jobs:
         
     - name: Deploy to S3
       run: |
-        cd my-web-builder
+        cd my-web-builder/apps/frontend
         aws s3 sync dist/ s3://jungle-frontend-5 --delete
         
     - name: Invalidate CloudFront
