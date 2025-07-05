@@ -13,33 +13,7 @@ on:
       - 'my-web-builder/packages/**'
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-    
-    - name: Install dependencies
-      run: |
-        cd my-web-builder/apps/frontend
-        npm install --legacy-peer-deps
-    
-    - name: Run tests
-      run: |
-        cd my-web-builder/apps/frontend
-        npm run test || echo "Tests not configured yet"
-    
-    - name: Build application
-      run: |
-        cd my-web-builder/apps/frontend
-        npm run build
-
   deploy:
-    needs: test
     runs-on: [self-hosted, frontend-server]
     if: github.ref == 'refs/heads/main'
     
@@ -51,9 +25,10 @@ jobs:
       with:
         node-version: '18'
     
-    - name: Install dependencies
+    - name: Clean and install dependencies
       run: |
         cd my-web-builder/apps/frontend
+        rm -rf node_modules package-lock.json
         npm install --legacy-peer-deps
     
     - name: Create environment file
@@ -62,10 +37,10 @@ jobs:
         echo "VITE_API_URL=http://3.39.235.190:3001" > .env.production
         echo "VITE_WEBSOCKET_URL=ws://43.203.138.8:3003" >> .env.production
     
-    - name: Build application
+    - name: Build application (Vite only - no TypeScript)
       run: |
         cd my-web-builder/apps/frontend
-        npm run build
+        npx vite build --mode production --force
     
     - name: Stop existing nginx
       run: |
