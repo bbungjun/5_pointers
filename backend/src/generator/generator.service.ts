@@ -131,4 +131,16 @@ export class GeneratorService {
       throw error;
     }
   }
+
+  async deployAllUserPages(deployDto: any, userId: number) {
+    console.log('전체 페이지 배포 요청:', deployDto);
+    
+    // 임시로 기존 deploy 메서드 호출
+    return this.deploy({
+      projectId: deployDto.currentPageId,
+      userId: userId.toString(),
+      components: [],
+      domain: deployDto.domain
+    });
+  }
 }

@@ -524,4 +524,100 @@ export class UsersService {
       </script>
     `;
   }
+  /**
+   * Page 컴포넌트에서 새 페이지 생성
+   */
+  async createPageFromComponent(createDto: {
+    parentPageId: string;
+    componentId: string;
+    pageName?: string;
+  }) {
+    console.log('📄 새 페이지 생성 시작:', createDto);
+    
+    try {
+      // 1. 새 페이지 생성
+      const newPage = this.pagesRepository.create({
+        title: createDto.pageName || "새 페이지",
+        subdomain: 'page-' + Date.now(),
+        content: {
+          components: [],
+          pageConnections: [],
+          metadata: {
+            totalComponents: 0,
+            pageComponentCount: 0,
+            lastModified: new Date().toISOString(),
+            version: '1.0'
+          }
+        },
+        status: PageStatus.DRAFT,
+        userId: 1 // 기본 사용자 ID
+      });
+      
+      const savedPage = await this.pagesRepository.save(newPage);
+      console.log('✅ 새 페이지 생성 완료:', savedPage.id, savedPage.title);
+      
+      // 2. 부모 페이지의 연결 정보 업데이트
+      await this.addPageConnection(createDto.parentPageId, {
+        componentId: createDto.componentId,
+        linkedPageId: savedPage.id,
+        linkType: 'internal'
+      });
+      
+      return { 
+        success: true, 
+        page: {
+          id: savedPage.id,
+          title: savedPage.title,
+          subdomain: savedPage.subdomain,
+          status: savedPage.status
+        }
+      };
+      
+    } catch (error) {
+      console.error('❌ 페이지 생성 실패:', error);
+      throw new Error('페이지 생성 실패: ' + error.message);
+    }
+  }
+
+  /**
+   * 부모 페이지에 연결 정보 추가
+   */
+  async addPageConnection(pageId: string, connectionData: any) {
+    try {
+      const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+      if (!page) {
+        throw new Error('부모 페이지를 찾을 수 없습니다.');
+      }
+      
+      const content = page.content || { components: [], pageConnections: [], metadata: {} };
+      
+      // pageConnections 배열에 새 연결 추가
+      const newConnection = {
+        id: 'conn-' + Date.now(),
+        componentId: connectionData.componentId,
+        linkedPageId: connectionData.linkedPageId,
+        linkType: connectionData.linkType,
+        order: content.pageConnections?.length || 0,
+        createdAt: new Date().toISOString()
+      };
+
+      content.pageConnections = content.pageConnections || [];
+      content.pageConnections.push(newConnection);
+      
+      // metadata 업데이트
+      content.metadata = {
+        ...content.metadata,
+        pageComponentCount: content.pageConnections.length,
+        lastModified: new Date().toISOString()
+      };
+
+      // 부모 페이지 업데이트
+      await this.pagesRepository.update(pageId, { content });
+      console.log('✅ 부모 페이지 연결 정보 업데이트 완료');
+      
+    } catch (error) {
+      console.error('❌ 페이지 연결 정보 업데이트 실패:', error);
+      throw error;
+    }
+  }
 }

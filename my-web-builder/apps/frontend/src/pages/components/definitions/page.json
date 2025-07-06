@@ -62,7 +62,7 @@
     "fontSize": {
       "type": "string",
       "label": "글자 크기",
-      "default": "16px",
+      "default": "12px",
       "description": "글자 크기"
     },
     "fontWeight": {
@@ -80,23 +80,24 @@
   },
   "responsive": {
     "desktop": {
-      "width": 300,
+      "width": 100,
       "height": 150
     },
     "mobile": {
-      "width": 280,
+      "width": 100,
       "height": 120
     }
   },
   "defaultProps": {
     "pageName": "새 페이지",
+    "thumbnail": "",
     "backgroundColor": "#ffffff",
     "textColor": "#333333",
     "borderStyle": "solid",
     "borderWidth": "2px",
     "borderColor": "#007bff",
     "borderRadius": "8px",
-    "fontSize": "16px",
+    "fontSize": "12px",
     "fontWeight": "500"
   }
 } 
