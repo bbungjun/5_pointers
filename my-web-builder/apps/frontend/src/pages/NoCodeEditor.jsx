@@ -43,7 +43,7 @@ import { ComponentDefinitions } from './components/definitions';
 import { useCollaboration } from '../hooks/useCollaboration';
 import { getUserColor } from '../utils/userColors';
 import useAutoSave from '../hooks/useAutoSave';
-import SaveStatusIndicator from '../components/SaveStatusIndicator';
+
 
 function NoCodeEditor() {
   const { roomId } = useParams();
@@ -959,14 +959,7 @@ function NoCodeEditor() {
         pageId={roomId}
       />
 
-      {/* 자동저장 상태 표시 */}
-      <SaveStatusIndicator
-        isSaving={autoSave.isSaving}
-        lastSaved={autoSave.lastSaved}
-        saveError={autoSave.saveError}
-        saveCount={autoSave.saveCount}
-        onSaveNow={autoSave.saveNow}
-      />
+
 
       {/* 스타일 태그로 high-contrast, readable 스타일 보장 */}
       <style>{`
