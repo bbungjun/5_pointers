@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
+import { io } from 'socket.io-client';
 
 /**
  * InvitationNotifications 컴포넌트
@@ -12,6 +13,7 @@ function InvitationNotifications() {
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState({});
+  const [socket, setSocket] = useState(null);
 
   // 초대 목록 조회
   const fetchInvitations = async () => {
@@ -126,13 +128,73 @@ function InvitationNotifications() {
     }
   };
 
+  // WebSocket 연결 설정
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    // JWT 토큰에서 userId 추출
+    const decodeJWTPayload = (token) => {
+      try {
+        let base64 = token.split('.')[1];
+        base64 = base64.replace(/-/g, '+').replace(/_/g, '/');
+        while (base64.length % 4) {
+          base64 += '=';
+        }
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const utf8String = new TextDecoder('utf-8').decode(bytes);
+        const payload = JSON.parse(utf8String);
+        return payload;
+      } catch (error) {
+        console.error('JWT 디코딩 실패:', error);
+        return null;
+      }
+    };
+
+    const payload = decodeJWTPayload(token);
+    const userId = payload?.userId || payload?.id || payload?.sub;
+    
+    if (!userId) return;
+
+    // WebSocket 연결
+    const socketUrl = API_BASE_URL.replace('http', 'ws');
+    const newSocket = io(`${socketUrl}/invite`, {
+      query: { userId },
+      transports: ['websocket', 'polling']
+    });
+
+    newSocket.on('connect', () => {
+      console.log('초대 알림 WebSocket 연결됨');
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('초대 알림 WebSocket 연결 해제됨');
+    });
+
+    newSocket.on('new-invitation', (invitationData) => {
+      console.log('새 초대 알림 수신:', invitationData);
+      // 새로운 초대가 오면 목록을 새로고침
+      fetchInvitations();
+    });
+
+    setSocket(newSocket);
+
+    // 초기 데이터 로드
     fetchInvitations();
-    
-    // 30초마다 초대 목록 새로고침
-    const interval = setInterval(fetchInvitations, 30000);
-    
-    return () => clearInterval(interval);
+
+    // WebSocket 연결이 실패할 경우를 대비해 폴링도 함께 사용 (60초마다)
+    const interval = setInterval(fetchInvitations, 60000);
+
+    return () => {
+      if (newSocket) {
+        newSocket.disconnect();
+      }
+      clearInterval(interval);
+    };
   }, []);
 
   if (loading) {

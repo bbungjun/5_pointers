@@ -116,16 +116,7 @@ function EditorHeader({
           <span className="hidden sm:inline">미리보기</span>
         </button>
 
-        {/* Room ID 표시 - 작은 화면에서는 숨김 */}
-        <div className="hidden md:flex px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium">
-          <span className="hidden lg:inline">Room: </span>
-          <span className="font-mono">{roomId}</span>
-        </div>
 
-        {/* 작은 화면용 Room ID */}
-        <div className="md:hidden flex px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs font-mono">
-          {roomId.slice(0, 6)}
-        </div>
       </div>
     </div>
   );
