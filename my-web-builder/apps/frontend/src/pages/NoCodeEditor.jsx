@@ -168,6 +168,7 @@ function NoCodeEditor() {
     canvasRef,
     selectedComponentId: selectedId,
     onComponentsUpdate: setComponents,
+    viewport,
   });
 
   // 협업 상태 구조분해할당

@@ -105,18 +105,25 @@ export function LiveCursors({ cursors = [], zoom = 100, viewport = 'desktop' }) 
 export function CollaborativeSelections({ selections = [], components = [], zoom = 100, viewport = 'desktop', getComponentDimensions }) {
   const scale = zoom / 100;
   
+  // 현재 뷰포트와 일치하는 선택 상태만 필터링
+  const filteredSelections = selections.filter(selection => 
+    selection.viewport === viewport
+  );
+  
   // 디버깅 로그
   useEffect(() => {
     // console.log('CollaborativeSelections 렌더링:', { 
     //   selectionsCount: selections?.length || 0, 
+    //   filteredCount: filteredSelections?.length || 0,
+    //   currentViewport: viewport,
     //   isArray: Array.isArray(selections),
     //   selections
     // });
-  }, [selections]);
+  }, [selections, filteredSelections, viewport]);
   
   return (
     <>
-      {Array.isArray(selections) && selections.length > 0 ? selections.map((selection, index) => 
+      {Array.isArray(filteredSelections) && filteredSelections.length > 0 ? filteredSelections.map((selection, index) => 
         Array.isArray(selection.componentIds) ? selection.componentIds.map(componentId => {
           const component = components.find(c => c.id === componentId);
           if (!component) return null;

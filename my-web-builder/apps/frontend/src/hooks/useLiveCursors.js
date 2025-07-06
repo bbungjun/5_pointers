@@ -45,12 +45,13 @@ export function useLiveCursors(awareness, canvasRef) {
   }, [awareness, canvasRef]);
 
   // 컴포넌트 선택 상태를 Awareness에 브로드캐스트
-  const updateSelection = useCallback((selectedComponentIds) => {
+  const updateSelection = useCallback((selectedComponentIds, viewport = 'desktop') => {
     if (!awareness) return;
 
-    // 선택된 컴포넌트 ID 배열을 브로드캐스트
+    // 선택된 컴포넌트 ID 배열과 뷰포트 정보를 브로드캐스트
     awareness.setLocalStateField('selection', {
       componentIds: selectedComponentIds,
+      viewport: viewport,
       timestamp: Date.now()
     });
   }, [awareness]);
@@ -86,9 +87,10 @@ export function useLiveCursors(awareness, canvasRef) {
         }
 
         if (user && selection) {
-          // 선택 정보 저장
+          // 선택 정보 저장 (뷰포트 정보 포함)
           selections.set(clientId, {
             componentIds: selection.componentIds || [],
+            viewport: selection.viewport || 'desktop',
             user: {
               id: user.id,
               name: user.name,

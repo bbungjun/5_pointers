@@ -43,7 +43,12 @@ function DashboardPage({ user, onLogout }) {
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
-        setTemplates(data);
+        // 중복된 ID 제거 (같은 ID를 가진 첫 번째 항목만 유지)
+        const uniqueTemplates = data.filter((template, index, arr) => {
+          const firstIndex = arr.findIndex(t => t.id === template.id);
+          return firstIndex === index;
+        });
+        setTemplates(uniqueTemplates);
       }
     } catch (error) {
       console.error('템플릿 조회 실패:', error);
@@ -67,7 +72,12 @@ function DashboardPage({ user, onLogout }) {
 
       if (response.ok) {
         const data = await response.json();
-        setMyPages(data);
+        // 중복된 ID 제거 (같은 ID를 가진 첫 번째 항목만 유지)
+        const uniquePages = data.filter((page, index, arr) => {
+          const firstIndex = arr.findIndex(p => p.id === page.id);
+          return firstIndex === index;
+        });
+        setMyPages(uniquePages);
       }
     } catch (error) {
       console.error('페이지 목록 조회 실패:', error);
