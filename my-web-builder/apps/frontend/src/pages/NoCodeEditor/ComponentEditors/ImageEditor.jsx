@@ -22,26 +22,7 @@ function ImageEditor({ selectedComp, onUpdate }) {
 
   return (
     <div>
-      {/* 컴포넌트 정보 */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 20,
-        padding: '8px 12px',
-        backgroundColor: '#f0f2f5',
-        borderRadius: 6
-      }}>
-        <span style={{ fontSize: 16 }}>🖼️</span>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#1d2129' }}>
-            Image
-          </div>
-          <div style={{ fontSize: 11, color: '#65676b' }}>
-            {selectedComp.id}
-          </div>
-        </div>
-      </div>
+
 
       {/* 이미지 소스 섹션 */}
       <div style={{ 
