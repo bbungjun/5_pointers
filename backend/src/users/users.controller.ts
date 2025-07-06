@@ -151,6 +151,22 @@ export class UsersController {
     return this.usersService.deleteComment(pageId, componentId, commentId, body.password);
   }
 
+  // Slido 의견 조회
+  @Get("pages/:pageId/slido/:componentId")
+  async getSlido(@Param("pageId") pageId: string, @Param("componentId") componentId: string) {
+    return this.usersService.getSlido(pageId, componentId);
+  }
+
+  // Slido 의견 작성
+  @Post("pages/:pageId/slido/:componentId")
+  async createSlido(
+    @Param("pageId") pageId: string,
+    @Param("componentId") componentId: string,
+    @Body() slidoData: { content: string }
+  ) {
+    return this.usersService.createSlido(pageId, componentId, slidoData);
+  }
+
   // 🔄 새로고침 복구 시스템 API
   @Get("pages/room/:roomId/content")
   async getPageContent(@Param("roomId") roomId: string) {

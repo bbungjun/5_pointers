@@ -13,6 +13,7 @@ export { default as MapInfoRenderer } from './MapInfoRenderer';
 export { default as CalendarRenderer } from './CalendarRenderer';
 export { default as BankAccountRenderer } from './BankAccountRenderer';
 export { default as CommentRenderer } from './CommentRenderer';
+export { default as SlidoRenderer } from './SlidoRenderer';
 export { default as WeddingInviteRenderer } from './WeddingInviteRenderer'; 
 export { default as MusicRenderer } from './MusicRenderer';
 
@@ -32,6 +33,7 @@ import MapInfoRenderer from './MapInfoRenderer';
 import CalendarRenderer from './CalendarRenderer';
 import BankAccountRenderer from './BankAccountRenderer';
 import CommentRenderer from './CommentRenderer';
+import SlidoRenderer from './SlidoRenderer';
 import WeddingInviteRenderer from './WeddingInviteRenderer'; 
 import MusicRenderer from './MusicRenderer';
 
@@ -67,6 +69,8 @@ export function getRendererByType(type) {
       return BankAccountRenderer;
     case 'comment':
       return CommentRenderer;
+    case 'slido':
+      return SlidoRenderer;
     case 'weddingInvite':
       return WeddingInviteRenderer;
     case 'musicPlayer':
