@@ -17,7 +17,6 @@ import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import { clamp, resolveCollision, calculateSnapPosition, calculateSnapLines, getFinalStyles } from '../utils/editorUtils';
 import MusicRenderer from '../ComponentRenderers/MusicRenderer';
 import KakaoTalkShareRenderer from '../ComponentRenderers/KakaoTalkShareRenderer';
-import PageRenderer from '../ComponentRenderers/PageRenderer';
 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
