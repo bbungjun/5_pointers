@@ -1212,4 +1212,22 @@ export class UsersService {
       </script>
     `;
   }
+
+  // 서브도메인으로 페이지 찾기 (페이지 서빙용)
+  async findPageBySubdomain(subdomain: string): Promise<Pages | null> {
+    try {
+      const page = await this.pagesRepository.findOne({
+        where: { 
+          subdomain: subdomain,
+          status: PageStatus.PUBLISHED 
+        },
+        relations: ['user']
+      });
+      
+      return page || null;
+    } catch (error) {
+      console.error('서브도메인으로 페이지 검색 오류:', error);
+      return null;
+    }
+  }
 }
