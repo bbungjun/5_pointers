@@ -59,13 +59,13 @@ const isProductionEnvironment = () => {
   return viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isProductionAPI;
 };
 
-// 서브도메인 배포 URL 생성 함수 (경로 기반)
+// 서브도메인 배포 URL 생성 함수 (서브도메인 기반)
 export const getDeployedUrl = (subdomain) => {
   const isProduction = isProductionEnvironment();
   
   if (isProduction) {
-    // 프로덕션: EC2 서버의 경로 기반
-    return `http://13.124.90.104:3001/${subdomain}`;
+    // 프로덕션: pagecube.net 서브도메인 사용
+    return `https://${subdomain}.pagecube.net`;
   } else {
     // 로컬: 별도 포트의 서브도메인 서버 사용
     return `http://localhost:3001/${subdomain}`;
