@@ -227,145 +227,123 @@ function NoCodeEditor({ initialComponents = [] }) {
   const selectedComp = components.find((c) => c.id === interaction.selectedId);
 
   return (
-    <div className="relative w-full h-full">
-      <div
-        style={{
-          minHeight: '100vh',
-          width: '100vw',
-          display: 'flex',
-          flexDirection: 'column',
-          background: '#fff',
-          color: '#222',
-          fontFamily: 'Inter, sans-serif',
-          overflow: 'hidden',
-          position: 'relative',
-        }}
-      >
-        {/* 헤더 */}
-        <EditorHeader
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-white">
+      {/* 헤더 */}
+      <EditorHeader
+        components={components}
+        selectedComp={selectedComp}
+        isLibraryOpen={interaction.isLibraryOpen}
+        viewport={interaction.viewport}
+        designMode={designMode}
+        onViewportChange={interaction.handleViewportChange}
+        onDesignModeChange={interaction.handleDesignModeChange}
+        onPreviewOpen={interaction.handlePreviewOpen}
+        onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
+        onInviteOpen={interaction.handleInviteOpen}
+        roomId={roomId}
+        isAdmin={true}
+      />
+
+      {/* 저장 상태 표시 */}
+      <SaveStatusIndicator
+        isSaving={isSaving}
+        lastSaved={lastSaved}
+        saveError={saveError}
+        saveCount={saveCount}
+        onSaveNow={saveNow}
+      />
+
+      {/* 메인 에디터 영역 */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* 컴포넌트 라이브러리 */}
+        <ComponentLibrary
+          onDragStart={(e, type) => {
+            e.dataTransfer.setData('componentType', type);
+          }}
           components={components}
-          selectedComp={selectedComp}
-          isLibraryOpen={interaction.isLibraryOpen}
-          viewport={interaction.viewport}
-          designMode={designMode}
-          onViewportChange={interaction.handleViewportChange}
-          onDesignModeChange={interaction.handleDesignModeChange}
-          onPreviewOpen={interaction.handlePreviewOpen}
-          onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
-          onInviteOpen={interaction.handleInviteOpen}
           roomId={roomId}
-          isAdmin={true}
+          isOpen={interaction.isLibraryOpen}
+          onToggle={interaction.handleLibraryToggle}
         />
 
-        {/* 저장 상태 표시 */}
-        <SaveStatusIndicator
-          isSaving={isSaving}
-          lastSaved={lastSaved}
-          saveError={saveError}
-          saveCount={saveCount}
-          onSaveNow={saveNow}
-        />
-
-        {/* 메인 에디터 영역 */}
-        <div className="flex-1 flex overflow-hidden relative">
-          {/* 컴포넌트 라이브러리 */}
-          <ComponentLibrary
-            onDragStart={(e, type) => {
-              e.dataTransfer.setData('componentType', type);
-            }}
+        {/* 중앙 캔버스 영역 */}
+        <div className="flex-1 flex flex-col relative overflow-hidden">
+          <CanvasArea
+            containerRef={containerRef}
+            canvasRef={canvasRef}
             components={components}
-            roomId={roomId}
-            isOpen={interaction.isLibraryOpen}
-            onToggle={interaction.handleLibraryToggle}
+            selectedId={interaction.selectedId}
+            users={{}}
+            nickname={userInfo.name}
+            onSelect={interaction.handleSelect}
+            onUpdate={actions.handleUpdate}
+            onDelete={(id) =>
+              actions.handleDelete(
+                id,
+                interaction.selectedId,
+                interaction.setSelectedId
+              )
+            }
+            snapLines={interaction.snapLines}
+            setSnapLines={interaction.setSnapLines}
+            viewport={interaction.viewport}
+            zoom={interaction.zoom}
+            onZoomChange={interaction.handleZoomChange}
+            canvasHeight={canvasHeight}
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+            onClick={() => interaction.handleSelect(null)}
+            onMouseMove={() => {}}
+            onMouseUp={() => {}}
+            otherCursors={otherCursors}
+            otherSelections={otherSelections}
+            collaboration={collaboration}
+            CanvasComponent={CanvasComponent}
+            UserCursor={UserCursor}
+            getComponentDimensions={getComponentDimensions}
+            updateCursorPosition={updateCursorPosition}
+            onAddSection={(sectionY) =>
+              actions.handleAddSection(
+                sectionY,
+                containerRef,
+                interaction.zoom
+              )
+            }
           />
-
-          {/* 중앙 캔버스 영역 */}
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              position: 'relative',
-            }}
-          >
-            <CanvasArea
-              ref={containerRef}
-              canvasRef={canvasRef}
-              components={components}
-              selectedId={interaction.selectedId}
-              users={{}}
-              nickname={userInfo.name}
-              onSelect={interaction.handleSelect}
-              onUpdate={actions.handleUpdate}
-              onDelete={(id) =>
-                actions.handleDelete(
-                  id,
-                  interaction.selectedId,
-                  interaction.setSelectedId
-                )
-              }
-              snapLines={interaction.snapLines}
-              setSnapLines={interaction.setSnapLines}
-              viewport={interaction.viewport}
-              zoom={interaction.zoom}
-              onZoomChange={interaction.handleZoomChange}
-              canvasHeight={canvasHeight}
-              onDrop={handleDrop}
-              onDragOver={(e) => e.preventDefault()}
-              onClick={() => interaction.handleSelect(null)}
-              onMouseMove={() => {}}
-              onMouseUp={() => {}}
-              otherCursors={otherCursors}
-              otherSelections={otherSelections}
-              collaboration={collaboration}
-              CanvasComponent={CanvasComponent}
-              UserCursor={UserCursor}
-              getComponentDimensions={getComponentDimensions}
-              updateCursorPosition={updateCursorPosition}
-              onAddSection={(sectionY) =>
-                actions.handleAddSection(
-                  sectionY,
-                  containerRef,
-                  interaction.zoom
-                )
-              }
-            />
-          </div>
-
-          {/* 속성 인스펙터 */}
-          {selectedComp && (
-            <Inspector
-              selectedComp={selectedComp}
-              onUpdate={actions.handleUpdate}
-              viewport={interaction.viewport}
-            />
-          )}
         </div>
 
-        {/* 모달들 */}
-        <PreviewModal
-          isOpen={interaction.isPreviewOpen}
-          onClose={interaction.handlePreviewClose}
-          pageId={roomId}
-          components={components}
-          canvasHeight={canvasHeight}
-        />
-
-        <TemplateModal
-          isOpen={interaction.isTemplateSaveOpen}
-          onClose={interaction.handleTemplateSaveClose}
-          templateData={interaction.templateData}
-          setTemplateData={interaction.setTemplateData}
-          onSave={actions.handleSaveAsTemplate}
-        />
-
-        <InviteModal
-          isOpen={interaction.isInviteOpen}
-          onClose={interaction.handleInviteClose}
-          pageId={roomId}
-        />
+        {/* 속성 인스펙터 */}
+        {selectedComp && (
+          <Inspector
+            selectedComp={selectedComp}
+            onUpdate={actions.handleUpdate}
+            viewport={interaction.viewport}
+          />
+        )}
       </div>
+
+      {/* 모달들 */}
+      <PreviewModal
+        isOpen={interaction.isPreviewOpen}
+        onClose={interaction.handlePreviewClose}
+        pageId={roomId}
+        components={components}
+        canvasHeight={canvasHeight}
+      />
+
+      <TemplateModal
+        isOpen={interaction.isTemplateSaveOpen}
+        onClose={interaction.handleTemplateSaveClose}
+        templateData={interaction.templateData}
+        setTemplateData={interaction.setTemplateData}
+        onSave={actions.handleSaveAsTemplate}
+      />
+
+      <InviteModal
+        isOpen={interaction.isInviteOpen}
+        onClose={interaction.handleInviteClose}
+        pageId={roomId}
+      />
     </div>
   );
 }
