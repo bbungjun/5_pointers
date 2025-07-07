@@ -415,7 +415,7 @@ function SlidoRenderer({ comp, isEditor = false }) {
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text'
       }}>
-        {question || '💭 여러분의 의견을 들려주세요'}
+        💭 {question || '여러분의 의견을 들려주세요'}
       </div>
 
       {/* 의견 입력 폼 */}
