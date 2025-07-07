@@ -10,7 +10,8 @@ function SaveStatusIndicator({
   saveCount,
   onSaveNow,
 }) {
-  const [timeAgo, setTimeAgo] = useState('');
+  const [isVisible, setIsVisible] = useState(false);
+  const [statusText, setStatusText] = useState('');
 
   // 상대 시간 계산 함수
   const getTimeAgo = (date) => {
@@ -35,37 +36,74 @@ function SaveStatusIndicator({
 
   // 1초마다 시간 업데이트
   useEffect(() => {
-    if (!lastSaved) return;
-
-    const updateTime = () => {
-      setTimeAgo(getTimeAgo(lastSaved));
-    };
-
-    updateTime(); // 초기 실행
-    const interval = setInterval(updateTime, 1000);
-
-    return () => clearInterval(interval);
-  }, [lastSaved]);
-
-  const getStatusText = () => {
-    if (saveError) return `저장 실패: ${saveError}`;
-    if (isSaving) return '저장 중...';
-    if (lastSaved) {
-      return `마지막 저장: ${timeAgo}`;
+    let timer;
+    if (isSaving) {
+      setIsVisible(true);
+      setStatusText('저장 중...');
+    } else if (saveError) {
+      setIsVisible(true);
+      setStatusText(`오류: ${saveError.message || '저장에 실패했습니다.'}`);
+    } else if (saveCount > 0 && lastSaved) {
+      // lastSaved가 변경될 때마다 잠깐 표시
+      setIsVisible(true);
+      setStatusText('모든 변경사항이 저장되었습니다.');
+      timer = setTimeout(() => {
+        setIsVisible(false);
+      }, 2000); // 2초 후에 사라짐
     }
-    return '저장 준비';
-  };
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isSaving, lastSaved, saveError, saveCount]);
+
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div
-      className="absolute right-6 text-xs font-normal"
       style={{
-        top: 'calc(4rem + 8px)', // 헤더(4rem) + 간격(8px)
-        color: saveError ? '#f44336' : '#94a3b8',
-        zIndex: 50,
+        position: 'fixed',
+        bottom: '20px',
+        left: '20px',
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        padding: '8px 16px',
+        borderRadius: '8px',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        color: 'white',
+        fontSize: '14px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        backdropFilter: 'blur(4px)',
+        transition: 'opacity 0.3s, transform 0.3s',
+        opacity: 1, // isVisible로 제어하므로 항상 1
+        transform: 'translateY(0)', // isVisible로 제어하므로 항상 translateY(0)
+        pointerEvents: 'auto', // isVisible로 제어하므로 항상 auto
       }}
     >
-      {getStatusText()}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span>{statusText}</span>
+        {isSaving && (
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+        )}
+      </div>
+      {!!saveError && (
+        <button
+          onClick={onSaveNow}
+          style={{
+            marginLeft: '12px',
+            background: 'none',
+            border: 'none',
+            color: '#f87171',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+          }}
+        >
+          재시도
+        </button>
+      )}
     </div>
   );
 }

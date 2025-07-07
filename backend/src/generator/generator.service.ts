@@ -46,9 +46,9 @@ export class GeneratorService {
       await this.pagesRepository.save(page);
     }
     
-    // 4. 최종 배포 URL 생성 (환경별 분기)
+    // 4. 최종 배포 URL 생성 (프로덕션에서는 실제 서브도메인 사용)
     const url = process.env.NODE_ENV === 'production' 
-      ? `http://13.124.90.104:3001/${subdomain}` 
+      ? `https://${subdomain}.pagecube.net` 
       : `http://localhost:3001/${subdomain}`;
     
     // 5. 컴포넌트 데이터를 pages 테이블의 content 컬럼에 저장
