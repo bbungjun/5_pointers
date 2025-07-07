@@ -7,7 +7,7 @@ import * as express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // 글로벌 API 접두사 설정 - pagecube.net 로그인 이슈 해결
+  // 글로벌 API 접두사 설정 - pagecube.net 로그인 이슈 해결 (2025-07-07)
   app.setGlobalPrefix('api');
 
   // CORS 허용 설정
@@ -30,6 +30,6 @@ async function bootstrap() {
   });
 
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
-  console.log("ImageUploadServer-ver.2: Static file serving enabled (v2) - API prefix added");
+  console.log("ImageUploadServer-ver.2: Static file serving enabled (v2) - API prefix configured");
 }
 bootstrap();
