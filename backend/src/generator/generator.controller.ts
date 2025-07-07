@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { GeneratorService } from './generator.service';
 import { DeployDto } from './dto/deploy.dto';
 
@@ -54,5 +55,29 @@ export class GeneratorController {
   @Get('subdomain/:subdomain')
   async getPageBySubdomain(@Param('subdomain') subdomain: string) {
     return this.generatorService.getPageBySubdomain(subdomain);
+  }
+
+  /**
+   * 임시 서브도메인 HTML 파일 제공 (AWS 인프라 구축 전까지)
+   * GET /generator/deployed-sites/:subdomain
+   * @param subdomain - 조회할 서브도메인
+   * @param res - Express Response 객체
+   * @returns HTML 파일
+   */
+  @Get('deployed-sites/:subdomain')
+  async getDeployedSite(@Param('subdomain') subdomain: string, @Res() res: Response) {
+    try {
+      const pageData = await this.generatorService.getPageBySubdomain(subdomain);
+      if (!pageData) {
+        return res.status(404).send('<h1>페이지를 찾을 수 없습니다</h1>');
+      }
+      
+      const html = await this.generatorService.generateStaticHTML(pageData.components);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.send(html);
+    } catch (error) {
+      console.error('배포된 사이트 조회 오류:', error);
+      res.status(500).send('<h1>서버 오류가 발생했습니다</h1>');
+    }
   }
 }
