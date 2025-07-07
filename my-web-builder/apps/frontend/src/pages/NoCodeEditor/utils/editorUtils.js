@@ -103,7 +103,7 @@ export function getComponentDimensions(type) {
     comment: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
     musicPlayer: { defaultWidth: 150, defaultHeight: 150, minWidth: 100, minHeight: 100 },
     kakaotalkShare: { defaultWidth: 180, defaultHeight: 60, minWidth: 120, minHeight: 40 },
-    page: { defaultWidth: 300, defaultHeight: 150, minWidth: 250, minHeight: 120 }
+    page: { defaultWidth: 100, defaultHeight: 150, minWidth: 100, minHeight: 150 }
   };
   return dimensions[type] || { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 };
 }
@@ -310,7 +310,7 @@ export function getFinalStyles(component, viewport = 'desktop') {
   };
   
   //console.log(`🎨 getFinalStyles (responsive): ${component.id} [${viewport}] → x:${result.x}, y:${result.y}, w:${result.width}, h:${result.height}`);
-  console.log(`   🔧 responsive 구조:`, component.responsive);
+  // console.log(`   🔧 responsive 구조:`, component.responsive);
  // console.log(`   📋 baseStyles (desktop):`, baseStyles);
   //console.log(`   📱 viewportStyles (${viewport}):`, viewportStyles);
   //console.log(`   ✨ 최종 결과:`, result);

@@ -208,7 +208,6 @@ function NoCodeEditor() {
         getComponentDimensions
       );
       const report = generateOverlapReport(overlaps, viewport);
-      console.log(report);
       return overlaps;
     };
 
@@ -216,13 +215,13 @@ function NoCodeEditor() {
       return checkTabletOverlaps(components, getComponentDimensions);
     };
 
-    console.log(`
-🔧 겹침 디버깅 도구가 준비되었습니다!
-사용법:
-  debugOverlaps()        - 디버깅 모드 켜기/끄기
-  checkOverlaps()        - 현재 캔버스의 모든 겹침 체크
-  checkTabletOverlaps()  - 태블릿/모바일 겹침 비교 분석
-    `);
+//     console.log(`
+// 🔧 겹침 디버깅 도구가 준비되었습니다!
+// 사용법:
+//   debugOverlaps()        - 디버깅 모드 켜기/끄기
+//   checkOverlaps()        - 현재 캔버스의 모든 겹침 체크
+//   checkTabletOverlaps()  - 태블릿/모바일 겹침 비교 분석
+//     `);
 
     return () => {
       // cleanup
@@ -380,6 +379,68 @@ function NoCodeEditor() {
 
   // 캔버스에서 드래그 앤 드롭으로 컴포넌트 추가
   const handleDrop = (e) => {
+  // 🆕 Page 컴포넌트 특별 처리: 드래그 앤 드롭 시 새 페이지 자동 생성
+  const handlePageComponentDrop = async (newComponent) => {
+    try {
+      console.log('📄 Page 컴포넌트 드롭 감지 - 새 페이지 생성 시작');
+      
+      const response = await fetch(`${API_BASE_URL}/users/pages/create-from-component`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          parentPageId: roomId,
+          componentId: newComponent.id,
+          pageName: newComponent.props.pageName || '새 페이지'
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ 새 페이지 생성 성공:', result);
+        
+        // Page 컴포넌트 props 업데이트
+        const updatedComponent = {
+          ...newComponent,
+          props: {
+            ...newComponent.props,
+            linkedPageId: result.page.id,
+            pageName: result.page.title,
+            deployedUrl: `http://page-${result.page.id.slice(-8)}.localhost:3001`
+          }
+        };
+        
+        // Y.js 문서에 업데이트된 컴포넌트 추가
+        addComponent(updatedComponent);
+        
+        // 성공 알림
+        alert(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`);
+        
+      } else {
+        console.error('❌ 페이지 생성 실패:', response.status);
+        // 실패 시에도 기본 컴포넌트는 추가
+        // 🆕 Page 컴포넌트인 경우 특별 처리
+        if (type === "page") {
+          handlePageComponentDrop(newComponent);
+        } else {
+          addComponent(newComponent);
+        }
+        alert('⚠️ 페이지 생성에 실패했지만 컴포넌트는 추가되었습니다.');
+      }
+      
+    } catch (error) {
+      console.error('❌ Page 컴포넌트 처리 중 오류:', error);
+      // 오류 시에도 기본 컴포넌트는 추가
+        // 🆕 Page 컴포넌트인 경우 특별 처리
+        if (type === "page") {
+          handlePageComponentDrop(newComponent);
+        } else {
+          addComponent(newComponent);
+        }
+      alert('⚠️ 네트워크 오류로 페이지 생성에 실패했습니다.');
+    }
+  };
     e.preventDefault();
     const type = e.dataTransfer.getData('componentType');
     if (type) {
@@ -461,7 +522,12 @@ function NoCodeEditor() {
         );
 
         // 협업 기능으로 컴포넌트 추가
-        addComponent(newComponent);
+        // 🆕 Page 컴포넌트인 경우 특별 처리
+        if (type === "page") {
+          handlePageComponentDrop(newComponent);
+        } else {
+          addComponent(newComponent);
+        }
 
         // Y.js에 추가된 후 상태 확인
         setTimeout(() => {
@@ -491,13 +557,10 @@ function NoCodeEditor() {
 
   // 속성 변경 (스냅라인 포함)
   const handleUpdate = (comp) => {
-    console.log('컴포넌트 업데이트 요청:', comp.id, '타입:', comp.type);
-    console.log('업데이트할 컴포넌트 전체:', comp);
 
     // 기존 컴포넌트 찾기
     const existingComp = components.find((c) => c.id === comp.id);
     if (!existingComp) {
-      console.warn('업데이트할 컴포넌트를 찾을 수 없음:', comp.id);
       console.log(
         '현재 컴포넌트들:',
         components.map((c) => ({ id: c.id, type: c.type }))
@@ -505,28 +568,26 @@ function NoCodeEditor() {
       return;
     }
 
-    console.log('기존 컴포넌트:', existingComp);
 
     // 변경된 속성만 추출
     const updates = {};
     Object.keys(comp).forEach((key) => {
       if (JSON.stringify(existingComp[key]) !== JSON.stringify(comp[key])) {
         updates[key] = comp[key];
-        console.log(`속성 변경 감지: ${key}`, {
-          기존: existingComp[key],
-          새로운: comp[key],
-        });
       }
     });
 
-    console.log('변경된 속성:', updates);
 
     // 협업 기능으로 컴포넌트 업데이트 (변경된 속성만)
     if (Object.keys(updates).length > 0) {
-      console.log('Y.js 업데이트 호출:', comp.id, updates);
       updateComponent(comp.id, updates);
+      
+      setComponents(prevComponents => 
+        prevComponents.map(c => 
+          c.id === comp.id ? { ...c, ...updates } : c
+        )
+      );
     } else {
-      console.log('변경된 속성이 없음');
     }
 
     // 현재 컴포넌트 상태 확인
@@ -534,7 +595,6 @@ function NoCodeEditor() {
       const updatedComp = components.find((c) => c.id === comp.id);
       if (updatedComp) {
         console.log(
-          '컴포넌트 업데이트 후 상태:',
           updatedComp.id,
           '위치:',
           updatedComp.x,
@@ -685,7 +745,7 @@ function NoCodeEditor() {
       }
     };
 
-    console.log('🛠️ 콘솔에서 window.testArrange() 실행 가능');
+    //console.log('🛠️ 콘솔에서 window.testArrange() 실행 가능');
   }, [components, viewport, updateComponent]);
 
   // 템플릿으로 저장
@@ -729,7 +789,6 @@ function NoCodeEditor() {
   const prevViewportRef = useRef(viewport);
 
   useEffect(() => {
-    console.log(`🎯🎯🎯 뷰포트 변경 감지: ${viewport} 🎯🎯🎯`);
     console.log(`📊 현재 컴포넌트 수: ${components.length}`);
 
     // 뷰포트가 실제로 변경되었을 때만 실행 (무한 루프 방지)
