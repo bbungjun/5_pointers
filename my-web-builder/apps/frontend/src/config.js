@@ -56,7 +56,7 @@ export const getRedirectUrl = (provider) => {
   return `${frontendUrl}/${provider}`;
 };
 
-// 서브도메인 배포 URL 생성 함수 (서브도메인 기반)
+// 배포 URL 생성 함수 (경로 기반으로 변경)
 export const getDeployedUrl = (subdomain) => {
   const isProduction = isProductionEnvironment();
   
@@ -67,9 +67,9 @@ export const getDeployedUrl = (subdomain) => {
   });
   
   if (isProduction) {
-    // 프로덕션: pagecube.net 서브도메인 사용
-    const url = `https://${subdomain}.pagecube.net`;
-    console.log('✅ 프로덕션 URL 생성:', url);
+    // 프로덕션: 경로 기반 사용 (서브도메인 서버 문제 해결까지 임시)
+    const url = `${API_BASE_URL}/pages/${subdomain}`;
+    console.log('✅ 프로덕션 URL 생성 (경로 기반):', url);
     return url;
   } else {
     // 로컬: 별도 포트의 서브도메인 서버 사용
