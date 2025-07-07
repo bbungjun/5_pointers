@@ -293,7 +293,52 @@ function SlidoRenderer({ comp, isEditor = false }) {
     };
   }, [comp.id, comp.pageId, isEditor]);
 
-
+  // 애니메이션 스타일
+  const getOpinionStyle = (opinion) => {
+    const isAnimating = animatingItems.includes(opinion.id);
+    const normalizedContent = opinion.content.trim().toLowerCase();
+    const groupSize = opinionGroups[normalizedContent]?.length || 1;
+    
+    // 그룹 크기에 따른 스케일 계산 (2개 이상부터 확대)
+    const groupScale = groupSize >= 2 ? 1 + (groupSize - 1) * 0.1 : 1;
+    const maxScale = 1.5; // 최대 확대 비율
+    const finalScale = Math.min(groupScale, maxScale);
+    
+    // 그룹 크기에 따른 색상 변화
+    const getGroupColor = (size) => {
+      if (size >= 5) return '#e3f2fd'; // 강한 파란색
+      if (size >= 3) return '#f3e5f5'; // 보라색
+      if (size >= 2) return '#fff3e0'; // 주황색
+      return '#f8f9fa'; // 기본 색상
+    };
+    
+    const getBorderColor = (size) => {
+      if (size >= 5) return '#2196f3'; // 강한 파란색 테두리
+      if (size >= 3) return '#9c27b0'; // 보라색 테두리
+      if (size >= 2) return '#ff9800'; // 주황색 테두리
+      return '#e9ecef'; // 기본 테두리
+    };
+    
+    return {
+      padding: '12px 16px',
+      margin: '8px 0',
+      backgroundColor: getGroupColor(groupSize),
+      borderRadius: '12px',
+      border: `2px solid ${getBorderColor(groupSize)}`,
+      fontSize: groupSize >= 2 ? '16px' : '14px',
+      lineHeight: '1.4',
+      color: '#495057',
+      wordBreak: 'break-word',
+      transform: isAnimating ? `scale(${finalScale * 1.05})` : `scale(${finalScale})`,
+      opacity: isAnimating ? 0.8 : 1,
+      transition: 'all 0.5s ease-in-out',
+      animation: isAnimating ? 'slideIn 0.5s ease-out' : (groupSize >= 2 ? 'glow 2s infinite' : 'none'),
+      boxShadow: groupSize >= 2 ? '0 4px 12px rgba(0,0,0,0.15)' : '0 2px 4px rgba(0,0,0,0.1)',
+      position: 'relative',
+      zIndex: groupSize >= 2 ? 10 : 1,
+      whiteSpace: 'pre-wrap' // ✅ 여러 줄 의견 지원
+    };
+  };
 
   return (
     <div 
@@ -412,6 +457,7 @@ function SlidoRenderer({ comp, isEditor = false }) {
         marginBottom: '20px',
         color: '#1f2937',
         textAlign: 'center',
+        whiteSpace: 'pre-wrap'
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',

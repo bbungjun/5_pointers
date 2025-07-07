@@ -64,9 +64,11 @@ function TextRenderer({ comp, isEditor = false }) {
       }}
       onDoubleClick={handleDoubleClick}
     >
-      {comp.props?.text || ''}
+      <span style={{ whiteSpace: 'pre-wrap', width: '100%' }}>
+        {comp.props?.text || ''}
+      </span>
     </div>
   );
 }
 
-export default TextRenderer; 
+export default TextRenderer;

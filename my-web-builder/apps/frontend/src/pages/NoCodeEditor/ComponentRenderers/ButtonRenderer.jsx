@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 function ButtonRenderer({ comp, isEditor = false }) {
-  // console.log('버튼 컴포넌트 렌더링:', comp);
-  
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props?.text || '');
   const inputRef = useRef();
@@ -14,7 +12,6 @@ function ButtonRenderer({ comp, isEditor = false }) {
     }
   }, [editing]);
 
-  // 폰트 적용을 위한 useEffect
   useEffect(() => {
     if (buttonRef.current && comp.props?.fontFamily) {
       buttonRef.current.style.setProperty('font-family', comp.props.fontFamily, 'important');
@@ -51,8 +48,6 @@ function ButtonRenderer({ comp, isEditor = false }) {
   const letterSpacing = comp.props?.letterSpacing || 0;
   const fontWeight = comp.props?.fontWeight ? 'bold' : 'normal';
   const textDecoration = comp.props?.textDecoration ? 'underline' : 'none';
-  
-  // 기울임 처리 - 구글 독스 방식으로 강제 기울임 적용
   const isItalic = comp.props?.fontStyle;
   const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
 
@@ -115,28 +110,28 @@ function ButtonRenderer({ comp, isEditor = false }) {
         textAlign: textAlign,
         overflow: 'visible',
         position: 'relative'
-
       }}
       onDoubleClick={handleDoubleClick}
     >
-      <span style={{
-        display: 'block',
-        width: '100%',
-        textAlign: textAlign,
-        letterSpacing: letterSpacing + 'px',
-        lineHeight: lineHeight,
-        fontWeight: fontWeight,
-        textDecoration: textDecoration,
-        transform: italicTransform, // 강제 기울임 적용
-        overflow: 'visible',
-        whiteSpace: 'nowrap',
-        textIndent: textAlign === 'center' && letterSpacing !== 0 ? 
-                   (letterSpacing / 2) + 'px' : '0',
-        marginRight: textAlign === 'center' && letterSpacing !== 0 ? 
-                    (-letterSpacing / 2) + 'px' : '0'
-      }}>
+      <div
+        style={{
+          display: 'inline-block', // 핵심!
+          textAlign: textAlign,
+          letterSpacing: letterSpacing + 'px',
+          lineHeight: lineHeight,
+          fontWeight: fontWeight,
+          textDecoration: textDecoration,
+          transform: italicTransform,
+          overflow: 'visible',
+          whiteSpace: 'pre-wrap', // 핵심!
+          textIndent: textAlign === 'center' && letterSpacing !== 0 ? 
+                     (letterSpacing / 2) + 'px' : '0',
+          marginRight: textAlign === 'center' && letterSpacing !== 0 ? 
+                      (-letterSpacing / 2) + 'px' : '0'
+        }}
+      >
         {textContent}
-      </span>
+      </div>
     </div>
   );
 }
