@@ -5,7 +5,7 @@ function AttendRenderer({ comp, isEditor = false }) {
   const containerStyle = {
     width: '100%',
     height: '100%',
-    backgroundColor: 'white',
+    backgroundColor: comp.props.backgroundColor || '#f8f9fa',
     borderRadius: '12px',
     boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
     padding: '24px',
