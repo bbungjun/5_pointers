@@ -14,9 +14,13 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
     setImageError(true);
   };
 
+  // 캔버스에서 조정된 크기를 우선 사용, 없으면 props의 기본값 사용
+  const finalWidth = comp.width || comp.props?.width || 200;
+  const finalHeight = comp.height || comp.props?.height || 150;
+
   const containerStyle = {
-    width: (comp.props?.width || 200) + 'px',
-    height: (comp.props?.height || 150) + 'px',
+    width: finalWidth + 'px',
+    height: finalHeight + 'px',
     borderRadius: (comp.props?.borderRadius || 0) + 'px',
     overflow: 'hidden',
     position: 'relative',
@@ -34,12 +38,21 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
         <div style={{
           textAlign: 'center',
           color: '#9ca3af',
-          fontSize: '14px'
+          fontSize: Math.min(finalWidth, finalHeight) > 100 ? '14px' : '12px'
         }}>
-          <div style={{ fontSize: '24px', marginBottom: '8px' }}>🖼️</div>
+          <div style={{ 
+            fontSize: Math.min(finalWidth, finalHeight) > 100 ? '24px' : '18px', 
+            marginBottom: '8px' 
+          }}>
+            🖼️
+          </div>
           <div>이미지를 선택하세요</div>
           {isEditor && (
-            <div style={{ fontSize: '12px', marginTop: '4px', color: '#6b7280' }}>
+            <div style={{ 
+              fontSize: Math.min(finalWidth, finalHeight) > 100 ? '12px' : '10px', 
+              marginTop: '4px', 
+              color: '#6b7280' 
+            }}>
               속성 패널에서 업로드
             </div>
           )}
@@ -57,10 +70,12 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          color: '#9ca3af',
+          textAlign: 'center',
+          color: '#6b7280',
           fontSize: '14px'
         }}>
-          로딩 중...
+          <div style={{ fontSize: '20px', marginBottom: '8px' }}>⏳</div>
+          <div>로딩 중...</div>
         </div>
       )}
 
@@ -73,9 +88,14 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
           transform: 'translate(-50%, -50%)',
           textAlign: 'center',
           color: '#ef4444',
-          fontSize: '14px'
+          fontSize: Math.min(finalWidth, finalHeight) > 100 ? '14px' : '12px'
         }}>
-          <div style={{ fontSize: '24px', marginBottom: '8px' }}>❌</div>
+          <div style={{ 
+            fontSize: Math.min(finalWidth, finalHeight) > 100 ? '24px' : '18px', 
+            marginBottom: '8px' 
+          }}>
+            ❌
+          </div>
           <div>이미지를 불러올 수 없습니다</div>
         </div>
       )}

@@ -14,10 +14,11 @@ import { MapInfoRenderer } from '../ComponentRenderers';
 import CalendarRenderer from '../ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from '../ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from '../ComponentRenderers/CommentRenderer';
+import SlidoRenderer from '../ComponentRenderers/SlidoRenderer';
 import { clamp, resolveCollision, calculateSnapPosition, calculateSnapLines, getFinalStyles } from '../utils/editorUtils';
 import MusicRenderer from '../ComponentRenderers/MusicRenderer';
 import KakaoTalkShareRenderer from '../ComponentRenderers/KakaoTalkShareRenderer';
-import PageRenderer from '../ComponentRenderers/PageRenderer';
+import PageRenderer from "../ComponentRenderers/PageRenderer";
 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
@@ -125,7 +126,7 @@ function CanvasComponent({
     // 현재 뷰포트에 맞는 컴포넌트 객체 생성
     const componentWithFinalStyles = {
       ...comp,
-      props: finalProps,
+      props: comp.props || finalProps,
       x: currentX,
       y: currentY,
       width: finalWidth,
@@ -223,6 +224,8 @@ function CanvasComponent({
         return <BankAccountRenderer comp={componentWithFinalStyles} isEditor={true} />;
       case 'comment':
         return <CommentRenderer comp={componentWithFinalStyles} isEditor={true} viewport={viewport} />;
+      case 'slido':
+        return <SlidoRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'musicPlayer':
         return <MusicRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'kakaotalkShare':

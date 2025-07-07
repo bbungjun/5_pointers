@@ -217,6 +217,7 @@ export function getComponentDimensions(type) {
       minWidth: 250,
       minHeight: 120,
     },
+
   };
   return (
     dimensions[type] || {
@@ -466,13 +467,6 @@ export function getFinalStyles(component, viewport = 'desktop') {
         : baseStyles.height,
     props: { ...(baseStyles.props || {}), ...(viewportStyles.props || {}) },
   };
-
-  //console.log(`🎨 getFinalStyles (responsive): ${component.id} [${viewport}] → x:${result.x}, y:${result.y}, w:${result.width}, h:${result.height}`);
-  console.log(`   🔧 responsive 구조:`, component.responsive);
-  // console.log(`   📋 baseStyles (desktop):`, baseStyles);
-  //console.log(`   📱 viewportStyles (${viewport}):`, viewportStyles);
-  //console.log(`   ✨ 최종 결과:`, result);
-
   return result;
 }
 

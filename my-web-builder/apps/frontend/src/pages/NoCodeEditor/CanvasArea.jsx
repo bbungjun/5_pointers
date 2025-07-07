@@ -7,6 +7,7 @@ import {
 } from '../../components/collaboration/LiveCursors';
 import PageNavigation from './components/PageNavigation';
 
+
 // 그리드 크기 상수 import 또는 선언
 const GRID_SIZE = 50;
 
@@ -535,16 +536,14 @@ function CanvasArea({
       }}
     >
       {/* 페이지 네비게이션 */}
-      <div
-        style={{
-          position: 'fixed',
-          top: '80px',
-          right: '20px',
-          zIndex: 1000,
-          width: '280px',
-        }}
-      >
-        <PageNavigation components={components} onPageChange={onPageChange} />
+      <div style={{
+        position: 'fixed',
+        top: '80px',
+        right: '20px',
+        zIndex: 1000,
+        width: '280px'
+      }}>
+        {/* <PageNavigation components={components} onPageChange={onPageChange} /> */}
       </div>
       {/* ===== OUTER WRAPPER: 캔버스 컨테이너 ===== */}
       <div
