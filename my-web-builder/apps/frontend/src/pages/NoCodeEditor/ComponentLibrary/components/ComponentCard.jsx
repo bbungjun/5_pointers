@@ -10,14 +10,17 @@ function ComponentCard({ component, onDragStart }) {
       draggable
       onDragStart={e => onDragStart(e, component.type)}
       style={{
-        width: '100%', 
-        marginBottom: 16, 
+        width: '120px', 
+        height: '140px',
         padding: '12px 16px',
         cursor: 'grab', 
         transition: 'all 0.2s ease',
         borderRadius: 8,
         border: '1px solid #e5e7eb',
-        backgroundColor: 'transparent'
+        backgroundColor: 'transparent',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between'
       }}
       onMouseEnter={e => {
         e.currentTarget.style.transform = 'translateY(-2px)';
@@ -37,8 +40,9 @@ function ComponentCard({ component, onDragStart }) {
         fontSize: 12, 
         fontWeight: 600, 
         color: '#374151',
-        marginBottom: 12, 
-        textAlign: 'center'
+        marginBottom: 10, 
+        textAlign: 'center',
+        flexShrink: 0
       }}>
         {component.label}
       </div>
@@ -48,8 +52,9 @@ function ComponentCard({ component, onDragStart }) {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        height: 75,  // 고정 높이
-        width: '100%'
+        height: 80,
+        width: '100%',
+        flex: 1
       }}>
         <ThumbnailComponent label={component.label} />
       </div>

@@ -22,7 +22,14 @@ function ComponentGrid({ components, searchTerm, onDragStart }) {
   }
 
   return (
-    <div style={{ padding: '16px 24px', flex: 1, overflowY: 'auto' }}>
+    <div style={{ 
+      padding: '16px 12px', 
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, 120px)',
+      gap: '6px',
+      alignItems: 'start',
+      justifyContent: 'center'
+    }}>
       {filteredComponents.map(comp => (
         <ComponentCard
           key={comp.type}
