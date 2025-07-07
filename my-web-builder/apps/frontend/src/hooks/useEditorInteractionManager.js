@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { API_BASE_URL } from '../config.js';
 
 /**
  * 에디터 UI 상호작용 관리 훅
@@ -69,7 +70,7 @@ export function useEditorInteractionManager(designMode, setDesignMode) {
       try {
         // API 호출하여 DB에 designMode 저장
         const token = localStorage.getItem('token');
-        const response = await fetch(`/api/users/pages/${roomId}/design-mode`, {
+        const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}/design-mode`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',

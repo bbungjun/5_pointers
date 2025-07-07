@@ -45,6 +45,15 @@ export class AuthService {
   }
 
   async signupLocal(dto: { email: string; password: string; nickname: string }) {
+    // 중복 이메일 체크
+    const existingUser = await this.userRepository.findOne({
+      where: { email: dto.email }
+    });
+    
+    if (existingUser) {
+      throw new BadRequestException('이미 사용 중인 이메일입니다.');
+    }
+
     const hashed = await bcrypt.hash(dto.password, 10);
     const user = this.userRepository.create({
       email: dto.email,

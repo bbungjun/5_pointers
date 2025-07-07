@@ -78,7 +78,7 @@ export class GeneratorService {
     return { 
       deployments: [{
         deployedUrl: process.env.NODE_ENV === 'production' 
-          ? `http://13.124.90.104:3001/${page.subdomain}` 
+          ? `https://${page.subdomain}.pagecube.net` 
           : `http://localhost:3001/${page.subdomain}`,
         deployedAt: page.updatedAt,
         subdomain: page.subdomain,

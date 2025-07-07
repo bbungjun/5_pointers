@@ -22,7 +22,7 @@ function InvitationNotifications() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch(`${API_BASE_URL}/api/invitations/my-invitations`, {
+      const response = await fetch(`${API_BASE_URL}/invitations/my-invitations`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -45,7 +45,7 @@ function InvitationNotifications() {
       setProcessing(prev => ({ ...prev, [invitationToken]: 'accepting' }));
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`${API_BASE_URL}/api/invitations/${invitationToken}/accept`, {
+      const response = await fetch(`${API_BASE_URL}/invitations/${invitationToken}/accept`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -80,7 +80,7 @@ function InvitationNotifications() {
       setProcessing(prev => ({ ...prev, [invitationToken]: 'declining' }));
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`${API_BASE_URL}/api/invitations/${invitationToken}/decline`, {
+      const response = await fetch(`${API_BASE_URL}/invitations/${invitationToken}/decline`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

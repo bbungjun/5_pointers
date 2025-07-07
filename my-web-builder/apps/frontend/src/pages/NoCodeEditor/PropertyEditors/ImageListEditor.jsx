@@ -15,6 +15,7 @@
  */
 
 import React, { useState, useRef } from "react";
+import { API_BASE_URL } from '../../../config.js';
 
 function ImageListEditor({ value = [], onChange, label = "이미지 목록" }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -47,7 +48,7 @@ function ImageListEditor({ value = [], onChange, label = "이미지 목록" }) {
         const formData = new FormData();
         formData.append("image", file);
 
-        const response = await fetch("/api/users/upload/image", {
+        const response = await fetch(`${API_BASE_URL}/users/upload/image`, {
           method: "POST",
           body: formData,
         });

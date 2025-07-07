@@ -2,10 +2,17 @@
 
 This file is used to trigger GitHub Actions deployment.
 
-Last updated: 2025-07-05 11:30:00
-Reason: Fix Vite build command and improve deployment workflows
+Last updated: 2025-07-07 13:15:00
+Reason: Fix API endpoint routing issue by adding global prefix
 
 Changes:
+- Added app.setGlobalPrefix('api') to main.ts
+- Fixed frontend API endpoint routing (404 errors)
+- All API endpoints now have /api/ prefix
+- Resolves pagecube.net login issues
+
+Previous deployments:
+- 2025-07-05 11:30:00: Fix Vite build command and improve deployment workflows
 - Remove deprecated --force option from Vite build
 - Improve build process with better error handling and logging
 - Add dist directory cleanup for clean builds

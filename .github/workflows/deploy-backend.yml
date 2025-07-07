@@ -1,6 +1,10 @@
 name: Deploy Backend to AWS Elastic Beanstalk
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
   pull_request:
     types: [closed]
     branches: [main]
@@ -10,7 +14,7 @@ on:
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
 
     steps:
@@ -53,17 +57,28 @@ jobs:
 
       - name: Create application version
         run: |
-          aws elasticbeanstalk create-application-version \
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          RANDOM_ID=$(openssl rand -hex 4)
+          VERSION_LABEL="v1.0-${TIMESTAMP}-${RANDOM_ID}"
+          echo "VERSION_LABEL=${VERSION_LABEL}" >> $GITHUB_ENV
+          
+          # 기존 버전이 있다면 삭제 시도 (실패해도 계속 진행)
+          aws elasticbeanstalk delete-application-version \
             --application-name jungle-backend-prod \
             --version-label v1.0-${{ github.sha }} \
-            --description "Deployment from GitHub Actions - ${{ github.sha }}" \
+            --delete-source-bundle || true
+          
+          aws elasticbeanstalk create-application-version \
+            --application-name jungle-backend-prod \
+            --version-label ${VERSION_LABEL} \
+            --description "Deployment from GitHub Actions - ${{ github.sha }} at ${TIMESTAMP}" \
             --source-bundle S3Bucket=elasticbeanstalk-ap-northeast-2-490004614784,S3Key=backend-deployment-${{ github.sha }}.zip
 
       - name: Deploy to Elastic Beanstalk
         run: |
           aws elasticbeanstalk update-environment \
             --environment-name Jungle-backend-prod-env \
-            --version-label v1.0-${{ github.sha }}
+            --version-label ${{ env.VERSION_LABEL }}
 
       - name: Wait for deployment
         run: |

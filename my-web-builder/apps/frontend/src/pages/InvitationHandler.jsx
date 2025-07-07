@@ -54,7 +54,7 @@ function InvitationHandler() {
   // 초대 정보 조회 (로그인 불필요)
   const fetchInvitationInfo = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/invitations/${invitationToken}`);
+      const response = await fetch(`${API_BASE_URL}/invitations/${invitationToken}`);
       
       if (!response.ok) {
         throw new Error('초대 링크가 유효하지 않거나 만료되었습니다.');
@@ -74,7 +74,7 @@ function InvitationHandler() {
   const acceptInvitation = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/invitations/${invitationToken}/accept`, {
+      const response = await fetch(`${API_BASE_URL}/invitations/${invitationToken}/accept`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
