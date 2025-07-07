@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Post,
@@ -23,7 +22,6 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import * as fs from 'fs';
 
 @Controller('users')
-
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -52,25 +50,18 @@ export class UsersController {
     return this.usersService.updatePageTitle(req.user.id, pageId, body.title);
   }
 
-  // 페이지 컨텐츠 업데이트 API (자동저장용)
+  // 페이지 컨텐츠 업데이트 API (Y.js 백업용)
   @UseGuards(JwtAuthGuard)
-  @Patch('pages/:pageId/content')
-  async updatePageContent(
-    @Request() req,
-    @Param('pageId') pageId: string,
-    @Body() body: { content: any[] },
+  @Put('pages/room/:roomId/content')
+  async savePageContent(
+    @Param('roomId') roomId: string,
+    @Body() body: { components: any[]; canvasSettings: any },
   ) {
-    const result = await this.usersService.updatePageContent(
-      req.user.id,
-      pageId,
-      body.content,
-    );
-    console.log(
-      `페이지 ${pageId} 컨텐츠 업데이트 완료:`,
-      body.content.length,
-      '개 컴포넌트',
-    );
-    return result;
+    const content = {
+      components: body.components || [],
+      canvasSettings: body.canvasSettings || {},
+    };
+    return this.usersService.savePageContentByRoom(roomId, content);
   }
 
   // 페이지 삭제 API
@@ -209,17 +200,20 @@ export class UsersController {
   }
 
   // Slido 의견 조회
-  @Get("pages/:pageId/slido/:componentId")
-  async getSlido(@Param("pageId") pageId: string, @Param("componentId") componentId: string) {
+  @Get('pages/:pageId/slido/:componentId')
+  async getSlido(
+    @Param('pageId') pageId: string,
+    @Param('componentId') componentId: string,
+  ) {
     return this.usersService.getSlido(pageId, componentId);
   }
 
   // Slido 의견 작성
-  @Post("pages/:pageId/slido/:componentId")
+  @Post('pages/:pageId/slido/:componentId')
   async createSlido(
-    @Param("pageId") pageId: string,
-    @Param("componentId") componentId: string,
-    @Body() slidoData: { content: string }
+    @Param('pageId') pageId: string,
+    @Param('componentId') componentId: string,
+    @Body() slidoData: { content: string },
   ) {
     return this.usersService.createSlido(pageId, componentId, slidoData);
   }
@@ -230,34 +224,20 @@ export class UsersController {
     return this.usersService.getPageContentByRoom(roomId);
   }
 
-  @Put('pages/room/:roomId/content')
-  async savePageContent(
-    @Param('roomId') roomId: string,
-    @Body() body: { components: any[]; canvasSettings: any },
-  ) {
-    const content = {
-      components: body.components || [],
-      canvasSettings: body.canvasSettings || {},
-      lastModified: new Date(),
-      version: Date.now(), // 간단한 버전 관리
-    };
-    return this.usersService.savePageContentByRoom(roomId, content);
-  }
-
   /**
    * Page 컴포넌트에서 새 페이지 생성
    * POST /users/pages/create-from-component
    */
   @Post('pages/create-from-component')
   async createPageFromComponent(
-    @Body() createDto: {
+    @Body()
+    createDto: {
       parentPageId: string;
       componentId: string;
       pageName?: string;
-    }
+    },
   ) {
     console.log('🆕 Page 컴포넌트에서 페이지 생성 요청:', createDto);
     return this.usersService.createPageFromComponent(createDto);
   }
 }
-

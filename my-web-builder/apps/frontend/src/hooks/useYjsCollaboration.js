@@ -17,39 +17,41 @@ export function useYjsCollaboration(roomId, userInfo) {
 
     // Y.Doc 인스턴스 생성
     const ydoc = new Y.Doc();
-    
+
     // JWT 토큰 가져오기
     const token = localStorage.getItem('token');
-    
+
     // 일관된 방 이름 형식 사용 (중요: 페이지 ID만 사용, 사용자 정보 사용 안 함)
     const roomName = `page:${roomId}`;
-    
+
     // 환경에 따른 WebSocket URL 설정
     const wsUrl = YJS_WEBSOCKET_URL;
-    
-    console.log('Y.js 서버 연결 시도:', wsUrl, 'Room:', roomName, 'User:', userInfo);
-    
-    // WebsocketProvider 초기화 - auth 필드에 토큰 전달 (핵심 수정사항)
-    const provider = new WebsocketProvider(
+
+    console.log(
+      'Y.js 서버 연결 시도:',
       wsUrl,
+      'Room:',
       roomName,
-      ydoc,
-      {
-        connect: true,
-        // auth 필드에 JWT 토큰 전달
-        auth: {
-          token: token
-        },
-        // 연결 설정
-        maxBackoffTime: 2000,
-        resyncInterval: 3000,
-        // 디버깅용 추가 파라미터
-        params: { 
-          pageId: roomId,
-          userId: userInfo.id
-        }
-      }
+      'User:',
+      userInfo
     );
+
+    // WebsocketProvider 초기화 - auth 필드에 토큰 전달 (핵심 수정사항)
+    const provider = new WebsocketProvider(wsUrl, roomName, ydoc, {
+      connect: true,
+      // auth 필드에 JWT 토큰 전달
+      auth: {
+        token: token,
+      },
+      // 연결 설정
+      maxBackoffTime: 2000,
+      resyncInterval: 3000,
+      // 디버깅용 추가 파라미터
+      params: {
+        pageId: roomId,
+        userId: userInfo.id,
+      },
+    });
 
     // Awareness 인스턴스 - 커서 및 선택 상태 공유
     const awareness = provider.awareness;
@@ -58,7 +60,7 @@ export function useYjsCollaboration(roomId, userInfo) {
     provider.on('status', (event) => {
       console.log('WebSocket 연결 상태:', event.status);
       setIsConnected(event.status === 'connected');
-      
+
       // 연결 완료 후 사용자 정보 설정
       if (event.status === 'connected') {
         // 사용자 정보에 고유 색상 추가
@@ -67,7 +69,7 @@ export function useYjsCollaboration(roomId, userInfo) {
         awareness.setLocalStateField('user', {
           name: userWithColor.name,
           color: userWithColor.color,
-          id: userWithColor.id
+          id: userWithColor.id,
         });
       }
     });
@@ -83,8 +85,7 @@ export function useYjsCollaboration(roomId, userInfo) {
     });
 
     // 원격 업데이트 감지
-    ydoc.on('update', (update, origin) => {
-    });
+    ydoc.on('update', (update, origin) => {});
 
     // Awareness 변화 감지 (디버깅용)
     // awareness.on('change', (event) => {
@@ -119,6 +120,6 @@ export function useYjsCollaboration(roomId, userInfo) {
     ydoc: ydocRef.current,
     provider: providerRef.current,
     awareness: awarenessRef.current,
-    isConnected
+    isConnected,
   };
 }

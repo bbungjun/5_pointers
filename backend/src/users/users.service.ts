@@ -349,26 +349,28 @@ export class UsersService {
   }
 
   generateHTML(components: any[]): string {
-    const componentHTML = components.map(comp => {
-      const style = `position: absolute; left: ${comp.x}px; top: ${comp.y}px; color: ${comp.props.color}; font-size: ${comp.props.fontSize}px;`;
-      
-      switch (comp.type) {
-        case 'button':
-          return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
-        case 'text':
-          return `<div style="${style}">${comp.props.text}</div>`;
-        case 'link':
-          return `<a href="${comp.props.url}" style="${style} text-decoration: underline;">${comp.props.text}</a>`;
-        case 'attend':
-          return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
-        case 'comment':
-          return this.generateCommentHTML(comp);
-        case 'slido':
-          return this.generateSlidoHTML(comp);
-        default:
-          return `<div style="${style}">${comp.props.text}</div>`;
-      }
-    }).join('');
+    const componentHTML = components
+      .map((comp) => {
+        const style = `position: absolute; left: ${comp.x}px; top: ${comp.y}px; color: ${comp.props.color}; font-size: ${comp.props.fontSize}px;`;
+
+        switch (comp.type) {
+          case 'button':
+            return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
+          case 'text':
+            return `<div style="${style}">${comp.props.text}</div>`;
+          case 'link':
+            return `<a href="${comp.props.url}" style="${style} text-decoration: underline;">${comp.props.text}</a>`;
+          case 'attend':
+            return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
+          case 'comment':
+            return this.generateCommentHTML(comp);
+          case 'slido':
+            return this.generateSlidoHTML(comp);
+          default:
+            return `<div style="${style}">${comp.props.text}</div>`;
+        }
+      })
+      .join('');
 
     return `
       <!DOCTYPE html>
@@ -470,22 +472,26 @@ export class UsersService {
   // Slido 의견 조회
   async getSlido(pageId: string, componentId: string): Promise<any[]> {
     const opinions = await this.submissionsRepository.find({
-      where: { 
+      where: {
         pageId: pageId,
-        component_id: componentId
+        component_id: componentId,
       },
-      order: { createdAt: 'DESC' }
+      order: { createdAt: 'DESC' },
     });
 
-    return opinions.map(opinion => ({
+    return opinions.map((opinion) => ({
       id: opinion.id,
       content: opinion.data.content,
-      createdAt: opinion.createdAt
+      createdAt: opinion.createdAt,
     }));
   }
 
   // Slido 의견 작성
-  async createSlido(pageId: string, componentId: string, slidoData: { content: string }): Promise<any> {
+  async createSlido(
+    pageId: string,
+    componentId: string,
+    slidoData: { content: string },
+  ): Promise<any> {
     const page = await this.pagesRepository.findOne({ where: { id: pageId } });
     if (!page) throw new Error('Page not found');
 
@@ -494,15 +500,15 @@ export class UsersService {
       pageId: pageId,
       component_id: componentId,
       data: {
-        content: slidoData.content
-      }
+        content: slidoData.content,
+      },
     });
 
     const saved = await this.submissionsRepository.save(submission);
     return {
       id: saved.id,
       content: saved.data.content,
-      createdAt: saved.createdAt
+      createdAt: saved.createdAt,
     };
   }
 
@@ -515,7 +521,7 @@ export class UsersService {
     return { content: page.content || [] };
   }
 
-  // 페이지 콘텐츠 저장 (roomId 기반)
+  // 페이지 콘텐츠 저장 (Y.js 백업용)
   async savePageContentByRoom(roomId: string, content: any): Promise<any> {
     const page = await this.pagesRepository.findOne({ where: { id: roomId } });
     if (!page) {
@@ -650,11 +656,11 @@ export class UsersService {
     pageName?: string;
   }) {
     console.log('📄 새 페이지 생성 시작:', createDto);
-    
+
     try {
       // 1. 새 페이지 생성
       const newPage = this.pagesRepository.create({
-        title: createDto.pageName || "새 페이지",
+        title: createDto.pageName || '새 페이지',
         subdomain: 'page-' + Date.now(),
         content: {
           components: [],
@@ -663,33 +669,32 @@ export class UsersService {
             totalComponents: 0,
             pageComponentCount: 0,
             lastModified: new Date().toISOString(),
-            version: '1.0'
-          }
+            version: '1.0',
+          },
         },
         status: PageStatus.DRAFT,
-        userId: 1 // 기본 사용자 ID
+        userId: 1, // 기본 사용자 ID
       });
-      
+
       const savedPage = await this.pagesRepository.save(newPage);
       console.log('✅ 새 페이지 생성 완료:', savedPage.id, savedPage.title);
-      
+
       // 2. 부모 페이지의 연결 정보 업데이트
       await this.addPageConnection(createDto.parentPageId, {
         componentId: createDto.componentId,
         linkedPageId: savedPage.id,
-        linkType: 'internal'
+        linkType: 'internal',
       });
-      
-      return { 
-        success: true, 
+
+      return {
+        success: true,
         page: {
           id: savedPage.id,
           title: savedPage.title,
           subdomain: savedPage.subdomain,
-          status: savedPage.status
-        }
+          status: savedPage.status,
+        },
       };
-      
     } catch (error) {
       console.error('❌ 페이지 생성 실패:', error);
       throw new Error('페이지 생성 실패: ' + error.message);
@@ -701,13 +706,19 @@ export class UsersService {
    */
   async addPageConnection(pageId: string, connectionData: any) {
     try {
-      const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+      const page = await this.pagesRepository.findOne({
+        where: { id: pageId },
+      });
       if (!page) {
         throw new Error('부모 페이지를 찾을 수 없습니다.');
       }
-      
-      const content = page.content || { components: [], pageConnections: [], metadata: {} };
-      
+
+      const content = page.content || {
+        components: [],
+        pageConnections: [],
+        metadata: {},
+      };
+
       // pageConnections 배열에 새 연결 추가
       const newConnection = {
         id: 'conn-' + Date.now(),
@@ -715,23 +726,22 @@ export class UsersService {
         linkedPageId: connectionData.linkedPageId,
         linkType: connectionData.linkType,
         order: content.pageConnections?.length || 0,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
 
       content.pageConnections = content.pageConnections || [];
       content.pageConnections.push(newConnection);
-      
+
       // metadata 업데이트
       content.metadata = {
         ...content.metadata,
         pageComponentCount: content.pageConnections.length,
-        lastModified: new Date().toISOString()
+        lastModified: new Date().toISOString(),
       };
 
       // 부모 페이지 업데이트
       await this.pagesRepository.update(pageId, { content });
       console.log('✅ 부모 페이지 연결 정보 업데이트 완료');
-      
     } catch (error) {
       console.error('❌ 페이지 연결 정보 업데이트 실패:', error);
       throw error;
@@ -743,7 +753,7 @@ export class UsersService {
     const question = comp.props.question || '여러분의 의견을 들려주세요';
     const placeholder = comp.props.placeholder || '의견을 입력하세요...';
     const backgroundColor = comp.props.backgroundColor || '#ffffff';
-    
+
     return `
       <div id="slido-${comp.id}" style="${style} width: 400px; min-height: 300px; padding: 24px; background: ${backgroundColor}; border: 1px solid #e5e7eb; border-radius: 12px; font-family: Inter, sans-serif;">
         <!-- 제목 -->
