@@ -363,7 +363,7 @@ function NoCodeEditor({ initialComponents = [] }) {
         <InviteModal
           isOpen={interaction.isInviteOpen}
           onClose={interaction.handleInviteClose}
-          roomId={roomId}
+          pageId={roomId}
         />
       </div>
     </div>
