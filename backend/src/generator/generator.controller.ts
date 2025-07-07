@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Res } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Res, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
 import { GeneratorService } from './generator.service';
 import { DeployDto } from './dto/deploy.dto';
@@ -80,5 +80,35 @@ export class GeneratorController {
       res.status(500).send('<h1>서버 오류가 발생했습니다</h1>');
     }
   }
+
+  /**
+   * 경로 기반 서브도메인 서버용 API 엔드포인트 (EC2에서 호출)
+   * GET /generator/api/site/:subdomain
+   * @param subdomain - 조회할 서브도메인
+   * @returns JSON 형태의 페이지 데이터
+   */
+  @Get('api/site/:subdomain')
+  async getSiteDataForSubdomainServer(@Param('subdomain') subdomain: string) {
+    try {
+      const pageData = await this.generatorService.getPageBySubdomain(subdomain);
+      if (!pageData) {
+        throw new NotFoundException(`Site "${subdomain}" not found`);
+      }
+      
+      const html = await this.generatorService.generateStaticHTML(pageData.components);
+      
+      return {
+        success: true,
+        subdomain,
+        pageId: pageData.pageId,
+        html,
+        components: pageData.components
+      };
+    } catch (error) {
+      console.error('경로 기반 사이트 API 오류:', error);
+      throw error;
+    }
+  }
 }
+
 

@@ -47,10 +47,9 @@ export class GeneratorService {
     }
     
     // 4. 최종 배포 URL 생성 (환경별 분기)
-    // 임시: AWS 인프라 구축 전까지는 백엔드에서 정적 파일 제공
     const url = process.env.NODE_ENV === 'production' 
-      ? `https://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com/deployed-sites/${subdomain}` 
-      : `http://${subdomain}.localhost:3001`;
+      ? `http://13.124.90.104:3001/${subdomain}` 
+      : `http://localhost:3001/${subdomain}`;
     
     // 5. 컴포넌트 데이터를 pages 테이블의 content 컬럼에 저장
     page.content = { components };
@@ -79,8 +78,8 @@ export class GeneratorService {
     return { 
       deployments: [{
         deployedUrl: process.env.NODE_ENV === 'production' 
-          ? `https://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com/deployed-sites/${page.subdomain}` 
-          : `http://${page.subdomain}.localhost:3001`,
+          ? `http://13.124.90.104:3001/${page.subdomain}` 
+          : `http://localhost:3001/${page.subdomain}`,
         deployedAt: page.updatedAt,
         subdomain: page.subdomain,
         projectId: page.id,
