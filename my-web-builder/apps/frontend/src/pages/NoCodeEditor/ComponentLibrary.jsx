@@ -5,7 +5,6 @@ import { ComponentList } from '../components/definitions';
 import ToggleButton from './ComponentLibrary/components/ToggleButton';
 import SearchBar from './ComponentLibrary/components/SearchBar';
 import ComponentGrid from './ComponentLibrary/components/ComponentGrid';
-import DeploySection from './ComponentLibrary/components/DeploySection';
 
 function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onToggle }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -58,10 +57,10 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
             position: 'absolute',
             left: '0',
             top: '20px',
-            width: '24px',
+            width: '28px',
             height: '76px',
-            backgroundColor: '#ffffff',
-            border: '1px solid #e5e7eb',
+            backgroundColor: '#3B4EFF',
+            border: 'none',
             borderLeft: 'none',
             borderTopRightRadius: '8px',
             borderBottomRightRadius: '8px',
@@ -74,16 +73,16 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
             transition: 'all 0.2s ease'
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = '#f8f9fa';
+            e.target.style.backgroundColor = '#5560FF';
             e.target.style.boxShadow = '2px 0 12px rgba(0,0,0,0.15)';
           }}
           onMouseLeave={(e) => {
-            e.target.style.backgroundColor = '#ffffff';
+            e.target.style.backgroundColor = '#3B4EFF';
             e.target.style.boxShadow = '2px 0 8px rgba(0,0,0,0.1)';
           }}
           title="컴포넌트 라이브러리 열기"
         >
-          <span style={{ fontSize: '14px', color: '#6b7280' }}>▶</span>
+          <span style={{ fontSize: '14px', color: '#ffffff' }}>▶</span>
         </button>
       </div>
     );
@@ -114,13 +113,7 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
         />
       </div>
 
-      {/* 고정 배포 섹션 */}
-      <div className="p-4 border-t border-gray-200">
-        <DeploySection
-          components={components}
-          roomId={roomId}
-        />
-      </div>
+      {/* 배포 섹션 제거됨 */}
       
       {/* 토글 버튼 - 라이브러리 우측 밖에 위치 */}
       <button
@@ -129,10 +122,10 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
           position: 'absolute',
           right: '-12px',
           top: '0',
-          width: '24px',
+          width: '28px',
           height: '76px',
-          backgroundColor: '#ffffff',
-          border: '1px solid #e5e7eb',
+          backgroundColor: '#3B4EFF',
+          border: 'none',
           borderLeft: 'none',
           borderTopRightRadius: '8px',
           borderBottomRightRadius: '8px',
@@ -143,14 +136,14 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
           boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
           zIndex: 10,
           transition: 'all 0.2s ease',
-          color: '#6b7280'
+          color: '#ffffff'
         }}
         onMouseEnter={(e) => {
-          e.target.style.backgroundColor = '#f8f9fa';
+          e.target.style.backgroundColor = '#5560FF';
           e.target.style.boxShadow = '2px 0 12px rgba(0,0,0,0.15)';
         }}
         onMouseLeave={(e) => {
-          e.target.style.backgroundColor = '#ffffff';
+          e.target.style.backgroundColor = '#3B4EFF';
           e.target.style.boxShadow = '2px 0 8px rgba(0,0,0,0.1)';
         }}
         title="컴포넌트 라이브러리 토글"

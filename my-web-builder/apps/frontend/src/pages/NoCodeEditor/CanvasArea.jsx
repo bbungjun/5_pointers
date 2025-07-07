@@ -163,14 +163,14 @@ const CanvasArea = forwardRef(
     }, [isComponentDragging, handleZoom]);
 
     useEffect(() => {
-        const element = ref?.current;
+        const element = canvasRefToUse?.current;
         if (element) {
             element.addEventListener('wheel', handleWheel, { passive: false });
             return () => {
                 element.removeEventListener('wheel', handleWheel);
             }
         }
-    }, [ref, handleWheel]);
+    }, [canvasRefToUse, handleWheel]);
 
     // 협업 커서 위치 업데이트 핸들러
     const handleCanvasMouseMove = (e) => {
@@ -504,7 +504,7 @@ const CanvasArea = forwardRef(
         backgroundPosition: showGrid ? '0 0' : 'initial',
         border: '1px solid #e1e5e9',
         borderRadius: 12,
-        margin: '0 auto',
+        margin: 0,
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         transform: `scale(${zoomScale})`,
         transformOrigin: 'top left',
@@ -529,7 +529,7 @@ const CanvasArea = forwardRef(
     const leftPadding = isLibraryOpen ? 280 : 40; // 라이브러리 열림/닫힘에 따라
     const containerWidth =
       actualCanvasSize.width + (viewport === 'mobile' ? 40 : leftPadding + 60); // 모바일: 40px, 데스크톱: 동적
-    const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
+    const containerHeight = actualCanvasSize.height + 240; // 상하 패딩 축소
 
     return (
       <div
@@ -541,7 +541,7 @@ const CanvasArea = forwardRef(
           cursor: isPanning ? 'grabbing' : 'default',
           overflowX: viewport === 'mobile' ? 'hidden' : 'auto',
           overflowY: 'auto',
-          paddingTop: '60px',
+          paddingTop: '20px',
         }}
         ref={ref}
         onMouseDown={handleContainerMouseDown}
@@ -566,8 +566,8 @@ const CanvasArea = forwardRef(
             // 뷰포트별 패딩 조정 (좌측은 컴포넌트 라이브러리 상태에 따라 동적 조정)
             padding:
               viewport === 'mobile'
-                ? '20px'
-                : `40px 60px 200px ${isLibraryOpen ? '280px' : '40px'}`, // 라이브러리 열림: 280px, 닫힘: 40px
+                ? '10px'
+                : `20px 40px 120px ${isLibraryOpen ? '280px' : '20px'}`, // 여백 축소
             boxSizing: 'border-box',
           }}
         >

@@ -7,10 +7,17 @@ export function useDeploy() {
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState('');
 
-  const handleDeploy = async (components, roomId) => {
-    if (!domainName.trim()) {
+  const handleDeploy = async (components, roomId, domainOverride = null) => {
+    const domainToUse = domainOverride ? domainOverride.trim() : domainName.trim();
+
+    if (!domainToUse) {
       setShowDomainInput(true);
       return;
+    }
+
+    // 만약 외부에서 도메인을 전달했다면 상태도 동기화
+    if (domainOverride) {
+      setDomainName(domainToUse);
     }
     
     setIsDeploying(true);
@@ -37,16 +44,15 @@ export function useDeploy() {
           projectId: roomId,
           userId: 'user1',
           components: components || [],
-          domain: domainName.trim()
+          domain: domainToUse
         })
       });
       
       if (response.ok) {
         const data = await response.json();
-        const deployedUrl = getDeployedUrl(domainName.trim());
+        const deployedUrl = getDeployedUrl(domainToUse);
         setDeployedUrl(deployedUrl);
         setShowDomainInput(false);
-        alert(`배포 완료! \n도메인: ${domainName.trim()}\n접속 URL: ${deployedUrl}`);
       } else {
         const errorData = await response.text();
         console.error('배포 실패 응답:', response.status, errorData);
@@ -59,7 +65,7 @@ export function useDeploy() {
       }
     } catch (error) {
       console.error('배포 실패:', error);
-      alert(`배포에 실패했습니다: ${error.message}`);
+      console.error('Deploy error', error);
     } finally {
       setIsDeploying(false);
     }
@@ -72,6 +78,10 @@ export function useDeploy() {
     setDomainName,
     isDeploying,
     deployedUrl,
-    handleDeploy
+    handleDeploy,
+    resetDeploy: () => {
+      setDeployedUrl('');
+      setDomainName('');
+    }
   };
 }
