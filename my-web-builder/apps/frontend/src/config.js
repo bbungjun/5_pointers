@@ -40,7 +40,7 @@ const isProductionEnvironment = () => {
 
 // API 서버 설정 - 환경변수 기반
 export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 
-  (isProductionEnvironment() ? 'https://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com' : 'http://localhost:3000');
+  (isProductionEnvironment() ? 'https://api.pagecube.net' : 'http://localhost:3000');
 
 // Y.js WebSocket 서버 설정 - 환경변수 기반
 export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') || 
