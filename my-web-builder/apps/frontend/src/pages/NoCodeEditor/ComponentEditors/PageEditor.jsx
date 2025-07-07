@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import TextEditor from '../PropertyEditors/TextEditor';
-import ColorEditor from '../PropertyEditors/ColorEditor';
-import NumberEditor from '../PropertyEditors/NumberEditor';
+import {
+  TextEditor,
+  TextAreaEditor,
+  ThumbnailEditor,
+  ColorEditor,
+  NumberEditor,
+  SelectEditor
+} from '../PropertyEditors';
 
 const PageEditor = ({ selectedComp, onUpdate }) => {
   const [pageName, setPageName] = useState('');
@@ -11,7 +16,7 @@ const PageEditor = ({ selectedComp, onUpdate }) => {
   // 컴포넌트 props 초기화
   useEffect(() => {
     if (selectedComp && selectedComp.props) {
-      setPageName(selectedComp.props.pageName || '새 페이지');
+      setPageName(selectedComp.props.pageName !== undefined ? selectedComp.props.pageName : '새 페이지');
       setDescription(selectedComp.props.description || '');
       setThumbnail(selectedComp.props.thumbnail || '');
     }
@@ -93,6 +98,15 @@ const PageEditor = ({ selectedComp, onUpdate }) => {
   const linkedPageId = selectedComp.props?.linkedPageId;
   const isConnected = !!linkedPageId;
 
+  // 테두리 두께 옵션
+  const borderWidthOptions = [
+    { value: '0px', label: '없음' },
+    { value: '1px', label: '1px' },
+    { value: '2px', label: '2px' },
+    { value: '3px', label: '3px' },
+    { value: '4px', label: '4px' }
+  ];
+
   return (
     <div>
       {/* 페이지 설정 섹션 */}
@@ -114,112 +128,19 @@ const PageEditor = ({ selectedComp, onUpdate }) => {
         placeholder="새 페이지"
       />
 
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ 
-          display: 'block',
-          fontSize: 13, 
-          color: '#333', 
-          fontWeight: 500,
-          marginBottom: 6
-        }}>
-          설명
-        </label>
-        <textarea
-          value={description}
-          onChange={(e) => handleDescriptionChange(e.target.value)}
-          placeholder="페이지 설명을 입력하세요"
-          rows={2}
-          style={{
-            width: '100%',
-            padding: '8px 12px',
-            fontSize: 14,
-            border: '1px solid #ddd',
-            borderRadius: 6,
-            outline: 'none',
-            boxSizing: 'border-box',
-            transition: 'border-color 0.2s',
-            resize: 'vertical',
-            fontFamily: 'inherit'
-          }}
-          onFocus={(e) => e.target.style.borderColor = '#0066FF'}
-          onBlur={(e) => e.target.style.borderColor = '#ddd'}
-        />
-      </div>
+      <TextAreaEditor
+        value={description}
+        onChange={handleDescriptionChange}
+        label="설명"
+        placeholder="페이지 설명을 입력하세요"
+        rows={2}
+      />
 
-      {/* 썸네일 섹션 */}
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ 
-          display: 'block',
-          fontSize: 13, 
-          color: '#333', 
-          fontWeight: 500,
-          marginBottom: 6
-        }}>
-          썸네일 이미지
-        </label>
-        <input
-          type="url"
-          value={thumbnail}
-          onChange={(e) => handleThumbnailChange(e.target.value)}
-          placeholder="이미지 URL을 입력하세요 (예: https://example.com/image.jpg)"
-          style={{
-            width: '100%',
-            padding: '8px 12px',
-            fontSize: 14,
-            border: '1px solid #ddd',
-            borderRadius: 6,
-            outline: 'none',
-            boxSizing: 'border-box',
-            transition: 'border-color 0.2s'
-          }}
-          onFocus={(e) => e.target.style.borderColor = '#0066FF'}
-          onBlur={(e) => e.target.style.borderColor = '#ddd'}
-        />
-        {thumbnail && (
-          <div style={{ 
-            marginTop: 8,
-            padding: 8,
-            border: '1px solid #eee',
-            borderRadius: 6,
-            backgroundColor: '#f9f9f9'
-          }}>
-            <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>미리보기:</div>
-            <div style={{
-              width: '60px',
-              height: '36px', // 6:4 비율 미리보기
-              border: '1px solid #ddd',
-              borderRadius: 4,
-              overflow: 'hidden',
-              backgroundColor: '#fff'
-            }}>
-              <img 
-                src={thumbnail} 
-                alt="썸네일 미리보기"
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  objectFit: 'cover' 
-                }}
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
-                }}
-              />
-              <div style={{
-                display: 'none',
-                width: '100%',
-                height: '100%',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '10px',
-                color: '#999'
-              }}>
-                ❌ 로드 실패
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <ThumbnailEditor
+        value={thumbnail}
+        onChange={handleThumbnailChange}
+        label="썸네일 이미지"
+      />
 
       {/* 연결 상태 섹션 */}
       <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
@@ -331,13 +252,50 @@ const PageEditor = ({ selectedComp, onUpdate }) => {
         textTransform: 'uppercase',
         letterSpacing: '0.5px'
       }}>
-        Appearance
+        Typography
+      </div>
+
+      <NumberEditor
+        value={parseInt(selectedComp.props?.titleFontSize?.replace('px', '')) || 10}
+        onChange={(value) => updateProperty('titleFontSize', `${value}px`)}
+        label="페이지 이름 크기"
+        min={4}
+        max={32}
+        suffix="px"
+      />
+
+      <NumberEditor
+        value={parseInt(selectedComp.props?.descriptionFontSize?.replace('px', '')) || 8}
+        onChange={(value) => updateProperty('descriptionFontSize', `${value}px`)}
+        label="설명 텍스트 크기"
+        min={4}
+        max={24}
+        suffix="px"
+      />
+
+      {/* 색상 설정 섹션 */}
+      <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
+      <div style={{ 
+        fontSize: 12, 
+        color: '#65676b', 
+        fontWeight: 600, 
+        marginBottom: 12,
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+      }}>
+        Colors
       </div>
 
       <ColorEditor
-        value={selectedComp.props?.backgroundColor || '#ffffff'}
-        onChange={(value) => updateProperty('backgroundColor', value)}
-        label="배경색"
+        value={selectedComp.props?.thumbnailBackgroundColor || '#f8f9fa'}
+        onChange={(value) => updateProperty('thumbnailBackgroundColor', value)}
+        label="썸네일 영역 배경색"
+      />
+
+      <ColorEditor
+        value={selectedComp.props?.textBackgroundColor || '#ffffff'}
+        onChange={(value) => updateProperty('textBackgroundColor', value)}
+        label="텍스트 영역 배경색"
       />
 
       <ColorEditor
@@ -346,46 +304,31 @@ const PageEditor = ({ selectedComp, onUpdate }) => {
         label="텍스트 색상"
       />
 
+      {/* 테두리 설정 섹션 */}
+      <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
+      <div style={{ 
+        fontSize: 12, 
+        color: '#65676b', 
+        fontWeight: 600, 
+        marginBottom: 12,
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+      }}>
+        Border
+      </div>
+
       <ColorEditor
         value={selectedComp.props?.borderColor || '#007bff'}
         onChange={(value) => updateProperty('borderColor', value)}
         label="테두리 색상"
       />
 
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ 
-          display: 'block',
-          fontSize: 13, 
-          color: '#333', 
-          fontWeight: 500,
-          marginBottom: 6
-        }}>
-          테두리 두께
-        </label>
-        <select
-          value={selectedComp.props?.borderWidth || '2px'}
-          onChange={(e) => updateProperty('borderWidth', e.target.value)}
-          style={{
-            width: '100%',
-            padding: '8px 12px',
-            fontSize: 14,
-            border: '1px solid #ddd',
-            borderRadius: 6,
-            outline: 'none',
-            boxSizing: 'border-box',
-            backgroundColor: 'white',
-            transition: 'border-color 0.2s'
-          }}
-          onFocus={(e) => e.target.style.borderColor = '#0066FF'}
-          onBlur={(e) => e.target.style.borderColor = '#ddd'}
-        >
-          <option value="0px">없음</option>
-          <option value="1px">1px</option>
-          <option value="2px">2px</option>
-          <option value="3px">3px</option>
-          <option value="4px">4px</option>
-        </select>
-      </div>
+      <SelectEditor
+        value={selectedComp.props?.borderWidth || '2px'}
+        onChange={(value) => updateProperty('borderWidth', value)}
+        label="테두리 두께"
+        options={borderWidthOptions}
+      />
 
       <NumberEditor
         value={parseInt(selectedComp.props?.borderRadius?.replace('px', '')) || 8}
