@@ -1219,7 +1219,7 @@ export class UsersService {
       const page = await this.pagesRepository.findOne({
         where: { 
           subdomain: subdomain,
-          status: PageStatus.PUBLISHED 
+          status: PageStatus.DEPLOYED 
         },
         relations: ['user']
       });
