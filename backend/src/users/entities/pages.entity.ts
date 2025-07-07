@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Users } from './users.entity';
 import { PageMembers } from './page_members.entity';
 import { Submissions } from './submissions.entity';
@@ -14,7 +22,7 @@ export class Pages {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Users, user => user.pages, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Users, (user) => user.pages, { onDelete: 'CASCADE' })
   owner: Users;
 
   @Column({ name: 'user_id' })
@@ -42,9 +50,9 @@ export class Pages {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => PageMembers, member => member.page)
+  @OneToMany(() => PageMembers, (member) => member.page)
   members: PageMembers[];
 
-  @OneToMany(() => Submissions, submission => submission.page)
+  @OneToMany(() => Submissions, (submission) => submission.page)
   submissions: Submissions[];
-} 
+}
