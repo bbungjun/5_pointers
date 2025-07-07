@@ -26,3 +26,6 @@ backend-deployment*.zip
 yjs-server.tar.gz
 jungle-servers.tar.gz
 5pointers-deployment.tar.gz
+
+# Windows Zone.Identifier 파일들 무시
+*:Zone.Identifier
