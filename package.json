@@ -7,7 +7,7 @@
   "dependencies": {
     "@nestjs/platform-socket.io": "^10.4.19",
     "@nestjs/websockets": "^10.4.19",
-    "express": "^4.18.2",
+    "express": "^4.21.2",
     "lib0": "^0.2.109",
     "mysql2": "^3.14.1",
     "react-datepicker": "^8.4.0",
