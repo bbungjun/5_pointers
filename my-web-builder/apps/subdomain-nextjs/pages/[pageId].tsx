@@ -197,8 +197,8 @@ const DynamicPageRenderer = ({
                 }
 
                 // 컴포넌트별 기본 크기 설정
-                const getComponentDefaultSize = (componentType) => {
-                  const defaultSizes = {
+                const getComponentDefaultSize = (componentType: string) => {
+                  const defaultSizes: { [key: string]: { width: number; height: number } } = {
                     slido: { width: 400, height: 300 },
                     button: { width: 150, height: 50 },
                     text: { width: 200, height: 50 },

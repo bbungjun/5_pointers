@@ -26,7 +26,7 @@ export class InvitationsController {
    * 사용자의 초대 목록 조회
    * GET /api/invitations/my-invitations
    */
-  @Get('invitations/my-invitations')
+  @Get('my-invitations')
   @UseGuards(JwtAuthGuard)
   async getMyInvitations(@Request() req) {
     const userId = req.user.userId;
@@ -37,7 +37,7 @@ export class InvitationsController {
    * 초대 토큰으로 초대 정보 조회 (로그인 불필요)
    * GET /api/invitations/{invitationToken}
    */
-  @Get('invitations/:invitationToken')
+  @Get(':invitationToken')
   async getInvitationByToken(@Param('invitationToken') invitationToken: string) {
     return this.invitationsService.getInvitationByToken(invitationToken);
   }
@@ -46,7 +46,7 @@ export class InvitationsController {
    * 초대 수락 (로그인 필요)
    * POST /api/invitations/{invitationToken}/accept
    */
-  @Post('invitations/:invitationToken/accept')
+  @Post(':invitationToken/accept')
   @UseGuards(JwtAuthGuard)
   async acceptInvitation(
     @Param('invitationToken') invitationToken: string,
@@ -60,7 +60,7 @@ export class InvitationsController {
    * 초대 거절 (로그인 필요)
    * POST /api/invitations/{invitationToken}/decline
    */
-  @Post('invitations/:invitationToken/decline')
+  @Post(':invitationToken/decline')
   @UseGuards(JwtAuthGuard)
   async declineInvitation(
     @Param('invitationToken') invitationToken: string,
