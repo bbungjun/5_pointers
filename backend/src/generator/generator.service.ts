@@ -48,8 +48,8 @@ export class GeneratorService {
     
     // 4. 최종 배포 URL 생성 (환경별 분기)
     const url = process.env.NODE_ENV === 'production' 
-      ? `http://13.124.90.104:3001/sites/${subdomain}` 
-      : `http://${subdomain}.localhost:3001`;
+      ? `http://13.124.90.104:3001/${subdomain}` 
+      : `http://localhost:3001/${subdomain}`;
     
     // 5. 컴포넌트 데이터를 pages 테이블의 content 컬럼에 저장
     page.content = { components };
@@ -78,8 +78,8 @@ export class GeneratorService {
     return { 
       deployments: [{
         deployedUrl: process.env.NODE_ENV === 'production' 
-          ? `http://13.124.90.104:3001/sites/${page.subdomain}` 
-          : `http://${page.subdomain}.localhost:3001`,
+          ? `http://13.124.90.104:3001/${page.subdomain}` 
+          : `http://localhost:3001/${page.subdomain}`,
         deployedAt: page.updatedAt,
         subdomain: page.subdomain,
         projectId: page.id,
