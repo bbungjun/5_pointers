@@ -49,60 +49,41 @@ export function usePageDataManager(roomId) {
     }
   };
 
-  // 서버로부터 페이지 데이터 로딩
   useEffect(() => {
-    if (!roomId) return;
-
     const loadPageData = async () => {
-      setIsLoading(true);
+      if (!roomId) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-          console.error('로그인 토큰이 없습니다.');
-          setIsLoading(false);
-          return;
-        }
-
-        const headers = {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        };
-
-        console.log(`🔄 페이지 데이터 로딩 시작: ${roomId}`);
-        const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}`, {
-          method: 'GET',
-          headers,
-        });
+        console.log('📄 페이지 데이터 로딩 시작:', roomId);
+        const response = await fetch(
+          `${API_BASE_URL}/users/pages/room/${roomId}/content`
+        );
 
         if (response.ok) {
           const pageData = await response.json();
           console.log('📄 페이지 데이터 로딩 성공:', pageData);
 
-          // 데이터 구조 단순화 (새로운 시스템에 맞게)
-          const simpleComponents = (pageData.content || []).map((comp) => ({
-            id: comp.id,
-            type: comp.type,
-            x: comp.x || 0,
-            y: comp.y || 0,
-            width: comp.width,
-            height: comp.height,
-            props: comp.props || {},
-          }));
+          // content 구조 처리
+          if (pageData.content && typeof pageData.content === 'object') {
+            // 새로운 형식: { components: [], canvasSettings: {} }
+            setComponents(pageData.content.components || []);
 
-          setComponents(simpleComponents);
-          setDesignMode(pageData.designMode || 'desktop');
-          setPageTitle(pageData.title || 'Untitled Page');
+            // designMode 설정 (있는 경우)
+            if (pageData.content.canvasSettings?.designMode) {
+              setDesignMode(pageData.content.canvasSettings.designMode);
+            }
+          } else {
+            // 이전 형식: content가 직접 배열인 경우
+            setComponents(pageData.content || []);
+          }
 
-          // 초기 캔버스 높이 설정
-          const initialHeight = pageData.designMode === 'mobile' ? 667 : 1080;
-          setCanvasHeight(initialHeight);
-
-          console.log('✅ 페이지 데이터 설정 완료:', {
-            componentsCount: simpleComponents.length,
-            designMode: pageData.designMode || 'desktop',
-            title: pageData.title,
-          });
+          // 기타 페이지 정보 설정
+          if (pageData.title) {
+            setPageTitle(pageData.title);
+          }
         } else {
           console.error(
             '페이지 데이터 로딩 실패:',

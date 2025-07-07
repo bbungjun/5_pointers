@@ -45,13 +45,27 @@ export function useCollaboration({
       );
       if (response.ok) {
         const data = await response.json();
-        if (data.components && data.components.length > 0) {
-          console.log('✅ DB에서 복구:', data.components.length, '개 컴포넌트');
+
+        // content 구조 처리
+        let components = [];
+        if (data.content && typeof data.content === 'object') {
+          // 새로운 형식: { components: [], canvasSettings: {} }
+          components = data.content.components || [];
+        } else if (Array.isArray(data.content)) {
+          // 이전 형식: content가 직접 배열인 경우
+          components = data.content;
+        } else if (Array.isArray(data.components)) {
+          // 또 다른 형식: { components: [] }
+          components = data.components;
+        }
+
+        if (components.length > 0) {
+          console.log('✅ DB에서 복구:', components.length, '개 컴포넌트');
 
           // 기존 ID를 유지하되, 없는 경우에만 새로 생성
-          const componentsWithIds = data.components.map((component) => {
+          const componentsWithIds = components.map((component) => {
             if (!component.id) {
-              const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${(userInfo && userInfo.id) || anonymous}`;
+              const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${(userInfo && userInfo.id) || 'anonymous'}`;
               return { ...component, id: uniqueId };
             }
             return component;
@@ -61,13 +75,16 @@ export function useCollaboration({
             '복구할 컴포넌트 ID들:',
             componentsWithIds.map((c) => c.id)
           );
-          yArray.insert(0, componentsWithIds); // Y.js 문서에 직접 삽입
+
+          // Y.js 문서에 직접 삽입
+          yArray.insert(0, componentsWithIds);
           return true;
         }
       }
     } catch (error) {
-      console.log('📝 새 문서 시작 (복구 실패 또는 데이터 없음)');
+      console.error('DB 복구 실패:', error);
     }
+    console.log('📝 새 문서 시작 (복구 실패 또는 데이터 없음)');
     return false;
   };
 
@@ -140,27 +157,23 @@ export function useCollaboration({
       ydoc && ydoc.getArray ? ydoc.getArray('components') : null;
     if (!yComponents) return;
 
-    // 약간의 지연 후 복구 시도 (Y.js 초기화 완료 대기)
-    setTimeout(() => {
-      // 연결 완료 후 Y.js 문서가 비어있으면 복구
-      if (yComponents.length === 0) {
-        console.log('🔗 Y.js 연결 완료, 복구 시작...');
-        hasRestoredRef.current = true;
-        restoreFromDatabase(roomId, yComponents);
-      } else {
-        console.log(
-          '🔗 Y.js 연결 완료, 기존 데이터 있음:',
-          yComponents.length,
-          '개 컴포넌트'
-        );
-        console.log(
-          '기존 컴포넌트 ID들:',
-          yComponents.toArray().map((c) => c.id)
-        );
-        // 이미 데이터가 있으면 복구하지 않음
-        hasRestoredRef.current = true;
-      }
-    }, 1000); // 1초 후 복구 시도
+    // 연결 완료 후 Y.js 문서가 비어있으면 복구
+    if (yComponents.length === 0) {
+      console.log('🔗 Y.js 연결 완료, 복구 시작...');
+      hasRestoredRef.current = true;
+      restoreFromDatabase(roomId, yComponents);
+    } else {
+      console.log(
+        '🔗 Y.js 연결 완료, 기존 데이터 있음:',
+        yComponents.length,
+        '개 컴포넌트'
+      );
+      console.log(
+        '기존 컴포넌트 ID들:',
+        yComponents.toArray().map((c) => c.id)
+      );
+      hasRestoredRef.current = true;
+    }
   }, [ydoc, roomId]);
 
   // 선택된 컴포넌트 변화를 Awareness에 반영
