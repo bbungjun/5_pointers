@@ -136,6 +136,7 @@ function NoCodeEditor() {
       ),
       behavior: 'smooth',
     });
+
   }, [interaction.selectedId, components]);
 
   // Delete 키로 삭제

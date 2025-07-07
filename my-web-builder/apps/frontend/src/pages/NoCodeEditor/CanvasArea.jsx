@@ -7,6 +7,7 @@ import {
 } from '../../components/collaboration/LiveCursors';
 import PageNavigation from './components/PageNavigation';
 
+
 // 그리드 크기 상수 import 또는 선언
 const GRID_SIZE = 50;
 
@@ -533,8 +534,9 @@ const CanvasArea = forwardRef(
             e.preventDefault();
             e.stopPropagation();
           }
-        }}
-      >
+      }}
+    >
+
         {/* 페이지 네비게이션 */}
         <div
           style={{

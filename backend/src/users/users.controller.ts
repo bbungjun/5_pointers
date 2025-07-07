@@ -1,3 +1,4 @@
+
 import {
   Controller,
   Post,
@@ -22,6 +23,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import * as fs from 'fs';
 
 @Controller('users')
+
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -109,6 +111,7 @@ export class UsersController {
           );
 
           // 디렉토리 생성 (동기적으로)
+
           fs.mkdirSync(uploadPath, { recursive: true });
 
           cb(null, uploadPath);
@@ -139,7 +142,6 @@ export class UsersController {
       throw new BadRequestException('파일이 업로드되지 않았습니다.');
     }
 
-    // 파일 경로를 URL 형태로 변환
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -206,6 +208,22 @@ export class UsersController {
     );
   }
 
+  // Slido 의견 조회
+  @Get("pages/:pageId/slido/:componentId")
+  async getSlido(@Param("pageId") pageId: string, @Param("componentId") componentId: string) {
+    return this.usersService.getSlido(pageId, componentId);
+  }
+
+  // Slido 의견 작성
+  @Post("pages/:pageId/slido/:componentId")
+  async createSlido(
+    @Param("pageId") pageId: string,
+    @Param("componentId") componentId: string,
+    @Body() slidoData: { content: string }
+  ) {
+    return this.usersService.createSlido(pageId, componentId, slidoData);
+  }
+
   // 🔄 새로고침 복구 시스템 API
   @Get('pages/room/:roomId/content')
   async getPageContent(@Param('roomId') roomId: string) {
@@ -225,4 +243,21 @@ export class UsersController {
     };
     return this.usersService.savePageContentByRoom(roomId, content);
   }
+
+  /**
+   * Page 컴포넌트에서 새 페이지 생성
+   * POST /users/pages/create-from-component
+   */
+  @Post('pages/create-from-component')
+  async createPageFromComponent(
+    @Body() createDto: {
+      parentPageId: string;
+      componentId: string;
+      pageName?: string;
+    }
+  ) {
+    console.log('🆕 Page 컴포넌트에서 페이지 생성 요청:', createDto);
+    return this.usersService.createPageFromComponent(createDto);
+  }
 }
+

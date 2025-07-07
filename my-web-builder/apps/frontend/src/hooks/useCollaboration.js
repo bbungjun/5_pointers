@@ -48,7 +48,7 @@ export function useCollaboration({
           // 기존 ID를 유지하되, 없는 경우에만 새로 생성
           const componentsWithIds = data.components.map(component => {
             if (!component.id) {
-              const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${userInfo?.id || 'anonymous'}`;
+              const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${userInfo && userInfo.id || anonymous}`;
               return { ...component, id: uniqueId };
             }
             return component;
@@ -72,8 +72,7 @@ export function useCollaboration({
     if (!ydoc) return;
 
     // Y.js에서 컴포넌트 데이터를 관리하는 Y.Array 생성
-    const yComponents = ydoc.getArray?.('components');
-    console.log("🔍 Y.js 배열 상태:", { yComponents: !!yComponents, length: yComponents?.length });
+    const yComponents = ydoc && ydoc.getArray ? ydoc.getArray("components") : null;
     if (!yComponents) return;
     componentsArrayRef.current = yComponents;
 
@@ -81,8 +80,6 @@ export function useCollaboration({
   const handleComponentsChange = () => {
     try {
       const componentsData = yComponents.toArray();
-      console.log('Y.js 컴포넌트 변경 감지:', componentsData.length, '개 컴포넌트');
-      console.log('Y.js 컴포넌트 ID들:', componentsData.map(c => c.id));
       
       // 중복 ID 제거 (같은 ID를 가진 첫 번째 컴포넌트만 유지)
       const uniqueComponents = componentsData.filter((comp, index, arr) => {
@@ -93,14 +90,13 @@ export function useCollaboration({
       if (uniqueComponents.length !== componentsData.length) {
         console.log('중복 컴포넌트 제거:', componentsData.length - uniqueComponents.length, '개');
         // 중복이 있으면 Y.js 배열을 정리
-        ydoc?.transact(() => {
+        ydoc && ydoc.transact(() => {
           yComponents.delete(0, yComponents.length);
           yComponents.insert(0, uniqueComponents);
         });
       }
       
-      console.log('React 상태 업데이트 호출:', uniqueComponents.length, '개 컴포넌트');
-      onComponentsUpdate?.(uniqueComponents);
+      onComponentsUpdate && onComponentsUpdate(uniqueComponents);
     } catch (error) {
       console.error('컴포넌트 데이터 업데이트 중 오류:', error);
     }
@@ -128,8 +124,7 @@ export function useCollaboration({
   useEffect(() => {
     if (!ydoc || hasRestoredRef.current) return;
 
-    const yComponents = ydoc.getArray?.("components");
-    console.log("🔍 Y.js 배열 상태:", { yComponents: !!yComponents, length: yComponents?.length });
+    const yComponents = ydoc && ydoc.getArray ? ydoc.getArray("components") : null;
     if (!yComponents) return;
 
     // 약간의 지연 후 복구 시도 (Y.js 초기화 완료 대기)
@@ -167,12 +162,6 @@ export function useCollaboration({
     const yComponents = componentsArrayRef.current;
     const components = yComponents.toArray();
     
-    console.log('Y.js 배열 상태:', {
-      totalComponents: components.length,
-      componentIds: components.map(c => c.id),
-      targetId: componentId
-    });
-    
     const componentIndex = components.findIndex(c => c.id === componentId);
 
     if (componentIndex !== -1) {
@@ -186,26 +175,25 @@ export function useCollaboration({
         id: existingComponent.id
       };
       
-      console.log('Y.js 컴포넌트 업데이트:', componentId, '변경사항:', updates);
-      console.log('기존 컴포넌트:', existingComponent);
-      console.log('업데이트된 컴포넌트:', updatedComponent);
+      // console.log('Y.js 컴포넌트 업데이트:', componentId, '변경사항:', updates);
+      // console.log('기존 컴포넌트:', existingComponent);
+      // console.log('업데이트된 컴포넌트:', updatedComponent);
       
       try {
         // 트랜잭션으로 안전하게 업데이트
-        ydoc?.transact(() => {
+        ydoc && ydoc.transact(() => {
           yComponents.delete(componentIndex, 1);
           yComponents.insert(componentIndex, [updatedComponent]);
         });
-        console.log('Y.js 업데이트 성공');
+        // console.log('Y.js 업데이트 성공');
       } catch (error) {
-        console.error('Y.js 업데이트 실패:', error);
+        // console.error('Y.js 업데이트 실패:', error);
       }
     } else {
-      console.warn('업데이트할 컴포넌트를 Y.js에서 찾을 수 없음:', componentId);
-      console.log('Y.js에 있는 컴포넌트들:', components);
+      // console.warn('업데이트할 컴포넌트를 Y.js에서 찾을 수 없음:', componentId);
+      // console.log('Y.js에 있는 컴포넌트들:', components);
       
       // 컴포넌트가 Y.js에 없으면 추가 시도
-      console.log('컴포넌트를 Y.js에 추가 시도...');
       const componentToAdd = { ...updates, id: componentId };
       addComponent(componentToAdd);
     }
@@ -216,10 +204,9 @@ export function useCollaboration({
     // 이미 ID가 있으면 유지, 없으면 새로 생성
     const componentWithId = component.id ? component : {
       ...component,
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${userInfo?.id || 'anonymous'}`
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${userInfo && userInfo.id || anonymous}`
     };
     
-    console.log('Y.js에 컴포넌트 추가:', componentWithId.id, componentWithId.type);
     componentsArrayRef.current.push([componentWithId]);
   };
 
@@ -245,14 +232,14 @@ export function useCollaboration({
     // 각 컴포넌트에 고유한 ID가 있는지 확인하고, 없으면 생성
     const componentsWithUniqueIds = newComponents.map(component => {
       if (!component.id) {
-        const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${userInfo?.id || 'anonymous'}`;
+        const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${userInfo && userInfo.id || anonymous}`;
         return { ...component, id: uniqueId };
       }
       return component;
     });
     
     // 트랜잭션으로 묶어서 한 번에 업데이트
-    ydoc?.transact(() => {
+    ydoc && ydoc.transact(() => {
       yComponents.delete(0, yComponents.length);
       yComponents.insert(0, componentsWithUniqueIds);
     });

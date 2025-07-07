@@ -217,6 +217,7 @@ export function getComponentDimensions(type) {
       minWidth: 250,
       minHeight: 120,
     },
+
   };
   return (
     dimensions[type] || {
@@ -427,6 +428,42 @@ export function calculateSnapPosition(
 export function getFinalStyles(component, viewport = 'desktop') {
   // 새로운 단일 좌표계: 단순히 컴포넌트의 직접 속성들을 반환
   const result = {
+    x:
+      viewportStyles.x !== undefined
+        ? viewportStyles.x
+        : baseStyles.x !== undefined
+          ? baseStyles.x
+          : 0,
+    y:
+      viewportStyles.y !== undefined
+        ? viewportStyles.y
+        : baseStyles.y !== undefined
+          ? baseStyles.y
+          : 0,
+    width:
+      viewportStyles.width !== undefined
+        ? viewportStyles.width
+        : baseStyles.width,
+    height:
+      viewportStyles.height !== undefined
+        ? viewportStyles.height
+        : baseStyles.height,
+    props: { ...(baseStyles.props || {}), ...(viewportStyles.props || {}) },
+  };
+  return result;
+}
+
+// 컴포넌트를 responsive 구조로 마이그레이션
+export function migrateToResponsive(component) {
+  if (component.responsive) {
+    console.log(
+      `✅ ${component.id} 이미 responsive 구조:`,
+      component.responsive
+    );
+    return component; // 이미 responsive 구조
+  }
+
+  const originalPosition = {
     x: component.x || 0,
     y: component.y || 0,
     width: component.width,
