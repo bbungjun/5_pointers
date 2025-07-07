@@ -60,12 +60,22 @@ export const getRedirectUrl = (provider) => {
 export const getDeployedUrl = (subdomain) => {
   const isProduction = isProductionEnvironment();
   
+  console.log('🚀 getDeployedUrl 호출:', {
+    subdomain,
+    isProduction,
+    currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'server'
+  });
+  
   if (isProduction) {
     // 프로덕션: pagecube.net 서브도메인 사용
-    return `https://${subdomain}.pagecube.net`;
+    const url = `https://${subdomain}.pagecube.net`;
+    console.log('✅ 프로덕션 URL 생성:', url);
+    return url;
   } else {
     // 로컬: 별도 포트의 서브도메인 서버 사용
-    return `http://localhost:3001/${subdomain}`;
+    const url = `http://localhost:3001/${subdomain}`;
+    console.log('🏠 로컬 URL 생성:', url);
+    return url;
   }
 };
 
