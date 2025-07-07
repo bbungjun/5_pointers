@@ -352,6 +352,11 @@ const CanvasArea = forwardRef(
     // 키보드 이벤트
     useEffect(() => {
       const handleKeyDown = (e) => {
+        // 🔥 텍스트 입력 중이면 키보드 이벤트 무시
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          return; // 텍스트 입력 중에는 CanvasArea에서 처리하지 않음
+        }
+
         if (e.code === 'Space') {
           e.preventDefault();
           document.body.style.cursor = 'grab';
@@ -359,40 +364,46 @@ const CanvasArea = forwardRef(
         // G 키로 그리드 토글
         if (e.code === 'KeyG') {
           e.preventDefault();
-          setShowGrid((prev) => !prev);
+          setShowGrid(prev => !prev);
         }
 
         // 화살표 키로 캔버스 스크롤
-        if (ref.current && !e.ctrlKey && !e.metaKey) {
+        if (containerRef.current && !e.ctrlKey && !e.metaKey) {
           const scrollAmount = 50;
           let scrolled = false;
 
           switch (e.code) {
             case 'ArrowUp':
               e.preventDefault();
-              ref.current.scrollTop -= scrollAmount;
+              containerRef.current.scrollTop -= scrollAmount;
               scrolled = true;
               break;
             case 'ArrowDown':
               e.preventDefault();
-              ref.current.scrollTop += scrollAmount;
+              containerRef.current.scrollTop += scrollAmount;
               scrolled = true;
               break;
             case 'ArrowLeft':
               e.preventDefault();
-              ref.current.scrollLeft -= scrollAmount;
+              containerRef.current.scrollLeft -= scrollAmount;
               scrolled = true;
               break;
             case 'ArrowRight':
               e.preventDefault();
-              ref.current.scrollLeft += scrollAmount;
+              containerRef.current.scrollLeft += scrollAmount;
               scrolled = true;
               break;
           }
         }
       };
 
+
       const handleKeyUp = (e) => {
+        // 🔥 텍스트 입력 중이면 키보드 이벤트 무시
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          return;
+        }
+
         if (e.code === 'Space') {
           document.body.style.cursor = 'default';
         }
