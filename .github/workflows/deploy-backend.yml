@@ -58,18 +58,27 @@ jobs:
       - name: Create application version
         run: |
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          RANDOM_ID=$(openssl rand -hex 4)
+          VERSION_LABEL="v1.0-${TIMESTAMP}-${RANDOM_ID}"
+          echo "VERSION_LABEL=${VERSION_LABEL}" >> $GITHUB_ENV
+          
+          # 기존 버전이 있다면 삭제 시도 (실패해도 계속 진행)
+          aws elasticbeanstalk delete-application-version \
+            --application-name jungle-backend-prod \
+            --version-label v1.0-${{ github.sha }} \
+            --delete-source-bundle || true
+          
           aws elasticbeanstalk create-application-version \
             --application-name jungle-backend-prod \
-            --version-label v1.0-${{ github.sha }}-${TIMESTAMP} \
+            --version-label ${VERSION_LABEL} \
             --description "Deployment from GitHub Actions - ${{ github.sha }} at ${TIMESTAMP}" \
             --source-bundle S3Bucket=elasticbeanstalk-ap-northeast-2-490004614784,S3Key=backend-deployment-${{ github.sha }}.zip
 
       - name: Deploy to Elastic Beanstalk
         run: |
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           aws elasticbeanstalk update-environment \
             --environment-name Jungle-backend-prod-env \
-            --version-label v1.0-${{ github.sha }}-${TIMESTAMP}
+            --version-label ${{ env.VERSION_LABEL }}
 
       - name: Wait for deployment
         run: |
