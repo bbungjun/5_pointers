@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { API_BASE_URL } from '../../../../config';
+import { API_BASE_URL, getDeployedUrl } from '../../../../config';
 
 export function useDeploy() {
   const [showDomainInput, setShowDomainInput] = useState(false);
@@ -43,9 +43,10 @@ export function useDeploy() {
       
       if (response.ok) {
         const data = await response.json();
-        setDeployedUrl(`http://${domainName.trim()}.localhost:3001`);
+        const deployedUrl = getDeployedUrl(domainName.trim());
+        setDeployedUrl(deployedUrl);
         setShowDomainInput(false);
-        alert(`배포 완료! \n도메인: ${domainName.trim()}\n접속 URL: http://${domainName.trim()}.localhost:3001`);
+        alert(`배포 완료! \n도메인: ${domainName.trim()}\n접속 URL: ${deployedUrl}`);
       } else {
         const errorData = await response.text();
         console.error('배포 실패 응답:', response.status, errorData);
