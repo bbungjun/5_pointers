@@ -55,4 +55,20 @@ export class GeneratorController {
   async getPageBySubdomain(@Param('subdomain') subdomain: string) {
     return this.generatorService.getPageBySubdomain(subdomain);
   }
+
+  /**
+   * 사용자의 모든 페이지를 자동으로 배포
+   */
+  @Post('deploy-all-user-pages')
+  async deployAllUserPages(
+    @Body() deployDto: {
+      currentPageId: string;
+      domain: string;
+      deployScope: string;
+    }
+  ) {
+    console.log('Deploy all user pages request:', deployDto);
+    const userId = 1;
+    return this.generatorService.deployAllUserPages(deployDto, userId);
+  }
 }

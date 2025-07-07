@@ -14,3 +14,6 @@ export { default as PhoneEditor } from "./PhoneEditor";
 export { default as DateEditor } from "./DateEditor";
 export { default as BooleanEditor } from "./BooleanEditor";
 export { default as ImageListEditor } from "./ImageListEditor";
+export { default as ThumbnailEditor } from "./ThumbnailEditor";
+export { default as TextAreaEditor } from "./TextAreaEditor";
+export { default as SelectEditor } from "./SelectEditor";

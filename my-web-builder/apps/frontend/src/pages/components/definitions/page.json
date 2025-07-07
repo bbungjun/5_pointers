@@ -1,102 +1,92 @@
 {
   "type": "page",
-  "label": "페이지",
-  "category": "navigation",
+  "name": "Page",
   "icon": "📄",
   "description": "다른 페이지로 이동할 수 있는 네비게이션 컴포넌트",
   "props": {
     "pageName": {
       "type": "string",
       "label": "페이지 이름",
-      "default": "새 페이지",
-      "description": "표시될 페이지 이름"
+      "default": ""
+    },
+    "description": {
+      "type": "string",
+      "label": "설명",
+      "default": ""
     },
     "thumbnail": {
       "type": "string",
       "label": "썸네일 이미지",
-      "default": "",
-      "description": "페이지 썸네일 이미지 URL"
+      "default": ""
     },
-    "backgroundColor": {
-      "type": "color",
-      "label": "배경색",
-      "default": "#ffffff",
-      "description": "컴포넌트 배경색"
+    "titleFontSize": {
+      "type": "string",
+      "label": "페이지 이름 크기",
+      "default": "10px"
+    },
+    "descriptionFontSize": {
+      "type": "string",
+      "label": "설명 텍스트 크기",
+      "default": "8px"
+    },
+    "thumbnailBackgroundColor": {
+      "type": "string",
+      "label": "썸네일 영역 배경색",
+      "default": "#f8f9fa"
+    },
+    "textBackgroundColor": {
+      "type": "string",
+      "label": "텍스트 영역 배경색",
+      "default": "#ffffff"
     },
     "textColor": {
-      "type": "color",
+      "type": "string",
       "label": "텍스트 색상",
-      "default": "#333333",
-      "description": "텍스트 색상"
+      "default": "#333333"
     },
-    "borderStyle": {
-      "type": "select",
-      "label": "테두리 스타일",
-      "default": "solid",
-      "options": [
-        { "value": "none", "label": "없음" },
-        { "value": "solid", "label": "실선" },
-        { "value": "dashed", "label": "점선" },
-        { "value": "dotted", "label": "점" }
-      ],
-      "description": "테두리 스타일"
+    "borderColor": {
+      "type": "string",
+      "label": "테두리 색상",
+      "default": "#007bff"
     },
     "borderWidth": {
       "type": "string",
       "label": "테두리 두께",
-      "default": "2px",
-      "description": "테두리 두께"
-    },
-    "borderColor": {
-      "type": "color",
-      "label": "테두리 색상",
-      "default": "#007bff",
-      "description": "테두리 색상"
+      "default": "2px"
     },
     "borderRadius": {
       "type": "string",
       "label": "모서리 둥글기",
-      "default": "8px",
-      "description": "모서리 둥글기"
+      "default": "8px"
     },
-    "fontSize": {
+    "linkedPageId": {
       "type": "string",
-      "label": "글자 크기",
-      "default": "16px",
-      "description": "글자 크기"
-    },
-    "fontWeight": {
-      "type": "string",
-      "label": "글자 굵기",
-      "default": "500",
-      "description": "글자 굵기"
+      "label": "연결된 페이지 ID",
+      "default": ""
     },
     "deployedUrl": {
       "type": "string",
-      "label": "배포 URL",
-      "default": "",
-      "description": "페이지가 배포된 URL (자동 설정됨)"
-    }
-  },
-  "responsive": {
-    "desktop": {
-      "width": 300,
-      "height": 150
-    },
-    "mobile": {
-      "width": 280,
-      "height": 120
+      "label": "배포된 URL",
+      "default": ""
     }
   },
   "defaultProps": {
-    "pageName": "새 페이지",
-    "backgroundColor": "#ffffff",
+    "pageName": "",
+    "description": "",
+    "thumbnail": "",
+    "titleFontSize": "10px",
+    "descriptionFontSize": "8px",
+    "thumbnailBackgroundColor": "#f8f9fa",
+    "textBackgroundColor": "#ffffff",
     "textColor": "#333333",
-    "borderStyle": "solid",
-    "borderWidth": "2px",
     "borderColor": "#007bff",
+    "borderWidth": "2px",
     "borderRadius": "8px",
-    "fontSize": "16px",
-    "fontWeight": "500"
+    "linkedPageId": "",
+    "deployedUrl": ""
+  },
+  "dimensions": {
+    "width": 100,
+    "height": 150
   }
-} 
+}

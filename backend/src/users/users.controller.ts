@@ -182,4 +182,21 @@ export class UsersController {
     };
     return this.usersService.savePageContentByRoom(roomId, content);
   }
+
+  /**
+   * Page 컴포넌트에서 새 페이지 생성
+   * POST /users/pages/create-from-component
+   */
+  @Post('pages/create-from-component')
+  async createPageFromComponent(
+    @Body() createDto: {
+      parentPageId: string;
+      componentId: string;
+      pageName?: string;
+    }
+  ) {
+    console.log('🆕 Page 컴포넌트에서 페이지 생성 요청:', createDto);
+    return this.usersService.createPageFromComponent(createDto);
+  }
 }
+
