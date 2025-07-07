@@ -27,7 +27,7 @@ function useAutoSave(roomId, components, debounceMs = 2000) {
 
         const token = localStorage.getItem('token');
         const response = await fetch(
-          `${API_BASE_URL}/users/pages/room/${roomId}/content`,
+          `${API_BASE_URL}/api/users/pages/room/${roomId}/content`,
           {
             method: 'PUT',
             headers: {

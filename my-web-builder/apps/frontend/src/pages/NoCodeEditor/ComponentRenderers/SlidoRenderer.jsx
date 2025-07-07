@@ -28,7 +28,7 @@ function SlidoRenderer({ comp, isEditor = false }) {
     if (isEditor) return; // 에디터 모드에서는 API 호출 안함
     
     try {
-      const response = await fetch(`${API_BASE_URL}/users/pages/${comp.pageId}/slido/${comp.id}`);
+      const response = await fetch(`${API_BASE_URL}/api/users/pages/${comp.pageId}/slido/${comp.id}`);
       if (response.ok) {
         const data = await response.json();
         // 새로운 의견이 있는지 확인하고 애니메이션 추가
@@ -56,7 +56,7 @@ function SlidoRenderer({ comp, isEditor = false }) {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/users/pages/${comp.pageId}/slido/${comp.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/pages/${comp.pageId}/slido/${comp.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: newOpinion.trim() })

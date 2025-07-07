@@ -64,7 +64,7 @@ function DashboardPage({ user, onLogout }) {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch(`${API_BASE_URL}/users/pages/my-pages`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/pages/my-pages`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -100,7 +100,7 @@ function DashboardPage({ user, onLogout }) {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/users/pages`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/pages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ function DashboardPage({ user, onLogout }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/users/pages/${pageId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/pages/${pageId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ function DashboardPage({ user, onLogout }) {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `${API_BASE_URL}/users/pages/${deleteModal.pageId}`,
+        `${API_BASE_URL}/api/users/pages/${deleteModal.pageId}`,
         {
           method: 'DELETE',
           headers: {
@@ -204,7 +204,7 @@ function DashboardPage({ user, onLogout }) {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/users/pages`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/pages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

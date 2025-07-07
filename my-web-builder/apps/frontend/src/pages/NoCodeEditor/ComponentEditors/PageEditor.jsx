@@ -58,7 +58,7 @@ const PageEditor = ({ selectedComp, onUpdate }) => {
         pageName: pageName
       };
       
-      const response = await fetch('http://localhost:3000/users/pages/create-from-component', {
+      const response = await fetch('http://localhost:3000/api/users/pages/create-from-component', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
