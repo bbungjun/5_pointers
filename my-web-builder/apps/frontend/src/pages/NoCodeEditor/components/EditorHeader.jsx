@@ -30,6 +30,18 @@ function EditorHeader({
         flex items-center justify-between px-6
         shadow-sm
       "
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 1rem',
+        height: '64px',
+        backgroundColor: '#ffffff',
+        borderBottom: '1px solid #e5e7eb',
+        color: '#1f2937',
+        zIndex: 10,
+        position: 'sticky',
+        top: 0,
+      }}
     >
       {/* 좌측: 로고와 컴포넌트 개수 */}
       <div className="flex items-center gap-4 min-w-0 flex-shrink-0">
