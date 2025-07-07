@@ -23,7 +23,7 @@ function AttendRenderer({ comp, isEditor = false }) {
         fontSize: '18px',
         fontWeight: '500',
         marginBottom: '16px',
-        whiteSpace: 'pre-wrap' //✅
+        whiteSpace: 'pre-wrap'
       }}>
         {comp.props.title || '참석 의사 전달'}
       </div>
@@ -32,12 +32,12 @@ function AttendRenderer({ comp, isEditor = false }) {
         fontSize: '16px',
         lineHeight: '1.6',
         marginBottom: '20px',
-        whiteSpace: 'pre-line',
+        // whiteSpace: 'pre-line', // 중복 제거
         flex: 1,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        whiteSpace: 'pre-wrap' //✅
+        whiteSpace: 'pre-wrap'
       }}>
         {comp.props.description || (
           <>
@@ -59,7 +59,7 @@ function AttendRenderer({ comp, isEditor = false }) {
           cursor: 'pointer',
           letterSpacing: '0.5px',
           background: comp.props.buttonColor || '#aeb8fa',
-          whiteSpace: 'pre-wrap' //✅
+          whiteSpace: 'pre-wrap'
         }}
         onClick={e => {
           e.stopPropagation();
@@ -74,4 +74,4 @@ function AttendRenderer({ comp, isEditor = false }) {
   );
 }
 
-export default AttendRenderer; 
+export default AttendRenderer;

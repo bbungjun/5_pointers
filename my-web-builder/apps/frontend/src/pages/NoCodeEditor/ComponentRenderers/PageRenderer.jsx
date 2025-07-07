@@ -240,7 +240,6 @@ const PageRenderer = ({ component, comp, isEditor, onUpdate }) => {
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
-            whiteSpace: 'pre-wrap', // 줄바꿈 처리
             width: '100%',
             wordBreak: 'break-word',
             whiteSpace: 'pre-wrap'

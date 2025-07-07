@@ -457,7 +457,7 @@ function SlidoRenderer({ comp, isEditor = false }) {
         marginBottom: '20px',
         color: '#1f2937',
         textAlign: 'center',
-        whiteSpace: 'pre-wrap'
+        whiteSpace: 'pre-wrap',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
