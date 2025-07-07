@@ -34,13 +34,38 @@ export const getRedirectUrl = (provider) => {
   return `${frontendUrl}/${provider}`;
 };
 
+// 프로덕션 환경 감지 (여러 방법 사용)
+const isProductionEnvironment = () => {
+  // 1. 명시적 환경변수 확인
+  const viteMode = getEnvVar('VITE_MODE');
+  const nodeEnv = getEnvVar('NODE_ENV');
+  
+  // 2. URL 기반 감지 (브라우저에서 가장 확실한 방법)
+  const currentUrl = typeof window !== 'undefined' ? window.location.hostname : '';
+  const isS3Domain = currentUrl.includes('s3-website') || currentUrl.includes('amazonaws.com');
+  
+  // 3. API URL 기반 감지
+  const isProductionAPI = API_BASE_URL.includes('elasticbeanstalk') || API_BASE_URL.includes('amazonaws.com');
+  
+  console.log('🔍 환경 감지:', {
+    viteMode,
+    nodeEnv,
+    currentUrl,
+    isS3Domain,
+    isProductionAPI,
+    apiBaseUrl: API_BASE_URL
+  });
+  
+  return viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isProductionAPI;
+};
+
 // 서브도메인 배포 URL 생성 함수
 export const getDeployedUrl = (subdomain) => {
-  const isProduction = getEnvVar('NODE_ENV') === 'production';
+  const isProduction = isProductionEnvironment();
   
   if (isProduction) {
-    // 프로덕션: 백엔드 서버에서 제공 (임시)
-    return `${API_BASE_URL}/generator/deployed-sites/${subdomain}`;
+    // 프로덕션: EC2 서브도메인 서버 사용
+    return `http://13.124.90.104:3001/sites/${subdomain}`;
   } else {
     // 로컬: localhost 서브도메인
     return `http://${subdomain}.localhost:3001`;

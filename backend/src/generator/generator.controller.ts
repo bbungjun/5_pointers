@@ -80,4 +80,33 @@ export class GeneratorController {
       res.status(500).send('<h1>서버 오류가 발생했습니다</h1>');
     }
   }
+
+  /**
+   * 서브도메인 서버용 API 엔드포인트 (EC2에서 호출)
+   * GET /generator/api/site/:subdomain
+   * @param subdomain - 조회할 서브도메인
+   * @returns JSON 형태의 페이지 데이터
+   */
+  @Get('api/site/:subdomain')
+  async getSiteDataForSubdomainServer(@Param('subdomain') subdomain: string) {
+    try {
+      const pageData = await this.generatorService.getPageBySubdomain(subdomain);
+      if (!pageData) {
+        throw new NotFoundException(`Subdomain "${subdomain}" not found`);
+      }
+      
+      const html = await this.generatorService.generateStaticHTML(pageData.components);
+      
+      return {
+        success: true,
+        subdomain,
+        pageId: pageData.pageId,
+        html,
+        components: pageData.components
+      };
+    } catch (error) {
+      console.error('서브도메인 서버용 API 오류:', error);
+      throw error;
+    }
+  }
 }
