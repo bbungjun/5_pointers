@@ -223,7 +223,6 @@ export function getComponentDimensions(type) {
       minWidth: 300,
       minHeight: 200,
     },
-
   };
   return (
     dimensions[type] || {
@@ -446,11 +445,21 @@ export function getFinalStyles(component, viewport = 'desktop') {
   // 뷰포트별 기본 크기 설정
   const baseWidth = viewport === 'mobile' ? 375 : 1920;
 
+  // 모바일 뷰포트에서는 x 좌표만 조정하고 크기는 유지
+  const x = component.x || 0;
+  const y = component.y || 0;
+  const width = component.width;
+  const height = component.height;
+
+  // 모바일 뷰포트에서 x 좌표가 화면을 벗어나지 않도록 조정
+  const adjustedX =
+    viewport === 'mobile' ? Math.min(Math.max(0, x), 375 - (width || 100)) : x;
+
   return {
-    x: component.x || 0,
-    y: component.y || 0,
-    width: component.width || baseWidth,
-    height: component.height,
+    x: adjustedX,
+    y,
+    width,
+    height,
     props: component.props || {},
   };
 }
