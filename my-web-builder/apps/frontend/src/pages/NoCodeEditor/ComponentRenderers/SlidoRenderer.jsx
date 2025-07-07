@@ -132,7 +132,8 @@ function SlidoRenderer({ comp, isEditor = false }) {
       animation: isAnimating ? 'slideIn 0.5s ease-out' : (groupSize >= 2 ? 'glow 2s infinite' : 'none'),
       boxShadow: groupSize >= 2 ? '0 4px 12px rgba(0,0,0,0.15)' : '0 2px 4px rgba(0,0,0,0.1)',
       position: 'relative',
-      zIndex: groupSize >= 2 ? 10 : 1
+      zIndex: groupSize >= 2 ? 10 : 1,
+      whiteSpace: 'pre-wrap' // ✅ 여러 줄 의견 지원
     };
   };
 
@@ -202,7 +203,8 @@ function SlidoRenderer({ comp, isEditor = false }) {
         fontWeight: '600',
         marginBottom: '16px',
         color: '#1f2937',
-        textAlign: 'center'
+        textAlign: 'center',
+        whiteSpace: 'pre-wrap'
       }}>
         {question || '여러분의 의견을 들려주세요'}
       </div>

@@ -44,7 +44,7 @@ function LinkRenderer({ comp, isEditor = false }) {
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         className="w-32 border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-        style={{ fontSize: comp.props.fontSize }}
+        style={{ fontSize: comp.props.fontSize, whiteSpace: 'pre-wrap' }} // ✅ 줄바꿈 지원
       />
     );
   }
@@ -54,7 +54,8 @@ function LinkRenderer({ comp, isEditor = false }) {
       className={`${isEditor ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
       style={{
         color: comp.props.color, 
-        fontSize: comp.props.fontSize
+        fontSize: comp.props.fontSize,
+        whiteSpace: 'pre-wrap' // ✅ 줄바꿈 지원
       }}
       onDoubleClick={handleDoubleClick}
     >
@@ -63,4 +64,4 @@ function LinkRenderer({ comp, isEditor = false }) {
   );
 }
 
-export default LinkRenderer; 
+export default LinkRenderer;

@@ -11,7 +11,7 @@ export default function WeddingInviteRenderer({ comp }) {
         titleFontWeight = "normal",
         titleTextDecoration = "none",
         titleColor = "#222",
-        titleAlign = comp.props.titleAlign || comp.props.textAlign || "center", // 수정된 부분
+        titleAlign = comp.props.titleAlign || comp.props.textAlign || "center",
 
         content = [
             "서로가 마주보며 다져온 사랑을",
@@ -28,9 +28,9 @@ export default function WeddingInviteRenderer({ comp }) {
         contentFontStyle = "normal",
         contentTextDecoration = "none",
         contentColor = "#444",
-        contentAlign = comp.props.contentAlign || comp.props.textAlign || "center", // 수정된 부분
+        contentAlign = comp.props.contentAlign || comp.props.textAlign || "center",
         backgroundColor = "#fff"
-    } = comp.props; // 수정된 부분
+    } = comp.props;
 
     // px 변환
     const toPx = v => (typeof v === 'number' ? `${v}px` : v || undefined);
@@ -73,6 +73,7 @@ export default function WeddingInviteRenderer({ comp }) {
                     lineHeight: 1.2,
                     wordBreak: 'keep-all',
                     background: 'none',
+                    whiteSpace: 'pre-wrap' // ✅ 연속 스페이스/줄바꿈 반영
                 }}
             >
                 {title || <span style={{ color: "#bbb" }}>제목 없음</span>}
@@ -92,10 +93,11 @@ export default function WeddingInviteRenderer({ comp }) {
                     width: '100%',
                     wordBreak: 'keep-all',
                     background: 'none',
+                    whiteSpace: 'pre-wrap' // ✅ 연속 스페이스/줄바꿈 반영
                 }}
             >
                 {contentLines.map((line, idx) => (
-                    <div key={idx} style={{ minHeight: 24 }}>
+                    <div key={idx} style={{ minHeight: 24, whiteSpace: 'pre-wrap' }}>
                         {line && line.trim().length > 0 ? line : <span style={{ opacity: 0.3 }}>　</span>}
                     </div>
                 ))}

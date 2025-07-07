@@ -93,8 +93,6 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
     fetchComments();
   }, [comp.id, comp.pageId, isEditor]);
 
-  // 에디터 모드에서도 실제 UI를 보여주되 버튼만 비활성화
-
   // viewport에 따른 반응형 스타일 계산
   const getResponsiveStyles = () => {
     const isMobile = viewport === 'mobile';
@@ -139,6 +137,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
           fontWeight: '600',
           marginBottom: '16px',
           color: '#1f2937',
+          whiteSpace: 'pre-wrap', // ✅
         }}
       >
         {title || '축하 메세지를 남겨주세요'}
@@ -212,6 +211,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
             outline: 'none',
             resize: 'none',
             minHeight: styles.textareaHeight,
+            whiteSpace: 'pre-wrap', // ✅
           }}
           onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
           onBlur={(e) => (e.target.style.borderColor = '#d1d5db')}
@@ -230,6 +230,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
             backgroundColor: isEditor ? '#d1d5db' : '#2563eb',
             color: isEditor ? '#6b7280' : '#ffffff',
             transition: 'background-color 0.2s',
+            whiteSpace: 'pre-wrap', // ✅
           }}
           onMouseOver={(e) => {
             if (!isEditor) e.target.style.backgroundColor = '#1d4ed8';
@@ -245,7 +246,6 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
       {/* 댓글 목록 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {isEditor ? (
-          // 에디터 모드에서 샘플 댓글 보여주기
           <>
             <div
               style={{
@@ -288,6 +288,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
                     color: '#4b5563',
                     fontSize: '14px',
                     lineHeight: '1.5',
+                    whiteSpace: 'pre-wrap', // ✅
                   }}
                 >
                   이곳에 댓글이 표시됩니다. 배포 후에 실제 댓글을 작성할 수
@@ -345,6 +346,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
                     color: '#4b5563',
                     fontSize: '14px',
                     lineHeight: '1.5',
+                    whiteSpace: 'pre-wrap', // ✅
                   }}
                 >
                   댓글 예시입니다.
@@ -418,6 +420,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
                     color: '#4b5563',
                     fontSize: '14px',
                     lineHeight: '1.5',
+                    whiteSpace: 'pre-wrap', // ✅
                   }}
                 >
                   {comment.content}
@@ -466,6 +469,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
                 fontSize: '18px',
                 fontWeight: '600',
                 marginBottom: '16px',
+                whiteSpace: 'pre-wrap', // ✅
               }}
             >
               댓글 삭제
@@ -474,6 +478,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
               style={{
                 color: '#4b5563',
                 marginBottom: '16px',
+                whiteSpace: 'pre-wrap', // ✅
               }}
             >
               댓글 작성 시 입력한 비밀번호를 입력해주세요.
@@ -514,6 +519,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',
                   fontSize: styles.inputFontSize,
+                  whiteSpace: 'pre-wrap', // ✅
                 }}
                 onMouseOver={(e) =>
                   (e.target.style.backgroundColor = '#b91c1c')
@@ -537,6 +543,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',
                   fontSize: styles.inputFontSize,
+                  whiteSpace: 'pre-wrap', // ✅
                 }}
                 onMouseOver={(e) =>
                   (e.target.style.backgroundColor = '#9ca3af')

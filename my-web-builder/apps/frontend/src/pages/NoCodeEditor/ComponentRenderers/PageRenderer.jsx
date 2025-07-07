@@ -223,7 +223,8 @@ const PageRenderer = ({ component, comp, isEditor, onUpdate }) => {
           display: '-webkit-box',
           WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical',
-          width: '100%'
+          width: '100%',
+          whiteSpace: 'pre-wrap'
         }}>
           {pageName || "페이지"}
         </div>
@@ -241,7 +242,8 @@ const PageRenderer = ({ component, comp, isEditor, onUpdate }) => {
             WebkitBoxOrient: 'vertical',
             whiteSpace: 'pre-wrap', // 줄바꿈 처리
             width: '100%',
-            wordBreak: 'break-word'
+            wordBreak: 'break-word',
+            whiteSpace: 'pre-wrap'
           }}>
             {description}
           </div>

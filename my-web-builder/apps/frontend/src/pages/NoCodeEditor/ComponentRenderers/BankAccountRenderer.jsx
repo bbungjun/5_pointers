@@ -4,26 +4,32 @@ function BankAccountRenderer({ comp, isEditor = false }) {
   const { title, groomSide, brideSide, backgroundColor } = comp.props;
   const [groomOpen, setGroomOpen] = useState(false);
   const [brideOpen, setBrideOpen] = useState(false);
-  
-  // 디버깅 로그 제거
-  
-  // 에디터 모드에서도 탭 버튼이 작동하도록 수정
-  
+
   const copyToClipboard = (account, name) => {
     navigator.clipboard.writeText(account);
     alert(`${name}의 계좌번호가 복사되었습니다.`);
   };
-  
+
   const renderAccountInfo = (person, label) => {
     if (!person.enabled && label !== '신랑' && label !== '신부') return null;
-    
+
     return (
       <div className="bg-white rounded-lg p-3 mb-2 shadow-sm border">
         <div className="mb-2">
-          <span className="font-medium text-gray-800">{label} {person.name}</span>
+          <span
+            className="font-medium text-gray-800"
+            style={{ whiteSpace: 'pre-wrap' }} // ✅
+          >
+            {label} {person.name}
+          </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600">{person.bank} {person.account}</span>
+          <span
+            className="text-sm text-gray-600"
+            style={{ whiteSpace: 'pre-wrap' }} // ✅
+          >
+            {person.bank} {person.account}
+          </span>
           <button 
             className="ml-3 px-3 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700 transition-colors"
             onClick={(e) => {
@@ -37,7 +43,7 @@ function BankAccountRenderer({ comp, isEditor = false }) {
       </div>
     );
   };
-  
+
   return (
     <div style={{
       width: '100%',
@@ -52,7 +58,10 @@ function BankAccountRenderer({ comp, isEditor = false }) {
       flexDirection: 'column'
     }}>
       {title && (
-        <h3 className="text-lg font-semibold text-center mb-4 text-gray-800">
+        <h3
+          className="text-lg font-semibold text-center mb-4 text-gray-800"
+          style={{ whiteSpace: 'pre-wrap' }} // ✅
+        >
           {title}
         </h3>
       )}
@@ -68,11 +77,10 @@ function BankAccountRenderer({ comp, isEditor = false }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Groom button clicked, current groomOpen:', groomOpen);
             setGroomOpen(!groomOpen);
           }}
         >
-          <span>신랑 측 계좌번호</span>
+          <span style={{ whiteSpace: 'pre-wrap' }}>신랑 측 계좌번호</span> {/* ✅ */}
           <span className={`transform transition-transform duration-200 ${
             groomOpen ? 'rotate-180' : 'rotate-0'
           }`}>
@@ -100,11 +108,10 @@ function BankAccountRenderer({ comp, isEditor = false }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Bride button clicked, current brideOpen:', brideOpen);
             setBrideOpen(!brideOpen);
           }}
         >
-          <span>신부 측 계좌번호</span>
+          <span style={{ whiteSpace: 'pre-wrap' }}>신부 측 계좌번호</span> {/* ✅ */}
           <span className={`transform transition-transform duration-200 ${
             brideOpen ? 'rotate-180' : 'rotate-0'
           }`}>
@@ -120,8 +127,6 @@ function BankAccountRenderer({ comp, isEditor = false }) {
           </div>
         )}
       </div>
-      
-
     </div>
   );
 }

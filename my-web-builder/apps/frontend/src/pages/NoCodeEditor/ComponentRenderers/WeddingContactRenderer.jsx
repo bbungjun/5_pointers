@@ -23,7 +23,7 @@ function PersonRow({ name, phone1, phone2, phone3, role, deceased }) {
   return (
     <div style={{ marginBottom: 16, textAlign: 'center' }}>
       {role && <div style={{ fontSize: 14, color: '#888', marginBottom: 4 }}>{role}</div>}
-      {name && <div style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 8 }}>{displayName}</div>}
+      {name && <div style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 8, whiteSpace: 'pre-wrap' }}>{displayName}</div>}
       {fullPhone && (
         <div style={{ display: 'flex', justifyContent: 'center', gap: 12 }}>
           <a href={`tel:${fullPhone}`} draggable={false}>{PhoneIcon}</a>
@@ -59,12 +59,12 @@ function WeddingContactRenderer({ comp }) {
           <>
             {/* 신부 먼저 */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>신부</div>
+              <div style={{ fontSize: 14, color: '#666', marginBottom: 4, whiteSpace: 'pre-wrap' }}>신부</div>
               <PersonRow name={p.brideName} phone1={p.bridePhone1} phone2={p.bridePhone2} phone3={p.bridePhone3} />
             </div>
             {/* 신랑 */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>신랑</div>
+              <div style={{ fontSize: 14, color: '#666', marginBottom: 4, whiteSpace: 'pre-wrap' }}>신랑</div>
               <PersonRow name={p.groomName} phone1={p.groomPhone1} phone2={p.groomPhone2} phone3={p.groomPhone3} />
             </div>
           </>
@@ -72,12 +72,12 @@ function WeddingContactRenderer({ comp }) {
           <>
             {/* 신랑 */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>신랑</div>
+              <div style={{ fontSize: 14, color: '#666', marginBottom: 4, whiteSpace: 'pre-wrap' }}>신랑</div>
               <PersonRow name={p.groomName} phone1={p.groomPhone1} phone2={p.groomPhone2} phone3={p.groomPhone3} />
             </div>
             {/* 신부 */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>신부</div>
+              <div style={{ fontSize: 14, color: '#666', marginBottom: 4, whiteSpace: 'pre-wrap' }}>신부</div>
               <PersonRow name={p.brideName} phone1={p.bridePhone1} phone2={p.bridePhone2} phone3={p.bridePhone3} />
             </div>
           </>
@@ -174,4 +174,4 @@ function WeddingContactRenderer({ comp }) {
   );
 }
 
-export default WeddingContactRenderer; 
+export default WeddingContactRenderer;

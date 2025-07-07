@@ -44,7 +44,8 @@ export default function MapInfoRenderer({ comp }) {
             textDecoration,
             color,
             fontFamily,
-            marginBottom: 2
+            marginBottom: 2,
+            whiteSpace: 'pre-wrap' // ✅
           }}>
             {sec.header || '제목 없음'}
           </div>
@@ -57,7 +58,7 @@ export default function MapInfoRenderer({ comp }) {
             textDecoration,
             color,
             fontFamily,
-            whiteSpace: 'pre-wrap'
+            whiteSpace: 'pre-wrap' // ✅
           }}>
             {sec.content || '내용 없음'}
           </div>
