@@ -34,6 +34,19 @@ export const getRedirectUrl = (provider) => {
   return `${frontendUrl}/${provider}`;
 };
 
+// 서브도메인 배포 URL 생성 함수
+export const getDeployedUrl = (subdomain) => {
+  const isProduction = getEnvVar('NODE_ENV') === 'production';
+  
+  if (isProduction) {
+    // 프로덕션: 백엔드 서버에서 제공 (임시)
+    return `${API_BASE_URL}/generator/deployed-sites/${subdomain}`;
+  } else {
+    // 로컬: localhost 서브도메인
+    return `http://${subdomain}.localhost:3001`;
+  }
+};
+
 console.log('🔧 API 설정:', {
   baseUrl: API_BASE_URL,
   websocketUrl: YJS_WEBSOCKET_URL,

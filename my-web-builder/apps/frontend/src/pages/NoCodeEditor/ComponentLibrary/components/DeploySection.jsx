@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDeploy } from '../hooks/useDeploy';
+import { getDeployedUrl } from '../../../../config';
 
 function DeploySection({ components, roomId }) {
   const {
@@ -96,7 +97,7 @@ function DeploySection({ components, roomId }) {
             lineHeight: 1.4
           }}>
             Your site will be available at:<br />
-            <strong>{domainName || 'your-domain'}.localhost:3001</strong>
+            <strong>{getDeployedUrl(domainName || 'your-domain')}</strong>
           </div>
         </div>
       )}
