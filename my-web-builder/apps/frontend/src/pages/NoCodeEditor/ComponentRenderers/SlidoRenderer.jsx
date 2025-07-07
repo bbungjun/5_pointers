@@ -204,7 +204,7 @@ function SlidoRenderer({ comp, isEditor = false }) {
     if (isEditor) return; // 에디터 모드에서는 API 호출 안함
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users/pages/${comp.pageId}/slido/${comp.id}`);
+      const response = await fetch(`${API_BASE_URL}/users/pages/${comp.pageId}/slido/${comp.id}`);
       if (response.ok) {
         const data = await response.json();
         setOpinions(data);
@@ -239,7 +239,7 @@ function SlidoRenderer({ comp, isEditor = false }) {
         content: submittedContent
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/users/pages/${comp.pageId}/slido/${comp.id}`, {
+      const response = await fetch(`${API_BASE_URL}/users/pages/${comp.pageId}/slido/${comp.id}`, {
 
         method: 'POST',
         headers: { 

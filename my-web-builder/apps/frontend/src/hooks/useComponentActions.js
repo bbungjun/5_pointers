@@ -162,7 +162,7 @@ export function useComponentActions(
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `${API_BASE_URL}/api/templates/from-components`,
+        `${API_BASE_URL}/templates/from-components`,
         {
           method: 'POST',
           headers: {

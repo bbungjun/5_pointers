@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { API_BASE_URL } from '../../../config.js';
 
 export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
   // selectedComp가 undefined인 경우 방어 코드
@@ -56,7 +57,7 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
     try {
       console.log('🚀 이미지 업로드 시작...'); // 디버깅 추가
 
-      const response = await fetch('/api/users/upload/image', {
+      const response = await fetch(`${API_BASE_URL}/users/upload/image`, {
         method: 'POST',
         body: formData,
       });

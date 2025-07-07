@@ -83,7 +83,7 @@ export async function createPageForComponent(pageName = '새 페이지') {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/users/pages`, {
+    const response = await fetch(`${API_BASE_URL}/users/pages`, {
       method: 'POST',
       headers,
       body: JSON.stringify({

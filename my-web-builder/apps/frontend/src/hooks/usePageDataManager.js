@@ -59,7 +59,7 @@ export function usePageDataManager(roomId) {
       try {
         console.log('📄 페이지 데이터 로딩 시작:', roomId);
         const response = await fetch(
-          `${API_BASE_URL}/api/users/pages/room/${roomId}/content`
+          `${API_BASE_URL}/users/pages/room/${roomId}/content`
         );
 
         if (response.ok) {

@@ -18,7 +18,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/users/pages/${comp.pageId}/comments/${comp.id}`
+        `${API_BASE_URL}/users/pages/${comp.pageId}/comments/${comp.id}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -39,7 +39,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/users/pages/${comp.pageId}/comments/${comp.id}`,
+        `${API_BASE_URL}/users/pages/${comp.pageId}/comments/${comp.id}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -68,7 +68,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/users/pages/${comp.pageId}/comments/${comp.id}/${showDeleteModal}`,
+        `${API_BASE_URL}/users/pages/${comp.pageId}/comments/${comp.id}/${showDeleteModal}`,
         {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },

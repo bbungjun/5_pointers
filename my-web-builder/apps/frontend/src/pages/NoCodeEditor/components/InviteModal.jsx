@@ -32,7 +32,7 @@ function InviteModal({ isOpen, onClose, pageId }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/pages/${pageId}/invitations`, {
+      const response = await fetch(`${API_BASE_URL}/pages/${pageId}/invitations`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

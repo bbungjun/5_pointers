@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { API_BASE_URL } from '../../../config.js';
 
 function ThumbnailEditor({ label, value, onChange }) {
   const [activeTab, setActiveTab] = useState('upload');
@@ -29,7 +30,7 @@ function ThumbnailEditor({ label, value, onChange }) {
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch('/api/users/upload/image', {
+      const response = await fetch(`${API_BASE_URL}/users/upload/image`, {
         method: 'POST',
         body: formData,
       });

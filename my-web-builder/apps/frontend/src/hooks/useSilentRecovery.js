@@ -14,7 +14,7 @@ function useSilentRecovery(roomId) {
     if (!roomId) return null;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users/pages/room/${roomId}/content`);
+      const response = await fetch(`${API_BASE_URL}/users/pages/room/${roomId}/content`);
       if (response.ok) {
         const data = await response.json();
         console.log("🔄 백그라운드 복구 완료:", data);
