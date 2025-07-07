@@ -57,17 +57,19 @@ jobs:
 
       - name: Create application version
         run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           aws elasticbeanstalk create-application-version \
             --application-name jungle-backend-prod \
-            --version-label v1.0-${{ github.sha }} \
-            --description "Deployment from GitHub Actions - ${{ github.sha }}" \
+            --version-label v1.0-${{ github.sha }}-${TIMESTAMP} \
+            --description "Deployment from GitHub Actions - ${{ github.sha }} at ${TIMESTAMP}" \
             --source-bundle S3Bucket=elasticbeanstalk-ap-northeast-2-490004614784,S3Key=backend-deployment-${{ github.sha }}.zip
 
       - name: Deploy to Elastic Beanstalk
         run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           aws elasticbeanstalk update-environment \
             --environment-name Jungle-backend-prod-env \
-            --version-label v1.0-${{ github.sha }}
+            --version-label v1.0-${{ github.sha }}-${TIMESTAMP}
 
       - name: Wait for deployment
         run: |
