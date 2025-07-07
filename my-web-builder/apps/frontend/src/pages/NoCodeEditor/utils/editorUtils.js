@@ -217,6 +217,12 @@ export function getComponentDimensions(type) {
       minWidth: 250,
       minHeight: 120,
     },
+    slido: {
+      defaultWidth: 400,
+      defaultHeight: 300,
+      minWidth: 300,
+      minHeight: 200,
+    },
 
   };
   return (
