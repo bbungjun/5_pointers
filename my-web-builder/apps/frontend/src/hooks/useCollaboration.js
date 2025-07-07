@@ -41,7 +41,7 @@ export function useCollaboration({
     try {
       console.log('🔄 Y.js 문서가 비어있음, DB에서 복구 시도...');
       const response = await fetch(
-        `${API_BASE_URL}/users/pages/room/${roomId}/content`
+        `${API_BASE_URL}/api/users/pages/room/${roomId}/content`
       );
       if (response.ok) {
         const data = await response.json();
