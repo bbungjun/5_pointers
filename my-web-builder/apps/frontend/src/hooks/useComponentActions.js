@@ -1,12 +1,11 @@
 import { useCallback } from 'react';
 import {
-  GRID_SIZE,
-  clamp,
   getComponentDimensions,
+  clamp,
   resolveCollision,
-  arrangeComponentsVertically,
+  GRID_SIZE,
 } from '../pages/NoCodeEditor/utils/editorUtils';
-import { ComponentDefinitions } from '../pages/NoCodeEditor/components/definitions';
+import { ComponentDefinitions } from '../pages/components/definitions';
 import { API_BASE_URL } from '../config';
 
 /**

@@ -9,6 +9,8 @@ import PreviewModal from './NoCodeEditor/PreviewModal';
 import EditorHeader from './NoCodeEditor/components/EditorHeader';
 import TemplateModal from './NoCodeEditor/components/TemplateModal';
 import InviteModal from './NoCodeEditor/components/InviteModal';
+import CanvasComponent from './NoCodeEditor/components/CanvasComponent';
+import UserCursor from './NoCodeEditor/components/UserCursor';
 
 // 훅들
 import { usePageDataManager } from '../hooks/usePageDataManager';
@@ -18,7 +20,10 @@ import { useComponentActions } from '../hooks/useComponentActions';
 
 // 유틸리티
 import { getUserColor } from '../utils/userColors';
-import { getCanvasSize } from './NoCodeEditor/utils/editorUtils';
+import {
+  getCanvasSize,
+  getComponentDimensions,
+} from './NoCodeEditor/utils/editorUtils';
 
 function NoCodeEditor() {
   const { roomId } = useParams();
@@ -66,11 +71,7 @@ function NoCodeEditor() {
   });
 
   // 3. UI 상호작용 관리
-  const interaction = useEditorInteractionManager(
-    designMode,
-    setDesignMode,
-    components
-  );
+  const interaction = useEditorInteractionManager(designMode, setDesignMode);
 
   // 4. 협업 동기화 로직
   const collaboration = useCollaboration({
@@ -100,6 +101,7 @@ function NoCodeEditor() {
     isConnected,
     otherCursors: otherCursorsMap,
     otherSelections: otherSelectionsMap,
+    updateCursorPosition,
   } = collaboration;
 
   // Map을 배열로 변환
@@ -209,12 +211,8 @@ function NoCodeEditor() {
     );
   }
 
-  // 렌더링할 컴포넌트 결정
-  const componentsToRender = interaction.isEditable
-    ? components
-    : interaction.previewComponents;
+  // 컴포넌트와 선택된 컴포넌트
   const selectedComp = components.find((c) => c.id === interaction.selectedId);
-  const canvasSize = getCanvasSize(interaction.viewport);
 
   return (
     <div
@@ -258,11 +256,13 @@ function NoCodeEditor() {
       >
         {/* 컴포넌트 라이브러리 */}
         <ComponentLibrary
-          onDrop={handleDrop}
+          onDragStart={(e, type) => {
+            e.dataTransfer.setData('componentType', type);
+          }}
+          components={components}
+          roomId={roomId}
           isOpen={interaction.isLibraryOpen}
           onToggle={interaction.handleLibraryToggle}
-          viewport={interaction.viewport}
-          isEditable={interaction.isEditable}
         />
 
         {/* 중앙 캔버스 영역 */}
@@ -278,9 +278,10 @@ function NoCodeEditor() {
           <CanvasArea
             ref={containerRef}
             canvasRef={canvasRef}
-            components={componentsToRender}
-            isEditable={interaction.isEditable}
+            components={components}
             selectedId={interaction.selectedId}
+            users={{}}
+            nickname={userInfo.name}
             onSelect={interaction.handleSelect}
             onUpdate={actions.handleUpdate}
             onDelete={(id) =>
@@ -297,9 +298,17 @@ function NoCodeEditor() {
             onZoomChange={interaction.handleZoomChange}
             canvasHeight={canvasHeight}
             onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+            onClick={() => interaction.handleSelect(null)}
+            onMouseMove={() => {}}
+            onMouseUp={() => {}}
             otherCursors={otherCursors}
             otherSelections={otherSelections}
             collaboration={collaboration}
+            CanvasComponent={CanvasComponent}
+            UserCursor={UserCursor}
+            getComponentDimensions={getComponentDimensions}
+            updateCursorPosition={updateCursorPosition}
             onAddSection={(sectionY) =>
               actions.handleAddSection(sectionY, containerRef, interaction.zoom)
             }
@@ -307,12 +316,13 @@ function NoCodeEditor() {
         </div>
 
         {/* 속성 인스펙터 */}
-        <Inspector
-          selectedComp={selectedComp}
-          onUpdate={actions.handleUpdate}
-          viewport={interaction.viewport}
-          isEditable={interaction.isEditable}
-        />
+        {selectedComp && (
+          <Inspector
+            selectedComp={selectedComp}
+            onUpdate={actions.handleUpdate}
+            viewport={interaction.viewport}
+          />
+        )}
       </div>
 
       {/* 모달들 */}
