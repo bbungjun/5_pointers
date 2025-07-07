@@ -1,17 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
-import { arrangeComponentsForView } from '../pages/NoCodeEditor/utils/editorUtils';
 
 /**
  * 에디터 UI 상호작용 관리 훅
  * - UI 상태 관리 (선택, 줌, 패널, 모달 등)
  * - 뷰포트/편집모드 전환 핸들러
- * - 미리보기 로직
  */
-export function useEditorInteractionManager(
-  designMode,
-  setDesignMode,
-  originalComponents
-) {
+export function useEditorInteractionManager(designMode, setDesignMode) {
   // UI 상태 관리
   const [selectedId, setSelectedId] = useState(null);
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
@@ -33,14 +27,6 @@ export function useEditorInteractionManager(
   useEffect(() => {
     setViewport(designMode);
   }, [designMode]);
-
-  // 미리보기용 컴포넌트 계산
-  const previewComponents = arrangeComponentsForView(
-    originalComponents,
-    designMode,
-    viewport
-  );
-  const isEditable = viewport === designMode;
 
   // 선택 핸들러
   const handleSelect = useCallback((id) => {
@@ -161,10 +147,6 @@ export function useEditorInteractionManager(
     templateData,
     setTemplateData,
     isInviteOpen,
-
-    // 계산된 값
-    previewComponents,
-    isEditable,
 
     // 핸들러들
     handleSelect,
