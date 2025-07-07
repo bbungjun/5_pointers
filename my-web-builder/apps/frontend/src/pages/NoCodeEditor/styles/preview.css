@@ -1,0 +1,78 @@
+/* 미리보기/배포 모드 스타일 */
+.preview-container {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 빈 페이지 스타일 */
+.empty-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 16px;
+  color: #6c757d;
+  background: #f8f9fa;
+  text-align: center;
+}
+
+.empty-page-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+/* 컴포넌트 공통 스타일 */
+.preview-component {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* 컴포넌트 타입별 스타일 */
+.preview-component.text {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.preview-component.button {
+  display: inline-block;
+}
+
+.preview-component.image {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 모바일 스타일 */
+@media (max-width: 375px) {
+  .preview-container {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .preview-component {
+    margin-bottom: 10px;
+  }
+
+  .preview-component.text {
+    font-size: 14px;
+  }
+}
+
+/* 편집 모드 스타일 */
+.editor-canvas {
+  position: relative;
+  background: #ffffff;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.editor-component {
+  position: absolute;
+  pointer-events: auto;
+  user-select: none;
+}

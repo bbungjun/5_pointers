@@ -429,6 +429,84 @@ export function calculateSnapPosition(
   };
 }
 
+// 편집 모드용 캔버스 크기 설정
+export const CANVAS_SIZES = {
+  desktop: {
+    width: 1920,
+    height: 1080,
+  },
+  mobile: {
+    width: 375,
+    height: 667,
+  },
+};
+
+// 편집 모드에서만 사용하는 컴포넌트 스타일 계산 함수
+export function getEditorStyles(component, editingViewport = 'desktop') {
+  if (!component) {
+    console.warn('getEditorStyles: component가 전달되지 않았습니다.');
+    return {
+      x: 0,
+      y: 0,
+      width: undefined,
+      height: undefined,
+      props: {},
+    };
+  }
+
+  const x = component.x || 0;
+  const y = component.y || 0;
+  const width = component.width;
+  const height = component.height;
+
+  // 모바일 편집 모드에서 캔버스를 벗어난 경우만 x 좌표 조정
+  const adjustedX =
+    editingViewport === 'mobile'
+      ? Math.min(Math.max(0, x), CANVAS_SIZES.mobile.width - (width || 100))
+      : x;
+
+  return {
+    x: adjustedX,
+    y,
+    width,
+    height,
+    props: component.props || {},
+  };
+}
+
+// 편집 모드에서 모바일 뷰로 전환할 때만 사용하는 함수
+export function adjustComponentsForMobile(components) {
+  if (!components || components.length === 0) return [];
+
+  const adjustments = [];
+  const canvasWidth = CANVAS_SIZES.mobile.width;
+
+  // y 위치 순으로 정렬
+  const sortedComponents = [...components].sort((a, b) => {
+    const aStyles = getEditorStyles(a, 'mobile');
+    const bStyles = getEditorStyles(b, 'mobile');
+    return aStyles.y - bStyles.y;
+  });
+
+  for (const comp of sortedComponents) {
+    const currentStyles = getEditorStyles(comp, 'mobile');
+
+    // 캔버스를 벗어난 경우만 조정
+    if (currentStyles.x + (currentStyles.width || 100) > canvasWidth) {
+      adjustments.push({
+        component: comp,
+        originalPosition: currentStyles,
+        newPosition: {
+          ...currentStyles,
+          x: Math.max(0, canvasWidth - (currentStyles.width || 100)),
+        },
+      });
+    }
+  }
+
+  return adjustments;
+}
+
 // 컴포넌트의 스타일을 반환
 export function getFinalStyles(component, viewport = 'desktop') {
   if (!component) {
