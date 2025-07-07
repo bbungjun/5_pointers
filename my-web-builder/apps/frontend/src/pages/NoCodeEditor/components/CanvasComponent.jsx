@@ -17,6 +17,8 @@ import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import SlidoRenderer from '../ComponentRenderers/SlidoRenderer';
 import { clamp, resolveCollision, calculateSnapPosition, calculateSnapLines, getFinalStyles } from '../utils/editorUtils';
 import MusicRenderer from '../ComponentRenderers/MusicRenderer';
+import KakaoTalkShareRenderer from '../ComponentRenderers/KakaoTalkShareRenderer';
+import PageRenderer from '../ComponentRenderers/PageRenderer';
 
 // 그리드 크기 상수
 const GRID_SIZE = 50;
@@ -33,7 +35,8 @@ function CanvasComponent({
   viewport = 'desktop', 
   components = [],
   getComponentDimensions,
-  canvasHeight // 확장된 캔버스 높이
+  canvasHeight, // 확장된 캔버스 높이
+  updateCursorPosition // 협업 커서 위치 업데이트 함수
 }) {
   const ref = useRef();
 
@@ -225,6 +228,10 @@ function CanvasComponent({
         return <SlidoRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
       case 'musicPlayer':
         return <MusicRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+      case 'kakaotalkShare':
+        return <KakaoTalkShareRenderer comp={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} viewport={viewport} />;
+      case 'page':
+        return <PageRenderer component={componentWithFinalStyles} isEditor={true} onUpdate={onUpdate} />;
       default:
         return <span>{finalProps?.text || ''}</span>;
     }
@@ -246,6 +253,11 @@ function CanvasComponent({
 
   const handleResize = (e) => {
     if (!isResizing) return;
+    
+    // 리사이즈 중에도 커서 위치 업데이트
+    if (updateCursorPosition) {
+      updateCursorPosition(e.clientX, e.clientY, zoom, viewport);
+    }
     
     const deltaX = e.clientX - resizeStart.x;
     const deltaY = e.clientY - resizeStart.y;
@@ -348,6 +360,11 @@ function CanvasComponent({
 
   const handleDrag = (e) => {
     if (!isDragging) return;
+    
+    // 드래그 중에도 커서 위치 업데이트
+    if (updateCursorPosition) {
+      updateCursorPosition(e.clientX, e.clientY, zoom, viewport);
+    }
     
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;

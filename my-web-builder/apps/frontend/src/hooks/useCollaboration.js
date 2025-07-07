@@ -16,7 +16,8 @@ export function useCollaboration({
   userInfo,
   canvasRef,
   selectedComponentId,
-  onComponentsUpdate
+  onComponentsUpdate,
+  viewport = 'desktop'
 }) {
   // Y.js 기본 인프라 설정
   const { ydoc, provider, awareness, isConnected } = useYjsCollaboration(roomId, userInfo);
@@ -150,11 +151,11 @@ export function useCollaboration({
   // 선택된 컴포넌트 변화를 Awareness에 반영
   useEffect(() => {
     if (selectedComponentId) {
-      updateSelection([selectedComponentId]);
+      updateSelection([selectedComponentId], viewport);
     } else {
-      updateSelection([]);
+      updateSelection([], viewport);
     }
-  }, [selectedComponentId, updateSelection]);
+  }, [selectedComponentId, updateSelection, viewport]);
 
   // 컴포넌트 업데이트 함수 (Y.js 동기화)
   const updateComponent = (componentId, updates) => {

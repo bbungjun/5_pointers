@@ -16,3 +16,4 @@ export { default as CommentEditor } from './CommentEditor';
 export { default as SlidoEditor } from './SlidoEditor';
 export { default as WeddingInviteEditor} from "./WeddingInviteEditor";
 export { default as MusicEditor } from "./MusicEditor";
+export { default as KakaoTalkShareEditor} from "./KakaoTalkShareEditor";

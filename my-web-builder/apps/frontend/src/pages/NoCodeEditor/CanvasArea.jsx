@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { LiveCursors, CollaborativeSelections } from '../../components/collaboration/LiveCursors';
+import PageNavigation from './components/PageNavigation';
 
 // 그리드 크기 상수 import 또는 선언
 const GRID_SIZE = 50;
@@ -102,7 +103,8 @@ function CanvasArea({
   // 협업 기능 props 추가
   otherCursors = [],
   otherSelections = [],
-  getComponentDimensions // 컴포넌트 크기 함수
+  getComponentDimensions, // 컴포넌트 크기 함수
+  onPageChange // 페이지 변경 콜백
 }) {
   const [localZoom, setLocalZoom] = useState(zoom);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -502,6 +504,16 @@ function CanvasArea({
         }
       }}
     >
+      {/* 페이지 네비게이션 */}
+      <div style={{
+        position: 'fixed',
+        top: '80px',
+        right: '20px',
+        zIndex: 1000,
+        width: '280px'
+      }}>
+        <PageNavigation components={components} onPageChange={onPageChange} />
+      </div>
       {/* ===== OUTER WRAPPER: 캔버스 컨테이너 ===== */}
       <div
         style={{
@@ -668,6 +680,7 @@ function CanvasArea({
                   components={components}
                   getComponentDimensions={getComponentDimensions}
                   canvasHeight={canvasHeight} // 확장된 캔버스 높이 전달
+                  updateCursorPosition={updateCursorPosition} // 협업 커서 위치 업데이트 함수 전달
                 />
               );
             })}
@@ -716,6 +729,7 @@ function CanvasArea({
             components={components}
             zoom={localZoom}
             viewport={viewport}
+            getComponentDimensions={getComponentDimensions}
           />
         </div>
       </div>

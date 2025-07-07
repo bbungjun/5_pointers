@@ -1,0 +1,79 @@
+name: Deploy Backend to AWS Elastic Beanstalk
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'backend/**'
+  pull_request:
+    branches: [ main ]
+    paths: 
+      - 'backend/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Build application
+      run: |
+        cd backend
+        npm run build
+        
+    - name: Create deployment package
+      run: |
+        cd backend
+        zip -r ../backend-deployment.zip . -x "node_modules/*" "*.git*" "test/*" "coverage/*" "*.log"
+        
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: ap-northeast-2
+        
+    - name: Upload to S3
+      run: |
+        aws s3 cp backend-deployment.zip s3://elasticbeanstalk-ap-northeast-2-490004614784/backend-deployment-${{ github.sha }}.zip
+        
+    - name: Create application version
+      run: |
+        aws elasticbeanstalk create-application-version \
+          --application-name jungle-backend-prod \
+          --version-label v1.0-${{ github.sha }} \
+          --description "Deployment from GitHub Actions - ${{ github.sha }}" \
+          --source-bundle S3Bucket=elasticbeanstalk-ap-northeast-2-490004614784,S3Key=backend-deployment-${{ github.sha }}.zip
+          
+    - name: Deploy to Elastic Beanstalk
+      run: |
+        aws elasticbeanstalk update-environment \
+          --environment-name Jungle-backend-prod-env \
+          --version-label v1.0-${{ github.sha }}
+          
+    - name: Wait for deployment
+      run: |
+        aws elasticbeanstalk wait environment-updated \
+          --environment-name Jungle-backend-prod-env
+          
+    - name: Get deployment status
+      run: |
+        aws elasticbeanstalk describe-environments \
+          --environment-names Jungle-backend-prod-env \
+          --query 'Environments[0].{Status:Status,Health:Health,VersionLabel:VersionLabel}'

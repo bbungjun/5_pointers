@@ -11,3 +11,18 @@ logs/
 deployed-sites/
 backend/deployed-sites/
 my-web-builder/apps/api/deployed-sites/
+
+# 압축 파일들 (배포용 임시 파일)
+*.zip
+*.tar.gz
+*.tar
+*.rar
+*.7z
+
+# 배포 관련 임시 파일들
+*-deployment*.zip
+*-deployment*.tar.gz
+backend-deployment*.zip
+yjs-server.tar.gz
+jungle-servers.tar.gz
+5pointers-deployment.tar.gz

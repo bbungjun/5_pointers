@@ -41,25 +41,25 @@ import MusicRenderer from './MusicRenderer';
 // 컴포넌트 타입별 렌더러 매핑 함수
 export function getRendererByType(type) {
   switch (type) {
-    case "button":
+    case 'button':
       return ButtonRenderer;
-    case "text":
+    case 'text':
       return TextRenderer;
-    case "link":
+    case 'link':
       return LinkRenderer;
-    case "attend":
+    case 'attend':
       return AttendRenderer;
-    case "image":
+    case 'image':
       return ImageRenderer;
-    case "map":
+    case 'map':
       return MapView;
-    case "dday":
+    case 'dday':
       return DdayRenderer;
-    case "weddingContact":
+    case 'weddingContact':
       return WeddingContactRenderer;
-    case "gridGallery":
+    case 'gridGallery':
       return GridGalleryRenderer;
-    case "slideGallery":
+    case 'slideGallery':
       return SlideGalleryRenderer;
     case 'mapInfo':
       return MapInfoRenderer;
@@ -75,6 +75,8 @@ export function getRendererByType(type) {
       return WeddingInviteRenderer;
     case 'musicPlayer':
       return MusicRenderer;
+    case 'kakaotalkShare':
+      return KakaoTalkShareRenderer;
     default:
       return null;
   }

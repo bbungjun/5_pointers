@@ -1,42 +1,40 @@
-# GitHub Secrets 설정 가이드
+# 🔐 GitHub Secrets 설정 가이드
 
-## 설정 방법
-1. GitHub 저장소 → **Settings** → **Secrets and variables** → **Actions**
-2. **New repository secret** 클릭하여 다음 secrets 추가:
+GitHub Actions에서 사용할 환경 변수들을 GitHub Secrets에 설정해야 합니다.
 
-## 필수 Database Secrets
+## 📋 설정해야 할 Secrets
+
+### AWS 관련
 ```
-DB_HOST=pointers-mysql-db.chiyuym88mcj.ap-northeast-2.rds.amazonaws.com
-DB_PORT=3306
-DB_USERNAME=admin
-DB_PASSWORD=[실제_RDS_마스터_비밀번호]
-DB_DATABASE=jungle
+AWS_ACCESS_KEY_ID=your-aws-access-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+AWS_SESSION_TOKEN=your-aws-session-token (필요한 경우)
 ```
 
-## 필수 Application Secrets
+### 프론트엔드 환경 변수
 ```
-JWT_SECRET=[랜덤_32자리_문자열]
-NODE_ENV=production
-```
-
-## AWS Secrets (이메일 기능용)
-```
-AWS_ACCESS_KEY_ID=[AWS_액세스_키]
-AWS_SECRET_ACCESS_KEY=[AWS_시크릿_키]
-AWS_REGION=ap-northeast-2
+VITE_API_URL_PRODUCTION=http://Jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com
+VITE_WEBSOCKET_URL_PRODUCTION=ws://your-yjs-server-url:3003
 ```
 
-## CORS 설정
+### 백엔드 환경 변수 (Elastic Beanstalk에서 설정됨)
 ```
-CORS_ORIGIN=http://3.35.227.214
-```
-
-## JWT_SECRET 생성 방법
-```bash
-# Node.js에서 랜덤 문자열 생성
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+DB_HOST=jungle-db5.cluster-chiyuym88mcj.ap-northeast-2.rds.amazonaws.com
+DB_USERNAME=jungle_user
+DB_PASSWORD=Jungle5pointers2025!
+DB_DATABASE=jungle_db
+JWT_SECRET=jungle-5pointers-super-secret-key-2025
 ```
 
-## 확인 방법
-- 모든 secrets이 설정되면 GitHub Actions에서 배포 시 환경 변수로 사용됩니다
-- 백엔드 서버가 RDS에 연결하여 테이블을 자동 생성합니다
+## 🔧 GitHub Secrets 설정 방법
+
+1. GitHub 저장소로 이동
+2. Settings > Secrets and variables > Actions
+3. "New repository secret" 클릭
+4. 위의 값들을 하나씩 추가
+
+## ⚠️ 보안 주의사항
+
+- 실제 프로덕션 환경에서는 더 강력한 비밀번호와 시크릿 키 사용
+- AWS 액세스 키는 최소 권한 원칙 적용
+- 정기적으로 시크릿 키 교체

@@ -1,6 +1,37 @@
 // 그리드 크기 상수
 export const GRID_SIZE = 50;
 
+// 뷰포트 설정
+export const VIEWPORT_CONFIGS = {
+  desktop: { 
+    width: 1920, 
+    height: 1080, 
+    name: '데스크톱',
+    label: '데스크톱',
+    description: '1920px 너비',
+    icon: '🖥️'
+  },
+  tablet: { 
+    width: 768, 
+    height: 1024, 
+    name: '태블릿',
+    label: '태블릿',
+    description: '768px 너비',
+    icon: '📱'
+  },
+  mobile: { 
+    width: 375, 
+    height: 667, 
+    name: '모바일',
+    label: '모바일',
+    description: '375px 너비',
+    icon: '📱'
+  }
+};
+
+// API 설정
+import { API_BASE_URL } from '../../../config';
+
 // clamp 함수
 export function clamp(val, min, max) {
   return Math.max(min, Math.min(max, val));
@@ -15,6 +46,41 @@ export function randomNickname() {
 export function randomColor() {
   const colors = ['#3B4EFF', '#FF3B3B', '#00B894', '#FDCB6E', '#6C5CE7', '#00B8D9', '#FF7675', '#636E72'];
   return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Page 컴포넌트를 위한 새 페이지 생성 함수
+export async function createPageForComponent(pageName = '새 페이지') {
+  try {
+    const token = localStorage.getItem('token');
+    const headers = { 
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_BASE_URL}/users/pages`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        title: pageName,
+        subdomain: `page-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+      })
+    });
+    
+    if (response.ok) {
+      const newPage = await response.json();
+      console.log('Page 컴포넌트용 새 페이지 생성 완료:', newPage);
+      return newPage;
+    } else {
+      console.error('새 페이지 생성 실패:', response.status);
+      return null;
+    }
+  } catch (err) {
+    console.error('새 페이지 생성 오류:', err);
+    return null;
+  }
 }
 
 // 컴포넌트 타입별 기본 크기와 최소 크기 정의 (50px 그리드에 맞춤)
@@ -35,7 +101,9 @@ export function getComponentDimensions(type) {
     calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 300, minHeight: 350 },
     bankAccount: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
     comment: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
-    musicPlayer: { defaultWidth: 150, defaultHeight: 150, minWidth: 100, minHeight: 100 }
+    musicPlayer: { defaultWidth: 150, defaultHeight: 150, minWidth: 100, minHeight: 100 },
+    kakaotalkShare: { defaultWidth: 180, defaultHeight: 60, minWidth: 120, minHeight: 40 },
+    page: { defaultWidth: 300, defaultHeight: 150, minWidth: 250, minHeight: 120 }
   };
   return dimensions[type] || { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 };
 }
@@ -224,7 +292,7 @@ export function getFinalStyles(component, viewport = 'desktop') {
       height: component.height,
       props: component.props || {}
     };
-    console.log(`🎨 getFinalStyles (기존): ${component.id} → x:${result.x}, y:${result.y}, w:${result.width}, h:${result.height}`);
+    //console.log(`🎨 getFinalStyles (기존): ${component.id} → x:${result.x}, y:${result.y}, w:${result.width}, h:${result.height}`);
     return result;
   }
   
@@ -241,11 +309,11 @@ export function getFinalStyles(component, viewport = 'desktop') {
     props: { ...(baseStyles.props || {}), ...(viewportStyles.props || {}) }
   };
   
-  console.log(`🎨 getFinalStyles (responsive): ${component.id} [${viewport}] → x:${result.x}, y:${result.y}, w:${result.width}, h:${result.height}`);
+  //console.log(`🎨 getFinalStyles (responsive): ${component.id} [${viewport}] → x:${result.x}, y:${result.y}, w:${result.width}, h:${result.height}`);
   console.log(`   🔧 responsive 구조:`, component.responsive);
-  console.log(`   📋 baseStyles (desktop):`, baseStyles);
-  console.log(`   📱 viewportStyles (${viewport}):`, viewportStyles);
-  console.log(`   ✨ 최종 결과:`, result);
+ // console.log(`   📋 baseStyles (desktop):`, baseStyles);
+  //console.log(`   📱 viewportStyles (${viewport}):`, viewportStyles);
+  //console.log(`   ✨ 최종 결과:`, result);
   
   return result;
 }
@@ -443,6 +511,78 @@ export function arrangeMobileComponents(components, mobileCanvasWidth = 375, get
     console.log(`✅ 컴포넌트 ${comp.id} 최종 배치: (${currentStyles.x}, ${currentStyles.y}) → (${finalPosition.x}, ${finalPosition.y})`);
   }
   
+  return arrangementUpdates;
+}
+
+// 캔버스 크기를 가져오는 함수
+export function getCanvasSize(viewport = 'desktop') {
+  switch (viewport) {
+    case 'mobile':
+      return { width: 375, height: 667 };
+    case 'tablet':
+      return { width: 768, height: 1024 };
+    case 'desktop':
+    default:
+      return { width: 1920, height: 1080 };
+  }
+}
+
+// 컴포넌트들을 세로로 정렬하는 함수
+export function arrangeComponentsVertically(components, viewport = 'desktop', getComponentDimensionsFn = getComponentDimensions) {
+  if (!components || components.length === 0) {
+    return [];
+  }
+
+  const PADDING = 20;
+  const COMPONENT_SPACING = 20;
+  
+  // 뷰포트에 따른 캔버스 크기
+  const canvasWidth = viewport === 'mobile' ? 375 : viewport === 'tablet' ? 768 : 1920;
+  const canvasHeight = viewport === 'mobile' ? 667 : viewport === 'tablet' ? 1024 : 1080;
+
+  // 컴포넌트들을 y 위치순으로 정렬
+  const sortedComponents = [...components].sort((a, b) => {
+    const aStyles = getFinalStyles(a, viewport);
+    const bStyles = getFinalStyles(b, viewport);
+    return aStyles.y - bStyles.y;
+  });
+
+  const arrangementUpdates = [];
+  let currentY = PADDING;
+
+  for (const comp of sortedComponents) {
+    const currentStyles = getFinalStyles(comp, viewport);
+    const compDimensions = getComponentDimensionsFn(comp.type);
+    const compWidth = currentStyles.width || compDimensions.defaultWidth;
+    const compHeight = currentStyles.height || compDimensions.defaultHeight;
+
+    // 컴포넌트가 캔버스 너비를 초과하지 않도록 조정
+    let adjustedX = currentStyles.x;
+    if (adjustedX + compWidth > canvasWidth - PADDING) {
+      adjustedX = canvasWidth - compWidth - PADDING;
+    }
+    if (adjustedX < PADDING) {
+      adjustedX = PADDING;
+    }
+
+    // 새로운 위치 설정
+    const newPosition = {
+      x: adjustedX,
+      y: currentY,
+      width: compWidth,
+      height: compHeight
+    };
+
+    arrangementUpdates.push({
+      component: comp,
+      originalPosition: currentStyles,
+      newPosition: newPosition
+    });
+
+    // 다음 컴포넌트의 y 위치 계산
+    currentY += compHeight + COMPONENT_SPACING;
+  }
+
   return arrangementUpdates;
 }
 

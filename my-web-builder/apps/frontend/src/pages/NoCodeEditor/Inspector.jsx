@@ -39,6 +39,10 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
         return ComponentEditors.WeddingInviteEditor;
       case 'musicPlayer':
         return ComponentEditors.MusicEditor;
+      case 'kakaotalkShare':
+        return ComponentEditors.KakaoTalkShareEditor;
+      case 'page':
+        return ComponentEditors.PageEditor;
       default:
         console.warn(`Unknown component type: ${componentType}`);
         return null;
@@ -64,7 +68,9 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       mapInfo: '📍',
       calendar: '🗓️',
       weddingInvite: '💌',
-      musicPlayer: '🎵'
+      musicPlayer: '🎵',
+      kakaotalkShare: '💛',
+      page: '📄'
     };
     return icons[type] || '📦';
   };
@@ -88,7 +94,9 @@ function Inspector({ selectedComp, onUpdate, color, nickname, roomId }) {
       slido: 'Slido',
       mapInfo: 'Map Info',
       weddingInvite: 'Wedding Invite',
-      musicPlayer: 'Music Player'  
+      musicPlayer: 'Music Player',
+      kakaotalkShare: 'KakaoTalk Share',
+      page: 'Page'
     };
     return labels[type] || 'Component';
   };
