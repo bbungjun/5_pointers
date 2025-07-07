@@ -1,44 +1,69 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 
 /**
  * 저장 상태 표시 컴포넌트
  */
-function SaveStatusIndicator({ isSaving, lastSaved, saveError, saveCount, onSaveNow }) {
-  const getStatusColor = () => {
-    if (saveError) return "#f44336"; // 빨간색 - 오류
-    if (isSaving) return "#ff9800";  // 주황색 - 저장 중
-    return "#4CAF50";                // 녹색 - 정상
+function SaveStatusIndicator({
+  isSaving,
+  lastSaved,
+  saveError,
+  saveCount,
+  onSaveNow,
+}) {
+  const [timeAgo, setTimeAgo] = useState('');
+
+  // 상대 시간 계산 함수
+  const getTimeAgo = (date) => {
+    const seconds = Math.floor((new Date() - date) / 1000);
+
+    if (seconds < 60) {
+      return `${seconds}초 전`;
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) {
+      return `${minutes}분 전`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return `${hours}시간 전`;
+    }
+
+    return date.toLocaleString();
   };
 
+  // 1초마다 시간 업데이트
+  useEffect(() => {
+    if (!lastSaved) return;
+
+    const updateTime = () => {
+      setTimeAgo(getTimeAgo(lastSaved));
+    };
+
+    updateTime(); // 초기 실행
+    const interval = setInterval(updateTime, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastSaved]);
+
   const getStatusText = () => {
-    if (saveError) return `❌ 저장 실패: ${saveError}`;
-    if (isSaving) return "💾 저장 중...";
+    if (saveError) return `저장 실패: ${saveError}`;
+    if (isSaving) return '저장 중...';
     if (lastSaved) {
-      const timeStr = lastSaved.toLocaleTimeString();
-      return `✅ 저장됨 (${timeStr}) - ${saveCount}회`;
+      return `마지막 저장: ${timeAgo}`;
     }
-    return "💾 저장 준비";
+    return '저장 준비';
   };
 
   return (
     <div
+      className="absolute right-6 text-xs font-normal"
       style={{
-        position: "fixed",
-        top: 10,
-        right: 10,
-        background: getStatusColor(),
-        color: "white",
-        padding: "8px 12px",
-        borderRadius: "6px",
-        fontSize: "12px",
-        fontWeight: "500",
-        zIndex: 1000,
-        maxWidth: "250px",
-        cursor: saveError ? "pointer" : "default",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+        top: 'calc(4rem + 8px)', // 헤더(4rem) + 간격(8px)
+        color: saveError ? '#f44336' : '#94a3b8',
+        zIndex: 50,
       }}
-      onClick={saveError ? onSaveNow : undefined}
-      title={saveError ? "클릭하여 다시 저장" : ""}
     >
       {getStatusText()}
     </div>
