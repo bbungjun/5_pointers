@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 
 /**
  * 시나리오 1: 라이브 커서 및 선택 영역 공유
- * 
+ *
  * Figma와 같은 실시간 커서 및 선택 상태 공유 기능
  * - 다른 사용자의 마우스 커서 실시간 표시
  * - 컴포넌트 선택 상태 공유 및 시각적 하이라이트
@@ -13,48 +13,61 @@ export function useLiveCursors(awareness, canvasRef) {
   const [otherSelections, setOtherSelections] = useState(new Map());
 
   // 마우스 움직임을 Awareness에 브로드캐스트
-  const updateCursorPosition = useCallback((x, y, zoom = 100, viewport = 'desktop', containerRef = null, isLibraryOpen = true) => {
-    if (!awareness) return;
+  const updateCursorPosition = useCallback(
+    (
+      x,
+      y,
+      zoom = 100,
+      viewport = 'desktop',
+      containerRef = null,
+      isLibraryOpen = true
+    ) => {
+      if (!awareness) return;
 
-    // 커서 숨기기 (x, y가 null인 경우)
-    if (x === null || y === null) {
-      awareness.setLocalStateField('cursor', null);
-      return;
-    }
+      // 커서 숨기기 (x, y가 null인 경우)
+      if (x === null || y === null) {
+        awareness.setLocalStateField('cursor', null);
+        return;
+      }
 
-    // 실제 캔버스 프레임 기준 상대 좌표로 변환
-    const canvasRect = canvasRef?.current?.getBoundingClientRect();
-    
-    if (canvasRect) {
-      const scale = zoom / 100;
-      
-      // 브라우저 화면 좌표를 캔버스 프레임 내부 좌표로 직접 변환
-      // canvasRef는 실제 캔버스 프레임을 가리키므로 별도 오프셋 계산 불필요
-      const relativeX = (x - canvasRect.left) / scale;
-      const relativeY = (y - canvasRect.top) / scale;
-      
-      // Awareness Protocol을 통해 커서 위치 브로드캐스트 (실제 캔버스 좌표)
-      awareness.setLocalStateField('cursor', {
-        x: relativeX,
-        y: relativeY,
-        zoom: zoom,
-        viewport: viewport,
-        timestamp: Date.now()
-      });
-    }
-  }, [awareness, canvasRef]);
+      // 실제 캔버스 프레임 기준 상대 좌표로 변환
+      const canvasRect = canvasRef?.current?.getBoundingClientRect();
+
+      if (canvasRect) {
+        const scale = zoom / 100;
+
+        // 브라우저 화면 좌표를 캔버스 프레임 내부 좌표로 직접 변환
+        // canvasRef는 실제 캔버스 프레임을 가리키므로 별도 오프셋 계산 불필요
+        const relativeX = (x - canvasRect.left) / scale;
+        const relativeY = (y - canvasRect.top) / scale;
+
+        // Awareness Protocol을 통해 커서 위치 브로드캐스트 (실제 캔버스 좌표)
+        awareness.setLocalStateField('cursor', {
+          x: relativeX,
+          y: relativeY,
+          zoom: zoom,
+          viewport: viewport,
+          timestamp: Date.now(),
+        });
+      }
+    },
+    [awareness, canvasRef]
+  );
 
   // 컴포넌트 선택 상태를 Awareness에 브로드캐스트
-  const updateSelection = useCallback((selectedComponentIds, viewport = 'desktop') => {
-    if (!awareness) return;
+  const updateSelection = useCallback(
+    (selectedComponentIds, viewport = 'desktop') => {
+      if (!awareness) return;
 
-    // 선택된 컴포넌트 ID 배열과 뷰포트 정보를 브로드캐스트
-    awareness.setLocalStateField('selection', {
-      componentIds: selectedComponentIds,
-      viewport: viewport,
-      timestamp: Date.now()
-    });
-  }, [awareness]);
+      // 선택된 컴포넌트 ID 배열과 뷰포트 정보를 브로드캐스트
+      awareness.setLocalStateField('selection', {
+        componentIds: selectedComponentIds,
+        viewport: viewport,
+        timestamp: Date.now(),
+      });
+    },
+    [awareness]
+  );
 
   // 다른 사용자들의 상태 변화 감지 및 처리
   useEffect(() => {
@@ -71,7 +84,7 @@ export function useLiveCursors(awareness, canvasRef) {
         if (clientId === awareness.clientID) return;
 
         const { user, cursor, selection } = state;
-        
+
         if (user && cursor) {
           // 커서 정보 저장
           cursors.set(clientId, {
@@ -80,9 +93,9 @@ export function useLiveCursors(awareness, canvasRef) {
             user: {
               id: user.id,
               name: user.name,
-              color: user.color
+              color: user.color,
             },
-            timestamp: cursor.timestamp
+            timestamp: cursor.timestamp,
           });
         }
 
@@ -94,9 +107,9 @@ export function useLiveCursors(awareness, canvasRef) {
             user: {
               id: user.id,
               name: user.name,
-              color: user.color
+              color: user.color,
             },
-            timestamp: selection.timestamp
+            timestamp: selection.timestamp,
           });
         }
       });
@@ -120,6 +133,6 @@ export function useLiveCursors(awareness, canvasRef) {
     otherCursors: Array.from(otherCursors.values()),
     otherSelections: Array.from(otherSelections.values()),
     updateSelection,
-    updateCursorPosition
+    updateCursorPosition,
   };
-} 
+}

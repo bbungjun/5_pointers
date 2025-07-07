@@ -424,33 +424,29 @@ export function calculateSnapPosition(
   };
 }
 
-// 단일 좌표계에서 컴포넌트의 최종 스타일을 반환
+// 컴포넌트의 스타일을 반환
 export function getFinalStyles(component, viewport = 'desktop') {
-  // 새로운 단일 좌표계: 단순히 컴포넌트의 직접 속성들을 반환
-  const result = {
-    x:
-      viewportStyles.x !== undefined
-        ? viewportStyles.x
-        : baseStyles.x !== undefined
-          ? baseStyles.x
-          : 0,
-    y:
-      viewportStyles.y !== undefined
-        ? viewportStyles.y
-        : baseStyles.y !== undefined
-          ? baseStyles.y
-          : 0,
-    width:
-      viewportStyles.width !== undefined
-        ? viewportStyles.width
-        : baseStyles.width,
-    height:
-      viewportStyles.height !== undefined
-        ? viewportStyles.height
-        : baseStyles.height,
-    props: { ...(baseStyles.props || {}), ...(viewportStyles.props || {}) },
+  if (!component) {
+    console.warn('getFinalStyles: component가 전달되지 않았습니다.');
+    return {
+      x: 0,
+      y: 0,
+      width: undefined,
+      height: undefined,
+      props: {},
+    };
+  }
+
+  // 뷰포트별 기본 크기 설정
+  const baseWidth = viewport === 'mobile' ? 375 : 1920;
+
+  return {
+    x: component.x || 0,
+    y: component.y || 0,
+    width: component.width || baseWidth,
+    height: component.height,
+    props: component.props || {},
   };
-  return result;
 }
 
 // 컴포넌트를 responsive 구조로 마이그레이션
