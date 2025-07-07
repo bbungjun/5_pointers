@@ -43,6 +43,8 @@ export default function ComponentEditor({ selectedComp, onUpdate }) {
             return <MusicEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
         case 'kakaotalkShare':
             return <KakaoTalkShareEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
+        case 'page':
+            return <PageEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
         default:
             return <p>Select a component to edit its properties.</p>;
     }

@@ -84,7 +84,6 @@ export function useYjsCollaboration(roomId, userInfo) {
 
     // 원격 업데이트 감지
     ydoc.on('update', (update, origin) => {
-      console.log('Y.js 문서 업데이트 받음:', origin === provider ? '원격' : '로컬');
     });
 
     // Awareness 변화 감지 (디버깅용)

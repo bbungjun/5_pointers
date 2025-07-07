@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import ViewportController from '../ViewportController';
 import NotificationToggle from '../../../components/NotificationToggle';
 import pageCubeLogo from '../../../assets/page-cube-logo.png';
 
@@ -9,7 +8,9 @@ function EditorHeader({
   selectedComp,
   isLibraryOpen,
   viewport,
+  designMode,
   onViewportChange,
+  onDesignModeChange,
   onPreviewOpen,
   onTemplateSaveOpen,
   onInviteOpen,
@@ -51,13 +52,29 @@ function EditorHeader({
         </div>
       </div>
 
-      {/* 중앙: 뷰포트 컨트롤러 */}
+      {/* 중앙: 편집 기준 선택 */}
       <div className="flex-1 flex justify-center mx-4 min-w-0">
-        <div className="max-w-md">
-          <ViewportController
-            currentViewport={viewport}
-            onViewportChange={onViewportChange}
-          />
+        <div className="flex items-center gap-4">
+          {/* DesignMode 선택 드롭다운 */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-600 font-medium text-left">
+              편집 기준
+            </label>
+            <select
+              value={designMode}
+              onChange={(e) => onDesignModeChange(e.target.value)}
+              className="
+                px-3 py-2 text-sm
+                bg-white border border-gray-300 rounded-lg
+                focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                hover:border-blue-400 transition-colors
+                cursor-pointer
+              "
+            >
+              <option value="desktop">💻 데스크탑</option>
+              <option value="mobile">📱 모바일</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -115,8 +132,6 @@ function EditorHeader({
           <span className="text-base">🔍</span>
           <span className="hidden sm:inline">미리보기</span>
         </button>
-
-
       </div>
     </div>
   );

@@ -20,59 +20,91 @@ export class UsersService {
   ) {}
 
   async findByEmail(email: string): Promise<Users | undefined> {
-    return this.usersRepository.findOne({ where: { email }, select: ['id', 'email', 'nickname', 'provider', 'provider_id', 'password', 'role'] });
+    return this.usersRepository.findOne({
+      where: { email },
+      select: [
+        'id',
+        'email',
+        'nickname',
+        'provider',
+        'provider_id',
+        'password',
+        'role',
+      ],
+    });
   }
 
-  async findBySocial(provider: AuthProvider, providerId: string): Promise<Users | undefined> {
-    return this.usersRepository.findOne({ where: { provider, provider_id: providerId } });
+  async findBySocial(
+    provider: AuthProvider,
+    providerId: string,
+  ): Promise<Users | undefined> {
+    return this.usersRepository.findOne({
+      where: { provider, provider_id: providerId },
+    });
   }
 
   async createLocalUser(email: string, password: string): Promise<Users> {
     const hashed = await bcrypt.hash(password, 10);
-    const user = this.usersRepository.create({ email, password: hashed, provider: AuthProvider.LOCAL, role: 'USER' });
+    const user = this.usersRepository.create({
+      email,
+      password: hashed,
+      provider: AuthProvider.LOCAL,
+      role: 'USER',
+    });
     return this.usersRepository.save(user);
   }
 
-  async createSocialUser(provider: AuthProvider, providerId: string, email?: string): Promise<Users> {
-    const user = this.usersRepository.create({ provider, provider_id: providerId, email, role: 'USER' });
+  async createSocialUser(
+    provider: AuthProvider,
+    providerId: string,
+    email?: string,
+  ): Promise<Users> {
+    const user = this.usersRepository.create({
+      provider,
+      provider_id: providerId,
+      email,
+      role: 'USER',
+    });
     return this.usersRepository.save(user);
   }
 
   // 내 페이지 목록 조회
   async getMyPages(userId: number): Promise<Pages[]> {
     // 소유한 페이지들 가져오기
-    const ownedPages = await this.pagesRepository.find({ 
+    const ownedPages = await this.pagesRepository.find({
       where: { owner: { id: userId } },
-      order: { updatedAt: 'DESC' }
+      order: { updatedAt: 'DESC' },
     });
 
     // 초대받은 페이지들 가져오기
-    const pageMembersRepository = this.pagesRepository.manager.getRepository('PageMembers');
+    const pageMembersRepository =
+      this.pagesRepository.manager.getRepository('PageMembers');
     const memberPages = await pageMembersRepository.find({
-      where: { 
+      where: {
         user: { id: userId },
-        status: 'ACCEPTED'
+        status: 'ACCEPTED',
       },
       relations: ['page'],
-      order: { createdAt: 'DESC' }
+      order: { createdAt: 'DESC' },
     });
 
     // 초대받은 페이지들의 정보 가져오기
     const invitedPages = await Promise.all(
       memberPages.map(async (member) => {
         const page = await this.pagesRepository.findOne({
-          where: { id: member.page.id }
+          where: { id: member.page.id },
         });
         return page;
-      })
+      }),
     );
 
     // 소유한 페이지와 초대받은 페이지 합치기
     const allPages = [...ownedPages, ...invitedPages];
-    
+
     // 최신 업데이트 순으로 정렬
-    return allPages.sort((a, b) => 
-      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    return allPages.sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
     );
   }
 
@@ -80,208 +112,239 @@ export class UsersService {
   async getPage(userId: number, pageId: string): Promise<Pages> {
     // 먼저 페이지 소유자인지 확인
     let page = await this.pagesRepository.findOne({
-      where: { id: pageId, owner: { id: userId } }
+      where: { id: pageId, owner: { id: userId } },
     });
-    
+
     // 페이지 소유자가 아니면 멤버 권한 확인
     if (!page) {
       console.log(`페이지 소유자가 아님, 멤버 권한 확인 중...`);
-      
+
       // PageMembers 테이블에서 권한 확인
-      const pageMembersRepository = this.pagesRepository.manager.getRepository('PageMembers');
+      const pageMembersRepository =
+        this.pagesRepository.manager.getRepository('PageMembers');
       const member = await pageMembersRepository.findOne({
-        where: { 
+        where: {
           page: { id: pageId },
           user: { id: userId },
-          status: 'ACCEPTED'
-        }
+          status: 'ACCEPTED',
+        },
       });
-      
+
       if (!member) {
-        console.error(`페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`);
+        console.error(
+          `페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`,
+        );
         throw new Error('Page not found');
       }
-      
+
       // 멤버인 경우 페이지 정보 가져오기
       page = await this.pagesRepository.findOne({
-        where: { id: pageId }
+        where: { id: pageId },
       });
-      
+
       if (!page) {
         console.error(`페이지를 찾을 수 없음: ${pageId}`);
         throw new Error('Page not found');
       }
     }
-    
+
     return page;
   }
 
   // 페이지 제목 수정
-  async updatePageTitle(userId: number, pageId: string, title: string): Promise<Pages> {
+  async updatePageTitle(
+    userId: number,
+    pageId: string,
+    title: string,
+  ): Promise<Pages> {
     const page = await this.pagesRepository.findOne({
-      where: { id: pageId, owner: { id: userId } }
+      where: { id: pageId, owner: { id: userId } },
     });
-    
+
     if (!page) {
       throw new Error('Page not found');
     }
-    
+
     page.title = title;
     return this.pagesRepository.save(page);
   }
 
   // 페이지 컨텐츠 업데이트 (자동저장용)
-  async updatePageContent(userId: number, pageId: string, content: any[]): Promise<Pages> {
-    console.log(`DB 업데이트 시도: 페이지 ${pageId}, 사용자 ${userId}, 컴포넌트 ${content.length}개`);
-    
+  async updatePageContent(
+    userId: number,
+    pageId: string,
+    content: any[],
+  ): Promise<Pages> {
+    console.log(
+      `DB 업데이트 시도: 페이지 ${pageId}, 사용자 ${userId}, 컴포넌트 ${content.length}개`,
+    );
+
     // 먼저 페이지 소유자인지 확인
     let page = await this.pagesRepository.findOne({
-      where: { id: pageId, owner: { id: userId } }
+      where: { id: pageId, owner: { id: userId } },
     });
-    
+
     // 페이지 소유자가 아니면 멤버 권한 확인
     if (!page) {
       console.log(`페이지 소유자가 아님, 멤버 권한 확인 중...`);
-      
+
       // PageMembers 테이블에서 권한 확인
-      const pageMembersRepository = this.pagesRepository.manager.getRepository('PageMembers');
+      const pageMembersRepository =
+        this.pagesRepository.manager.getRepository('PageMembers');
       const member = await pageMembersRepository.findOne({
-        where: { 
+        where: {
           page: { id: pageId },
           user: { id: userId },
-          status: 'ACCEPTED'
-        }
+          status: 'ACCEPTED',
+        },
       });
-      
+
       if (!member) {
-        console.error(`페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`);
+        console.error(
+          `페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`,
+        );
         throw new Error('Page not found');
       }
-      
+
       // 멤버인 경우 페이지 정보 가져오기
       page = await this.pagesRepository.findOne({
-        where: { id: pageId }
+        where: { id: pageId },
       });
-      
+
       if (!page) {
         console.error(`페이지를 찾을 수 없음: ${pageId}`);
         throw new Error('Page not found');
       }
     }
-    
+
     console.log(`기존 컨텐츠: ${page.content?.length || 0}개 컴포넌트`);
     page.content = content;
     const savedPage = await this.pagesRepository.save(page);
     console.log(`DB 저장 완료: ${savedPage.content?.length || 0}개 컴포넌트`);
-    
+
     return savedPage;
   }
 
   // 페이지 삭제
-  async deletePage(userId: number, pageId: string): Promise<{ message: string }> {
+  async deletePage(
+    userId: number,
+    pageId: string,
+  ): Promise<{ message: string }> {
     const page = await this.pagesRepository.findOne({
-      where: { id: pageId, owner: { id: userId } }
+      where: { id: pageId, owner: { id: userId } },
     });
-    
+
     if (!page) {
       throw new Error('Page not found');
     }
-    
+
     await this.pagesRepository.remove(page);
     return { message: 'Page deleted successfully' };
   }
 
   // 페이지 생성 리팩토링
-  async createPage(userId: number, body: { subdomain?: string; title?: string; templateId?: string }): Promise<Pages> {
+  async createPage(
+    userId: number,
+    body: { subdomain?: string; title?: string; templateId?: string },
+  ): Promise<Pages> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) throw new Error('User not found');
-    
+
     let content = null;
-    
+
     // templateId가 있으면 템플릿에서 content 가져오기
     if (body.templateId) {
-      const templatesRepository = this.pagesRepository.manager.getRepository('Templates');
-      const template = await templatesRepository.findOne({ where: { id: body.templateId } });
+      const templatesRepository =
+        this.pagesRepository.manager.getRepository('Templates');
+      const template = await templatesRepository.findOne({
+        where: { id: body.templateId },
+      });
       if (template && template.content) {
         // 컴포넌트 ID 재발급
         content = this.regenerateComponentIds(template.content);
       }
     }
-    
+
     const page = this.pagesRepository.create({
       owner: user,
       userId: userId,
       subdomain: body.subdomain || `page-${Date.now()}`,
       title: body.title || 'Untitled',
       content: content,
-      status: PageStatus.DRAFT
+      status: PageStatus.DRAFT,
     });
-    
+
     return this.pagesRepository.save(page);
   }
 
   // 컴포넌트 ID 재발급 함수
   private regenerateComponentIds(components: any[]): any[] {
-    return components.map(comp => ({
+    return components.map((comp) => ({
       ...comp,
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}-${Math.random().toString(36).slice(2, 8)}`
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}-${Math.random().toString(36).slice(2, 8)}`,
     }));
   }
 
-  async deployPage(pageId: string, components: any[], domain: string): Promise<any> {
+  async deployPage(
+    pageId: string,
+    components: any[],
+    domain: string,
+  ): Promise<any> {
     const page = await this.pagesRepository.findOne({ where: { id: pageId } });
     if (!page) throw new Error('Page not found');
-    
+
     // HTML 생성
     const html = this.generateHTML(components);
-    
+
     // 파일 시스템에 HTML 저장
     const deployDir = path.join(process.cwd(), 'deployed-sites', domain);
-    
+
     if (!fs.existsSync(deployDir)) {
       fs.mkdirSync(deployDir, { recursive: true });
     }
-    
+
     fs.writeFileSync(path.join(deployDir, 'index.html'), html);
-    
+
     // submissions 테이블에 배포 데이터 저장
-    const submissionsRepository = this.pagesRepository.manager.getRepository('Submissions');
+    const submissionsRepository =
+      this.pagesRepository.manager.getRepository('Submissions');
     const submission = submissionsRepository.create({
       page: page,
       pageId: pageId,
       component_id: 'deploy_' + Date.now(),
-      data: { html, components, deployedAt: new Date(), domain }
+      data: { html, components, deployedAt: new Date(), domain },
     });
-    
+
     return submissionsRepository.save(submission);
   }
 
   async getDeployedSite(identifier: string): Promise<any> {
-    const submissionsRepository = this.pagesRepository.manager.getRepository('Submissions');
-    
+    const submissionsRepository =
+      this.pagesRepository.manager.getRepository('Submissions');
+
     // 먼저 도메인으로 검색
-    let submission = await submissionsRepository.findOne({ 
+    let submission = await submissionsRepository.findOne({
       where: { data: { domain: identifier } },
-      order: { createdAt: 'DESC' }
+      order: { createdAt: 'DESC' },
     });
-    
+
     // 도메인으로 찾지 못하면 pageId로 검색
     if (!submission) {
-      submission = await submissionsRepository.findOne({ 
+      submission = await submissionsRepository.findOne({
         where: { pageId: identifier },
-        order: { createdAt: 'DESC' }
+        order: { createdAt: 'DESC' },
       });
     }
-    
+
     if (!submission) {
       throw new Error('Deployed site not found');
     }
-    
+
     return {
       pageId: submission.pageId,
       components: submission.data.components || [],
       deployedAt: submission.data.deployedAt,
-      domain: submission.data.domain
+      domain: submission.data.domain,
     };
   }
 
@@ -327,25 +390,29 @@ export class UsersService {
   // 댓글 조회
   async getComments(pageId: string, componentId: string): Promise<any[]> {
     const comments = await this.submissionsRepository.find({
-      where: { 
+      where: {
         pageId: pageId,
-        component_id: componentId
+        component_id: componentId,
       },
-      order: { createdAt: 'DESC' }
+      order: { createdAt: 'DESC' },
     });
 
-    return comments.map(comment => ({
+    return comments.map((comment) => ({
       id: comment.id,
       author: comment.data.author,
       content: comment.data.content,
-      createdAt: comment.createdAt
+      createdAt: comment.createdAt,
     }));
   }
 
   // 댓글 작성
-  async createComment(pageId: string, componentId: string, commentData: { author: string; content: string; password: string }): Promise<any> {
+  async createComment(
+    pageId: string,
+    componentId: string,
+    commentData: { author: string; content: string; password: string },
+  ): Promise<any> {
     const hashedPassword = await bcrypt.hash(commentData.password, 10);
-    
+
     const page = await this.pagesRepository.findOne({ where: { id: pageId } });
     if (!page) throw new Error('Page not found');
 
@@ -356,8 +423,8 @@ export class UsersService {
       data: {
         author: commentData.author,
         content: commentData.content,
-        password: hashedPassword
-      }
+        password: hashedPassword,
+      },
     });
 
     const saved = await this.submissionsRepository.save(submission);
@@ -365,25 +432,33 @@ export class UsersService {
       id: saved.id,
       author: saved.data.author,
       content: saved.data.content,
-      createdAt: saved.createdAt
+      createdAt: saved.createdAt,
     };
   }
 
   // 댓글 삭제
-  async deleteComment(pageId: string, componentId: string, commentId: string, password: string): Promise<any> {
+  async deleteComment(
+    pageId: string,
+    componentId: string,
+    commentId: string,
+    password: string,
+  ): Promise<any> {
     const comment = await this.submissionsRepository.findOne({
       where: {
         id: parseInt(commentId),
         pageId: pageId,
-        component_id: componentId
-      }
+        component_id: componentId,
+      },
     });
 
     if (!comment) {
       throw new Error('Comment not found');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, comment.data.password);
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      comment.data.password,
+    );
     if (!isPasswordValid) {
       throw new Error('Invalid password');
     }
@@ -446,10 +521,10 @@ export class UsersService {
     if (!page) {
       throw new Error('Page not found');
     }
-    
+
     page.content = content;
     await this.pagesRepository.save(page);
-    
+
     return { message: 'Content saved successfully', content };
   }
 
@@ -457,7 +532,7 @@ export class UsersService {
     const style = `position: absolute; left: ${comp.x}px; top: ${comp.y}px;`;
     const title = comp.props.title || '축하 메세지를 남겨주세요';
     const placeholder = comp.props.placeholder || '댓글을 남겨주세요';
-    
+
     return `
       <div id="comment-${comp.id}" style="${style} width: 400px; padding: 24px; background: ${comp.props.backgroundColor || '#ffffff'}; border: 1px solid #ddd; border-radius: 8px;">
         <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937;">${title}</h3>
@@ -564,6 +639,103 @@ export class UsersService {
         })();
       </script>
     `;
+  }
+
+  /**
+   * Page 컴포넌트에서 새 페이지 생성
+   */
+  async createPageFromComponent(createDto: {
+    parentPageId: string;
+    componentId: string;
+    pageName?: string;
+  }) {
+    console.log('📄 새 페이지 생성 시작:', createDto);
+    
+    try {
+      // 1. 새 페이지 생성
+      const newPage = this.pagesRepository.create({
+        title: createDto.pageName || "새 페이지",
+        subdomain: 'page-' + Date.now(),
+        content: {
+          components: [],
+          pageConnections: [],
+          metadata: {
+            totalComponents: 0,
+            pageComponentCount: 0,
+            lastModified: new Date().toISOString(),
+            version: '1.0'
+          }
+        },
+        status: PageStatus.DRAFT,
+        userId: 1 // 기본 사용자 ID
+      });
+      
+      const savedPage = await this.pagesRepository.save(newPage);
+      console.log('✅ 새 페이지 생성 완료:', savedPage.id, savedPage.title);
+      
+      // 2. 부모 페이지의 연결 정보 업데이트
+      await this.addPageConnection(createDto.parentPageId, {
+        componentId: createDto.componentId,
+        linkedPageId: savedPage.id,
+        linkType: 'internal'
+      });
+      
+      return { 
+        success: true, 
+        page: {
+          id: savedPage.id,
+          title: savedPage.title,
+          subdomain: savedPage.subdomain,
+          status: savedPage.status
+        }
+      };
+      
+    } catch (error) {
+      console.error('❌ 페이지 생성 실패:', error);
+      throw new Error('페이지 생성 실패: ' + error.message);
+    }
+  }
+
+  /**
+   * 부모 페이지에 연결 정보 추가
+   */
+  async addPageConnection(pageId: string, connectionData: any) {
+    try {
+      const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+      if (!page) {
+        throw new Error('부모 페이지를 찾을 수 없습니다.');
+      }
+      
+      const content = page.content || { components: [], pageConnections: [], metadata: {} };
+      
+      // pageConnections 배열에 새 연결 추가
+      const newConnection = {
+        id: 'conn-' + Date.now(),
+        componentId: connectionData.componentId,
+        linkedPageId: connectionData.linkedPageId,
+        linkType: connectionData.linkType,
+        order: content.pageConnections?.length || 0,
+        createdAt: new Date().toISOString()
+      };
+
+      content.pageConnections = content.pageConnections || [];
+      content.pageConnections.push(newConnection);
+      
+      // metadata 업데이트
+      content.metadata = {
+        ...content.metadata,
+        pageComponentCount: content.pageConnections.length,
+        lastModified: new Date().toISOString()
+      };
+
+      // 부모 페이지 업데이트
+      await this.pagesRepository.update(pageId, { content });
+      console.log('✅ 부모 페이지 연결 정보 업데이트 완료');
+      
+    } catch (error) {
+      console.error('❌ 페이지 연결 정보 업데이트 실패:', error);
+      throw error;
+    }
   }
 
   generateSlidoHTML(comp: any): string {
