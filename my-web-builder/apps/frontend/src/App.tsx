@@ -184,29 +184,19 @@ function App() {
           }
         />
         <Route
-          path="/editor"
+          path="/editor/:pageId"
           element={
             isLoggedIn ? <AppEditor /> : <Navigate to="/login" replace />
           }
         />
         <Route
-          path="/google"
+          path="/social-callback"
           element={<SocialCallbackPage onLogin={handleLogin} />}
         />
-        <Route
-          path="/kakao"
-          element={<SocialCallbackPage onLogin={handleLogin} />}
-        />
-        <Route
-          path="/editor/:roomId"
-          element={
-            isLoggedIn ? <NoCodeEditor /> : <Navigate to="/login" replace />
-          }
-        />
-        <Route
-          path="/invite/:invitationToken"
-          element={<InvitationHandler />}
-        />
+        <Route path="/dashboard/*" element={<Dashboard />} />
+        <Route path="/no-code-editor" element={<NoCodeEditor />} />
+        <Route path="/invitation/:inviteCode" element={<InvitationHandler />} />
+        <Route path="/recovery-test" element={<RecoveryTest />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </BrowserRouter>

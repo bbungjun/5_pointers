@@ -1,12 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 
 function SocialCallbackPage({ onLogin }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (hasFetched.current) {
+      return;
+    }
+
     const url = new URL(window.location.href);
     const code = url.searchParams.get('code');
     const provider = url.searchParams.get('provider');
@@ -14,6 +19,7 @@ function SocialCallbackPage({ onLogin }) {
     console.log('SocialCallbackPage - provider:', provider, 'code:', code);
 
     if (code && provider) {
+      hasFetched.current = true;
       fetch(`${API_BASE_URL}/auth/login/social`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

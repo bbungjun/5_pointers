@@ -17,7 +17,13 @@ function LoginPage({ onLogin }) {
   const navigate = useNavigate();
 
   // 소셜 로그인 리다이렉트 URL
-  const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${getRedirectUrl('google')}&response_type=code&scope=openid%20email%20profile`;
+  const googleRedirectUrl = getRedirectUrl('google');
+  console.log('Google OAuth 설정:', {
+    clientId: GOOGLE_CLIENT_ID,
+    redirectUrl: googleRedirectUrl
+  });
+  
+  const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(googleRedirectUrl)}&response_type=code&scope=openid%20email%20profile`;
   const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${getRedirectUrl('kakao')}&response_type=code`;
 
   // 소셜 로그인은 SocialCallbackPage에서 처리됨

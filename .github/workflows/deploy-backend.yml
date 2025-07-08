@@ -41,7 +41,8 @@ jobs:
       - name: Create .env file
         run: |
           cd backend
-          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > .env
+          echo "NODE_ENV=production" > .env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
           echo "GOOGLE_CALLBACK_URL=https://pagecube.net/social-callback?provider=google" >> .env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_REST_API_KEY }}" >> .env

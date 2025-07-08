@@ -27,11 +27,11 @@ import {
   getComponentDimensions,
 } from './NoCodeEditor/utils/editorUtils';
 
-function NoCodeEditor({ initialComponents = [] }) {
+function NoCodeEditor({ pageId }) {
   const { roomId } = useParams();
   const canvasRef = useRef();
   const containerRef = useRef();
-  const [components, setComponents] = useState(initialComponents);
+  const [components, setComponents] = useState([]);
 
   // 1. 데이터 로딩 및 상태 관리
   const {
@@ -75,8 +75,22 @@ function NoCodeEditor({ initialComponents = [] }) {
   const interaction = useEditorInteractionManager(designMode, setDesignMode);
 
   // 4. 협업 동기화 로직
-  const collaboration = useCollaboration({
-    roomId,
+  const {
+    otherCursors,
+    otherSelections,
+    updateCursorPosition,
+    addComponent,
+    updateComponent,
+    removeComponent,
+    updateAllComponents,
+    getActiveUsers,
+    undo,
+    redo,
+    getHistory,
+    setHistory,
+    isConnected,
+  } = useCollaboration({
+    roomId: pageId,
     userInfo,
     canvasRef,
     selectedComponentId: interaction.selectedId,
@@ -86,7 +100,21 @@ function NoCodeEditor({ initialComponents = [] }) {
 
   // 5. 컴포넌트 액션 관리
   const actions = useComponentActions(
-    collaboration,
+    {
+      otherCursors,
+      otherSelections,
+      updateCursorPosition,
+      addComponent,
+      updateComponent,
+      removeComponent,
+      updateAllComponents,
+      getActiveUsers,
+      undo,
+      redo,
+      getHistory,
+      setHistory,
+      isConnected,
+    },
     userInfo,
     components,
     interaction.viewport,
@@ -96,26 +124,6 @@ function NoCodeEditor({ initialComponents = [] }) {
     interaction.setTemplateData,
     interaction.handleTemplateSaveClose
   );
-
-  // 협업 상태 구조분해할당
-  const {
-    isConnected,
-    otherCursors: otherCursorsMap,
-    otherSelections: otherSelectionsMap,
-    updateCursorPosition,
-  } = collaboration;
-
-  // Map을 배열로 변환
-  const otherCursors = Array.isArray(otherCursorsMap)
-    ? otherCursorsMap
-    : otherCursorsMap instanceof Map
-      ? Array.from(otherCursorsMap.values())
-      : [];
-  const otherSelections = Array.isArray(otherSelectionsMap)
-    ? otherSelectionsMap
-    : otherSelectionsMap instanceof Map
-      ? Array.from(otherSelectionsMap.values())
-      : [];
 
   // 컴포넌트 선택 시 스크롤 이동
   useEffect(() => {
@@ -264,6 +272,7 @@ function NoCodeEditor({ initialComponents = [] }) {
           roomId={roomId}
           isOpen={interaction.isLibraryOpen}
           onToggle={interaction.handleLibraryToggle}
+          isReady={isConnected}
         />
 
         {/* 중앙 캔버스 영역 */}
@@ -297,7 +306,21 @@ function NoCodeEditor({ initialComponents = [] }) {
             onMouseUp={() => {}}
             otherCursors={otherCursors}
             otherSelections={otherSelections}
-            collaboration={collaboration}
+            collaboration={{
+              otherCursors,
+              otherSelections,
+              updateCursorPosition,
+              addComponent,
+              updateComponent,
+              removeComponent,
+              updateAllComponents,
+              getActiveUsers,
+              undo,
+              redo,
+              getHistory,
+              setHistory,
+              isConnected,
+            }}
             CanvasComponent={CanvasComponent}
             UserCursor={UserCursor}
             getComponentDimensions={getComponentDimensions}
