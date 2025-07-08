@@ -85,7 +85,7 @@ function EditorHeader({
             </label>
             <select
               value={designMode}
-              onChange={(e) => onDesignModeChange(e.target.value)}
+              onChange={(e) => onDesignModeChange(e.target.value, roomId)}
               className="
                 px-3 py-2 text-sm
                 bg-white border border-gray-300 rounded-lg

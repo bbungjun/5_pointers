@@ -31,11 +31,7 @@ function Inspector({ selectedComp, onUpdate, viewport }) {
 
   return (
     <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
-      <div className="flex-1 p-4 overflow-y-auto">
-        <h3 className="text-lg font-semibold mb-4 capitalize">
-          {selectedComp.type} 속성
-        </h3>
-        
+      <div className="flex-1 p-4 overflow-y-auto">               
         {SpecificEditor ? (
           <SpecificEditor selectedComp={selectedComp} onUpdate={onUpdate} />
         ) : (

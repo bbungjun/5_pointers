@@ -201,16 +201,16 @@ function NotificationToggle() {
       {/* 알림 버튼 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-slate-600 hover:text-purple-600 transition-colors duration-200"
+        className="relative p-2.5 text-slate-600 hover:text-purple-600 transition-all duration-200 bg-white/80 hover:bg-white rounded-lg hover:shadow-md border border-slate-200/50 hover:border-purple-200"
         title="알림"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h6a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
         
         {/* 알림 개수 배지 */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium animate-pulse">
+          <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium animate-bounce shadow-sm border border-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -218,12 +218,17 @@ function NotificationToggle() {
 
       {/* 드롭다운 메뉴 */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 max-h-96 overflow-hidden" style={{ zIndex: 100 }}>
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-200/50 max-h-96 overflow-hidden backdrop-blur-sm" style={{ zIndex: 100 }}>
           {/* 헤더 */}
-          <div className="px-4 py-3 border-b border-slate-100 bg-gradient-to-r from-purple-50 to-pink-50">
+          <div className="px-4 py-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-slate-800">초대 알림</h3>
-              <span className="text-sm text-slate-500">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <h3 className="font-semibold text-slate-800">초대 알림</h3>
+              </div>
+              <span className="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
                 {unreadCount}개의 새로운 초대
               </span>
             </div>
@@ -232,16 +237,19 @@ function NotificationToggle() {
           {/* 알림 목록 */}
           <div className="max-h-80 overflow-y-auto">
             {loading ? (
-              <div className="p-4 text-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mx-auto"></div>
-                <p className="text-slate-500 mt-2 text-sm">로딩 중...</p>
+              <div className="p-8 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
+                <p className="text-slate-500 mt-3 text-sm">초대 목록을 불러오는 중...</p>
               </div>
             ) : invitations.length === 0 ? (
-              <div className="p-6 text-center text-slate-500">
-                <svg className="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h6a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <p className="font-medium">새로운 초대가 없습니다</p>
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                </div>
+                <p className="font-medium text-slate-700">새로운 초대가 없습니다</p>
+                <p className="text-sm text-slate-500 mt-1">나중에 다시 확인해주세요</p>
               </div>
             ) : (
               <div className="divide-y divide-slate-100">
@@ -257,7 +265,7 @@ function NotificationToggle() {
                             {invitation.inviterName}
                           </span>
                           <span className="mx-2 text-purple-400">•</span>
-                          <span className="text-sm text-slate-600">
+                          <span className="text-sm text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
                             {getRoleLabel(invitation.role)}
                           </span>
                         </div>
@@ -267,7 +275,10 @@ function NotificationToggle() {
                         </h4>
                         
                         <div className="flex items-center text-xs text-slate-500">
-                          <span className={formatExpiryTime(invitation.expiresAt).includes('만료') ? 'text-red-500' : ''}>
+                          <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span className={formatExpiryTime(invitation.expiresAt).includes('만료') ? 'text-red-500 font-medium' : ''}>
                             {formatExpiryTime(invitation.expiresAt)}
                           </span>
                         </div>
@@ -277,30 +288,40 @@ function NotificationToggle() {
                         <button
                           onClick={() => handleAcceptInvitation(invitation.invitationToken, invitation.pageId)}
                           disabled={processing[invitation.invitationToken]}
-                          className="px-2 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-medium rounded-md hover:from-purple-700 hover:to-pink-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-2.5 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-xs font-medium rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow flex items-center gap-1"
                         >
                           {processing[invitation.invitationToken] === 'accepting' ? (
-                            <div className="flex items-center">
-                              <div className="animate-spin rounded-full h-2 w-2 border-b border-white mr-1"></div>
-                              수락
-                            </div>
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                              <span>수락 중</span>
+                            </>
                           ) : (
-                            '수락'
+                            <>
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              <span>수락</span>
+                            </>
                           )}
                         </button>
                         
                         <button
                           onClick={() => handleDeclineInvitation(invitation.invitationToken)}
                           disabled={processing[invitation.invitationToken]}
-                          className="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-md hover:bg-slate-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-2.5 py-1.5 bg-white text-slate-600 text-xs font-medium rounded-lg hover:bg-slate-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow flex items-center gap-1"
                         >
                           {processing[invitation.invitationToken] === 'declining' ? (
-                            <div className="flex items-center">
-                              <div className="animate-spin rounded-full h-2 w-2 border-b border-slate-600 mr-1"></div>
-                              거절
-                            </div>
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-slate-600"></div>
+                              <span>거절 중</span>
+                            </>
                           ) : (
-                            '거절'
+                            <>
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                              <span>거절</span>
+                            </>
                           )}
                         </button>
                       </div>

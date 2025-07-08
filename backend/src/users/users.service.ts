@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users, AuthProvider } from './entities/users.entity';
@@ -352,7 +352,7 @@ export class UsersService {
     const componentHTML = components
       .map((comp) => {
         const baseStyle = `position: absolute; left: ${comp.x}px; top: ${comp.y}px;`;
-        
+
         switch (comp.type) {
           case 'button':
             return `
@@ -374,7 +374,7 @@ export class UsersService {
               >
                 ${comp.props.text || 'Button'}
               </button>`;
-          
+
           case 'text':
             return `
               <div style="${baseStyle} 
@@ -385,7 +385,7 @@ export class UsersService {
                 font-family: inherit;">
                 ${comp.props.text || 'Text'}
               </div>`;
-          
+
           case 'link':
             return `
               <a href="${comp.props.url || '#'}" 
@@ -400,7 +400,7 @@ export class UsersService {
                  onmouseout="this.style.borderBottomColor='transparent'">
                 ${comp.props.text || 'Link'}
               </a>`;
-          
+
           case 'attend':
             return `
               <button 
@@ -421,13 +421,13 @@ export class UsersService {
               >
                 ${comp.props.text || '참석하기'}
               </button>`;
-          
+
           case 'comment':
             return this.generateCommentHTML(comp);
-          
+
           case 'slido':
             return this.generateSlidoHTML(comp);
-          
+
           default:
             return `
               <div style="${baseStyle} 
@@ -651,12 +651,15 @@ export class UsersService {
     const col = usePound ? color.slice(1) : color;
     const num = parseInt(col, 16);
     let r = (num >> 16) + amount;
-    let g = (num >> 8 & 0x00FF) + amount;
-    let b = (num & 0x0000FF) + amount;
+    let g = ((num >> 8) & 0x00ff) + amount;
+    let b = (num & 0x0000ff) + amount;
     r = r > 255 ? 255 : r < 0 ? 0 : r;
     g = g > 255 ? 255 : g < 0 ? 0 : g;
     b = b > 255 ? 255 : b < 0 ? 0 : b;
-    return (usePound ? '#' : '') + String('000000' + (r << 16 | g << 8 | b).toString(16)).slice(-6);
+    return (
+      (usePound ? '#' : '') +
+      String('000000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6)
+    );
   }
 
   // 댓글 조회
@@ -766,18 +769,24 @@ export class UsersService {
     if (!pageId || !componentId) {
       throw new Error('Page ID and Component ID are required');
     }
-    
-    if (!slidoData || !slidoData.content || slidoData.content.trim().length === 0) {
+
+    if (
+      !slidoData ||
+      !slidoData.content ||
+      slidoData.content.trim().length === 0
+    ) {
       throw new Error('Content is required');
     }
-    
+
     if (slidoData.content.length > 1000) {
       throw new Error('Content exceeds maximum length (1000 characters)');
     }
 
     try {
       // Find page
-      const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+      const page = await this.pagesRepository.findOne({
+        where: { id: pageId },
+      });
       if (!page) {
         throw new Error(`Page not found with ID: ${pageId}`);
       }
@@ -794,7 +803,7 @@ export class UsersService {
 
       // Save submission
       const saved = await this.submissionsRepository.save(submission);
-      
+
       return {
         id: saved.id,
         content: saved.data.content,
@@ -805,13 +814,17 @@ export class UsersService {
         pageId,
         componentId,
         error: error.message,
-        stack: error.stack
+        stack: error.stack,
       });
-      
-      if (error.message.includes('not found') || error.message.includes('required') || error.message.includes('exceeds')) {
+
+      if (
+        error.message.includes('not found') ||
+        error.message.includes('required') ||
+        error.message.includes('exceeds')
+      ) {
         throw error;
       }
-      
+
       throw new Error('Failed to create slido submission');
     }
   }
@@ -1217,17 +1230,49 @@ export class UsersService {
   async findPageBySubdomain(subdomain: string): Promise<Pages | null> {
     try {
       const page = await this.pagesRepository.findOne({
-        where: { 
+        where: {
           subdomain: subdomain,
-          status: PageStatus.DEPLOYED 
+          status: PageStatus.DEPLOYED,
         },
-        relations: ['user']
+        relations: ['user'],
       });
-      
+
       return page || null;
     } catch (error) {
       console.error('서브도메인으로 페이지 검색 오류:', error);
       return null;
     }
+  }
+
+  async updateDesignMode(
+    pageId: string,
+    designMode: 'desktop' | 'mobile',
+  ): Promise<Pages> {
+    const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+    if (!page) {
+      throw new NotFoundException('페이지를 찾을 수 없습니다.');
+    }
+
+    // content가 없으면 초기화
+    if (!page.content) {
+      page.content = { components: [], canvasSettings: {} };
+    }
+    // content가 배열이면 새로운 형식으로 변환
+    else if (Array.isArray(page.content)) {
+      page.content = {
+        components: page.content,
+        canvasSettings: {},
+      };
+    }
+
+    // canvasSettings가 없으면 초기화
+    if (!page.content.canvasSettings) {
+      page.content.canvasSettings = {};
+    }
+
+    // designMode 업데이트
+    page.content.canvasSettings.designMode = designMode;
+
+    return this.pagesRepository.save(page);
   }
 }

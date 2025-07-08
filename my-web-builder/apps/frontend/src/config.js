@@ -39,8 +39,8 @@ const isProductionEnvironment = () => {
 };
 
 // API 서버 설정 - 환경변수 기반
-export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 
-  (isProductionEnvironment() ? 'https://api.pagecube.net/api' : 'http://localhost:3000/api');
+export const API_BASE_URL = (getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 
+  (isProductionEnvironment() ? 'https://api.pagecube.net' : 'http://localhost:3000')) + '/api';
 
 // Y.js WebSocket 서버 설정 - 환경변수 기반
 export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') || 
@@ -53,7 +53,7 @@ export const KAKAO_CLIENT_ID = getEnvVar('VITE_KAKAO_CLIENT_ID') || getEnvVar('N
 // 리다이렉트 URL - 환경변수 기반
 export const getRedirectUrl = (provider) => {
   const frontendUrl = getEnvVar('VITE_FRONTEND_URL') || getEnvVar('NEXT_PUBLIC_FRONTEND_URL') || 'http://localhost:5173';
-  return `${frontendUrl}/${provider}`;
+  return `${frontendUrl}/social-callback?provider=${provider}`;
 };
 
 // 배포 URL 생성 함수 (서브도메인 기반으로 변경)
