@@ -89,6 +89,7 @@ export function useComponentActions(
             width,
             height,
             props: { ...(compDef?.defaultProps || {}) },
+            editedViewport: viewport, // 현재 편집 중인 뷰포트 저장
             createdBy: userInfo.id,
             createdAt: Date.now(),
           };
@@ -133,6 +134,11 @@ export function useComponentActions(
           });
         }
       });
+      
+      // 편집 뷰포트 정보 유지 (위치나 크기 변경 시)
+      if (updates.x !== undefined || updates.y !== undefined || updates.width !== undefined || updates.height !== undefined) {
+        updates.editedViewport = viewport;
+      }
 
       // 협업 기능으로 컴포넌트 업데이트
       if (Object.keys(updates).length > 0) {

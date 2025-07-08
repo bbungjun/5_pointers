@@ -240,4 +240,13 @@ export class UsersController {
     console.log('🆕 Page 컴포넌트에서 페이지 생성 요청:', createDto);
     return this.usersService.createPageFromComponent(createDto);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('pages/:pageId/design-mode')
+  async updateDesignMode(
+    @Param('pageId') pageId: string,
+    @Body() body: { designMode: 'desktop' | 'mobile' },
+  ) {
+    return this.usersService.updateDesignMode(pageId, body.designMode);
+  }
 }
