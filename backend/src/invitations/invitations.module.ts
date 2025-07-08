@@ -9,12 +9,9 @@ import { EmailModule } from '../email/email.module';
 import { InvitationsGateway } from './invitations.gateway';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([PageMembers, Pages, Users]),
-    EmailModule
-  ],
+  imports: [TypeOrmModule.forFeature([PageMembers, Pages, Users]), EmailModule],
   controllers: [InvitationsController],
   providers: [InvitationsService, InvitationsGateway],
-  exports: [InvitationsService]
+  exports: [InvitationsService],
 })
-export class InvitationsModule {} 
+export class InvitationsModule {}

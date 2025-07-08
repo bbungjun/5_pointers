@@ -3,7 +3,7 @@ import { IsEmail, IsEnum, IsOptional } from 'class-validator';
 export enum MemberRole {
   VIEWER = 'VIEWER',
   EDITOR = 'EDITOR',
-  ADMIN = 'ADMIN'
+  ADMIN = 'ADMIN',
 }
 
 export class CreateInvitationDto {
@@ -13,4 +13,4 @@ export class CreateInvitationDto {
   @IsEnum(MemberRole)
   @IsOptional()
   role?: MemberRole = MemberRole.EDITOR;
-} 
+}

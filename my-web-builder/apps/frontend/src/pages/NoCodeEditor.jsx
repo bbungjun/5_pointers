@@ -29,6 +29,13 @@ import {
 
 function NoCodeEditor({ pageId }) {
   const { roomId } = useParams();
+  
+  // roomId가 없으면 임시 ID 생성
+  const effectiveRoomId = roomId || `room-${Date.now()}`;
+  
+  console.log('🆔 NoCodeEditor roomId:', roomId);
+  console.log('🆔 Effective roomId:', effectiveRoomId);
+  console.log('🌐 Current URL:', window.location.pathname);
   const canvasRef = useRef();
   const containerRef = useRef();
   const [components, setComponents] = useState([]);
@@ -248,7 +255,7 @@ function NoCodeEditor({ pageId }) {
         onPreviewOpen={interaction.handlePreviewOpen}
         onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
         onInviteOpen={interaction.handleInviteOpen}
-        roomId={roomId}
+        roomId={effectiveRoomId}
         isAdmin={true}
       />
 
@@ -269,7 +276,7 @@ function NoCodeEditor({ pageId }) {
             e.dataTransfer.setData('componentType', type);
           }}
           components={components}
-          roomId={roomId}
+          roomId={effectiveRoomId}
           isOpen={interaction.isLibraryOpen}
           onToggle={interaction.handleLibraryToggle}
           isReady={true} // 항상 준비 상태로 설정 (Y.js 연결과 독립적)

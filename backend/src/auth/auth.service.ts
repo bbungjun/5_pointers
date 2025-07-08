@@ -26,11 +26,15 @@ export class AuthService {
   }
 
   async login(user: Users) {
-
     // console.log('Login - User object:', user);
     // console.log('Login - User ID:', user.id, 'Type:', typeof user.id);
 
-    const payload = { userId: user.id, email: user.email, nickname: user.nickname, role: user.role };
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      role: user.role,
+    };
     // console.log('Login - JWT payload:', payload);
     return {
       access_token: this.jwtService.sign(payload),
@@ -38,18 +42,27 @@ export class AuthService {
   }
 
   async socialLogin(user: any) {
-    const payload = { userId: user.id, email: user.email, nickname: user.nickname, role: user.role };
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      role: user.role,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
 
-  async signupLocal(dto: { email: string; password: string; nickname: string }) {
+  async signupLocal(dto: {
+    email: string;
+    password: string;
+    nickname: string;
+  }) {
     // 중복 이메일 체크
     const existingUser = await this.userRepository.findOne({
-      where: { email: dto.email }
+      where: { email: dto.email },
     });
-    
+
     if (existingUser) {
       throw new BadRequestException('이미 사용 중인 이메일입니다.');
     }
@@ -65,8 +78,16 @@ export class AuthService {
     return { message: '회원가입 성공' };
   }
 
-  async loginSocial(dto: { provider: 'google' | 'kakao'; authorizationCode: string }) {
-    let profile: { email: string; nickname: string; provider_id: string; provider: AuthProvider };
+  async loginSocial(dto: {
+    provider: 'google' | 'kakao';
+    authorizationCode: string;
+  }) {
+    let profile: {
+      email: string;
+      nickname: string;
+      provider_id: string;
+      provider: AuthProvider;
+    };
 
     switch (dto.provider) {
       case 'google':
@@ -95,13 +116,13 @@ export class AuthService {
       callbackUrl,
       environment: process.env.NODE_ENV || 'development',
       isProduction,
-      authCode: code?.substring(0, 10) + '...' // 보안을 위해 코드 일부만 출력
+      authCode: code?.substring(0, 10) + '...', // 보안을 위해 코드 일부만 출력
     });
 
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
-      callbackUrl
+      callbackUrl,
     );
 
     try {
@@ -118,7 +139,10 @@ export class AuthService {
         provider: AuthProvider.GOOGLE,
       };
     } catch (error) {
-      console.error('Google OAuth 에러:', error.response?.data || error.message);
+      console.error(
+        'Google OAuth 에러:',
+        error.response?.data || error.message,
+      );
       throw error;
     }
   }
@@ -148,7 +172,8 @@ export class AuthService {
       params,
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
     );
-    const accessToken = (tokenRes.data as { access_token: string }).access_token;
+    const accessToken = (tokenRes.data as { access_token: string })
+      .access_token;
 
     const profileRes = await axios.get('https://kapi.kakao.com/v2/user/me', {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -163,14 +188,21 @@ export class AuthService {
     };
   }
 
-  async findOrCreateUser(profile: { email: string; nickname: string; provider_id: string; provider: AuthProvider }) {
+  async findOrCreateUser(profile: {
+    email: string;
+    nickname: string;
+    provider_id: string;
+    provider: AuthProvider;
+  }) {
     console.log('findOrCreateUser profile:', profile);
     let user = await this.userRepository.findOne({
       where: { provider: profile.provider, provider_id: profile.provider_id },
     });
     if (user) return user;
 
-    user = await this.userRepository.findOne({ where: { email: profile.email } });
+    user = await this.userRepository.findOne({
+      where: { email: profile.email },
+    });
     if (user) {
       user.provider = profile.provider;
       user.provider_id = profile.provider_id;

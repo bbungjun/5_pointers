@@ -1,4 +1,12 @@
-import { Controller, Post, Get, Param, Body, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  Body,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { InvitationsService } from './invitations.service';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -16,10 +24,14 @@ export class InvitationsController {
   async createInvitation(
     @Param('pageId') pageId: string,
     @Body() createInvitationDto: CreateInvitationDto,
-    @Request() req
+    @Request() req,
   ) {
     const inviterId = req.user.userId;
-    return this.invitationsService.createInvitation(pageId, createInvitationDto, inviterId);
+    return this.invitationsService.createInvitation(
+      pageId,
+      createInvitationDto,
+      inviterId,
+    );
   }
 
   /**
@@ -38,7 +50,9 @@ export class InvitationsController {
    * GET /api/invitations/{invitationToken}
    */
   @Get('invitations/:invitationToken')
-  async getInvitationByToken(@Param('invitationToken') invitationToken: string) {
+  async getInvitationByToken(
+    @Param('invitationToken') invitationToken: string,
+  ) {
     return this.invitationsService.getInvitationByToken(invitationToken);
   }
 
@@ -50,7 +64,7 @@ export class InvitationsController {
   @UseGuards(JwtAuthGuard)
   async acceptInvitation(
     @Param('invitationToken') invitationToken: string,
-    @Request() req
+    @Request() req,
   ) {
     const userId = req.user.userId;
     return this.invitationsService.acceptInvitation(invitationToken, userId);
@@ -64,9 +78,9 @@ export class InvitationsController {
   @UseGuards(JwtAuthGuard)
   async declineInvitation(
     @Param('invitationToken') invitationToken: string,
-    @Request() req
+    @Request() req,
   ) {
     const userId = req.user.userId;
     return this.invitationsService.declineInvitation(invitationToken, userId);
   }
-} 
+}

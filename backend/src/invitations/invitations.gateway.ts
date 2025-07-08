@@ -13,7 +13,9 @@ import { Server, Socket } from 'socket.io';
   },
   namespace: '/invite',
 })
-export class InvitationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class InvitationsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -45,4 +47,4 @@ export class InvitationsGateway implements OnGatewayConnection, OnGatewayDisconn
       this.server.to(socketId).emit('new-invitation', invitationData);
     }
   }
-} 
+}

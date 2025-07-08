@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PageMembers } from '../users/entities/page_members.entity';
@@ -32,16 +37,25 @@ export class InvitationsService {
   /**
    * 초대 이메일 발송 (AWS SES 사용)
    */
-  private async sendInvitationEmail(email: string, invitationToken: string, pageName: string, inviterName: string) {
+  private async sendInvitationEmail(
+    email: string,
+    invitationToken: string,
+    pageName: string,
+    inviterName: string,
+  ) {
     try {
       // AWS SES를 통한 실제 이메일 발송
-      await this.emailService.sendInvitationEmail(email, invitationToken, pageName, inviterName);
-      
+      await this.emailService.sendInvitationEmail(
+        email,
+        invitationToken,
+        pageName,
+        inviterName,
+      );
+
       console.log(`✅ 초대 이메일 발송 성공: ${email}`);
-      
     } catch (error) {
       console.error(`❌ 초대 이메일 발송 실패 (${email}):`, error.message);
-      
+
       // 개발 모드에서는 콘솔에 백업 메시지 출력
       if (process.env.NODE_ENV === 'development') {
         const inviteUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/invite/${invitationToken}`;
@@ -53,23 +67,29 @@ export class InvitationsService {
           만료시간: 7일
         `);
       }
-      
+
       // 이메일 발송 실패 시에도 초대 레코드는 생성되도록 함
       // 사용자가 직접 링크를 사용할 수 있도록
-      throw new Error(`이메일 발송에 실패했지만 초대 링크가 생성되었습니다: ${error.message}`);
+      throw new Error(
+        `이메일 발송에 실패했지만 초대 링크가 생성되었습니다: ${error.message}`,
+      );
     }
   }
 
   /**
    * 페이지에 사용자 초대
    */
-  async createInvitation(pageId: string, createInvitationDto: CreateInvitationDto, inviterId: number) {
+  async createInvitation(
+    pageId: string,
+    createInvitationDto: CreateInvitationDto,
+    inviterId: number,
+  ) {
     const { email, role } = createInvitationDto;
 
     // 페이지 존재 확인
     const page = await this.pagesRepository.findOne({
       where: { id: pageId },
-      relations: ['owner']
+      relations: ['owner'],
     });
 
     if (!page) {
@@ -78,7 +98,7 @@ export class InvitationsService {
 
     // 초대자 정보 확인
     const inviter = await this.usersRepository.findOne({
-      where: { id: inviterId }
+      where: { id: inviterId },
     });
 
     if (!inviter) {
@@ -89,13 +109,15 @@ export class InvitationsService {
     const existingMember = await this.pageMembersRepository.findOne({
       where: [
         { page: { id: pageId }, email },
-        { page: { id: pageId }, user: { email } }
+        { page: { id: pageId }, user: { email } },
       ],
-      relations: ['user']
+      relations: ['user'],
     });
 
     if (existingMember) {
-      throw new ConflictException('이미 페이지 멤버이거나 초대된 사용자입니다.');
+      throw new ConflictException(
+        '이미 페이지 멤버이거나 초대된 사용자입니다.',
+      );
     }
 
     // 초대 토큰 생성
@@ -110,13 +132,15 @@ export class InvitationsService {
       role,
       status: 'PENDING',
       invitation_token: invitationToken,
-      expires_at: expiresAt
+      expires_at: expiresAt,
     });
 
     await this.pageMembersRepository.save(invitation);
 
     // 실시간 알림 전송 (해당 이메일의 유저가 있으면)
-    const invitedUser = await this.usersRepository.findOne({ where: { email } });
+    const invitedUser = await this.usersRepository.findOne({
+      where: { email },
+    });
     if (invitedUser) {
       this.invitationsGateway.sendInvitationToUser(invitedUser.id, {
         id: invitation.id,
@@ -132,23 +156,32 @@ export class InvitationsService {
 
     // 초대 이메일 발송
     try {
-      await this.sendInvitationEmail(email, invitationToken, page.title, inviter.nickname);
-      
+      await this.sendInvitationEmail(
+        email,
+        invitationToken,
+        page.title,
+        inviter.nickname,
+      );
+
       return {
         message: '초대 이메일을 성공적으로 발송했습니다.',
         invitationToken,
-        success: true
+        success: true,
       };
     } catch (error) {
       // 이메일 발송 실패해도 초대 링크는 생성됨
-      console.warn('이메일 발송 실패, 하지만 초대 링크 생성 완료:', error.message);
-      
+      console.warn(
+        '이메일 발송 실패, 하지만 초대 링크 생성 완료:',
+        error.message,
+      );
+
       return {
-        message: '초대 링크를 생성했지만 이메일 발송에 실패했습니다. 링크를 직접 공유해주세요.',
+        message:
+          '초대 링크를 생성했지만 이메일 발송에 실패했습니다. 링크를 직접 공유해주세요.',
         invitationToken,
         success: false,
         inviteUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/invite/${invitationToken}`,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -159,7 +192,7 @@ export class InvitationsService {
   async getInvitationByToken(invitationToken: string) {
     const invitation = await this.pageMembersRepository.findOne({
       where: { invitation_token: invitationToken },
-      relations: ['page', 'page.owner']
+      relations: ['page', 'page.owner'],
     });
 
     if (!invitation) {
@@ -181,7 +214,7 @@ export class InvitationsService {
       pageName: invitation.page.title,
       role: invitation.role,
       inviterName: invitation.page.owner.nickname,
-      email: invitation.email
+      email: invitation.email,
     };
   }
 
@@ -191,7 +224,7 @@ export class InvitationsService {
   async acceptInvitation(invitationToken: string, userId: number) {
     const invitation = await this.pageMembersRepository.findOne({
       where: { invitation_token: invitationToken },
-      relations: ['page']
+      relations: ['page'],
     });
 
     if (!invitation) {
@@ -210,7 +243,7 @@ export class InvitationsService {
 
     // 사용자 정보 확인
     const user = await this.usersRepository.findOne({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!user) {
@@ -219,8 +252,12 @@ export class InvitationsService {
 
     // 이메일 일치 확인 (보안 강화)
     if (invitation.email && invitation.email !== user.email) {
-      console.error(`이메일 불일치: 초대된 이메일 ${invitation.email}, 로그인한 이메일 ${user.email}`);
-      throw new BadRequestException('초대된 이메일과 로그인한 이메일이 일치하지 않습니다.');
+      console.error(
+        `이메일 불일치: 초대된 이메일 ${invitation.email}, 로그인한 이메일 ${user.email}`,
+      );
+      throw new BadRequestException(
+        '초대된 이메일과 로그인한 이메일이 일치하지 않습니다.',
+      );
     }
 
     // 초대 수락 처리
@@ -233,7 +270,7 @@ export class InvitationsService {
     return {
       message: '초대를 성공적으로 수락했습니다.',
       pageId: invitation.page.id,
-      pageName: invitation.page.title
+      pageName: invitation.page.title,
     };
   }
 
@@ -242,7 +279,7 @@ export class InvitationsService {
    */
   async getMyInvitations(userId: number) {
     const user = await this.usersRepository.findOne({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!user) {
@@ -253,15 +290,15 @@ export class InvitationsService {
     const invitations = await this.pageMembersRepository.find({
       where: {
         email: user.email,
-        status: 'PENDING'
+        status: 'PENDING',
       },
       relations: ['page', 'page.owner'],
       order: {
-        createdAt: 'DESC'
-      }
+        createdAt: 'DESC',
+      },
     });
 
-    return invitations.map(invitation => ({
+    return invitations.map((invitation) => ({
       id: invitation.id,
       invitationToken: invitation.invitation_token,
       pageId: invitation.page.id,
@@ -269,7 +306,7 @@ export class InvitationsService {
       role: invitation.role,
       inviterName: invitation.page.owner.nickname,
       expiresAt: invitation.expires_at,
-      createdAt: invitation.createdAt
+      createdAt: invitation.createdAt,
     }));
   }
 
@@ -279,7 +316,7 @@ export class InvitationsService {
   async declineInvitation(invitationToken: string, userId: number) {
     const invitation = await this.pageMembersRepository.findOne({
       where: { invitation_token: invitationToken },
-      relations: ['page']
+      relations: ['page'],
     });
 
     if (!invitation) {
@@ -298,7 +335,7 @@ export class InvitationsService {
 
     // 사용자 정보 확인
     const user = await this.usersRepository.findOne({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!user) {
@@ -307,7 +344,9 @@ export class InvitationsService {
 
     // 이메일 일치 확인
     if (invitation.email && invitation.email !== user.email) {
-      throw new BadRequestException('초대된 이메일과 로그인한 이메일이 일치하지 않습니다.');
+      throw new BadRequestException(
+        '초대된 이메일과 로그인한 이메일이 일치하지 않습니다.',
+      );
     }
 
     // 초대 거절 처리 (레코드 삭제)
@@ -316,7 +355,7 @@ export class InvitationsService {
     return {
       message: '초대를 성공적으로 거절했습니다.',
       pageId: invitation.page.id,
-      pageName: invitation.page.title
+      pageName: invitation.page.title,
     };
   }
-} 
+}

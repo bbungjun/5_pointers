@@ -1,4 +1,13 @@
-import { Controller, Post, Body, Get, Param, Res, NotFoundException, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Res,
+  NotFoundException,
+  Req,
+} from '@nestjs/common';
 import { Response, Request } from 'express';
 import { GeneratorService } from './generator.service';
 import { DeployDto } from './dto/deploy.dto';
@@ -21,7 +30,14 @@ export class GeneratorController {
   @Post('deploy')
   async deploy(@Body() deployDto: DeployDto) {
     console.log('🚀 Deploy request received:', deployDto);
-    return this.generatorService.deploy(deployDto);
+    try {
+      const result = await this.generatorService.deploy(deployDto);
+      console.log('✅ Deploy successful:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Deploy failed:', error);
+      throw error;
+    }
   }
 
   /**
@@ -65,14 +81,20 @@ export class GeneratorController {
    * @returns HTML 파일
    */
   @Get('deployed-sites/:subdomain')
-  async getDeployedSite(@Param('subdomain') subdomain: string, @Res() res: Response) {
+  async getDeployedSite(
+    @Param('subdomain') subdomain: string,
+    @Res() res: Response,
+  ) {
     try {
-      const pageData = await this.generatorService.getPageBySubdomain(subdomain);
+      const pageData =
+        await this.generatorService.getPageBySubdomain(subdomain);
       if (!pageData) {
         return res.status(404).send('<h1>페이지를 찾을 수 없습니다</h1>');
       }
-      
-      const html = await this.generatorService.generateStaticHTML(pageData.components);
+
+      const html = await this.generatorService.generateStaticHTML(
+        pageData.components,
+      );
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.send(html);
     } catch (error) {
@@ -90,19 +112,22 @@ export class GeneratorController {
   @Get('api/site/:subdomain')
   async getSiteDataForSubdomainServer(@Param('subdomain') subdomain: string) {
     try {
-      const pageData = await this.generatorService.getPageBySubdomain(subdomain);
+      const pageData =
+        await this.generatorService.getPageBySubdomain(subdomain);
       if (!pageData) {
         throw new NotFoundException(`Site "${subdomain}" not found`);
       }
-      
-      const html = await this.generatorService.generateStaticHTML(pageData.components);
-      
+
+      const html = await this.generatorService.generateStaticHTML(
+        pageData.components,
+      );
+
       return {
         success: true,
         subdomain,
         pageId: pageData.pageId,
         html,
-        components: pageData.components
+        components: pageData.components,
       };
     } catch (error) {
       console.error('경로 기반 사이트 API 오류:', error);
@@ -122,10 +147,10 @@ export class GeneratorController {
     try {
       const host = req.get('host') || req.get('x-forwarded-host') || '';
       console.log('🌐 Host 헤더:', host);
-      
+
       // 서브도메인 추출 (예: test.pagecube.net -> test)
       const subdomain = this.extractSubdomain(host);
-      
+
       if (!subdomain) {
         return res.status(400).send(`
           <h1>잘못된 서브도메인</h1>
@@ -135,8 +160,9 @@ export class GeneratorController {
       }
 
       console.log('🔍 추출된 서브도메인:', subdomain);
-      
-      const pageData = await this.generatorService.getPageBySubdomain(subdomain);
+
+      const pageData =
+        await this.generatorService.getPageBySubdomain(subdomain);
       if (!pageData) {
         return res.status(404).send(`
           <h1>사이트를 찾을 수 없습니다</h1>
@@ -144,8 +170,10 @@ export class GeneratorController {
           <p>Host: ${host}</p>
         `);
       }
-      
-      const html = await this.generatorService.generateStaticHTML(pageData.components);
+
+      const html = await this.generatorService.generateStaticHTML(
+        pageData.components,
+      );
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.send(html);
     } catch (error) {
@@ -165,23 +193,25 @@ export class GeneratorController {
    */
   private extractSubdomain(host: string): string | null {
     if (!host) return null;
-    
+
     // CloudFront 또는 로컬 환경 처리
     const parts = host.split('.');
-    
+
     // pagecube.net 도메인 체크
-    if (parts.length >= 3 && parts[parts.length - 2] === 'pagecube' && parts[parts.length - 1] === 'net') {
+    if (
+      parts.length >= 3 &&
+      parts[parts.length - 2] === 'pagecube' &&
+      parts[parts.length - 1] === 'net'
+    ) {
       // test.pagecube.net -> test
       return parts[0];
     }
-    
+
     // 로컬 테스트용 (localhost:3000 등)
     if (host.includes('localhost') || host.includes('127.0.0.1')) {
       return null;
     }
-    
+
     return null;
   }
 }
-
-

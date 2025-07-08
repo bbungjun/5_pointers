@@ -9,7 +9,7 @@ export class AuthController {
 
   @Post('signup/local')
   async signupLocal(
-    @Body() dto: { email: string; password: string; nickname: string }
+    @Body() dto: { email: string; password: string; nickname: string },
   ) {
     return this.authService.signupLocal(dto);
   }
