@@ -9,9 +9,7 @@ function SocialCallbackPage({ onLogin }) {
   useEffect(() => {
     const url = new URL(window.location.href);
     const code = url.searchParams.get('code');
-    const isGoogle = url.pathname.includes('google');
-    const isKakao = url.pathname.includes('kakao');
-    const provider = isGoogle ? 'google' : isKakao ? 'kakao' : undefined;
+    const provider = url.searchParams.get('provider');
 
     console.log('SocialCallbackPage - provider:', provider, 'code:', code);
 
