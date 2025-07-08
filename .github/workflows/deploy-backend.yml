@@ -38,6 +38,14 @@ jobs:
           cd backend
           npm run build
 
+      - name: Create .env file
+        run: |
+          cd backend
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > .env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+          echo "GOOGLE_CALLBACK_URL=https://pagecube.net/social-callback?provider=google" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+
       - name: Create deployment package
         run: |
           cd backend

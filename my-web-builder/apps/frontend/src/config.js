@@ -53,7 +53,7 @@ export const KAKAO_CLIENT_ID = getEnvVar('VITE_KAKAO_CLIENT_ID') || getEnvVar('N
 // 리다이렉트 URL - 환경변수 기반
 export const getRedirectUrl = (provider) => {
   const frontendUrl = getEnvVar('VITE_FRONTEND_URL') || getEnvVar('NEXT_PUBLIC_FRONTEND_URL') || 'http://localhost:5173';
-  return `${frontendUrl}/${provider}`;
+  return `${frontendUrl}/social-callback?provider=${provider}`;
 };
 
 // 배포 URL 생성 함수 (서브도메인 기반으로 변경)
