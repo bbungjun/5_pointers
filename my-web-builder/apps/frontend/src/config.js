@@ -39,8 +39,8 @@ const isProductionEnvironment = () => {
 };
 
 // API 서버 설정 - 환경변수 기반
-export const API_BASE_URL = (getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 
-  (isProductionEnvironment() ? 'https://api.pagecube.net' : 'http://localhost:3000')) + '/api';
+export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 
+  (isProductionEnvironment() ? 'https://api.pagecube.net' : 'http://localhost:3000/api');
 
 // Y.js WebSocket 서버 설정 - 환경변수 기반
 export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') || 
