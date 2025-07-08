@@ -47,7 +47,10 @@ export class GeneratorService {
     }
     
     // 4. 최종 배포 URL 생성 (프로덕션에서는 실제 서브도메인 사용)
-    const url = process.env.NODE_ENV === 'production' 
+    const isProduction = process.env.NODE_ENV === 'production' || 
+                        process.env.DB_HOST !== 'localhost' || 
+                        process.env.API_BASE_URL?.includes('pagecube.net');
+    const url = isProduction
       ? `https://${subdomain}.pagecube.net` 
       : `http://localhost:3001/${subdomain}`;
     
@@ -77,7 +80,9 @@ export class GeneratorService {
     // 배포 정보 반환
     return { 
       deployments: [{
-        deployedUrl: process.env.NODE_ENV === 'production' 
+        deployedUrl: (process.env.NODE_ENV === 'production' || 
+                     process.env.DB_HOST !== 'localhost' || 
+                     process.env.API_BASE_URL?.includes('pagecube.net'))
           ? `https://${page.subdomain}.pagecube.net` 
           : `http://localhost:3001/${page.subdomain}`,
         deployedAt: page.updatedAt,

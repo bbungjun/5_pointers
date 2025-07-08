@@ -26,21 +26,23 @@ const isProductionEnvironment = () => {
   const currentUrl = typeof window !== 'undefined' ? window.location.hostname : '';
   const isS3Domain = currentUrl.includes('s3-website') || currentUrl.includes('amazonaws.com');
   const isPagecubeDomain = currentUrl.includes('pagecube.net');
+  const isCloudFrontDomain = currentUrl.includes('cloudfront.net');
   
   console.log('🔍 환경 감지:', {
     viteMode,
     nodeEnv,
     currentUrl,
     isS3Domain,
-    isPagecubeDomain
+    isPagecubeDomain,
+    isCloudFrontDomain
   });
   
-  return viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isPagecubeDomain;
+  return viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isPagecubeDomain || isCloudFrontDomain;
 };
 
 // API 서버 설정 - 환경변수 기반
 export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 
-  (isProductionEnvironment() ? 'https://api.pagecube.net' : 'http://localhost:3000/api');
+  (isProductionEnvironment() ? 'https://pagecube.net/api' : 'http://localhost:3000/api');
 
 // Y.js WebSocket 서버 설정 - 환경변수 기반
 export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') || 

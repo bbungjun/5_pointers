@@ -1,18 +1,13 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const mysql = require('mysql2/promise');
+const axios = require('axios');
 
 const app = express();
 const PORT = 3001;
 
-// MySQL 연결 설정
-const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: '0000',
-  database: 'jungle'
-};
+// 백엔드 API URL 설정
+const API_BASE_URL = process.env.API_BASE_URL || 'https://api.pagecube.net/api';
 
 // 배포된 사이트들이 저장될 디렉토리
 const deployedSitesPath = path.join(__dirname, 'deployed-sites');
@@ -36,17 +31,11 @@ app.use(async (req, res, next) => {
   }
   
   try {
-    // submissions 테이블에서 도메인으로 데이터 검색
-    const connection = await mysql.createConnection(dbConfig);
-    const [rows] = await connection.execute(
-      'SELECT data FROM submissions WHERE JSON_EXTRACT(data, "$.domain") = ? ORDER BY created_at DESC LIMIT 1',
-      [subdomain]
-    );
-    await connection.end();
+    // 백엔드 API를 통해 서브도메인 데이터 가져오기
+    const response = await axios.get(`${API_BASE_URL}/generator/subdomain/${subdomain}`);
     
-    if (rows.length > 0) {
-      const data = rows[0].data;
-      const html = data.html || generateHTMLFromComponents(data.components || []);
+    if (response.data && response.data.components) {
+      const html = generateHTMLFromComponents(response.data.components);
       res.setHeader('Content-Type', 'text/html');
       res.send(html);
     } else {
@@ -56,8 +45,15 @@ app.use(async (req, res, next) => {
       `);
     }
   } catch (error) {
-    console.error('Database error:', error);
-    res.status(500).send('<h1>500 - Server Error</h1>');
+    console.error('API error:', error);
+    if (error.response && error.response.status === 404) {
+      res.status(404).send(`
+        <h1>404 - Site Not Found</h1>
+        <p>서브도메인 "${subdomain}"에 배포된 사이트가 없습니다.</p>
+      `);
+    } else {
+      res.status(500).send('<h1>500 - Server Error</h1>');
+    }
   }
 });
 
@@ -75,8 +71,10 @@ function generateHTMLFromComponents(components) {
         return `<a href="${comp.props.url}" style="${style} text-decoration: underline;">${comp.props.text}</a>`;
       case 'attend':
         return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
+      case 'image':
+        return `<img src="${comp.props.src}" style="${style} width: ${comp.props.width}px; height: ${comp.props.height}px;" alt="${comp.props.alt || ''}" />`;
       default:
-        return `<div style="${style}">${comp.props.text}</div>`;
+        return `<div style="${style}">${comp.props.text || ''}</div>`;
     }
   }).join('');
 

@@ -6,8 +6,8 @@ import Head from 'next/head';
 // API 기본 URL 설정 - 프로덕션 환경 고려
 const API_BASE_URL = process.env.API_BASE_URL || 
   (process.env.NODE_ENV === 'production' 
-    ? 'https://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com'
-    : 'http://localhost:3000');
+    ? 'https://pagecube.net/api'
+    : 'http://localhost:3000/api');
 
 const LoadingSpinner = () => (
   <div style={{
