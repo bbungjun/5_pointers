@@ -169,8 +169,8 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
         <iframe
           ref={iframeRef}
           style={{
-            width: '90vw',
-            height: '90vh',
+            width: viewMode === 'desktop' ? '90vw' : '375px',
+            height: viewMode === 'desktop' ? '90vh' : '667px',
             border: 'none',
             borderRadius: '8px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',

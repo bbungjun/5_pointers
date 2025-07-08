@@ -1,5 +1,5 @@
-import { Controller, Post, Body, Get, Param, Res, NotFoundException } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Post, Body, Get, Param, Res, NotFoundException, Req } from '@nestjs/common';
+import { Response, Request } from 'express';
 import { GeneratorService } from './generator.service';
 import { DeployDto } from './dto/deploy.dto';
 
@@ -108,6 +108,79 @@ export class GeneratorController {
       console.error('경로 기반 사이트 API 오류:', error);
       throw error;
     }
+  }
+
+  /**
+   * 서브도메인 HOST 헤더를 통한 사이트 렌더링 (CloudFront용)
+   * GET /generator/subdomain-host
+   * @param req - Express Request 객체 (HOST 헤더 포함)
+   * @param res - Express Response 객체
+   * @returns HTML 페이지 또는 에러 페이지
+   */
+  @Get('subdomain-host')
+  async getSubdomainFromHost(@Req() req: Request, @Res() res: Response) {
+    try {
+      const host = req.get('host') || req.get('x-forwarded-host') || '';
+      console.log('🌐 Host 헤더:', host);
+      
+      // 서브도메인 추출 (예: test.pagecube.net -> test)
+      const subdomain = this.extractSubdomain(host);
+      
+      if (!subdomain) {
+        return res.status(400).send(`
+          <h1>잘못된 서브도메인</h1>
+          <p>Host: ${host}</p>
+          <p>올바른 서브도메인 형식: yoursite.pagecube.net</p>
+        `);
+      }
+
+      console.log('🔍 추출된 서브도메인:', subdomain);
+      
+      const pageData = await this.generatorService.getPageBySubdomain(subdomain);
+      if (!pageData) {
+        return res.status(404).send(`
+          <h1>사이트를 찾을 수 없습니다</h1>
+          <p>서브도메인 "${subdomain}"에 배포된 사이트가 없습니다.</p>
+          <p>Host: ${host}</p>
+        `);
+      }
+      
+      const html = await this.generatorService.generateStaticHTML(pageData.components);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.send(html);
+    } catch (error) {
+      console.error('서브도메인 HOST 처리 오류:', error);
+      res.status(500).send(`
+        <h1>서버 오류</h1>
+        <p>잠시 후 다시 시도해주세요.</p>
+        <p>Error: ${error.message}</p>
+      `);
+    }
+  }
+
+  /**
+   * Host 헤더에서 서브도메인 추출
+   * @param host - Host 헤더 값
+   * @returns 서브도메인 또는 null
+   */
+  private extractSubdomain(host: string): string | null {
+    if (!host) return null;
+    
+    // CloudFront 또는 로컬 환경 처리
+    const parts = host.split('.');
+    
+    // pagecube.net 도메인 체크
+    if (parts.length >= 3 && parts[parts.length - 2] === 'pagecube' && parts[parts.length - 1] === 'net') {
+      // test.pagecube.net -> test
+      return parts[0];
+    }
+    
+    // 로컬 테스트용 (localhost:3000 등)
+    if (host.includes('localhost') || host.includes('127.0.0.1')) {
+      return null;
+    }
+    
+    return null;
   }
 }
 

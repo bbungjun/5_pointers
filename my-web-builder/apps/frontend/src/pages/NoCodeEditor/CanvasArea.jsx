@@ -1,6 +1,6 @@
 // frontend/src/pages/NoCodeEditor/CanvasArea.jsx
 
-import React, { useState, useEffect, useRef, useMemo, forwardRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, forwardRef, useCallback } from 'react';
 import {
   LiveCursors,
   CollaborativeSelections,
@@ -114,6 +114,7 @@ const CanvasArea = forwardRef(
       otherSelections = [],
       getComponentDimensions,
       onPageChange,
+      containerRef, // NoCodeEditor로부터 받음
     },
     ref
   ) => {
@@ -142,14 +143,14 @@ const CanvasArea = forwardRef(
     const LIBRARY_WIDTH = 240; // 좌측 패널(컴포넌트 라이브러리) width와 동일하게!
 
     // 줌 핸들러
-    const handleZoom = (delta) => {
+    const handleZoom = useCallback((delta) => {
       const newZoom = Math.max(25, Math.min(400, localZoom + delta));
       setLocalZoom(newZoom);
       if (onZoomChange) onZoomChange(newZoom);
-    };
+    }, [localZoom, onZoomChange]);
 
     // 마우스 휠로 줌 또는 스크롤
-    const handleWheel = (e) => {
+    const handleWheel = useCallback((e) => {
       if (e.ctrlKey || e.metaKey) {
         // Ctrl/Cmd + 휠: 줌
         e.preventDefault();
@@ -158,11 +159,18 @@ const CanvasArea = forwardRef(
       } else if (isComponentDragging) {
         // 컴포넌트 드래그 중일 때는 스크롤 차단
         e.preventDefault();
-      } else {
-        // 일반 휠: 스크롤 (기본 동작 허용)
-        // 브라우저의 기본 스크롤 동작을 그대로 사용
       }
-    };
+    }, [isComponentDragging, handleZoom]);
+
+    useEffect(() => {
+        const element = canvasRefToUse?.current;
+        if (element) {
+            element.addEventListener('wheel', handleWheel, { passive: false });
+            return () => {
+                element.removeEventListener('wheel', handleWheel);
+            }
+        }
+    }, [canvasRefToUse, handleWheel]);
 
     // 협업 커서 위치 업데이트 핸들러
     const handleCanvasMouseMove = (e) => {
@@ -224,6 +232,7 @@ const CanvasArea = forwardRef(
 
     // 캔버스 컨테이너에서 마우스 드래그로 스크롤 이동
     const handleContainerMouseDown = (e) => {
+      if (!ref || !ref.current) return;
       // 컴포넌트 드래그 중이면 패닝하지 않음
       if (isComponentDragging) {
         return;
@@ -253,6 +262,7 @@ const CanvasArea = forwardRef(
 
     const handleContainerMouseMove = (e) => {
       if (isPanning && !isComponentDragging) {
+        if (!ref || !ref.current) return;
         const dx = e.clientX - panStart.x;
         const dy = e.clientY - panStart.y;
         ref.current.scrollLeft = panStart.scrollLeft - dx;
@@ -286,7 +296,7 @@ const CanvasArea = forwardRef(
           setIsComponentDragging(true);
 
           // 컨테이너의 모든 스크롤 관련 속성 차단
-          if (ref.current) {
+          if (ref && ref.current) {
             const container = ref.current;
             // 현재 스크롤 위치 저장
             const currentScrollLeft = container.scrollLeft;
@@ -317,7 +327,7 @@ const CanvasArea = forwardRef(
         setIsComponentDragging(false);
 
         // 컨테이너의 스크롤을 다시 활성화
-        if (ref.current) {
+        if (ref && ref.current) {
           const container = ref.current;
           container.style.overflow = 'auto';
           container.style.pointerEvents = 'auto';
@@ -494,7 +504,7 @@ const CanvasArea = forwardRef(
         backgroundPosition: showGrid ? '0 0' : 'initial',
         border: '1px solid #e1e5e9',
         borderRadius: 12,
-        margin: '0 auto',
+        margin: 0,
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         transform: `scale(${zoomScale})`,
         transformOrigin: 'top left',
@@ -519,7 +529,7 @@ const CanvasArea = forwardRef(
     const leftPadding = isLibraryOpen ? 280 : 40; // 라이브러리 열림/닫힘에 따라
     const containerWidth =
       actualCanvasSize.width + (viewport === 'mobile' ? 40 : leftPadding + 60); // 모바일: 40px, 데스크톱: 동적
-    const containerHeight = actualCanvasSize.height + 400; // 상하 패딩과 여유 공간 포함
+    const containerHeight = actualCanvasSize.height + 240; // 상하 패딩 축소
 
     return (
       <div
@@ -531,10 +541,9 @@ const CanvasArea = forwardRef(
           cursor: isPanning ? 'grabbing' : 'default',
           overflowX: viewport === 'mobile' ? 'hidden' : 'auto',
           overflowY: 'auto',
-          paddingTop: '60px',
+          paddingTop: '20px',
         }}
         ref={ref}
-        onWheel={handleWheel}
         onMouseDown={handleContainerMouseDown}
         onMouseMove={handleContainerMouseMove}
         onMouseUp={handleContainerMouseUp}
@@ -557,8 +566,8 @@ const CanvasArea = forwardRef(
             // 뷰포트별 패딩 조정 (좌측은 컴포넌트 라이브러리 상태에 따라 동적 조정)
             padding:
               viewport === 'mobile'
-                ? '20px'
-                : `40px 60px 200px ${isLibraryOpen ? '280px' : '40px'}`, // 라이브러리 열림: 280px, 닫힘: 40px
+                ? '10px'
+                : `20px 40px 120px ${isLibraryOpen ? '280px' : '20px'}`, // 여백 축소
             boxSizing: 'border-box',
           }}
         >

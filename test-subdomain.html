@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Subdomain Test</title>
+</head>
+<body>
+    <h1>서브도메인 테스트</h1>
+    <p>배포된 사이트들을 테스트해보세요:</p>
+    
+    <h2>방법 1: Host 헤더를 사용한 테스트</h2>
+    <ul>
+        <li><a href="http://localhost:3001" target="_blank">기본 서브도메인 서버 (localhost:3001)</a></li>
+        <li>브라우저 개발자 도구 → Network → localhost:3001 요청에 Host 헤더 추가: <code>testsite.localhost:3001</code></li>
+    </ul>
+    
+    <h2>방법 2: /etc/hosts 파일 수정 (권장)</h2>
+    <p>다음 내용을 /etc/hosts 파일에 추가하세요:</p>
+    <pre>
+127.0.0.1   testsite.localhost
+127.0.0.1   23qwe.localhost
+127.0.0.1   31as.localhost
+127.0.0.1   12asfd.localhost
+127.0.0.1   21qw.localhost
+127.0.0.1   312weq.localhost
+    </pre>
+    
+    <h2>방법 3: 로컬 DNS 서버 (dnsmasq)</h2>
+    <p>dnsmasq 설치 후 *.localhost 와일드카드 설정</p>
+    
+    <h2>테스트 사이트들</h2>
+    <ul>
+        <li><a href="http://testsite.localhost:3001" target="_blank">testsite.localhost:3001</a> (새로 생성한 테스트 사이트)</li>
+        <li><a href="http://23qwe.localhost:3001" target="_blank">23qwe.localhost:3001</a> (Elegant Wedding Invitation)</li>
+        <li><a href="http://31as.localhost:3001" target="_blank">31as.localhost:3001</a> (Untitled)</li>
+        <li><a href="http://12asfd.localhost:3001" target="_blank">12asfd.localhost:3001</a> (Elegant Wedding Invitation)</li>
+    </ul>
+    
+    <h2>curl 명령어로 테스트</h2>
+    <pre>
+curl -H "Host: testsite.localhost:3001" http://localhost:3001
+curl -H "Host: 23qwe.localhost:3001" http://localhost:3001
+    </pre>
+    
+    <script>
+        function testSubdomain(subdomain) {
+            // 실제로는 브라우저에서 직접 접근할 수 없으므로
+            // /etc/hosts 파일 수정이 필요함을 알려줌
+            alert(`${subdomain}.localhost:3001에 접근하려면 /etc/hosts 파일에 다음을 추가하세요:\n127.0.0.1   ${subdomain}.localhost`);
+        }
+    </script>
+</body>
+</html>
