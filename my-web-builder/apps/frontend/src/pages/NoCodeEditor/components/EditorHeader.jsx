@@ -4,6 +4,7 @@ import NotificationToggle from '../../../components/NotificationToggle';
 import pageCubeLogo from '../../../assets/page-cube-logo.png';
 import { useDeploy } from '../ComponentLibrary/hooks/useDeploy';
 import DeployModal from './DeployModal';
+import PageNavigation from './PageNavigation';
 
 function EditorHeader({
   components,
@@ -16,6 +17,7 @@ function EditorHeader({
   onPreviewOpen,
   onTemplateSaveOpen,
   onInviteOpen,
+  pageId,
   roomId,
   isAdmin,
 }) {
@@ -78,6 +80,9 @@ function EditorHeader({
       {/* 중앙: 편집 기준 선택 */}
       <div className="flex-1 flex justify-center mx-4 min-w-0">
         <div className="flex items-center gap-4">
+n          {/* 페이지 네비게이션 */}
+          <PageNavigation currentPageId={pageId} />
+
           {/* DesignMode 선택 드롭다운 */}
           <div className="flex items-center gap-2">
             <label className="text-xs text-gray-600 font-medium whitespace-nowrap">

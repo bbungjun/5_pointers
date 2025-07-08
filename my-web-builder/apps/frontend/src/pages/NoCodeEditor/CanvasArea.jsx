@@ -659,11 +659,11 @@ const CanvasArea = forwardRef(
                 const firstIndex = arr.findIndex((c) => c.id === comp.id);
                 return firstIndex === index;
               })
-              .map((comp, index) => {
+              .map((comp) => {
                 // if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
                 return (
                   <CanvasComponent
-                    key={`${comp.id}-${index}`}
+                    key={comp.id}
                     comp={comp}
                     selected={selectedId === comp.id}
                     onSelect={onSelect}
