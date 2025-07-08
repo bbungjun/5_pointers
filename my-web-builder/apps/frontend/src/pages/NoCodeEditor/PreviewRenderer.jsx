@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ButtonRenderer from './ComponentRenderers/ButtonRenderer';
 import TextRenderer from './ComponentRenderers/TextRenderer';
 import LinkRenderer from './ComponentRenderers/LinkRenderer';
@@ -14,62 +14,10 @@ import MapInfoRenderer from './ComponentRenderers/MapInfoRenderer';
 import CalendarRenderer from './ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from './ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from './ComponentRenderers/CommentRenderer';
-import {
-  getFinalStyles,
-  VIEWPORT_CONFIGS,
-  CANVAS_SIZES,
-} from './utils/editorUtils';
+import { groupComponentsIntoRows } from './utils/editorUtils';
+import './styles/preview.css';
 
-// 컴포넌트 definitions import
-import buttonDef from '../components/definitions/button.json';
-import textDef from '../components/definitions/text.json';
-import linkDef from '../components/definitions/link.json';
-import mapDef from '../components/definitions/map.json';
-import attendDef from '../components/definitions/attend.json';
-import imageDef from '../components/definitions/image.json';
-import ddayDef from '../components/definitions/d-day.json';
-import weddingContactDef from '../components/definitions/wedding-contact.json';
-import weddingInviteDef from '../components/definitions/wedding-invite.json';
-import bankAccountDef from '../components/definitions/bank-account.json';
-import gridGalleryDef from '../components/definitions/grid-gallery.json';
-import slideGalleryDef from '../components/definitions/slide-gallery.json';
-import mapInfoDef from '../components/definitions/map_info.json';
-import calendarDef from '../components/definitions/calendar.json';
-import commentDef from '../components/definitions/comment.json';
-
-// 컴포넌트 정의들을 맵으로 구성
-const componentDefinitions = {
-  button: buttonDef,
-  text: textDef,
-  link: linkDef,
-  map: mapDef,
-  attend: attendDef,
-  image: imageDef,
-  dday: ddayDef,
-  weddingContact: weddingContactDef,
-  weddingInvite: weddingInviteDef,
-  bankAccount: bankAccountDef,
-  gridGallery: gridGalleryDef,
-  slideGallery: slideGalleryDef,
-  mapInfo: mapInfoDef,
-  calendar: calendarDef,
-  comment: commentDef,
-};
-
-/**
- * PreviewRenderer - iframe 내부에서 실제 페이지를 렌더링하는 순수 컴포넌트
- *
- * 이 컴포넌트는:
- * 1. 편집 기능이 완전히 제거된 순수한 렌더링만 담당
- * 2. 실제 배포 환경과 동일한 모습을 보여줌
- * 3. 드래그, 선택, 편집 등의 에디터 기능은 포함하지 않음
- * 4. 실제 화면 크기에 따른 반응형 렌더링 지원
- */
-const PreviewRenderer = ({
-  pageContent,
-  isEditor = false,
-  editingViewport = 'desktop',
-}) => {
+const PreviewRenderer = ({ pageContent, forcedViewport }) => {
   if (!pageContent || !Array.isArray(pageContent)) {
     return (
       <div className="empty-page">
@@ -81,40 +29,43 @@ const PreviewRenderer = ({
     );
   }
 
-  // 컴포넌트 렌더링 함수
+  // 뷰포트 모드 결정
+  const isMobileMode = forcedViewport === 'mobile' || (!forcedViewport && window.innerWidth <= 768);
+  
+  // 개별 컴포넌트 렌더링 함수
   const renderComponent = (comp) => {
     const componentContent = (() => {
       switch (comp.type) {
         case 'button':
-          return <ButtonRenderer comp={comp} isEditor={isEditor} />;
+          return <ButtonRenderer comp={comp} />;
         case 'text':
-          return <TextRenderer comp={comp} isEditor={isEditor} />;
+          return <TextRenderer comp={comp} />;
         case 'link':
-          return <LinkRenderer comp={comp} isEditor={isEditor} />;
+          return <LinkRenderer comp={comp} />;
         case 'attend':
-          return <AttendRenderer comp={comp} isEditor={isEditor} />;
+          return <AttendRenderer comp={comp} />;
         case 'map':
-          return <MapView {...comp} isEditor={isEditor} />;
+          return <MapView {...comp.props} />;
         case 'dday':
-          return <DdayRenderer comp={comp} isEditor={isEditor} />;
+          return <DdayRenderer comp={comp} />;
         case 'weddingContact':
-          return <WeddingContactRenderer comp={comp} isEditor={isEditor} />;
+          return <WeddingContactRenderer comp={comp} />;
         case 'weddingInvite':
-          return <WeddingInviteRenderer comp={comp} isEditor={isEditor} />;
+          return <WeddingInviteRenderer comp={comp} />;
         case 'image':
-          return <ImageRenderer comp={comp} isEditor={isEditor} />;
+          return <ImageRenderer comp={comp} />;
         case 'gridGallery':
-          return <GridGalleryRenderer comp={comp} isEditor={isEditor} />;
+          return <GridGalleryRenderer comp={comp} />;
         case 'slideGallery':
-          return <SlideGalleryRenderer comp={comp} isEditor={isEditor} />;
+          return <SlideGalleryRenderer comp={comp} />;
         case 'mapInfo':
-          return <MapInfoRenderer comp={comp} isEditor={isEditor} />;
+          return <MapInfoRenderer comp={comp} />;
         case 'calendar':
-          return <CalendarRenderer comp={comp} isEditor={isEditor} />;
-        case 'comment':
-          return <CommentRenderer comp={comp} isEditor={isEditor} />;
+          return <CalendarRenderer comp={comp} />;
         case 'bankAccount':
-          return <BankAccountRenderer comp={comp} isEditor={isEditor} />;
+          return <BankAccountRenderer comp={comp} />;
+        case 'comment':
+          return <CommentRenderer comp={comp} />;
         default:
           return null;
       }
@@ -122,57 +73,75 @@ const PreviewRenderer = ({
 
     if (!componentContent) return null;
 
-    // 편집 모드: absolute positioning 사용
-    if (isEditor) {
+    // 데스크톱: 절대 위치 유지, 모바일: 세로 정렬
+    if (isMobileMode) {
+      // 모바일에서는 세로 정렬 + 너비 축소
       return (
         <div
           key={comp.id}
-          className="editor-component"
+          className="component"
+          style={{
+            width: comp.width ? `${comp.width}px` : 'auto',
+            height: comp.height ? `${comp.height}px` : 'auto',
+            marginBottom: '16px',
+          }}
+        >
+          {componentContent}
+        </div>
+      );
+    } else {
+      // 데스크톱에서는 절대 위치 유지
+      return (
+        <div
+          key={comp.id}
           style={{
             position: 'absolute',
-            left: comp.x,
-            top: comp.y,
-            width: comp.width,
-            height: comp.height,
+            left: comp.x || 0,
+            top: comp.y || 0,
+            width: comp.width || 'auto',
+            height: comp.height || 'auto',
           }}
         >
           {componentContent}
         </div>
       );
     }
-
-    // 미리보기/배포 모드: 일반 CSS 레이아웃 사용
-    return (
-      <div key={comp.id} className={`preview-component ${comp.type}`}>
-        {componentContent}
-      </div>
-    );
   };
 
-  // 편집 모드: 고정된 캔버스 크기
-  if (isEditor) {
-    const canvasSize = CANVAS_SIZES[editingViewport];
+  if (isMobileMode) {
+    // 모바일: 세로 정렬 레이아웃
+    const rows = groupComponentsIntoRows(pageContent);
     return (
-      <div
-        className="editor-canvas"
-        style={{
+      <div className="page-container mobile" style={{ padding: '16px' }}>
+        {rows.map((row, rowIndex) => (
+          <div key={rowIndex} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
+            {row.map(renderComponent)}
+          </div>
+        ))}
+      </div>
+    );
+  } else {
+    // 데스크톱: 절대 위치 레이아웃
+    const maxHeight = Math.max(
+      1080,
+      ...pageContent.map(comp => (comp.y || 0) + (comp.height || 100))
+    );
+    
+    return (
+      <div 
+        className="page-container desktop" 
+        style={{ 
           position: 'relative',
-          width: canvasSize.width,
-          height: canvasSize.height,
-          background: '#ffffff',
-          margin: '0 auto',
-          overflow: 'visible',
+          width: '100%',
+          height: `${maxHeight}px`,
+          padding: '24px',
+          minWidth: '960px'
         }}
       >
         {pageContent.map(renderComponent)}
       </div>
     );
   }
-
-  // 미리보기/배포 모드: 반응형 레이아웃
-  return (
-    <div className="preview-container">{pageContent.map(renderComponent)}</div>
-  );
 };
 
 export default PreviewRenderer;

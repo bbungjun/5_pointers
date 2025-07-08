@@ -3,29 +3,15 @@ export const GRID_SIZE = 50;
 
 // 뷰포트 설정
 export const VIEWPORT_CONFIGS = {
-  desktop: {
-    width: 1920,
-    height: 1080,
-    name: '데스크톱',
-    label: '데스크톱',
-    description: '1920px 너비',
-    icon: '🖥️',
-  },
-  tablet: {
-    width: 768,
-    height: 1024,
-    name: '태블릿',
-    label: '태블릿',
-    description: '768px 너비',
-    icon: '📱',
-  },
   mobile: {
-    width: 375,
-    height: 667,
-    name: '모바일',
-    label: '모바일',
-    description: '375px 너비',
-    icon: '📱',
+    width: '375px',
+    height: '667px',
+    scale: 1,
+  },
+  desktop: {
+    width: '100%',
+    height: '100%',
+    scale: 1,
   },
 };
 
@@ -508,38 +494,17 @@ export function adjustComponentsForMobile(components) {
 }
 
 // 컴포넌트의 스타일을 반환
-export function getFinalStyles(component, viewport = 'desktop') {
-  if (!component) {
-    console.warn('getFinalStyles: component가 전달되지 않았습니다.');
-    return {
-      x: 0,
-      y: 0,
-      width: undefined,
-      height: undefined,
-      props: {},
-    };
+export function getFinalStyles(component, forcedViewport = null) {
+  const { style = {}, mobileStyle = {} } = component;
+
+  // 미리보기/배포 모드에서는 forcedViewport에 따라 스타일 결정
+  if (forcedViewport) {
+    return forcedViewport === 'mobile' ? { ...style, ...mobileStyle } : style;
   }
 
-  // 뷰포트별 기본 크기 설정
-  const baseWidth = viewport === 'mobile' ? 375 : 1920;
-
-  // 모바일 뷰포트에서는 x 좌표만 조정하고 크기는 유지
-  const x = component.x || 0;
-  const y = component.y || 0;
-  const width = component.width;
-  const height = component.height;
-
-  // 모바일 뷰포트에서 x 좌표가 화면을 벗어나지 않도록 조정
-  const adjustedX =
-    viewport === 'mobile' ? Math.min(Math.max(0, x), 375 - (width || 100)) : x;
-
-  return {
-    x: adjustedX,
-    y,
-    width,
-    height,
-    props: component.props || {},
-  };
+  // 편집 모드에서는 현재 편집 중인 뷰포트에 따라 스타일 결정
+  const isMobileView = window.innerWidth <= 768;
+  return isMobileView ? { ...style, ...mobileStyle } : style;
 }
 
 // 컴포넌트를 responsive 구조로 마이그레이션
@@ -563,202 +528,14 @@ export function migrateToResponsive(component) {
   return result;
 }
 
-// 구 반응형 시스템 마이그레이션 함수 (더 이상 사용하지 않음)
-// 새로운 단일 좌표계에서는 불필요
-
 // 구 반응형 시스템의 모바일 자동 정렬 함수 (더 이상 사용하지 않음)
-// 새로운 단일 좌표계에서는 불필요
-export function arrangeMobileComponents(
-  components,
-  mobileCanvasWidth = 375,
-  getComponentDimensionsFn = getComponentDimensions
-) {
-  console.log('🔍 arrangeMobileComponents 호출됨');
-  console.log('📊 전체 컴포넌트 수:', components.length);
-  console.log('📏 모바일 캔버스 너비:', mobileCanvasWidth);
+export function arrangeMobileComponents(components, forcedViewport = null) {
+  if (!components) return [];
 
-  const PADDING = 10;
-  const COMPONENT_SPACING = 20; // 컴포넌트 간 간격
-
-  // 캔버스 밖에 있는 컴포넌트들과 캔버스 안에 있는 컴포넌트들 분리
-  const componentsOutsideCanvas = [];
-  const componentsInsideCanvas = [];
-
-  for (const comp of components) {
-    const currentStyles = getFinalStyles(comp, 'mobile');
-    const compWidth =
-      currentStyles.width || getComponentDimensionsFn(comp.type).defaultWidth;
-
-    console.log(`🔎 컴포넌트 ${comp.id} 체크:`, {
-      x: currentStyles.x,
-      width: compWidth,
-      rightEdge: currentStyles.x + compWidth,
-      canvasWidth: mobileCanvasWidth,
-      isOutside: currentStyles.x + compWidth > mobileCanvasWidth,
-    });
-
-    if (currentStyles.x + compWidth > mobileCanvasWidth) {
-      componentsOutsideCanvas.push(comp);
-      console.log(
-        `📤 캔버스 밖: ${comp.id} (x: ${currentStyles.x}, width: ${compWidth})`
-      );
-    } else {
-      // 캔버스 안에 있는 컴포넌트들 (충돌 체크에 사용)
-      componentsInsideCanvas.push({
-        ...comp,
-        x: currentStyles.x,
-        y: currentStyles.y,
-        width:
-          currentStyles.width ||
-          getComponentDimensionsFn(comp.type).defaultWidth,
-        height:
-          currentStyles.height ||
-          getComponentDimensionsFn(comp.type).defaultHeight,
-      });
-      console.log(
-        `📥 캔버스 안: ${comp.id} (x: ${currentStyles.x}, width: ${compWidth})`
-      );
-    }
-  }
-
-  console.log(
-    `📊 결과: 캔버스 밖 ${componentsOutsideCanvas.length}개, 캔버스 안 ${componentsInsideCanvas.length}개`
-  );
-
-  if (componentsOutsideCanvas.length === 0) {
-    console.log('✅ 배치할 컴포넌트가 없음');
-    return []; // 배치할 컴포넌트가 없음
-  }
-
-  // y 위치순으로 정렬 (위에서 아래로)
-  const sortedComponents = [...componentsOutsideCanvas].sort((a, b) => {
-    const aStyles = getFinalStyles(a, 'mobile');
-    const bStyles = getFinalStyles(b, 'mobile');
-    return aStyles.y - bStyles.y;
-  });
-
-  console.log(`📋 재정렬 대상 컴포넌트들 (위에서부터 순서대로):`);
-  sortedComponents.forEach((comp, index) => {
-    const styles = getFinalStyles(comp, 'mobile');
-    console.log(`  ${index + 1}. ${comp.id}: y=${styles.y} (원래 위치)`);
-  });
-
-  // 빈 공간을 찾는 함수
-  const findAvailablePosition = (
-    compWidth,
-    compHeight,
-    originalX,
-    existingComponents
-  ) => {
-    const startY = 20; // 최상단 시작 위치
-    const maxX = Math.max(0, mobileCanvasWidth - compWidth - PADDING);
-
-    // 원래 x 위치를 고려하되, 캔버스 안에 들어가도록 조정
-    let preferredX = Math.max(PADDING, Math.min(originalX, maxX));
-
-    console.log(
-      `🎯 빈 공간 찾기: 원래 x=${originalX}, 조정된 x=${preferredX}, 컴포넌트 크기=${compWidth}x${compHeight}`
-    );
-
-    // 위에서부터 차례로 빈 공간 찾기
-    for (let testY = startY; testY < 2000; testY += 10) {
-      // 10px씩 증가하며 체크
-      const testComp = {
-        x: preferredX,
-        y: testY,
-        width: compWidth,
-        height: compHeight,
-      };
-
-      // 기존 컴포넌트들과 충돌 체크
-      let hasCollision = false;
-      for (const existingComp of existingComponents) {
-        if (checkCollision(testComp, existingComp, getComponentDimensionsFn)) {
-          hasCollision = true;
-          break;
-        }
-      }
-
-      if (!hasCollision) {
-        console.log(`✅ 빈 공간 발견: (${preferredX}, ${testY})`);
-        return { x: preferredX, y: testY };
-      }
-    }
-
-    // 빈 공간을 찾지 못한 경우 맨 아래에 배치
-    let bottomMostY = startY;
-    if (existingComponents.length > 0) {
-      bottomMostY =
-        Math.max(...existingComponents.map((comp) => comp.y + comp.height)) +
-        COMPONENT_SPACING;
-    }
-
-    console.log(
-      `⚠️ 빈 공간을 찾지 못해 맨 아래 배치: (${preferredX}, ${bottomMostY})`
-    );
-    return { x: preferredX, y: bottomMostY };
-  };
-
-  const arrangementUpdates = [];
-
-  for (const comp of sortedComponents) {
-    const currentStyles = getFinalStyles(comp, 'mobile');
-    const compDimensions = getComponentDimensionsFn(comp.type);
-    const compWidth = currentStyles.width || compDimensions.defaultWidth;
-    const compHeight = currentStyles.height || compDimensions.defaultHeight;
-
-    console.log(
-      `🎯 ${comp.id} 배치 시작: 현재 위치 (${currentStyles.x}, ${currentStyles.y}), 크기 ${compWidth}x${compHeight}`
-    );
-
-    // 이미 배치된 모든 컴포넌트들 (캔버스 안 + 이미 배치된 컴포넌트들)
-    const allExistingComponents = [
-      ...componentsInsideCanvas,
-      ...arrangementUpdates.map((update) => ({
-        ...update.component,
-        x: update.newPosition.x,
-        y: update.newPosition.y,
-        width: update.newPosition.width,
-        height: update.newPosition.height,
-      })),
-    ];
-
-    console.log(
-      `🔍 빈 공간 찾기 - 기존 컴포넌트 ${allExistingComponents.length}개 고려`
-    );
-
-    // 가장 위쪽 빈 공간 찾기 (원래 x 위치 고려)
-    const availablePosition = findAvailablePosition(
-      compWidth,
-      compHeight,
-      currentStyles.x,
-      allExistingComponents
-    );
-
-    console.log(
-      `📍 ${comp.id} 배치 위치 결정: (${availablePosition.x}, ${availablePosition.y})`
-    );
-
-    // 최종 위치 결정
-    const finalPosition = {
-      x: availablePosition.x,
-      y: availablePosition.y,
-      width: compWidth,
-      height: compHeight,
-    };
-
-    arrangementUpdates.push({
-      component: comp,
-      originalPosition: currentStyles,
-      newPosition: finalPosition,
-    });
-
-    console.log(
-      `✅ 컴포넌트 ${comp.id} 최종 배치: (${currentStyles.x}, ${currentStyles.y}) → (${finalPosition.x}, ${finalPosition.y})`
-    );
-  }
-
-  return arrangementUpdates;
+  return components.map((component) => ({
+    ...component,
+    style: getFinalStyles(component, forcedViewport),
+  }));
 }
 
 // 캔버스 크기를 가져오는 함수
@@ -837,6 +614,55 @@ export function arrangeComponentsVertically(
   }
 
   return arrangementUpdates;
+}
+
+// Row 동적 그룹핑 함수 - 반응형 레이아웃을 위한 컴포넌트 그룹핑
+export function groupComponentsIntoRows(components) {
+  if (!components || components.length === 0) {
+    return [];
+  }
+
+  // Y 좌표 기준으로 정렬
+  const sortedComponents = [...components].sort((a, b) => (a.y || 0) - (b.y || 0));
+  
+  const rows = [];
+  
+  for (const component of sortedComponents) {
+    const compTop = component.y || 0;
+    const compBottom = compTop + (component.height || 50);
+    
+    // 현재 컴포넌트와 수직으로 겹치는 기존 행 찾기
+    let targetRow = null;
+    
+    for (const row of rows) {
+      // 현재 행의 모든 컴포넌트와 겹치는지 확인
+      const hasOverlap = row.some(existingComp => {
+        const existingTop = existingComp.y || 0;
+        const existingBottom = existingTop + (existingComp.height || 50);
+        
+        // 수직 겹침 확인: Math.max(top1, top2) < Math.min(bottom1, bottom2)
+        return Math.max(compTop, existingTop) < Math.min(compBottom, existingBottom);
+      });
+      
+      if (hasOverlap) {
+        targetRow = row;
+        break;
+      }
+    }
+    
+    if (targetRow) {
+      // 기존 행에 추가
+      targetRow.push(component);
+    } else {
+      // 새로운 행 생성
+      rows.push([component]);
+    }
+  }
+  
+  // 각 행 내에서 X 좌표 기준으로 정렬
+  return rows.map(row => 
+    row.sort((a, b) => (a.x || 0) - (b.x || 0))
+  );
 }
 
 // 스냅라인 계산 함수 (정렬, 간격, 그리드, 중앙선 스냅 모두 지원)

@@ -72,13 +72,12 @@ function CanvasComponent({
 
   const componentDimensions = getComponentDimensions(comp.type);
 
-  // 현재 뷰포트에 맞는 최종 스타일 계산
-  const finalStyles = getFinalStyles(comp, viewport);
-  const currentX = finalStyles.x;
-  const currentY = finalStyles.y;
-  const finalWidth = finalStyles.width;
-  const finalHeight = finalStyles.height;
-  const finalProps = finalStyles.props;
+  // 단일 좌표계에서 직접 값 사용
+  const currentX = comp.x || 0;
+  const currentY = comp.y || 0;
+  const finalWidth = comp.width;
+  const finalHeight = comp.height;
+  const finalProps = comp.props || {};
 
   // 확장된 캔버스 크기 계산 공통 함수
   const getExtendedCanvasSize = () => {
@@ -97,45 +96,16 @@ function CanvasComponent({
     if (comp.type === 'image') {
       return {
         width:
-          finalProps?.width || finalWidth || componentDimensions.defaultWidth,
+          comp.props?.width || comp.width || componentDimensions.defaultWidth,
         height:
-          finalProps?.height ||
-          finalHeight ||
-          componentDimensions.defaultHeight,
+          comp.props?.height || comp.height || componentDimensions.defaultHeight,
       };
     }
 
-    // 고정 크기 컴포넌트들 (리사이즈가 어려운 컴포넌트들)
-    if (
-      [
-        'attend',
-        'dday',
-        'weddingContact',
-        'weddingInvite',
-        'calendar',
-        'bankAccount',
-        'comment',
-      ].includes(comp.type)
-    ) {
-      // 이런 컴포넌트들은 내부 레이아웃이 복잡하므로 기본 크기를 우선 사용
-      return {
-        width: finalWidth || componentDimensions.defaultWidth,
-        height: finalHeight || componentDimensions.defaultHeight,
-      };
-    }
-
-    // 갤러리 컴포넌트들 (동적 크기 조정 가능)
-    if (['gridGallery', 'slideGallery'].includes(comp.type)) {
-      return {
-        width: finalWidth || componentDimensions.defaultWidth,
-        height: finalHeight || componentDimensions.defaultHeight,
-      };
-    }
-
-    // 기본 컴포넌트들 (button, text, link 등)
+    // 기본 컴포넌트들
     return {
-      width: finalWidth || componentDimensions.defaultWidth,
-      height: finalHeight || componentDimensions.defaultHeight,
+      width: comp.width || componentDimensions.defaultWidth,
+      height: comp.height || componentDimensions.defaultHeight,
     };
   };
 
@@ -151,10 +121,10 @@ function CanvasComponent({
   // 새로운 단일 좌표계에서는 CSS 클래스 기반 반응형 불필요
 
   const renderContent = () => {
-    // 현재 뷰포트에 맞는 컴포넌트 객체 생성
+    // 컴포넌트 객체 생성
     const componentWithFinalStyles = {
       ...comp,
-      props: comp.props || finalProps,
+      props: comp.props || {},
       x: currentX,
       y: currentY,
       width: finalWidth,
@@ -192,7 +162,7 @@ function CanvasComponent({
             }
           }}
           style={{
-            fontSize: finalProps?.fontSize,
+            fontSize: comp.props?.fontSize,
             width: '100%',
             border: 'none',
             background: 'transparent',
@@ -239,7 +209,7 @@ function CanvasComponent({
           />
         );
       case 'map':
-        return <MapView {...(finalProps || {})} />;
+        return <MapView {...(comp.props || {})} />;
       case 'dday':
         return (
           <DdayRenderer
@@ -347,7 +317,7 @@ function CanvasComponent({
           />
         );
       default:
-        return <span>{finalProps?.text || ''}</span>;
+        return <span>{comp.props?.text || ''}</span>;
     }
   };
 

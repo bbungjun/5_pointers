@@ -347,9 +347,7 @@ function NoCodeEditor({ initialComponents = [] }) {
         <PreviewModal
           isOpen={interaction.isPreviewOpen}
           onClose={interaction.handlePreviewClose}
-          pageId={roomId}
           components={components}
-          canvasHeight={canvasHeight}
         />
 
         <TemplateModal

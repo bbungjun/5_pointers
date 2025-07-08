@@ -43,28 +43,41 @@ export class PagesServeController {
     <style>
         body { 
             margin: 0; 
-            padding: 20px; 
+            padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
         }
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 40px;
+        
+        /* 반응형 레이아웃 시스템 */
+        .page-container {
+            width: 100%;
+            box-sizing: border-box;
+            background: #ffffff;
+            padding: 24px;
+            position: relative;
         }
-        .component { 
-            margin-bottom: 20px; 
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #e1e5e9;
+        
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 16px;
+            }
         }
-        .text-component { background: #f8f9fa; }
-        .image-component { text-align: center; }
-        .image-component img { max-width: 100%; height: auto; border-radius: 4px; }
-        .button-component { text-align: center; }
+        
+        .component {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        @media (max-width: 768px) {
+            .component {
+                margin-bottom: 16px !important;
+            }
+        }
+        
+        /* 컴포넌트 스타일 */
+        .text-component { 
+            font-size: 16px;
+            line-height: 1.5;
+        }
         .button-component button { 
             padding: 12px 24px; 
             background: #007bff; 
@@ -74,80 +87,116 @@ export class PagesServeController {
             cursor: pointer;
             font-size: 16px;
         }
-        .header { 
-            text-align: center; 
-            margin-bottom: 30px; 
-            padding-bottom: 20px;
-            border-bottom: 2px solid #e1e5e9;
-        }
-        .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #e1e5e9;
-            text-align: center;
-            color: #6c757d;
-            font-size: 14px;
+        .image-component img { 
+            max-width: 100%; 
+            height: auto; 
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>${page.title || '5Pointers 페이지'}</h1>
-            <p>서브도메인: ${page.subdomain}</p>
-        </div>
-        
-        <div class="content">
-            ${this.renderComponents(components)}
-        </div>
-        
-        <div class="footer">
-            <p>Powered by 5Pointers | 생성일: ${new Date(page.createdAt).toLocaleDateString('ko-KR')}</p>
-        </div>
+    <div class="page-container">
+        ${this.renderResponsiveComponents(components)}
     </div>
 </body>
 </html>`;
   }
 
-  private renderComponents(components: any[]): string {
+  private renderResponsiveComponents(components: any[]): string {
     if (!Array.isArray(components) || components.length === 0) {
       return '<div class="component"><p>아직 콘텐츠가 없습니다.</p></div>';
     }
 
-    return components.map(comp => {
-      switch (comp.type) {
-        case 'text':
-          return `<div class="component text-component">
-            <h3>${comp.props?.title || ''}</h3>
-            <p>${comp.props?.content || comp.props?.text || ''}</p>
-          </div>`;
-          
-        case 'image':
-          return `<div class="component image-component">
-            <img src="${comp.props?.src || comp.props?.url || ''}" 
-                 alt="${comp.props?.alt || '이미지'}" />
-            ${comp.props?.caption ? `<p><em>${comp.props.caption}</em></p>` : ''}
-          </div>`;
-          
-        case 'button':
-          return `<div class="component button-component">
-            <button onclick="window.open('${comp.props?.link || '#'}', '_blank')">
-              ${comp.props?.text || comp.props?.label || '버튼'}
-            </button>
-          </div>`;
-          
-        case 'heading':
-          const level = comp.props?.level || 2;
-          return `<div class="component">
-            <h${level}>${comp.props?.text || comp.props?.content || ''}</h${level}>
-          </div>`;
-          
-        default:
-          return `<div class="component">
-            <p><strong>${comp.type}</strong>: ${JSON.stringify(comp.props || {})}</p>
-          </div>`;
-      }
+    // 데스크톱: 절대 위치, 모바일: 세로 정렬
+    const desktopLayout = components.map(comp => {
+      const content = this.renderSingleComponent(comp);
+      return `<div style="position: absolute; left: ${comp.x || 0}px; top: ${comp.y || 0}px; width: ${comp.width || 'auto'}px; height: ${comp.height || 'auto'}px;">
+        ${content}
+      </div>`;
     }).join('');
+
+    const mobileLayout = this.groupComponentsIntoRows(components).map(row => {
+      const rowContent = row.map(comp => {
+        const content = this.renderSingleComponent(comp);
+        return `<div class="component" style="width: ${comp.width}px; height: ${comp.height || 'auto'}px; margin-bottom: 16px;">
+          ${content}
+        </div>`;
+      }).join('');
+      return `<div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+        ${rowContent}
+      </div>`;
+    }).join('');
+
+    return `
+      <div class="desktop-layout" style="display: block;">
+        ${desktopLayout}
+      </div>
+      <div class="mobile-layout" style="display: none;">
+        ${mobileLayout}
+      </div>
+      <style>
+        @media (max-width: 768px) {
+          .desktop-layout { display: none !important; }
+          .mobile-layout { display: block !important; }
+        }
+      </style>
+    `;
+  }
+
+  private renderSingleComponent(comp: any): string {
+    switch (comp.type) {
+      case 'text':
+        return `<div class="text-component">
+          ${comp.props?.text || comp.props?.content || ''}
+        </div>`;
+        
+      case 'image':
+        return `<div class="image-component">
+          <img src="${comp.props?.src || comp.props?.url || ''}" 
+               alt="${comp.props?.alt || '이미지'}" />
+        </div>`;
+        
+      case 'button':
+        return `<div class="button-component">
+          <button onclick="window.open('${comp.props?.link || '#'}', '_blank')">
+            ${comp.props?.text || comp.props?.label || '버튼'}
+          </button>
+        </div>`;
+        
+      default:
+        return `<div><strong>${comp.type}</strong></div>`;
+    }
+  }
+
+  private groupComponentsIntoRows(components: any[]): any[][] {
+    const sortedComponents = [...components].sort((a, b) => (a.y || 0) - (b.y || 0));
+    const rows = [];
+    
+    for (const component of sortedComponents) {
+      const compTop = component.y || 0;
+      const compBottom = compTop + (component.height || 50);
+      
+      let targetRow = null;
+      for (const row of rows) {
+        const hasOverlap = row.some(existingComp => {
+          const existingTop = existingComp.y || 0;
+          const existingBottom = existingTop + (existingComp.height || 50);
+          return Math.max(compTop, existingTop) < Math.min(compBottom, existingBottom);
+        });
+        
+        if (hasOverlap) {
+          targetRow = row;
+          break;
+        }
+      }
+      
+      if (targetRow) {
+        targetRow.push(component);
+      } else {
+        rows.push([component]);
+      }
+    }
+    
+    return rows.map(row => row.sort((a, b) => (a.x || 0) - (b.x || 0)));
   }
 
   private generateErrorHTML(subdomain: string, errorMessage: string): string {
