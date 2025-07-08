@@ -169,11 +169,13 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
         <iframe
           ref={iframeRef}
           style={{
-            width: viewMode === 'desktop' ? '90vw' : '375px',
-            height: viewMode === 'desktop' ? '90vh' : '667px',
+            width: viewMode === 'desktop' ? 'calc(90vw - 10px)' : '375px',
+            height: viewMode === 'desktop' ? 'calc(90vh - 30px)' : '667px',
             border: 'none',
             borderRadius: '8px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            maxWidth: viewMode === 'desktop' ? '1200px' : '375px',
+            maxHeight: viewMode === 'desktop' ? '800px' : '667px',
           }}
         />
       </div>
