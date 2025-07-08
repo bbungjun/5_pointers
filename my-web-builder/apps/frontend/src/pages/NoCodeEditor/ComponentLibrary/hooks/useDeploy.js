@@ -50,7 +50,8 @@ export function useDeploy() {
       
       if (response.ok) {
         const data = await response.json();
-        const deployedUrl = getDeployedUrl(domainToUse);
+        // 백엔드에서 반환된 URL을 사용 (백엔드가 환경별 올바른 URL을 제공)
+        const deployedUrl = data.url || getDeployedUrl(domainToUse);
         setDeployedUrl(deployedUrl);
         setShowDomainInput(false);
       } else {
