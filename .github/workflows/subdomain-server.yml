@@ -29,45 +29,56 @@ jobs:
           echo "📤 Uploading files to S3..."
           
           # S3에 서버 파일들 업로드
-          aws s3 cp subdomain-server.js s3://elasticbeanstalk-ap-northeast-2-490004614784/auto-deploy/
-          aws s3 cp subdomain-proxy.js s3://elasticbeanstalk-ap-northeast-2-490004614784/auto-deploy/
+          aws s3 cp subdomain-server.js s3://elasticbeanstalk-ap-northeast-2-490004614784/deploy/
+          aws s3 cp subdomain-proxy.js s3://elasticbeanstalk-ap-northeast-2-490004614784/deploy/
           
-          # 자동 배포 스크립트 생성
-          cat > auto-deploy.sh << 'SCRIPT'
+          # Ubuntu용 배포 스크립트 생성
+          cat > ubuntu-deploy.sh << 'SCRIPT'
           #!/bin/bash
           set -e
           
-          echo "🚀 Auto deployment started at $(date)"
-          cd /home/ec2-user
+          echo "🚀 Ubuntu deployment started at $(date)" | tee -a /var/log/deploy.log
+          
+          # Ubuntu 사용자 홈으로 이동
+          cd /home/ubuntu
+          
+          # 시스템 업데이트
+          echo "📦 Updating system..." | tee -a /var/log/deploy.log
+          apt-get update -y
+          
+          # Node.js 20 설치
+          echo "📦 Installing Node.js 20..." | tee -a /var/log/deploy.log
+          curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+          apt-get install -y nodejs
+          
+          echo "✅ Node.js installed: $(node -v)" | tee -a /var/log/deploy.log
+          
+          # AWS CLI 설치 (필요시)
+          if ! command -v aws &> /dev/null; then
+            echo "📦 Installing AWS CLI..." | tee -a /var/log/deploy.log
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -q awscliv2.zip
+            ./aws/install
+          fi
           
           # 파일 다운로드
-          echo "📥 Downloading files..."
-          aws s3 cp s3://elasticbeanstalk-ap-northeast-2-490004614784/auto-deploy/subdomain-server.js ./
-          aws s3 cp s3://elasticbeanstalk-ap-northeast-2-490004614784/auto-deploy/subdomain-proxy.js ./
+          echo "📥 Downloading server files..." | tee -a /var/log/deploy.log
+          aws s3 cp s3://elasticbeanstalk-ap-northeast-2-490004614784/deploy/subdomain-server.js ./ --region ap-northeast-2
+          aws s3 cp s3://elasticbeanstalk-ap-northeast-2-490004614784/deploy/subdomain-proxy.js ./ --region ap-northeast-2
+          
+          # 소유권 변경
+          chown ubuntu:ubuntu *.js
           
           # 기존 프로세스 종료
-          echo "🔄 Stopping existing processes..."
+          echo "🔄 Stopping existing processes..." | tee -a /var/log/deploy.log
           pkill -f subdomain-server || true
           pkill -f "node.*subdomain" || true
           sleep 3
           
-          # Node.js 설치 확인
-          if ! command -v node &> /dev/null; then
-            echo "📦 Installing Node.js..."
-            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-          fi
-          
-          # 앱 디렉토리 생성
-          mkdir -p /opt/pagecube-subdomain
-          cp subdomain-server.js /opt/pagecube-subdomain/
-          cp subdomain-proxy.js /opt/pagecube-subdomain/
-          cd /opt/pagecube-subdomain
-          
           # package.json 생성
           cat > package.json << 'PKG'
           {
-            "name": "subdomain-server",
+            "name": "pagecube-subdomain-server",
             "version": "1.0.0",
             "main": "subdomain-server.js",
             "dependencies": {
@@ -79,40 +90,42 @@ jobs:
           }
           PKG
           
-          # 의존성 설치
-          npm install --production
+          chown ubuntu:ubuntu package.json
+          
+          # 의존성 설치 (ubuntu 사용자로)
+          echo "📦 Installing dependencies..." | tee -a /var/log/deploy.log
+          sudo -u ubuntu npm install --production
           
           # deployed-sites 디렉토리 생성
-          mkdir -p deployed-sites
+          sudo -u ubuntu mkdir -p deployed-sites
           
-          # 환경변수 설정
-          export NODE_ENV=production
-          export PORT=3001
+          # 서버 시작 (ubuntu 사용자로)
+          echo "🚀 Starting server..." | tee -a /var/log/deploy.log
+          sudo -u ubuntu nohup node subdomain-server.js > /var/log/subdomain-server.log 2>&1 &
           
-          # 서버 시작
-          echo "🚀 Starting server..."
-          nohup node subdomain-server.js > /var/log/subdomain-server.log 2>&1 &
-          
-          echo "✅ Server started with PID: $!"
-          sleep 5
+          echo "✅ Server started with PID: $!" | tee -a /var/log/deploy.log
+          sleep 10
           
           # 서버 테스트
           if curl -f http://localhost:3001 >/dev/null 2>&1; then
-            echo "✅ Server is responding on port 3001"
-            echo "🎉 Deployment completed successfully at $(date)"
+            echo "✅ Server is responding on port 3001" | tee -a /var/log/deploy.log
+            echo "🎉 Deployment completed successfully at $(date)" | tee -a /var/log/deploy.log
           else
-            echo "❌ Server is not responding"
-            echo "📋 Check logs: tail -f /var/log/subdomain-server.log"
+            echo "❌ Server is not responding" | tee -a /var/log/deploy.log
+            echo "📋 Process check:" | tee -a /var/log/deploy.log
+            ps aux | grep node | tee -a /var/log/deploy.log
+            echo "📋 Port check:" | tee -a /var/log/deploy.log
+            netstat -tlnp | grep 3001 | tee -a /var/log/deploy.log
             exit 1
           fi
           SCRIPT
           
           # S3에 배포 스크립트 업로드
-          aws s3 cp auto-deploy.sh s3://elasticbeanstalk-ap-northeast-2-490004614784/auto-deploy.sh
+          aws s3 cp ubuntu-deploy.sh s3://elasticbeanstalk-ap-northeast-2-490004614784/ubuntu-deploy.sh
           
           echo "✅ Files uploaded to S3"
 
-      - name: Restart EC2 instance with deployment
+      - name: Deploy to EC2 instance
         run: |
           # 인스턴스 ID 가져오기
           INSTANCE_ID=$(aws ec2 describe-instances \
@@ -128,16 +141,22 @@ jobs:
           
           echo "✅ Found instance: $INSTANCE_ID"
           
-          # User Data 스크립트 생성 (간단한 형태)
-          USER_DATA_SCRIPT='#!/bin/bash
+          # 간단한 User Data 스크립트 생성
+          cat > user-data.sh << 'USERDATA'
+          #!/bin/bash
           exec > /var/log/user-data.log 2>&1
-          cd /home/ec2-user
-          aws s3 cp s3://elasticbeanstalk-ap-northeast-2-490004614784/auto-deploy.sh ./
-          chmod +x auto-deploy.sh
-          sudo -u ec2-user ./auto-deploy.sh'
+          set -e
           
-          # Base64 인코딩 (개행 문자 제거)
-          USER_DATA_B64=$(printf '%s' "$USER_DATA_SCRIPT" | base64 | tr -d '\n')
+          echo "Starting user data execution at $(date)"
+          
+          # 배포 스크립트 다운로드 및 실행
+          cd /tmp
+          aws s3 cp s3://elasticbeanstalk-ap-northeast-2-490004614784/ubuntu-deploy.sh ./ --region ap-northeast-2
+          chmod +x ubuntu-deploy.sh
+          ./ubuntu-deploy.sh
+          
+          echo "User data execution completed at $(date)"
+          USERDATA
           
           echo "🔄 Restarting instance with deployment script..."
           
@@ -145,10 +164,10 @@ jobs:
           aws ec2 stop-instances --instance-ids $INSTANCE_ID --region ap-northeast-2
           aws ec2 wait instance-stopped --instance-ids $INSTANCE_ID --region ap-northeast-2
           
-          # User Data 설정
+          # User Data 설정 (파일 방식)
           aws ec2 modify-instance-attribute \
             --instance-id $INSTANCE_ID \
-            --user-data "$USER_DATA_B64" \
+            --user-data file://user-data.sh \
             --region ap-northeast-2
           
           # 인스턴스 시작
@@ -186,17 +205,26 @@ jobs:
           
           echo "✅ DNS updated: *.pagecube.net → $NEW_IP"
           
-          # 헬스체크 (2분 대기)
-          echo "⏳ Waiting 2 minutes for deployment to complete..."
-          sleep 120
+          # 헬스체크 (3분 대기 - User Data 실행 시간 고려)
+          echo "⏳ Waiting 3 minutes for deployment to complete..."
+          sleep 180
           
           # 헬스체크 시도
           echo "🔍 Performing health checks..."
-          for i in {1..10}; do
-            echo "🔍 Health check attempt $i/10..."
+          for i in {1..15}; do
+            echo "🔍 Health check attempt $i/15..."
             
             if curl -f --connect-timeout 10 --max-time 30 http://$NEW_IP:3001 >/dev/null 2>&1; then
               echo "✅ Health check passed!"
+              
+              # 서브도메인 테스트
+              echo "🔍 Testing subdomain..."
+              if curl -H "Host: 4asd.pagecube.net" --connect-timeout 10 http://$NEW_IP:3001 >/dev/null 2>&1; then
+                echo "✅ Subdomain test passed!"
+              else
+                echo "⚠️ Subdomain test failed, but server is running"
+              fi
+              
               echo ""
               echo "🎉 Deployment completed successfully!"
               echo "🌐 Subdomain server is running: http://$NEW_IP:3001"
@@ -205,15 +233,17 @@ jobs:
               exit 0
             fi
             
-            echo "⏳ Attempt $i failed, retrying in 15 seconds..."
-            sleep 15
+            echo "⏳ Attempt $i failed, retrying in 20 seconds..."
+            sleep 20
           done
           
-          echo "❌ Health check failed after 10 attempts"
-          echo "📋 Check EC2 logs: /var/log/user-data.log and /var/log/subdomain-server.log"
+          echo "❌ Health check failed after 15 attempts"
+          echo "📋 Server may still be starting. Check manually:"
+          echo "📋 Server URL: http://$NEW_IP:3001"
+          echo "📋 Subdomain URL: https://4asd.pagecube.net"
           exit 1
 
       - name: Cleanup
         if: always()
         run: |
-          rm -f auto-deploy.sh
+          rm -f ubuntu-deploy.sh user-data.sh
