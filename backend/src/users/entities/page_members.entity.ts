@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Column,
+  CreateDateColumn,
+} from 'typeorm';
 import { Pages } from './pages.entity';
 import { Users } from './users.entity';
 
@@ -7,10 +13,10 @@ export class PageMembers {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @ManyToOne(() => Pages, page => page.members, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Pages, (page) => page.members, { onDelete: 'CASCADE' })
   page: Pages;
 
-  @ManyToOne(() => Users, user => user.pageMembers, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Users, (user) => user.pageMembers, { onDelete: 'CASCADE' })
   user: Users;
 
   @Column({ default: 'EDITOR' })
@@ -30,4 +36,4 @@ export class PageMembers {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
-} 
+}

@@ -18,47 +18,74 @@ export class GeneratorService {
    */
   async deploy(deployDto: DeployDto): Promise<{ url: string }> {
     const { projectId, userId, components } = deployDto;
-    
+
+    console.log('🚀 Deploy 서비스 시작:', { projectId, userId, componentsCount: components?.length });
+
     // 1. projectId 유효성 확인
     if (!projectId) {
+      console.error('❌ Project ID 없음');
       throw new Error('Project ID is required');
     }
-    
+
     // 2. 서브도메인 생성 - 사용자가 입력한 도메인을 우선 사용
-    const userDomain = deployDto.domain?.toLowerCase().replace(/[^a-z0-9-]/g, '');
-    const subdomain = userDomain || `${userId}-${projectId}`.toLowerCase().replace(/[^a-z0-9-]/g, '');
-    
-    // 3. pages 테이블에 레코드가 없으면 생성, 있으면 서브도메인과 상태 업데이트
-    let page = await this.pagesRepository.findOne({ where: { id: projectId } });
-    if (!page) {
-      page = this.pagesRepository.create({
-        id: projectId,
-        subdomain: subdomain,
-        title: 'Deployed Page',
-        status: PageStatus.DEPLOYED,
-        userId: parseInt(userId.replace(/\D/g, '')) || 1
-      });
-      await this.pagesRepository.save(page);
-    } else {
-      // 기존 페이지가 있으면 서브도메인 업데이트 및 DEPLOYED 상태로 설정
-      page.subdomain = subdomain;
-      page.status = PageStatus.DEPLOYED;
-      await this.pagesRepository.save(page);
+    const userDomain = deployDto.domain
+      ?.toLowerCase()
+      .replace(/[^a-z0-9-]/g, '');
+    const subdomain =
+      userDomain ||
+      `${userId}-${projectId}`.toLowerCase().replace(/[^a-z0-9-]/g, '');
+
+    console.log('📝 서브도메인 생성:', { userDomain, subdomain });
+
+    let page;
+    try {
+      // 3. pages 테이블에 레코드가 없으면 생성, 있으면 서브도메인과 상태 업데이트
+      page = await this.pagesRepository.findOne({ where: { id: projectId } });
+      
+      if (!page) {
+        console.log('📄 새 페이지 생성');
+        page = this.pagesRepository.create({
+          id: projectId,
+          subdomain: subdomain,
+          title: 'Deployed Page',
+          status: PageStatus.DEPLOYED,
+          userId: parseInt(userId.replace(/\D/g, '')) || 1,
+        });
+        await this.pagesRepository.save(page);
+      } else {
+        console.log('📄 기존 페이지 업데이트');
+        // 기존 페이지가 있으면 서브도메인 업데이트 및 DEPLOYED 상태로 설정
+        page.subdomain = subdomain;
+        page.status = PageStatus.DEPLOYED;
+        await this.pagesRepository.save(page);
+      }
+    } catch (dbError) {
+      console.error('❌ 데이터베이스 오류:', dbError);
+      throw new Error(`데이터베이스 저장 실패: ${dbError.message}`);
     }
-    
+
     // 4. 최종 배포 URL 생성 (프로덕션에서는 실제 서브도메인 사용)
-    const isProduction = process.env.NODE_ENV === 'production' || 
-                        process.env.DB_HOST !== 'localhost' || 
-                        process.env.API_BASE_URL?.includes('pagecube.net');
+    const isProduction =
+      process.env.NODE_ENV === 'production' ||
+      process.env.DB_HOST !== 'localhost' ||
+      process.env.API_BASE_URL?.includes('pagecube.net');
     const url = isProduction
-      ? `https://${subdomain}.pagecube.net` 
-      : `http://localhost:3001/${subdomain}`;
-    
-    // 5. 컴포넌트 데이터를 pages 테이블의 content 컬럼에 저장
-    page.content = { components };
-    await this.pagesRepository.save(page);
-    
-    return { url };
+      ? `https://${subdomain}.pagecube.net`
+      : `http://${subdomain}.localhost:3001`;
+
+    console.log('🌍 URL 생성:', { isProduction, url });
+
+    try {
+      // 5. 컴포넌트 데이터를 pages 테이블의 content 컬럼에 저장
+      page.content = { components };
+      const savedPage = await this.pagesRepository.save(page);
+      
+      console.log('✅ 배포 완료:', { subdomain, url, pageId: savedPage.id });
+      return { url };
+    } catch (saveError) {
+      console.error('❌ 컴포넌트 저장 실패:', saveError);
+      throw new Error(`컴포넌트 저장 실패: ${saveError.message}`);
+    }
   }
 
   /**
@@ -69,27 +96,30 @@ export class GeneratorService {
   async getDeployments(pageId: string) {
     // pages 테이블에서 해당 페이지의 배포 정보 조회
     const page = await this.pagesRepository.findOne({
-      where: { id: pageId, status: PageStatus.DEPLOYED }
+      where: { id: pageId, status: PageStatus.DEPLOYED },
     });
-    
+
     // 배포 기록이 없으면 빈 배열 반환
     if (!page) {
       return { deployments: [] };
     }
-    
+
     // 배포 정보 반환
-    return { 
-      deployments: [{
-        deployedUrl: (process.env.NODE_ENV === 'production' || 
-                     process.env.DB_HOST !== 'localhost' || 
-                     process.env.API_BASE_URL?.includes('pagecube.net'))
-          ? `https://${page.subdomain}.pagecube.net` 
-          : `http://localhost:3001/${page.subdomain}`,
-        deployedAt: page.updatedAt,
-        subdomain: page.subdomain,
-        projectId: page.id,
-        components: page.content?.components || []
-      }] 
+    return {
+      deployments: [
+        {
+          deployedUrl:
+            process.env.NODE_ENV === 'production' ||
+            process.env.DB_HOST !== 'localhost' ||
+            process.env.API_BASE_URL?.includes('pagecube.net')
+              ? `https://${page.subdomain}.pagecube.net`
+              : `http://localhost:3001/${page.subdomain}`,
+          deployedAt: page.updatedAt,
+          subdomain: page.subdomain,
+          projectId: page.id,
+          components: page.content?.components || [],
+        },
+      ],
     };
   }
 
@@ -101,17 +131,17 @@ export class GeneratorService {
   async getPageData(pageId: string) {
     // pages 테이블에서 해당 페이지의 배포 정보 조회
     const page = await this.pagesRepository.findOne({
-      where: { id: pageId, status: PageStatus.DEPLOYED }
+      where: { id: pageId, status: PageStatus.DEPLOYED },
     });
-    
+
     // 배포 기록이 없으면 null 반환
     if (!page) {
       return null;
     }
-    
+
     // 배포된 컴포넌트 데이터 반환
-    return { 
-      components: page.content?.components || []
+    return {
+      components: page.content?.components || [],
     };
   }
 
@@ -124,17 +154,17 @@ export class GeneratorService {
     try {
       // pages 테이블에서 subdomain으로 직접 조회
       const page = await this.pagesRepository.findOne({
-        where: { subdomain, status: PageStatus.DEPLOYED }
+        where: { subdomain, status: PageStatus.DEPLOYED },
       });
-      
+
       if (!page) {
         throw new NotFoundException(`Subdomain "${subdomain}" not found`);
       }
-      
+
       // content 컬럼에서 컴포넌트 데이터와 페이지 ID 반환
       return {
         components: page.content?.components || [],
-        pageId: page.id
+        pageId: page.id,
       };
     } catch (error) {
       throw error;
@@ -147,24 +177,26 @@ export class GeneratorService {
    * @returns HTML 문자열
    */
   async generateStaticHTML(components: any[]): Promise<string> {
-    const componentHTML = components.map(comp => {
-      const style = `position: absolute; left: ${comp.x}px; top: ${comp.y}px; color: ${comp.props.color}; font-size: ${comp.props.fontSize}px;`;
-      
-      switch (comp.type) {
-        case 'button':
-          return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
-        case 'text':
-          return `<div style="${style}">${comp.props.text}</div>`;
-        case 'link':
-          return `<a href="${comp.props.url}" style="${style} text-decoration: underline;">${comp.props.text}</a>`;
-        case 'attend':
-          return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
-        case 'image':
-          return `<img src="${comp.props.src}" style="${style} width: ${comp.props.width}px; height: ${comp.props.height}px;" alt="${comp.props.alt || ''}" />`;
-        default:
-          return `<div style="${style}">${comp.props.text || ''}</div>`;
-      }
-    }).join('');
+    const componentHTML = components
+      .map((comp) => {
+        const style = `position: absolute; left: ${comp.x}px; top: ${comp.y}px; color: ${comp.props.color}; font-size: ${comp.props.fontSize}px;`;
+
+        switch (comp.type) {
+          case 'button':
+            return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
+          case 'text':
+            return `<div style="${style}">${comp.props.text}</div>`;
+          case 'link':
+            return `<a href="${comp.props.url}" style="${style} text-decoration: underline;">${comp.props.text}</a>`;
+          case 'attend':
+            return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
+          case 'image':
+            return `<img src="${comp.props.src}" style="${style} width: ${comp.props.width}px; height: ${comp.props.height}px;" alt="${comp.props.alt || ''}" />`;
+          default:
+            return `<div style="${style}">${comp.props.text || ''}</div>`;
+        }
+      })
+      .join('');
 
     return `
       <!DOCTYPE html>
@@ -190,5 +222,3 @@ export class GeneratorService {
     `;
   }
 }
-
-  

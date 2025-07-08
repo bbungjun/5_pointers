@@ -2,16 +2,26 @@
 
 This file is used to trigger GitHub Actions deployment.
 
-Last updated: 2025-07-07 13:15:00
-Reason: Fix API endpoint routing issue by adding global prefix
+Last updated: 2025-07-08 23:50:00
+Reason: Integrate subdomain server into Elastic Beanstalk backend
 
 Changes:
-- Added app.setGlobalPrefix('api') to main.ts
-- Fixed frontend API endpoint routing (404 errors)
-- All API endpoints now have /api/ prefix
-- Resolves pagecube.net login issues
+- Modified app.controller.ts to handle subdomain routing at root path
+- Added subdomain extraction and HTML rendering logic
+- Updated app.module.ts to include AppController and AppService
+- Fixed unit tests to work with new controller structure
+- Integrated GeneratorService for subdomain page rendering
+- Eliminated separate EC2 instances for subdomain handling
+- All subdomain requests now processed through single EB environment
+
+Infrastructure improvements:
+- Cost optimization: Removed separate EC2 instances
+- Simplified deployment: Single application handles all routing
+- Better maintainability: Unified codebase and logging
+- Enhanced scalability: Leverages EB auto-scaling
 
 Previous deployments:
+- 2025-07-07 13:15:00: Fix API endpoint routing issue by adding global prefix
 - 2025-07-05 11:30:00: Fix Vite build command and improve deployment workflows
 - Remove deprecated --force option from Vite build
 - Improve build process with better error handling and logging

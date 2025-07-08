@@ -38,17 +38,17 @@ export class TemplatesService {
     category: string,
     authorId: number,
     tags?: string[],
-    thumbnail_url?: string
+    thumbnail_url?: string,
   ) {
     // 소스 페이지 조회
     const sourcePage = await this.pagesRepository.findOne({
-      where: { id: pageId }
+      where: { id: pageId },
     });
 
     if (!sourcePage) {
       throw new NotFoundException('페이지를 찾을 수 없습니다.');
     }
-    
+
     // console.log('원본 페이지 데이터:', {
     //   id: sourcePage.id,
     //   title: sourcePage.title,
@@ -59,7 +59,7 @@ export class TemplatesService {
 
     // 작성자 조회
     const author = await this.usersRepository.findOne({
-      where: { id: authorId }
+      where: { id: authorId },
     });
 
     if (!author) {
@@ -74,7 +74,7 @@ export class TemplatesService {
       content: sourcePage.content || [], // 페이지의 컴포넌트 배열
       tags: tags || [],
       author,
-      authorId
+      authorId,
     });
 
     return this.templatesRepository.save(template);
@@ -87,11 +87,11 @@ export class TemplatesService {
     category: string,
     authorId: number,
     tags?: string[],
-    thumbnail_url?: string
+    thumbnail_url?: string,
   ) {
     // 작성자 조회
     const author = await this.usersRepository.findOne({
-      where: { id: authorId }
+      where: { id: authorId },
     });
 
     if (!author) {
@@ -109,7 +109,7 @@ export class TemplatesService {
       content: components || [], // 에디터에서 전달받은 컴포넌트 배열
       tags: tags || [],
       author,
-      authorId
+      authorId,
     });
 
     return this.templatesRepository.save(template);
@@ -120,11 +120,11 @@ export class TemplatesService {
     templateId: string,
     userId: number,
     title?: string,
-    subdomain?: string
+    subdomain?: string,
   ) {
     // 템플릿 조회
     const template = await this.templatesRepository.findOne({
-      where: { id: templateId, isPublic: true }
+      where: { id: templateId, isPublic: true },
     });
 
     if (!template) {
@@ -133,7 +133,7 @@ export class TemplatesService {
 
     // 사용자 조회
     const user = await this.usersRepository.findOne({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!user) {
@@ -150,7 +150,7 @@ export class TemplatesService {
       content: newContent,
       owner: user,
       userId,
-      status: PageStatus.DRAFT
+      status: PageStatus.DRAFT,
     });
 
     const savedPage = await this.pagesRepository.save(newPage);
@@ -159,7 +159,7 @@ export class TemplatesService {
     await this.templatesRepository.increment(
       { id: templateId },
       'usageCount',
-      1
+      1,
     );
 
     return savedPage;
@@ -169,9 +169,9 @@ export class TemplatesService {
   private regenerateComponentIds(components: any[]): any[] {
     if (!Array.isArray(components)) return [];
 
-    return components.map(comp => ({
+    return components.map((comp) => ({
       ...comp,
-      id: this.generateRandomId()
+      id: this.generateRandomId(),
     }));
   }
 

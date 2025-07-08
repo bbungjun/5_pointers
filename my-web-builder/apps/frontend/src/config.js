@@ -74,9 +74,9 @@ export const getDeployedUrl = (subdomain) => {
     console.log('✅ 프로덕션 URL 생성 (서브도메인 기반):', url);
     return url;
   } else {
-    // 로컬: 별도 포트의 서브도메인 서버 사용
-    const url = `http://localhost:3001/${subdomain}`;
-    console.log('🏠 로컬 URL 생성:', url);
+    // 로컬: 와일드카드 서브도메인 서버 사용
+    const url = `http://${subdomain}.localhost:3001`;
+    console.log('🏠 로컬 URL 생성 (와일드카드 서브도메인):', url);
     return url;
   }
 };

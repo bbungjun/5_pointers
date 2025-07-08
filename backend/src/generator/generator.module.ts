@@ -13,9 +13,10 @@ import { Submissions } from '../users/entities/submissions.entity';
 @Module({
   imports: [
     // Pages와 Submissions 테이블에 접근하기 위한 TypeORM 설정
-    TypeOrmModule.forFeature([Pages, Submissions])
+    TypeOrmModule.forFeature([Pages, Submissions]),
   ],
   controllers: [GeneratorController], // 배포 API 엔드포인트
-  providers: [GeneratorService],      // 배포 비즈니스 로직
+  providers: [GeneratorService], // 배포 비즈니스 로직
+  exports: [GeneratorService], // AppController에서 사용할 수 있도록 export
 })
 export class GeneratorModule {}
