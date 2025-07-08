@@ -58,7 +58,7 @@ export const getRedirectUrl = (provider) => {
   return `${frontendUrl}/social-callback?provider=${provider}`;
 };
 
-// 배포 URL 생성 함수 (서브도메인 기반으로 변경)
+// 배포 URL 생성 함수 (API 엔드포인트 기반으로 변경)
 export const getDeployedUrl = (subdomain) => {
   const isProduction = isProductionEnvironment();
   
@@ -69,9 +69,9 @@ export const getDeployedUrl = (subdomain) => {
   });
   
   if (isProduction) {
-    // 프로덕션: 실제 서브도메인 사용
-    const url = `https://${subdomain}.pagecube.net`;
-    console.log('✅ 프로덕션 URL 생성 (서브도메인 기반):', url);
+    // 프로덕션: CloudFront 우회하여 백엔드 API 직접 접근
+    const url = `https://pagecube.net/api/generator/deployed-sites/${subdomain}`;
+    console.log('✅ 프로덕션 URL 생성 (API 엔드포인트 기반):', url);
     return url;
   } else {
     // 로컬: 와일드카드 서브도메인 서버 사용
