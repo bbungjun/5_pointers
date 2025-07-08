@@ -23,6 +23,7 @@ import {
   getFinalStyles,
 } from '../utils/editorUtils';
 import MusicRenderer from '../ComponentRenderers/MusicRenderer';
+import PageRenderer from '../ComponentRenderers/PageRenderer';
 import KakaoTalkShareRenderer from '../ComponentRenderers/KakaoTalkShareRenderer';
 
 // 그리드 크기 상수
@@ -307,6 +308,15 @@ function CanvasComponent({
             viewport={viewport}
           />
         );
+
+      case 'page':
+        return (
+          <PageRenderer
+            component={componentWithFinalStyles}
+            isEditor={true}
+            onUpdate={onUpdate}
+          />
+        )
       default:
         return <span>{comp.props?.text || ''}</span>;
     }
