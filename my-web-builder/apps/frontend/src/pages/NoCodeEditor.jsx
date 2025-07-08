@@ -256,6 +256,7 @@ function NoCodeEditor({ pageId }) {
         onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
         onInviteOpen={interaction.handleInviteOpen}
         roomId={effectiveRoomId}
+        
         isAdmin={true}
       />
 
@@ -277,6 +278,8 @@ function NoCodeEditor({ pageId }) {
           }}
           components={components}
           roomId={effectiveRoomId}
+        //  roomId={roomId}
+        //pageId={pageId}
           isOpen={interaction.isLibraryOpen}
           onToggle={interaction.handleLibraryToggle}
           isReady={true} // 항상 준비 상태로 설정 (Y.js 연결과 독립적)

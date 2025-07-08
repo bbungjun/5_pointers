@@ -13,6 +13,7 @@ import { API_BASE_URL } from '../config';
  * - 컴포넌트 추가/수정/삭제 로직
  * - 템플릿 저장 로직
  * - 섹션 추가 로직
+ * - Page 컴포넌트 자동 페이지 생성 로직
  */
 export function useComponentActions(
   collaboration,
@@ -27,86 +28,182 @@ export function useComponentActions(
 ) {
   const { addComponent, updateComponent, removeComponent } = collaboration;
 
-  // 컴포넌트 드래그 앤 드롭 추가
+  // 유니크한 ID 생성 함수
+  const generateUniqueId = () => {
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}-${userInfo.id}-${Math.random().toString(36).slice(2, 8)}`;
+  };
+
+  // 드롭 위치 계산 함수
+  const calculateDropPosition = (e) => {
+    const effectiveGridSize = GRID_SIZE;
+    const snappedX = Math.round(e.nativeEvent.offsetX / effectiveGridSize) * effectiveGridSize;
+    const snappedY = Math.round(e.nativeEvent.offsetY / effectiveGridSize) * effectiveGridSize;
+    return { snappedX, snappedY };
+  };
+
+  // 토스트 알림 함수 (임시)
+  const showToast = (message, type = 'info') => {
+    console.log(`[${type.toUpperCase()}] ${message}`);
+    // 실제 토스트 라이브러리가 있다면 여기서 호출
+    alert(message);
+  };
+
+  // Page 컴포넌트 자동 페이지 생성 로직
+  const handlePageComponentDrop = async (e) => {
+    try {
+      console.log('🆕 Page 컴포넌트 드롭 감지 - 자동 페이지 생성 시작');
+      
+      // 1. 드롭 위치 계산
+      const { snappedX, snappedY } = calculateDropPosition(e);
+      const dimensions = getComponentDimensions('page');
+      const width = dimensions.defaultWidth;
+      const height = dimensions.defaultHeight;
+
+      const maxX = viewport === 'mobile' ? Math.max(0, 375 - width) : Math.max(0, 1920 - width);
+      const maxY = Math.max(0, canvasHeight - height);
+
+      let clampedX = clamp(snappedX, 0, maxX);
+      let clampedY = clamp(snappedY, 0, maxY);
+
+      // 충돌 방지
+      const tempComponent = { id: 'temp', type: 'page', x: clampedX, y: clampedY, width, height };
+      const collisionResult = resolveCollision(tempComponent, components, getComponentDimensions);
+      clampedX = collisionResult.x;
+      clampedY = collisionResult.y;
+
+      // 2. 새 페이지 자동 생성 API 호출
+      const currentPageId = window.location.pathname.split('/').pop();
+      const componentId = generateUniqueId();
+      
+      console.log('📡 페이지 생성 API 호출:', { currentPageId, componentId });
+      
+      const response = await fetch(`${API_BASE_URL}/users/pages/create-from-component`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          parentPageId: currentPageId,
+          componentId: componentId,
+          pageName: "새 페이지"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`페이지 생성 실패: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ 페이지 생성 성공:', result);
+
+      // 3. Page 컴포넌트 생성 및 캔버스에 추가
+      const pageComponent = {
+        id: componentId,
+        type: 'page',
+        x: clampedX,
+        y: clampedY,
+        width,
+        height,
+        props: {
+          pageName: result.page.title,
+          linkedPageId: result.page.id,
+          deployedUrl: `${window.location.origin}/editor/${result.page.id}`,
+          autoCreated: true,
+          description: '',
+          thumbnail: '',
+          thumbnailType: 'auto',
+          backgroundColor: '#ffffff',
+          textColor: '#333333',
+          borderColor: '#007bff',
+          borderWidth: '2px',
+          borderRadius: 8,
+          fontSize: 14,
+          fontWeight: '500'
+        },
+        editedViewport: viewport,
+        createdBy: userInfo.id,
+        createdAt: Date.now(),
+      };
+
+      // 4. 협업 시스템에 컴포넌트 추가
+      addComponent(pageComponent);
+
+      // 5. 성공 알림
+      showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
+      
+      console.log('✅ Page 컴포넌트 자동 생성 완료:', {
+        componentId: pageComponent.id,
+        linkedPageId: result.page.id,
+        pageName: result.page.title
+      });
+
+      return pageComponent.id;
+      
+    } catch (error) {
+      console.error('❌ Page 컴포넌트 생성 실패:', error);
+      showToast('페이지 생성에 실패했습니다. 다시 시도해주세요.', 'error');
+      return null;
+    }
+  };
+
+  // 일반 컴포넌트 드롭 처리
+  const handleNormalComponentDrop = (e) => {
+    const type = e.dataTransfer.getData('componentType');
+    const compDef = ComponentDefinitions.find((def) => def.type === type);
+    
+    if (compDef) {
+      const { snappedX, snappedY } = calculateDropPosition(e);
+      const dimensions = getComponentDimensions(type);
+      const width = dimensions.defaultWidth;
+      const height = dimensions.defaultHeight;
+
+      const maxX = viewport === 'mobile' ? Math.max(0, 375 - width) : Math.max(0, 1920 - width);
+      const maxY = Math.max(0, canvasHeight - height);
+
+      let clampedX = clamp(snappedX, 0, maxX);
+      let clampedY = clamp(snappedY, 0, maxY);
+
+      // 충돌 방지
+      const tempComponent = { id: 'temp', type, x: clampedX, y: clampedY, width, height };
+      const collisionResult = resolveCollision(tempComponent, components, getComponentDimensions);
+      clampedX = collisionResult.x;
+      clampedY = collisionResult.y;
+
+      const uniqueId = generateUniqueId();
+      const newComponent = {
+        id: uniqueId,
+        type,
+        x: clampedX,
+        y: clampedY,
+        width,
+        height,
+        props: { ...(compDef?.defaultProps || {}) },
+        editedViewport: viewport,
+        createdBy: userInfo.id,
+        createdAt: Date.now(),
+      };
+
+      console.log('🆕 새 컴포넌트 생성:', uniqueId, type, { x: clampedX, y: clampedY });
+      addComponent(newComponent);
+      return uniqueId;
+    }
+    return null;
+  };
+
+  // 컴포넌트 드래그 앤 드롭 추가 (메인 함수)
   const handleDrop = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
       const type = e.dataTransfer.getData('componentType');
-      if (type) {
-        const compDef = ComponentDefinitions.find((def) => def.type === type);
-        if (compDef) {
-          const effectiveGridSize = GRID_SIZE;
-          const dimensions = getComponentDimensions(type);
-          const width = dimensions.defaultWidth;
-          const height = dimensions.defaultHeight;
-
-          const snappedX =
-            Math.round(e.nativeEvent.offsetX / effectiveGridSize) *
-            effectiveGridSize;
-          const snappedY =
-            Math.round(e.nativeEvent.offsetY / effectiveGridSize) *
-            effectiveGridSize;
-
-          const maxX =
-            viewport === 'mobile'
-              ? Math.max(0, 375 - width)
-              : Math.max(0, 1920 - width);
-          const maxY = Math.max(0, canvasHeight - height);
-
-          let clampedX = clamp(snappedX, 0, maxX);
-          let clampedY = clamp(snappedY, 0, maxY);
-
-          // 유니크한 ID 생성
-          const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}-${userInfo.id}-${Math.random().toString(36).slice(2, 8)}`;
-
-          // 충돌 방지를 위한 임시 컴포넌트 생성
-          const tempComponent = {
-            id: uniqueId,
-            type,
-            x: clampedX,
-            y: clampedY,
-            width,
-            height,
-          };
-
-          const collisionResult = resolveCollision(
-            tempComponent,
-            components,
-            getComponentDimensions
-          );
-          clampedX = collisionResult.x;
-          clampedY = collisionResult.y;
-
-          clampedX = clamp(clampedX, 0, maxX);
-          clampedY = clamp(clampedY, 0, maxY);
-
-          // 새로운 시스템에 맞는 단순한 컴포넌트 구조
-          const newComponent = {
-            id: uniqueId,
-            type,
-            x: clampedX,
-            y: clampedY,
-            width,
-            height,
-            props: { ...(compDef?.defaultProps || {}) },
-            editedViewport: viewport, // 현재 편집 중인 뷰포트 저장
-            createdBy: userInfo.id,
-            createdAt: Date.now(),
-          };
-
-          console.log('🆕 새 컴포넌트 생성:', uniqueId, type, {
-            x: clampedX,
-            y: clampedY,
-          });
-
-          // 협업 기능으로 컴포넌트 추가
-          addComponent(newComponent);
-
-          // 추가된 컴포넌트 반환 (선택을 위해)
-          return uniqueId;
-        }
+      
+      if (type === 'page') {
+        // Page 컴포넌트 특별 처리: 자동 페이지 생성
+        return await handlePageComponentDrop(e);
+      } else {
+        // 일반 컴포넌트 처리
+        return handleNormalComponentDrop(e);
       }
-      return null;
     },
     [addComponent, userInfo, components, viewport, canvasHeight]
   );
@@ -148,80 +245,54 @@ export function useComponentActions(
         console.log('변경된 속성이 없음');
       }
     },
-    [updateComponent, components]
+    [updateComponent, components, viewport]
   );
 
   // 컴포넌트 삭제
   const handleDelete = useCallback(
-    (id, selectedId, setSelectedId) => {
-      // 협업 기능으로 컴포넌트 삭제
-      removeComponent(id);
-      if (selectedId === id) {
-        setSelectedId(null);
-      }
+    (compId) => {
+      console.log('컴포넌트 삭제 요청:', compId);
+      removeComponent(compId);
     },
     [removeComponent]
   );
 
   // 템플릿으로 저장
-  const handleSaveAsTemplate = useCallback(async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(
-        `${API_BASE_URL}/templates/from-components`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            components: components,
-            name: templateData.name,
-            category: templateData.category,
-            tags: templateData.tags
-              .split(',')
-              .map((tag) => tag.trim())
-              .filter((tag) => tag),
-          }),
+  const handleSaveAsTemplate = useCallback(
+    async (selectedComponents) => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/templates/from-components`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              components: selectedComponents,
+              templateData,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          console.log('템플릿 저장 성공');
+          setTemplateData({ title: '', description: '', category: 'custom' });
+          setIsTemplateSaveOpen(false);
         }
-      );
-
-      if (response.ok) {
-        alert('템플릿으로 저장되었습니다!');
-        setIsTemplateSaveOpen(false);
-        setTemplateData({ name: '', category: 'wedding', tags: '' });
-      } else {
-        alert('템플릿 저장에 실패했습니다.');
+      } catch (error) {
+        console.error('템플릿 저장 실패:', error);
       }
-    } catch (error) {
-      console.error('템플릿 저장 실패:', error);
-      alert('템플릿 저장에 실패했습니다.');
-    }
-  }, [components, templateData, setIsTemplateSaveOpen, setTemplateData]);
+    },
+    [templateData, setTemplateData, setIsTemplateSaveOpen]
+  );
 
-  // 새 섹션 추가
+  // 섹션 추가
   const handleAddSection = useCallback(
     (sectionY, containerRef, zoom) => {
-      // 현재 캔버스 높이에 새 섹션 높이를 추가
-      const newCanvasHeight = Math.max(canvasHeight, sectionY + 400);
-      console.log('섹션 추가:', {
-        currentHeight: canvasHeight,
-        sectionY,
-        newCanvasHeight,
-      });
-      setCanvasHeight(newCanvasHeight);
-
-      // 새로 추가된 섹션으로 스크롤
-      setTimeout(() => {
-        if (containerRef.current) {
-          const targetScrollTop = sectionY * (zoom / 100) - 200;
-          containerRef.current.scrollTo({
-            top: targetScrollTop,
-            behavior: 'smooth',
-          });
-        }
-      }, 100);
+      const newHeight = Math.max(canvasHeight, sectionY + 200);
+      setCanvasHeight(newHeight);
+      console.log('섹션 추가:', { 기존높이: canvasHeight, 새높이: newHeight });
     },
     [canvasHeight, setCanvasHeight]
   );

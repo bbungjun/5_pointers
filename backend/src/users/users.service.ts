@@ -1,3 +1,4 @@
+import { In } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -1274,5 +1275,101 @@ export class UsersService {
     page.content.canvasSettings.designMode = designMode;
 
     return this.pagesRepository.save(page);
+  }
+
+  /**
+   * 페이지 네비게이션용 페이지 목록 조회 (Page 컴포넌트로 연결된 페이지들만)
+   */
+  async getMyPagesForNavigation(userId: number, currentPageId?: string) {
+    try {
+      let pagesToShow = [];
+
+      if (currentPageId) {
+        // 현재 페이지 정보 조회
+        const currentPage = await this.pagesRepository.findOne({
+          where: { id: currentPageId, owner: { id: userId } },
+          select: ['id', 'title', 'content', 'subdomain', 'status', 'createdAt', 'updatedAt']
+        });
+
+        if (currentPage) {
+          // 현재 페이지를 목록에 추가
+          pagesToShow.push(currentPage);
+
+          // 현재 페이지의 pageConnections에서 연결된 페이지들 조회
+          const pageConnections = currentPage.content?.pageConnections || [];
+          
+          if (pageConnections.length > 0) {
+            const linkedPageIds = pageConnections.map(conn => conn.linkedPageId);
+            
+            // 연결된 페이지들 조회
+            const linkedPages = await this.pagesRepository.find({
+              where: { 
+                id: In(linkedPageIds),
+                owner: { id: userId }
+              },
+              select: [
+                'id',
+                'title', 
+                'subdomain',
+                'status',
+                'content',
+                'createdAt',
+                'updatedAt'
+              ]
+            });
+
+            pagesToShow.push(...linkedPages);
+          }
+        }
+      }
+
+      // 페이지가 없으면 사용자의 모든 페이지 조회 (fallback)
+      if (pagesToShow.length === 0) {
+        console.log('연결된 페이지가 없어서 모든 페이지 조회');
+        pagesToShow = await this.pagesRepository.find({
+          where: { owner: { id: userId } },
+          order: { updatedAt: 'DESC' },
+          take: 10, // 최대 10개만
+          select: [
+            'id',
+            'title', 
+            'subdomain',
+            'status',
+            'content',
+            'createdAt',
+            'updatedAt'
+          ]
+        });
+      }
+
+      // 중복 제거 (현재 페이지가 연결 목록에도 있을 수 있음)
+      const uniquePages = pagesToShow.filter((page, index, self) => 
+        index === self.findIndex(p => p.id === page.id)
+      );
+
+      // 페이지 네비게이션에 필요한 메타데이터 포함
+      const pagesWithMetadata = uniquePages.map(page => ({
+        id: page.id,
+        title: page.title,
+        subdomain: page.subdomain,
+        status: page.status,
+        content: {
+          components: page.content?.components || [],
+          metadata: {
+            totalComponents: page.content?.components?.length || 0,
+            pageComponentCount: page.content?.pageConnections?.length || 0,
+            lastModified: page.updatedAt
+          }
+        },
+        createdAt: page.createdAt,
+        updatedAt: page.updatedAt
+      }));
+
+      console.log('페이지 네비게이션용 목록 조회 완료:', uniquePages.length, '개');
+      return pagesWithMetadata;
+    } catch (error) {
+      console.error('페이지 네비게이션 목록 조회 실패:', error);
+      throw new Error('페이지 목록 조회 실패: ' + error.message);
+    }
   }
 }

@@ -1,63 +1,58 @@
-import ButtonThumbnail from './ButtonThumbnail';
-import TextThumbnail from './TextThumbnail';
-import LinkThumbnail from './LinkThumbnail';
+// 컴포넌트별 썸네일들을 export
+export { default as AttendThumbnail } from './AttendThumbnail';
+export { default as BankAccountThumbnail } from './BankAccountThumbnail';
+export { default as ButtonThumbnail } from './ButtonThumbnail';
+export { default as CalendarThumbnail } from './CalendarThumbnail';
+export { default as CommentThumbnail } from './CommentThumbnail';
+export { default as DdayThumbnail } from './DdayThumbnail';
+export { default as DefaultThumbnail } from './DefaultThumbnail';
+export { default as GridGalleryThumbnail } from './GridGalleryThumbnail';
+export { default as ImageThumbnail } from './ImageThumbnail';
+export { default as LinkThumbnail } from './LinkThumbnail';
+export { default as MapThumbnail } from './MapThumbnail';
+export { default as MusicThumbnail } from './MusicThumbnail';
+export { default as SlideGalleryThumbnail } from './SlideGalleryThumbnail';
+export { default as TextThumbnail } from './TextThumbnail';
+export { default as WeddingContactThumbnail } from './WeddingContactThumbnail';
+export { default as WeddingInviteThumbnail } from './WeddingInviteThumbnail';
+export { default as PageThumbnail } from './PageThumbnail';
+
+// 개별 import
 import AttendThumbnail from './AttendThumbnail';
-import DdayThumbnail from './DdayThumbnail';
-import CalendarThumbnail from './CalendarThumbnail';
 import BankAccountThumbnail from './BankAccountThumbnail';
+import ButtonThumbnail from './ButtonThumbnail';
+import CalendarThumbnail from './CalendarThumbnail';
 import CommentThumbnail from './CommentThumbnail';
-import ImageThumbnail from './ImageThumbnail';
-import MapThumbnail from './MapThumbnail';
-import WeddingContactThumbnail from './WeddingContactThumbnail';
+import DdayThumbnail from './DdayThumbnail';
 import DefaultThumbnail from './DefaultThumbnail';
 import GridGalleryThumbnail from './GridGalleryThumbnail';
-import SlideGalleryThumbnail from './SlideGalleryThumbnail';
+import ImageThumbnail from './ImageThumbnail';
+import LinkThumbnail from './LinkThumbnail';
+import MapThumbnail from './MapThumbnail';
 import MusicThumbnail from './MusicThumbnail';
+import SlideGalleryThumbnail from './SlideGalleryThumbnail';
+import TextThumbnail from './TextThumbnail';
+import WeddingContactThumbnail from './WeddingContactThumbnail';
 import WeddingInviteThumbnail from './WeddingInviteThumbnail';
+import PageThumbnail from './PageThumbnail';
 
+// ThumbnailComponents 객체 export (ComponentCard.jsx에서 사용)
 export const ThumbnailComponents = {
-  button: ButtonThumbnail,
-  text: TextThumbnail,
-  link: LinkThumbnail,
   attend: AttendThumbnail,
-  dday: DdayThumbnail,
-  'd-day': DdayThumbnail, // kebab-case alias
-  calendar: CalendarThumbnail,
   bankAccount: BankAccountThumbnail,
-  'bank-account': BankAccountThumbnail, // kebab-case alias
+  button: ButtonThumbnail,
+  calendar: CalendarThumbnail,
   comment: CommentThumbnail,
+  dday: DdayThumbnail,
+  default: DefaultThumbnail,
+  gridGallery: GridGalleryThumbnail,
   image: ImageThumbnail,
+  link: LinkThumbnail,
   map: MapThumbnail,
-  mapInfo: MapThumbnail, // map_info uses same thumbnail
-  'map_info': MapThumbnail, // underscore alias
+  musicPlayer: MusicThumbnail,
+  slideGallery: SlideGalleryThumbnail,
+  text: TextThumbnail,
   weddingContact: WeddingContactThumbnail,
-  'wedding-contact': WeddingContactThumbnail, // kebab-case alias
-  weddingInvite: WeddingInviteThumbnail, // 실제 렌더러 기반 썸네일
-  'wedding-invite': WeddingInviteThumbnail, // kebab-case alias
-  gridGallery: GridGalleryThumbnail, // 전용 그리드 갤러리 썸네일
-  'grid-gallery': GridGalleryThumbnail, // kebab-case alias
-  slideGallery: SlideGalleryThumbnail, // 전용 슬라이드 갤러리 썸네일
-  'slide-gallery': SlideGalleryThumbnail, // kebab-case alias
-  music: MusicThumbnail, // 전용 음악 플레이어 썸네일
-  musicPlayer: MusicThumbnail, // 음악 플레이어 컴포넌트
-  default: DefaultThumbnail
-};
-
-export {
-  ButtonThumbnail,
-  TextThumbnail,
-  LinkThumbnail,
-  AttendThumbnail,
-  DdayThumbnail,
-  CalendarThumbnail,
-  BankAccountThumbnail,
-  CommentThumbnail,
-  ImageThumbnail,
-  MapThumbnail,
-  WeddingContactThumbnail,
-  DefaultThumbnail,
-  GridGalleryThumbnail,
-  SlideGalleryThumbnail,
-  MusicThumbnail,
-  WeddingInviteThumbnail
+  weddingInvite: WeddingInviteThumbnail,
+  page: PageThumbnail,
 };

@@ -62,7 +62,7 @@ export default function KakaoTalkShareRenderer({ comp, isEditor }) {
       console.log('카카오 공유 실행 완료');
     }
   };
-  
+
   return (
     <button onClick={handleShare} style={{
       padding: '8px 16px',
@@ -75,4 +75,26 @@ export default function KakaoTalkShareRenderer({ comp, isEditor }) {
       {buttonTitle || "카카오톡 공유"}
     </button>
   );
+
+  // return (
+  //   <button
+  //     onClick={handleShare}
+  //     style={{
+  //       width: comp.width ? `${comp.width}px` : undefined,
+  //       height: comp.height ? `${comp.height}px` : undefined,
+  //       padding: '8px 16px',
+  //       backgroundColor: '#FEE500',
+  //       border: 'none',
+  //       borderRadius: '4px',
+  //       cursor: 'pointer',
+  //       fontSize: '14px',
+  //       boxSizing: 'border-box',
+  //       display: 'flex',
+  //       justifyContent: 'center',
+  //       alignItems: 'center'
+  //     }}
+  //   >
+  //     {buttonTitle || "카카오톡 공유"}
+  //   </button>
+  // );
 }

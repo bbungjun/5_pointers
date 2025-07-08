@@ -1,0 +1,105 @@
+{
+  "type": "page",
+  "name": "Page",
+  "icon": "📄",
+  "description": "다른 페이지로 이동할 수 있는 네비게이션 컴포넌트",
+  "category": "Navigation",
+  "props": {
+    "pageName": {
+      "type": "string",
+      "label": "페이지 이름",
+      "default": "새 페이지"
+    },
+    "description": {
+      "type": "textarea",
+      "label": "페이지 설명",
+      "default": ""
+    },
+    "thumbnail": {
+      "type": "image",
+      "label": "썸네일 이미지",
+      "default": ""
+    },
+    "thumbnailType": {
+      "type": "select",
+      "label": "썸네일 타입",
+      "options": ["auto", "upload", "none"],
+      "default": "auto"
+    },
+    "backgroundColor": {
+      "type": "color",
+      "label": "배경색",
+      "default": "#ffffff"
+    },
+    "textColor": {
+      "type": "color",
+      "label": "텍스트 색상",
+      "default": "#333333"
+    },
+    "borderColor": {
+      "type": "color",
+      "label": "테두리 색상",
+      "default": "#007bff"
+    },
+    "borderWidth": {
+      "type": "select",
+      "label": "테두리 두께",
+      "options": ["1px", "2px", "3px", "4px"],
+      "default": "2px"
+    },
+    "borderRadius": {
+      "type": "number",
+      "label": "모서리 둥글기",
+      "min": 0,
+      "max": 50,
+      "default": 8,
+      "suffix": "px"
+    },
+    "fontSize": {
+      "type": "number",
+      "label": "폰트 크기",
+      "min": 8,
+      "max": 32,
+      "default": 14,
+      "suffix": "px"
+    },
+    "fontWeight": {
+      "type": "select",
+      "label": "폰트 굵기",
+      "options": ["400", "500", "600", "700"],
+      "default": "500"
+    },
+    "linkedPageId": {
+      "type": "hidden",
+      "default": ""
+    },
+    "deployedUrl": {
+      "type": "hidden",
+      "default": ""
+    },
+    "autoCreated": {
+      "type": "hidden",
+      "default": false
+    }
+  },
+  "defaultProps": {
+    "pageName": "새 페이지",
+    "description": "",
+    "thumbnail": "",
+    "thumbnailType": "auto",
+    "backgroundColor": "#ffffff",
+    "textColor": "#333333",
+    "borderColor": "#007bff",
+    "borderWidth": "2px",
+    "borderRadius": 8,
+    "fontSize": 14,
+    "fontWeight": "500",
+    "linkedPageId": "",
+    "deployedUrl": "",
+    "autoCreated": false
+  },
+  "dimensions": {
+    "width": 200,
+    "height": 120
+  }
+}
