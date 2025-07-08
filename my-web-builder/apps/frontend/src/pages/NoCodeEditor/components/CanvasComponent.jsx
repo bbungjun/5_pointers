@@ -316,7 +316,7 @@ function CanvasComponent({
             isEditor={true}
             onUpdate={onUpdate}
           />
-        )
+        );
       default:
         return <span>{comp.props?.text || ''}</span>;
     }
