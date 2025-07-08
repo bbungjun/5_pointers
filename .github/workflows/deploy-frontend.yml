@@ -35,6 +35,7 @@ jobs:
           echo "VITE_WEBSOCKET_URL=wss://h0xs6j2ig6.execute-api.ap-northeast-2.amazonaws.com" >> .env.production
           echo "VITE_SUBDOMAIN_URL=http://3.35.141.231:3001" >> .env.production
           echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.production
+          echo "VITE_KAKAO_CLIENT_ID=${{ secrets.KAKAO_JAVASCRIPT_KEY }}" >> .env.production
           echo "VITE_FRONTEND_URL=https://pagecube.net" >> .env.production
 
       - name: Build application for production
