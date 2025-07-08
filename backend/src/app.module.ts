@@ -5,7 +5,6 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TemplatesModule } from './templates/templates.module';
 import { InvitationsModule } from './invitations/invitations.module';
-import { PagesServeController } from './pages/pages-serve.controller';
 
 import { GeneratorModule } from './generator/generator.module';
 
@@ -37,6 +36,5 @@ import { Templates } from './users/entities/templates.entity';
     InvitationsModule,
     GeneratorModule,
   ],
-  controllers: [PagesServeController],
 })
 export class AppModule {}
