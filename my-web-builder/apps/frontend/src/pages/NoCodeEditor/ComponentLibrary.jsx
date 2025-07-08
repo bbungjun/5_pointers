@@ -6,7 +6,7 @@ import ToggleButton from './ComponentLibrary/components/ToggleButton';
 import SearchBar from './ComponentLibrary/components/SearchBar';
 import ComponentGrid from './ComponentLibrary/components/ComponentGrid';
 
-function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onToggle }) {
+function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onToggle, isReady }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isResizing, setIsResizing] = useState(false);
   const [libraryWidth, setLibraryWidth] = useState(320); // 기본 너비
@@ -98,6 +98,16 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
         position: 'relative'
       }}
     >
+      {/* 연결 안 됐을 때 오버레이 */}
+      {!isReady && (
+        <div className="absolute inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-3"></div>
+            <p className="text-white font-semibold">에디터 연결 중...</p>
+          </div>
+        </div>
+      )}
+
       {/* 고정 검색바 */}
       <SearchBar
         searchTerm={searchTerm}

@@ -235,12 +235,17 @@ export function useCollaboration({
 
   // 컴포넌트 추가 함수
   const addComponent = (component) => {
+    if (!componentsArrayRef.current) {
+      console.warn('Y.js 배열이 아직 준비되지 않아 컴포넌트를 추가할 수 없습니다.');
+      return;
+    }
+
     // 이미 ID가 있으면 유지, 없으면 새로 생성
     const componentWithId = component.id
       ? component
       : {
           ...component,
-          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${(userInfo && userInfo.id) || anonymous}`,
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${(userInfo && userInfo.id) || 'anonymous'}`,
         };
 
     componentsArrayRef.current.push([componentWithId]);
@@ -268,7 +273,7 @@ export function useCollaboration({
     // 각 컴포넌트에 고유한 ID가 있는지 확인하고, 없으면 생성
     const componentsWithUniqueIds = newComponents.map((component) => {
       if (!component.id) {
-        const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${(userInfo && userInfo.id) || anonymous}`;
+        const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${(userInfo && userInfo.id) || 'anonymous'}`;
         return { ...component, id: uniqueId };
       }
       return component;
