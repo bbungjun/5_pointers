@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import InvitationNotifications from '../components/InvitationNotifications';
@@ -24,6 +24,24 @@ function DashboardPage({ user, onLogout }) {
     title: '',
   });
   const [isMyPagesOpen, setIsMyPagesOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // 드롭다운 외부 클릭 감지
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsMyPagesOpen(false);
+      }
+    }
+
+    if (isMyPagesOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMyPagesOpen]);
 
   const categories = [
     { value: 'all', label: '전체' },
@@ -265,7 +283,7 @@ function DashboardPage({ user, onLogout }) {
             {/* 우측 버튼 그룹 */}
             <div className="flex items-center gap-3">
               {/* 내 페이지 드롭다운 */}
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsMyPagesOpen(!isMyPagesOpen)}
                   className="px-4 py-2 bg-white text-slate-600 hover:text-blue-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-blue-200 flex items-center gap-2 group"
