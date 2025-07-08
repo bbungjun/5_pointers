@@ -36,6 +36,5 @@ import { Templates } from './users/entities/templates.entity';
     InvitationsModule,
     GeneratorModule,
   ],
-  controllers: [PagesServeController],
 })
 export class AppModule {}
