@@ -1,0 +1,134 @@
+name: Deploy Subdomain Server (Final)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'subdomain-server.js'
+      - '.github/workflows/subdomain-server-final.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ap-northeast-2
+
+      - name: Deploy to EC2
+        run: |
+          echo "🚀 서브도메인 서버 배포 시작..."
+          
+          # S3에 파일 업로드
+          aws s3 cp subdomain-server.js s3://elasticbeanstalk-ap-northeast-2-490004614784/github-deploy/
+          
+          # 배포 스크립트 생성
+          cat > deploy.sh << 'DEPLOY'
+          #!/bin/bash
+          set -e
+          cd /home/ec2-user
+          
+          # 파일 다운로드
+          aws s3 cp s3://elasticbeanstalk-ap-northeast-2-490004614784/github-deploy/subdomain-server.js ./
+          
+          # 기존 프로세스 종료
+          pkill -f subdomain-server || true
+          sleep 2
+          
+          # Node.js 설치 확인
+          if ! command -v node &> /dev/null; then
+            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+          fi
+          
+          # 서버 시작
+          nohup node subdomain-server.js > /var/log/subdomain.log 2>&1 &
+          
+          # 테스트
+          sleep 5
+          curl -f http://localhost:3001 && echo "✅ 서버 시작 성공" || echo "❌ 서버 시작 실패"
+          DEPLOY
+          
+          # S3에 배포 스크립트 업로드
+          aws s3 cp deploy.sh s3://elasticbeanstalk-ap-northeast-2-490004614784/github-deploy.sh
+          
+          # 인스턴스 정보 가져오기
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=PageCube-Subdomain-Simple" "Name=instance-state-name,Values=running" \
+            --query 'Reservations[].Instances[].InstanceId' \
+            --output text)
+          
+          echo "✅ 인스턴스 ID: $INSTANCE_ID"
+          
+          # 간단한 User Data로 배포 실행
+          USER_DATA='#!/bin/bash
+          cd /home/ec2-user
+          aws s3 cp s3://elasticbeanstalk-ap-northeast-2-490004614784/github-deploy.sh ./
+          chmod +x github-deploy.sh
+          ./github-deploy.sh > /var/log/github-deploy.log 2>&1'
+          
+          # 인스턴스 재시작
+          aws ec2 stop-instances --instance-ids $INSTANCE_ID
+          aws ec2 wait instance-stopped --instance-ids $INSTANCE_ID
+          
+          # User Data 설정 (base64 인코딩)
+          echo "$USER_DATA" | base64 | tr -d '\n' > user-data-b64.txt
+          aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --user-data file://user-data-b64.txt
+          
+          # 인스턴스 시작
+          aws ec2 start-instances --instance-ids $INSTANCE_ID
+          aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+          
+          echo "✅ 배포 완료!"
+
+      - name: Update DNS and Health Check
+        run: |
+          # 새 IP 주소 가져오기
+          NEW_IP=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=PageCube-Subdomain-Simple" "Name=instance-state-name,Values=running" \
+            --query 'Reservations[].Instances[].PublicIpAddress' \
+            --output text)
+          
+          echo "🌐 새 IP: $NEW_IP"
+          
+          # DNS 업데이트
+          aws route53 change-resource-record-sets \
+            --hosted-zone-id Z0193893QRN4IUT309BL \
+            --change-batch '{
+              "Changes": [{
+                "Action": "UPSERT",
+                "ResourceRecordSet": {
+                  "Name": "*.pagecube.net",
+                  "Type": "A",
+                  "TTL": 300,
+                  "ResourceRecords": [{"Value": "'$NEW_IP'"}]
+                }
+              }]
+            }'
+          
+          echo "✅ DNS 업데이트 완료"
+          
+          # 헬스체크
+          echo "⏳ 2분 대기 후 헬스체크..."
+          sleep 120
+          
+          for i in {1..5}; do
+            if curl -f --connect-timeout 10 http://$NEW_IP:3001; then
+              echo "✅ 배포 성공! 서버 실행 중: http://$NEW_IP:3001"
+              echo "🔗 테스트: curl -H 'Host: 4asd.pagecube.net' http://$NEW_IP:3001"
+              exit 0
+            fi
+            echo "⏳ 재시도 중... ($i/5)"
+            sleep 15
+          done
+          
+          echo "❌ 헬스체크 실패"
+          exit 1
