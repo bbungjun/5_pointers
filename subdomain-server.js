@@ -122,4 +122,6 @@ function generateHTMLFromComponents(components) {
 app.listen(PORT, () => {
   console.log(`🌐 Wildcard subdomain server running on http://localhost:${PORT}`);
   console.log(`📁 Deployed sites directory: ${deployedSitesPath}`);
-});
+});# Updated for new EC2 instance: Tue Jul  8 22:18:03 KST 2025
+# Auto deploy trigger: Tue Jul  8 22:36:48 KST 2025
+// Auto deploy trigger: Tue Jul  8 22:38:46 KST 2025
