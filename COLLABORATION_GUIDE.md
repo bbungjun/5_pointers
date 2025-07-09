@@ -37,9 +37,47 @@ cd my-web-builder/apps/frontend
 cp .env.example .env
 
 # .env 파일 내용 (로컬 개발용)
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:3000/api
 VITE_WEBSOCKET_URL=ws://localhost:3003
 VITE_SUBDOMAIN_URL=http://localhost:3001
+
+# 🌟 YJS 협업 기능을 위한 추가 설정
+VITE_YJS_WEBSOCKET_URL=ws://[서버IP]:1234
+```
+
+#### 🌟 YJS 협업 기능 설정 (중요!)
+
+**다른 기기에서 협업을 사용하려면:**
+
+1. **서버 IP 확인**
+```bash
+# Windows
+ipconfig
+
+# macOS/Linux
+ifconfig
+# 또는
+ip addr show
+```
+
+2. **YJS 서버 실행 (외부 접근 허용)**
+```bash
+cd 5_pointers
+HOST=0.0.0.0 PORT=1234 node yjs-server.js
+```
+
+3. **프론트엔드 환경 변수 설정**
+```bash
+# my-web-builder/apps/frontend/.env 파일에 추가
+VITE_YJS_WEBSOCKET_URL=ws://[실제서버IP]:1234
+# 예: VITE_YJS_WEBSOCKET_URL=ws://192.168.1.100:1234
+```
+
+4. **방화벽 설정 (필요시)**
+```bash
+# Windows 방화벽에서 1234 포트 허용
+# macOS/Linux
+sudo ufw allow 1234
 ```
 
 #### 백엔드 환경 설정
@@ -100,13 +138,14 @@ npm run dev
 - **포트**: http://localhost:5173
 - **기능**: React 개발 서버, 핫 리로드
 
-#### 3. YJS 협업 서버 실행 (터미널 3)
+#### 3. 🌟 YJS 협업 서버 실행 (터미널 3) - 외부 접근 허용
 ```bash
 cd 5_pointers
-PORT=3003 HOST=0.0.0.0 node yjs-server.js
+HOST=0.0.0.0 PORT=1234 node yjs-server.js
 ```
-- **포트**: ws://localhost:3003
+- **포트**: ws://0.0.0.0:1234 (외부 접근 가능)
 - **기능**: 실시간 협업, WebSocket 연결
+- **중요**: `HOST=0.0.0.0`으로 설정하여 외부에서 접근 가능
 
 #### 4. 서브도메인 서버 실행 (터미널 4)
 ```bash
@@ -119,9 +158,68 @@ PORT=3001 node subdomain-server.js
 ### 서버 실행 순서 (중요!)
 1. **MySQL 데이터베이스** 먼저 실행
 2. **백엔드 서버** 실행 (포트 3000)
-3. **YJS 서버** 실행 (포트 3003)
+3. **YJS 서버** 실행 (포트 1234, 외부 접근 허용)
 4. **서브도메인 서버** 실행 (포트 3001)
 5. **프론트엔드 개발 서버** 실행 (포트 5173)
+
+## 🌟 YJS 협업 기능 테스트 방법
+
+### 1. 같은 기기에서 테스트
+```bash
+# 브라우저 1: http://localhost:5173
+# 브라우저 2: http://localhost:5173 (새 탭)
+```
+
+### 2. 🌟 다른 기기에서 테스트 (중요!)
+```bash
+# 서버 기기에서 IP 확인
+ipconfig  # Windows
+ifconfig  # macOS/Linux
+
+# 클라이언트 기기에서 접속
+http://[서버IP]:5173
+# 예: http://192.168.1.100:5173
+```
+
+### 3. 협업 기능 확인
+1. **같은 페이지를 여러 브라우저/기기에서 열기**
+2. **한 기기에서 컴포넌트 추가/수정**
+3. **다른 브라우저/기기에서 실시간 반영 확인**
+4. **브라우저 개발자 도구에서 WebSocket 연결 상태 확인**
+
+### 4. 🌟 문제 해결
+
+**YJS 서버가 외부에서 접근되지 않는 경우:**
+```bash
+# 1. 서버 IP 확인
+ipconfig | findstr "IPv4"  # Windows
+ifconfig | grep "inet "    # macOS/Linux
+
+# 2. 방화벽 설정
+# Windows: Windows Defender 방화벽에서 1234 포트 허용
+# macOS: System Preferences > Security & Privacy > Firewall
+# Linux: sudo ufw allow 1234
+
+# 3. YJS 서버 재시작 (외부 접근 허용)
+HOST=0.0.0.0 PORT=1234 node yjs-server.js
+
+# 4. 연결 테스트
+# 클라이언트 기기에서: http://[서버IP]:1234
+```
+
+**프론트엔드에서 YJS 연결 실패:**
+```bash
+# 1. 환경 변수 확인
+# my-web-builder/apps/frontend/.env
+VITE_YJS_WEBSOCKET_URL=ws://[실제서버IP]:1234
+
+# 2. 프론트엔드 서버 재시작
+npm run dev
+
+# 3. 브라우저 개발자 도구에서 확인
+# Console 탭에서 YJS 연결 로그 확인
+# Network 탭에서 WebSocket 연결 상태 확인
+```
 
 ## 🔄 Git 워크플로우 & 자동 배포
 
@@ -153,7 +251,7 @@ git push origin feature/기능명
 ### 개발환경 (로컬)
 - **프론트엔드**: http://localhost:5173
 - **백엔드**: http://localhost:3000
-- **YJS 서버**: ws://localhost:3003
+- **YJS 서버**: ws://localhost:1234 (같은 기기) / ws://[서버IP]:1234 (다른 기기)
 - **서브도메인 서버**: http://localhost:3001
 - **데이터베이스**: localhost:3306 (MySQL)
 
@@ -178,10 +276,11 @@ http://jungle-frontend-5.s3-website.ap-northeast-2.amazonaws.com
 - ✅ 페이지 생성/편집
 - ✅ 템플릿 관리
 
-### 2. 실시간 협업 기능 테스트
-1. **같은 페이지를 여러 브라우저에서 열기**
-2. **한 브라우저에서 컴포넌트 추가/수정**
-3. **다른 브라우저에서 실시간 반영 확인**
+### 2. 🌟 실시간 협업 기능 테스트
+1. **같은 페이지를 여러 브라우저/기기에서 열기**
+2. **한 브라우저/기기에서 컴포넌트 추가/수정**
+3. **다른 브라우저/기기에서 실시간 반영 확인**
+4. **브라우저 개발자 도구에서 WebSocket 연결 상태 확인**
 
 ### 3. 서브도메인 배포 테스트
 1. **페이지 생성 후 도메인 설정**
@@ -222,14 +321,50 @@ curl -X POST http://localhost:3000/auth/login/local \
 # 포트 사용 중인 프로세스 확인
 lsof -i :3000  # 백엔드
 lsof -i :3001  # 서브도메인 서버
-lsof -i :3003  # YJS 서버
+lsof -i :1234  # YJS 서버
 lsof -i :5173  # 프론트엔드
 
 # 프로세스 종료
 kill -9 [PID]
 ```
 
-### 5. 일반적인 문제들
+### 5. 🌟 YJS 협업 기능 문제 해결
+
+**연결이 안 되는 경우:**
+```bash
+# 1. YJS 서버가 외부 접근을 허용하는지 확인
+HOST=0.0.0.0 PORT=1234 node yjs-server.js
+
+# 2. 방화벽 설정 확인
+# Windows: Windows Defender 방화벽
+# macOS: System Preferences > Security & Privacy > Firewall
+# Linux: sudo ufw status
+
+# 3. 네트워크 연결 테스트
+# 클라이언트에서: ping [서버IP]
+# 클라이언트에서: telnet [서버IP] 1234
+
+# 4. 브라우저 개발자 도구에서 확인
+# Console: YJS 연결 로그
+# Network: WebSocket 연결 상태
+```
+
+**실시간 동기화가 안 되는 경우:**
+```bash
+# 1. 같은 룸에 있는지 확인
+# URL의 페이지 ID가 동일한지 확인
+
+# 2. YJS 서버 로그 확인
+# 서버 터미널에서 연결 및 메시지 전송 로그 확인
+
+# 3. 브라우저 캐시 클리어
+# Ctrl+Shift+R (강제 새로고침)
+
+# 4. 다른 브라우저에서 테스트
+# Chrome, Firefox, Safari 등에서 테스트
+```
+
+### 6. 일반적인 문제들
 ```bash
 # 데이터베이스 연결 오류
 brew services restart mysql
@@ -283,85 +418,123 @@ npm run test
 
 ### 배포 확인 방법
 1. **GitHub Actions 탭**에서 배포 진행상황 확인
-2. **배포 완료 후 프로덕션 URL 접속하여 테스트**
-3. **배포 실패 시 GitHub Actions 로그 확인**
+2. **AWS Console**에서 서비스 상태 확인
+3. **브라우저 개발자 도구**에서 API 호출 및 WebSocket 연결 확인
 
-### 성능 모니터링
-- **AWS CloudWatch**로 서버 성능 모니터링
-- **브라우저 개발자 도구**로 프론트엔드 성능 확인
-- **Network 탭**으로 API 응답 시간 확인
+## 🌟 YJS 협업 기능 완전 가이드
 
-## 📞 도움이 필요할 때
+### 1. 로컬 네트워크에서 협업 설정
 
-### 1. 문제 해결 순서
-1. **로컬에서 재현 가능한지 확인**
-2. **GitHub Issues에 문제 등록** (템플릿 사용)
-3. **팀 채팅방에 질문**
-4. **코드 리뷰 시 질문 및 피드백**
-
-### 2. 이슈 리포팅 템플릿
-```markdown
-## 문제 설명
-- 어떤 문제가 발생했나요?
-
-## 재현 단계
-1. 
-2. 
-3. 
-
-## 예상 결과
-- 어떤 결과를 기대했나요?
-
-## 실제 결과
-- 실제로 어떤 일이 일어났나요?
-
-## 환경 정보
-- OS: 
-- 브라우저: 
-- Node.js 버전: 
-```
-
-## 🎯 협업 효율성 향상 팁
-
-### 1. 커밋 메시지 컨벤션
+**서버 기기에서:**
 ```bash
-feat: 새로운 기능 추가
-fix: 버그 수정
-docs: 문서 수정
-style: 코드 포맷팅
-refactor: 코드 리팩토링
-test: 테스트 추가
-chore: 빌드 업무 수정
+# 1. IP 주소 확인
+ipconfig | findstr "IPv4"  # Windows
+ifconfig | grep "inet "    # macOS/Linux
+
+# 2. YJS 서버 실행 (외부 접근 허용)
+cd 5_pointers
+HOST=0.0.0.0 PORT=1234 node yjs-server.js
+
+# 3. 서버 정보 확인
+# 터미널에서 네트워크 인터페이스 정보 출력됨
 ```
 
-### 2. PR 작성 가이드
-- **명확한 제목**: 무엇을 변경했는지 한눈에 알 수 있게
-- **상세한 설명**: 왜 이 변경이 필요한지 설명
-- **스크린샷**: UI 변경사항이 있다면 before/after 스크린샷
-- **테스트 결과**: 어떤 테스트를 했는지 명시
+**클라이언트 기기에서:**
+```bash
+# 1. 환경 변수 설정
+# my-web-builder/apps/frontend/.env
+VITE_YJS_WEBSOCKET_URL=ws://[서버IP]:1234
 
-### 3. 코드 리뷰 가이드
-- **건설적인 피드백** 제공
-- **코드의 의도** 이해하려고 노력
-- **대안 제시** 시 이유도 함께 설명
-- **칭찬도 잊지 말기** 👍
+# 2. 프론트엔드 서버 실행
+cd my-web-builder/apps/frontend
+npm run dev
 
-## 🔮 향후 개선 계획
+# 3. 브라우저에서 접속
+http://[서버IP]:5173
+```
 
-### 단기 계획 (1-2주)
-- [ ] 서브도메인 서버 AWS EC2 배포
-- [ ] HTTPS 설정으로 보안 강화
-- [ ] 에러 로깅 시스템 구축
+### 2. 협업 기능 테스트 시나리오
 
-### 중기 계획 (1개월)
-- [ ] 실제 도메인 연결 (서브도메인 기능 완성)
-- [ ] 성능 최적화 (CDN, 이미지 압축)
-- [ ] 모니터링 대시보드 구축
+**시나리오 1: 같은 기기, 다른 브라우저**
+```bash
+# 브라우저 1: http://localhost:5173
+# 브라우저 2: http://localhost:5173 (새 탭)
+# 같은 페이지에서 동시 편집
+```
 
-### 장기 계획 (3개월)
+**시나리오 2: 다른 기기, 같은 네트워크**
+```bash
+# 서버 기기: http://localhost:5173
+# 클라이언트 기기: http://192.168.1.100:5173
+# 같은 페이지에서 동시 편집
+```
+
+**시나리오 3: 다른 기기, 다른 네트워크 (프로덕션)**
+```bash
+# 프로덕션 환경에서 자동으로 설정됨
+# wss://pagecube.net/yjs 사용
+```
+
+### 3. 디버깅 및 모니터링
+
+**서버 측 로깅:**
+```bash
+# YJS 서버 터미널에서 확인
+🔄 새로운 연결: Room page:abc123 (192.168.1.101)
+📊 Room page:abc123 현재 연결 수: 2
+📡 Room page:abc123: 1개 클라이언트에게 메시지 브로드캐스트
+```
+
+**클라이언트 측 로깅:**
+```bash
+# 브라우저 개발자 도구 Console에서 확인
+Y.js 서버 연결 시도: ws://192.168.1.100:1234 Room: page:abc123
+WebSocket 연결 상태: connected
+Y.js 동기화 상태: 완료
+```
+
+### 4. 성능 최적화
+
+**네트워크 최적화:**
+```bash
+# 1. 같은 네트워크 내에서 사용 권장
+# 2. 방화벽 설정 최적화
+# 3. WebSocket 연결 유지
+
+# YJS 서버 설정 최적화
+const provider = new WebsocketProvider(wsUrl, roomName, ydoc, {
+  connect: true,
+  maxBackoffTime: 2000,    // 재연결 최대 대기 시간
+  resyncInterval: 3000,    // 재동기화 간격
+});
+```
+
+**메모리 최적화:**
+```bash
+# 1. 사용하지 않는 룸 자동 정리
+# 2. 연결 해제 시 리소스 정리
+# 3. 주기적인 가비지 컬렉션
+```
+
+## 🎯 다음 단계
+
+### 단기 계획 (1개월)
+- [ ] YJS 서버 AWS 배포 완료
+- [ ] 서브도메인 서버 AWS 이전
+- [ ] 실시간 협업 기능 안정화
+- [ ] 성능 모니터링 시스템 구축
+
+### 중기 계획 (3개월)
+- [ ] 다중 사용자 동시 편집 최적화
+- [ ] 협업 히스토리 및 버전 관리
+- [ ] 실시간 채팅 기능 추가
+- [ ] 모바일 협업 지원
+
+### 장기 계획 (6개월)
 - [ ] 다중 리전 배포
 - [ ] 자동 스케일링 설정
 - [ ] 백업 및 재해 복구 시스템
+- [ ] 고급 협업 기능 (화상회의, 화면공유 등)
 
 ---
 
@@ -373,10 +546,11 @@ chore: 빌드 업무 수정
 - ✅ **자동 배포**: PR 머지 시 AWS 자동 배포
 - ✅ **실시간 협업**: YJS WebSocket으로 동시 편집
 - ✅ **환경 분리**: 개발/프로덕션 환경 완전 분리
+- 🌟 **다중 기기 협업**: 로컬 네트워크 및 프로덕션 환경에서 완전 지원
 
 **팀원들과 함께 멋진 프로젝트를 만들어보세요!** 🚀
 
 ---
 
-*마지막 업데이트: 2025년 7월 5일*
+*마지막 업데이트: 2025년 1월 5일*
 *문의사항이 있으시면 GitHub Issues에 등록해주세요.*
