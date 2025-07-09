@@ -33,8 +33,10 @@ const GRID_SIZE = 50;
 function CanvasComponent({
   comp,
   selected,
+  selectedIds, // 다중 선택된 컴포넌트 ID 배열
   onSelect,
   onUpdate,
+  onMultiUpdate, // 다중 선택된 컴포넌트들 업데이트
   onDelete,
   setSnapLines,
   zoom = 100,
@@ -524,6 +526,26 @@ function CanvasComponent({
 
     console.log('드래그 중:', comp.id, '새 위치:', newX, newY);
 
+    // 다중 선택된 컴포넌트들과 함께 이동
+    if (selectedIds && selectedIds.length > 1 && selectedIds.includes(comp.id)) {
+      // 다중 선택된 컴포넌트들의 상대적 위치를 유지하면서 이동
+      const deltaX = newX - currentX;
+      const deltaY = newY - currentY;
+      
+      selectedIds.forEach(selectedId => {
+        if (selectedId !== comp.id) {
+          const selectedComp = components.find(c => c.id === selectedId);
+          if (selectedComp) {
+            onMultiUpdate({
+              ...selectedComp,
+              x: selectedComp.x + deltaX,
+              y: selectedComp.y + deltaY,
+            });
+          }
+        }
+      });
+    }
+
     // 단일 좌표계로 위치 업데이트
     onUpdate({
       ...comp,
@@ -586,7 +608,7 @@ function CanvasComponent({
         height: currentHeight,
         border: selected ? '2px solid #3B4EFF' : '1px solid transparent',
         cursor: isDragging ? 'grabbing' : 'grab',
-        background: 'transparent',
+        background: selected ? 'rgba(59, 78, 255, 0.05)' : 'transparent',
         zIndex: selected ? 10 : 1,
         display: 'flex',
         alignItems: 'center',
@@ -595,10 +617,18 @@ function CanvasComponent({
         boxSizing: 'border-box',
         pointerEvents: 'auto',
       }}
+      data-selected={selected}
+      data-selected-ids={selectedIds ? selectedIds.join(',') : ''}
       onMouseDown={handleDragStart}
       onClick={(e) => {
         e.stopPropagation();
-        onSelect(comp.id);
+        if (e.ctrlKey || e.metaKey) {
+          // Ctrl+클릭으로 다중 선택 토글
+          // 이 기능은 부모 컴포넌트에서 처리해야 함
+          onSelect(comp.id);
+        } else {
+          onSelect(comp.id);
+        }
       }}
     >
       {renderContent()}
