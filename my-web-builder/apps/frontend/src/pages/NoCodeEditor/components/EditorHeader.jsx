@@ -19,6 +19,8 @@ function EditorHeader({
   onInviteOpen,
   pageId,
   roomId,
+  isConnected,
+  connectionError,
   isAdmin,
 }) {
   const navigate = useNavigate();
@@ -108,6 +110,26 @@ n          {/* 페이지 네비게이션 */}
 
       {/* 우측: 버튼들 */}
       <div className="flex items-center min-w-0 flex-shrink-0 gap-3">
+        {/* 연결 상태 표시 */}
+        <div className="flex items-center gap-2">
+          {connectionError ? (
+            <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded text-xs">
+              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+              <span>연결 오류</span>
+            </div>
+          ) : isConnected ? (
+            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span>연결됨</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">
+              <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+              <span>연결 중...</span>
+            </div>
+          )}
+        </div>
+
         {/* 템플릿 저장 버튼 (관리자만) */}
         {isAdmin && (
           <button

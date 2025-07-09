@@ -20,7 +20,7 @@ export function useCollaboration({
   viewport = 'desktop',
 }) {
   // Y.js 기본 인프라 설정
-  const { ydoc, provider, awareness, isConnected } = useYjsCollaboration(
+  const { ydoc, provider, awareness, isConnected, connectionError } = useYjsCollaboration(
     roomId,
     userInfo
   );
@@ -176,6 +176,19 @@ export function useCollaboration({
     }
   }, [ydoc, roomId]);
 
+  // 연결 오류 시 로컬 모드 활성화
+  useEffect(() => {
+    if (connectionError) {
+      console.log('🔴 협업 연결 오류로 인해 로컬 모드로 전환');
+      // 로컬 상태에서 컴포넌트 데이터를 유지하기 위해 DB에서 복구 시도
+      if (!hasRestoredRef.current) {
+        hasRestoredRef.current = true;
+        // 로컬 상태로 복구 (Y.js 없이)
+        restoreFromDatabase(roomId, null);
+      }
+    }
+  }, [connectionError, roomId]);
+
   // 선택된 컴포넌트 변화를 Awareness에 반영
   useEffect(() => {
     if (selectedComponentId) {
@@ -312,6 +325,7 @@ export function useCollaboration({
   return {
     // 연결 상태
     isConnected,
+    connectionError,
 
     // 라이브 커서 및 선택
     otherCursors,
