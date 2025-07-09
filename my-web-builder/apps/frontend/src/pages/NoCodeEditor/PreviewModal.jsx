@@ -2,6 +2,52 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import PreviewRenderer from './PreviewRenderer';
 
+// 반응형 CSS 문자열
+const PREVIEW_CSS = `
+/* 반응형 시스템 전용 CSS */
+.page-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.row-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.component-wrapper {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.desktop-absolute-wrapper {
+  position: absolute;
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 10px;
+  }
+  
+  .row-wrapper {
+    flex-direction: column;
+  }
+  
+  .component-wrapper {
+    width: 100% !important;
+    margin-bottom: 10px;
+  }
+  
+  .desktop-absolute-wrapper {
+    position: static;
+  }
+}
+`;
+
 const PreviewModal = ({ isOpen, onClose, components }) => {
   const [viewMode, setViewMode] = useState('desktop');
   const iframeRef = useRef(null);
@@ -33,6 +79,7 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
               min-height: 100vh;
               background: #ffffff;
             }
+            ${PREVIEW_CSS}
           </style>
         </head>
         <body>
@@ -55,7 +102,7 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
 
     try {
       rootRef.current.render(
-        <PreviewRenderer pageContent={components} forcedViewport={viewMode} />
+        <PreviewRenderer components={components} forcedViewport={viewMode} />
       );
     } catch (error) {
       console.error('Failed to render preview:', error);

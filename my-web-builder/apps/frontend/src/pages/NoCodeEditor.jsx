@@ -23,7 +23,6 @@ import { useComponentActions } from '../hooks/useComponentActions';
 // 유틸리티
 import { getUserColor } from '../utils/userColors';
 import {
-  getCanvasSize,
   getComponentDimensions,
 } from './NoCodeEditor/utils/editorUtils';
 

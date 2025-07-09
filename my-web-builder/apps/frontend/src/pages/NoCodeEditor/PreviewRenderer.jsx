@@ -1,4 +1,5 @@
 import React from 'react';
+import { groupComponentsIntoRows, getComponentDimensions } from './utils/editorUtils';
 import ButtonRenderer from './ComponentRenderers/ButtonRenderer';
 import TextRenderer from './ComponentRenderers/TextRenderer';
 import LinkRenderer from './ComponentRenderers/LinkRenderer';
@@ -10,138 +11,136 @@ import WeddingInviteRenderer from './ComponentRenderers/WeddingInviteRenderer';
 import ImageRenderer from './ComponentRenderers/ImageRenderer';
 import GridGalleryRenderer from './ComponentRenderers/GridGalleryRenderer';
 import SlideGalleryRenderer from './ComponentRenderers/SlideGalleryRenderer';
-import MapInfoRenderer from './ComponentRenderers/MapInfoRenderer';
+import { MapInfoRenderer } from './ComponentRenderers';
 import CalendarRenderer from './ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from './ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from './ComponentRenderers/CommentRenderer';
-import { groupComponentsIntoRows } from './utils/editorUtils';
-import './styles/preview.css';
+import SlidoRenderer from './ComponentRenderers/SlidoRenderer';
+import MusicRenderer from './ComponentRenderers/MusicRenderer';
+import PageRenderer from './ComponentRenderers/PageRenderer';
+import KakaoTalkShareRenderer from './ComponentRenderers/KakaoTalkShareRenderer';
 
-const PreviewRenderer = ({ pageContent, forcedViewport }) => {
-  if (!pageContent || !Array.isArray(pageContent)) {
-    return (
-      <div className="empty-page">
-        <div>
-          <div className="empty-page-icon">📄</div>
-          <div>페이지에 컴포넌트를 추가해보세요</div>
+// 컴포넌트 렌더링 헬퍼
+const ComponentRenderer = ({ component }) => {
+  switch (component.type) {
+    case 'button':
+      return <ButtonRenderer comp={component} isEditor={false} />;
+    case 'text':
+      return <TextRenderer comp={component} isEditor={false} />;
+    case 'link':
+      return <LinkRenderer comp={component} isEditor={false} />;
+    case 'attend':
+      return <AttendRenderer comp={component} isEditor={false} />;
+    case 'map':
+      return <MapView {...(component.props || {})} />;
+    case 'dday':
+      return <DdayRenderer comp={component} isEditor={false} />;
+    case 'weddingContact':
+      return <WeddingContactRenderer comp={component} isEditor={false} />;
+    case 'weddingInvite':
+      return <WeddingInviteRenderer comp={component} isEditor={false} />;
+    case 'image':
+      return <ImageRenderer comp={component} isEditor={false} />;
+    case 'gridGallery':
+      return <GridGalleryRenderer comp={component} isEditor={false} />;
+    case 'slideGallery':
+      return <SlideGalleryRenderer comp={component} isEditor={false} />;
+    case 'mapInfo':
+      return <MapInfoRenderer comp={component} isEditor={false} />;
+    case 'calendar':
+      return <CalendarRenderer comp={component} isEditor={false} />;
+    case 'bankAccount':
+      return <BankAccountRenderer comp={component} isEditor={false} />;
+    case 'comment':
+      return <CommentRenderer comp={component} isEditor={false} />;
+    case 'slido':
+      return <SlidoRenderer comp={component} isEditor={false} />;
+    case 'musicPlayer':
+      return <MusicRenderer comp={component} isEditor={false} />;
+    case 'kakaotalkShare':
+      return <KakaoTalkShareRenderer comp={component} isEditor={false} />;
+    case 'page':
+      return <PageRenderer component={component} isEditor={false} />;
+    default:
+      return (
+        <div style={{ width: '100%', height: '100%', border: '1px solid #ccc', ...component.props?.style }}>
+          {component.type}
         </div>
-      </div>
-    );
+      );
   }
+};
 
-  // 뷰포트 모드 결정
-  const isMobileMode = forcedViewport === 'mobile' || (!forcedViewport && window.innerWidth <= 768);
-  
-  // 개별 컴포넌트 렌더링 함수
-  const renderComponent = (comp) => {
-    const componentContent = (() => {
-      switch (comp.type) {
-        case 'button':
-          return <ButtonRenderer comp={comp} />;
-        case 'text':
-          return <TextRenderer comp={comp} />;
-        case 'link':
-          return <LinkRenderer comp={comp} />;
-        case 'attend':
-          return <AttendRenderer comp={comp} />;
-        case 'map':
-          return <MapView {...comp.props} />;
-        case 'dday':
-          return <DdayRenderer comp={comp} />;
-        case 'weddingContact':
-          return <WeddingContactRenderer comp={comp} />;
-        case 'weddingInvite':
-          return <WeddingInviteRenderer comp={comp} />;
-        case 'image':
-          return <ImageRenderer comp={comp} />;
-        case 'gridGallery':
-          return <GridGalleryRenderer comp={comp} />;
-        case 'slideGallery':
-          return <SlideGalleryRenderer comp={comp} />;
-        case 'mapInfo':
-          return <MapInfoRenderer comp={comp} />;
-        case 'calendar':
-          return <CalendarRenderer comp={comp} />;
-        case 'bankAccount':
-          return <BankAccountRenderer comp={comp} />;
-        case 'comment':
-          return <CommentRenderer comp={comp} />;
-        default:
-          return null;
-      }
-    })();
-
-    if (!componentContent) return null;
-
-    // 데스크톱: 절대 위치 유지, 모바일: 세로 정렬
-    if (isMobileMode) {
-      // 모바일에서는 세로 정렬 + 너비 축소
-      return (
-        <div
-          key={comp.id}
-          className="component"
-          style={{
-            width: comp.width ? `${comp.width}px` : 'auto',
-            height: comp.height ? `${comp.height}px` : 'auto',
-            marginBottom: '16px',
-          }}
-        >
-          {componentContent}
-        </div>
-      );
-    } else {
-      // 데스크톱에서는 절대 위치 유지
-      return (
-        <div
-          key={comp.id}
-          style={{
-            position: 'absolute',
-            left: comp.x || 0,
-            top: comp.y || 0,
-            width: comp.width || 'auto',
-            height: comp.height || 'auto',
-          }}
-        >
-          {componentContent}
-        </div>
-      );
-    }
-  };
-
-  if (isMobileMode) {
-    // 모바일: 세로 정렬 레이아웃
-    const rows = groupComponentsIntoRows(pageContent);
+const PreviewRenderer = ({ components = [], forcedViewport = null }) => {
+  if (forcedViewport === 'desktop') {
+    // 데스크톱 뷰: position: absolute 사용
     return (
-      <div className="page-container mobile" style={{ padding: '16px' }}>
-        {rows.map((row, rowIndex) => (
-          <div key={rowIndex} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
-            {row.map(renderComponent)}
+      <div className="page-container">
+        {components.map(component => (
+          <div
+            key={component.id}
+            className="desktop-absolute-wrapper"
+            style={{
+              left: component.x || 0,
+              top: component.y || 0,
+              width: component.width || getComponentDimensions(component.type).defaultWidth,
+              height: component.height || getComponentDimensions(component.type).defaultHeight,
+            }}
+          >
+            <ComponentRenderer component={component} />
           </div>
         ))}
       </div>
     );
-  } else {
-    // 데스크톱: 절대 위치 레이아웃
-    const maxHeight = Math.max(
-      1080,
-      ...pageContent.map(comp => (comp.y || 0) + (comp.height || 100))
-    );
+  }
+
+  if (forcedViewport === 'mobile') {
+    // 모바일 뷰: 행 기반 레이아웃
+    const rows = groupComponentsIntoRows(components);
     
     return (
-      <div 
-        className="page-container desktop" 
-        style={{ 
-          position: 'relative',
-          width: '100%',
-          height: `${maxHeight}px`,
-          padding: '24px',
-          minWidth: '960px'
-        }}
-      >
-        {pageContent.map(renderComponent)}
+      <div className="page-container">
+        {rows.map((row, rowIndex) => (
+          <div key={rowIndex} className="row-wrapper">
+            {row
+              .sort((a, b) => (a.x || 0) - (b.x || 0))
+              .map((component, compIndex) => (
+                <div
+                  key={component.id}
+                  className="component-wrapper"
+                  style={{
+                    order: compIndex,
+                    width: `${Math.min(100, ((component.width || getComponentDimensions(component.type).defaultWidth) / 375) * 100)}%`,
+                    height: component.height || getComponentDimensions(component.type).defaultHeight,
+                  }}
+                >
+                  <ComponentRenderer component={component} />
+                </div>
+              ))}
+          </div>
+        ))}
       </div>
     );
   }
+
+  // 기본값: 데스크톱 뷰
+  return (
+    <div className="page-container">
+      {components.map(component => (
+        <div
+          key={component.id}
+          className="desktop-absolute-wrapper"
+          style={{
+            left: component.x || 0,
+            top: component.y || 0,
+            width: component.width || getComponentDimensions(component.type).defaultWidth,
+            height: component.height || getComponentDimensions(component.type).defaultHeight,
+          }}
+        >
+          <ComponentRenderer component={component} />
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default PreviewRenderer;
