@@ -107,6 +107,7 @@ function NoCodeEditor({ pageId }) {
     getHistory,
     setHistory,
     isConnected,
+    connectionError,
   } = collaboration;
 
   // 5. 컴포넌트 액션 관리
@@ -143,6 +144,13 @@ function NoCodeEditor({ pageId }) {
       behavior: 'smooth',
     });
   }, [interaction.selectedId, components]);
+
+  // 연결 오류 알림
+  useEffect(() => {
+    if (connectionError) {
+      console.error('협업 연결 오류:', connectionError);
+    }
+  }, [connectionError]);
 
   // 키보드 단축키 처리 (Delete, Ctrl+C, Ctrl+V)
   useEffect(() => {
@@ -356,7 +364,8 @@ function NoCodeEditor({ pageId }) {
         onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
         onInviteOpen={interaction.handleInviteOpen}
         roomId={effectiveRoomId}
-        
+        isConnected={isConnected}
+        connectionError={connectionError}
         isAdmin={true}
       />
 

@@ -67,7 +67,7 @@ export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_
 
 // Y.js WebSocket 서버 설정 - 환경변수 기반
 export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('VITE_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') ||
-  (isProductionEnvironment() ? 'ws://yjs-websocket-alb-192635999.ap-northeast-2.elb.amazonaws.com' : `ws://${getLocalNetworkIP()}:1234`);
+  (isProductionEnvironment() ? 'wss://h0xs6j2ig6.execute-api.ap-northeast-2.amazonaws.com' : `ws://${getLocalNetworkIP()}:1234`);
 
 // 소셜 로그인 설정
 export const GOOGLE_CLIENT_ID = getEnvVar('VITE_GOOGLE_CLIENT_ID') || getEnvVar('NEXT_PUBLIC_GOOGLE_CLIENT_ID') || '';

@@ -8,6 +8,7 @@ import { YJS_WEBSOCKET_URL } from '../config';
 
 export function useYjsCollaboration(roomId, userInfo) {
   const [isConnected, setIsConnected] = useState(false);
+  const [connectionError, setConnectionError] = useState(null);
   const ydocRef = useRef(null);
   const providerRef = useRef(null);
   const awarenessRef = useRef(null);
@@ -76,7 +77,24 @@ export function useYjsCollaboration(roomId, userInfo) {
 
     // 연결 오류 처리
     provider.on('connection-error', (error) => {
-      console.error('WebSocket 연결 오류:', error);
+      console.error('WebSocket 연결 오류:', {
+        error,
+        wsUrl,
+        roomName,
+        userInfo: userInfo.id,
+        timestamp: new Date().toISOString()
+      });
+      setConnectionError(error);
+    });
+
+    // 연결 실패 처리
+    provider.on('connection-close', (event) => {
+      console.warn('WebSocket 연결 종료:', {
+        event,
+        wsUrl,
+        roomName,
+        timestamp: new Date().toISOString()
+      });
     });
 
     // 동기화 상태 모니터링
@@ -121,5 +139,6 @@ export function useYjsCollaboration(roomId, userInfo) {
     provider: providerRef.current,
     awareness: awarenessRef.current,
     isConnected,
+    connectionError,
   };
 }
