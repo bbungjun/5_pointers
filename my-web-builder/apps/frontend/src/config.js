@@ -40,13 +40,34 @@ const isProductionEnvironment = () => {
   return viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isPagecubeDomain || isCloudFrontDomain;
 };
 
+// 로컬 네트워크 IP 주소 감지 함수
+const getLocalNetworkIP = () => {
+  try {
+    // 브라우저에서 현재 페이지의 호스트명을 사용
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      
+      // localhost인 경우 localhost 사용 (로컬 협업을 위해)
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'localhost';
+      }
+      
+      // 실제 IP 주소인 경우 그대로 사용
+      return hostname;
+    }
+  } catch (error) {
+    console.warn('로컬 네트워크 IP 감지 실패:', error);
+  }
+  return 'localhost'; // 기본값을 localhost로 변경
+};
+
 // API 서버 설정 - 환경변수 기반
 export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 
   (isProductionEnvironment() ? 'https://pagecube.net/api' : 'http://localhost:3000/api');
 
 // Y.js WebSocket 서버 설정 - 환경변수 기반
-export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') || 
-  (getEnvVar('NODE_ENV') === 'production' ? 'wss://demos.yjs.dev' : 'ws://localhost:1234');
+export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('VITE_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') ||
+  (isProductionEnvironment() ? 'ws://yjs-websocket-alb-192635999.ap-northeast-2.elb.amazonaws.com' : `ws://${getLocalNetworkIP()}:1234`);
 
 // 소셜 로그인 설정
 export const GOOGLE_CLIENT_ID = getEnvVar('VITE_GOOGLE_CLIENT_ID') || getEnvVar('NEXT_PUBLIC_GOOGLE_CLIENT_ID') || '';
@@ -58,7 +79,7 @@ export const getRedirectUrl = (provider) => {
   return `${frontendUrl}/social-callback?provider=${provider}`;
 };
 
-// 배포 URL 생성 함수 (서브도메인 기반으로 변경)
+// 배포 URL 생성 함수 (API 엔드포인트 기반으로 변경)
 export const getDeployedUrl = (subdomain) => {
   const isProduction = isProductionEnvironment();
   
@@ -69,14 +90,14 @@ export const getDeployedUrl = (subdomain) => {
   });
   
   if (isProduction) {
-    // 프로덕션: 실제 서브도메인 사용
-    const url = `https://${subdomain}.pagecube.net`;
-    console.log('✅ 프로덕션 URL 생성 (서브도메인 기반):', url);
+    // 프로덕션: CloudFront 우회하여 백엔드 API 직접 접근
+    const url = `https://pagecube.net/api/generator/deployed-sites/${subdomain}`;
+    console.log('✅ 프로덕션 URL 생성 (API 엔드포인트 기반):', url);
     return url;
   } else {
-    // 로컬: 별도 포트의 서브도메인 서버 사용
-    const url = `http://localhost:3001/${subdomain}`;
-    console.log('🏠 로컬 URL 생성:', url);
+    // 로컬: 와일드카드 서브도메인 서버 사용
+    const url = `http://${subdomain}.localhost:3001`;
+    console.log('🏠 로컬 URL 생성 (와일드카드 서브도메인):', url);
     return url;
   }
 };

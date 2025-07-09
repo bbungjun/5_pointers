@@ -277,7 +277,7 @@ export function useComponentActions(
 
         if (response.ok) {
           console.log('템플릿 저장 성공');
-          setTemplateData({ title: '', description: '', category: 'custom' });
+          setTemplateData({ name: '', category: 'wedding', tags: '' });
           setIsTemplateSaveOpen(false);
         }
       } catch (error) {

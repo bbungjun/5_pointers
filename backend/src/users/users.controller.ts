@@ -33,7 +33,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('pages/my-pages')
   async getMyPages(@Request() req) {
-    return this.usersService.getMyPages(req.user.id);
+    return this.usersService.getMyPagesForNavigation(req.user.id, req.query.currentPageId);
   }
 
   // 페이지 단일 조회 API
@@ -278,6 +278,9 @@ export class UsersController {
 
   /**
    * Page 컴포넌트에서 새 페이지 생성
+    return this.usersService.getMyPages(userId);
+  }
+
    * POST /users/pages/create-from-component
    */
   @Post('pages/create-from-component')

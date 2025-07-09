@@ -13,6 +13,7 @@ import { S3Module } from '../s3/s3.module';
     TypeOrmModule.forFeature([Users, Pages, Submissions, PageMembers]),
     S3Module,
   ],
+
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Request,
+  Query,
+} from '@nestjs/common';
 import { TemplatesService } from './templates.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { TemplateAdminGuard } from '../common/guards/template-admin.guard';
@@ -18,13 +27,14 @@ export class TemplatesController {
   @UseGuards(JwtAuthGuard, TemplateAdminGuard)
   async createTemplateFromPage(
     @Request() req,
-    @Body() body: {
+    @Body()
+    body: {
       pageId: string;
       name: string;
       category: string;
       tags?: string[];
       thumbnail_url?: string;
-    }
+    },
   ) {
     return this.templatesService.createTemplateFromPage(
       body.pageId,
@@ -32,7 +42,7 @@ export class TemplatesController {
       body.category,
       req.user.id,
       body.tags,
-      body.thumbnail_url
+      body.thumbnail_url,
     );
   }
 
@@ -41,13 +51,14 @@ export class TemplatesController {
   @UseGuards(JwtAuthGuard, TemplateAdminGuard)
   async createTemplateFromComponents(
     @Request() req,
-    @Body() body: {
+    @Body()
+    body: {
       components: any[];
       name: string;
       category: string;
       tags?: string[];
       thumbnail_url?: string;
-    }
+    },
   ) {
     return this.templatesService.createTemplateFromComponents(
       body.components,
@@ -55,7 +66,7 @@ export class TemplatesController {
       body.category,
       req.user.id,
       body.tags,
-      body.thumbnail_url
+      body.thumbnail_url,
     );
   }
 
@@ -65,13 +76,13 @@ export class TemplatesController {
   async createPageFromTemplate(
     @Request() req,
     @Param('templateId') templateId: string,
-    @Body() body: { title?: string; subdomain: string }
+    @Body() body: { title?: string; subdomain: string },
   ) {
     return this.templatesService.createPageFromTemplate(
       templateId,
       req.user.id,
       body.title,
-      body.subdomain
+      body.subdomain,
     );
   }
 }

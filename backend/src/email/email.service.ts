@@ -23,14 +23,14 @@ export class EmailService {
     toEmail: string,
     invitationToken: string,
     pageName: string,
-    inviterName: string
+    inviterName: string,
   ): Promise<void> {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const inviteUrl = `${frontendUrl}/invite/${invitationToken}`;
-    
+
     // 발신자 이메일 (AWS SES에서 검증된 이메일이어야 함)
     const fromEmail = process.env.SES_FROM_EMAIL || 'noreply@yourdomain.com';
-    
+
     const emailParams = {
       Source: fromEmail,
       Destination: {
@@ -43,11 +43,19 @@ export class EmailService {
         },
         Body: {
           Html: {
-            Data: this.createInvitationEmailTemplate(inviterName, pageName, inviteUrl),
+            Data: this.createInvitationEmailTemplate(
+              inviterName,
+              pageName,
+              inviteUrl,
+            ),
             Charset: 'UTF-8',
           },
           Text: {
-            Data: this.createInvitationEmailText(inviterName, pageName, inviteUrl),
+            Data: this.createInvitationEmailText(
+              inviterName,
+              pageName,
+              inviteUrl,
+            ),
             Charset: 'UTF-8',
           },
         },
@@ -57,13 +65,12 @@ export class EmailService {
     try {
       const command = new SendEmailCommand(emailParams);
       const result = await this.sesClient.send(command);
-      
+
       console.log('✅ 이메일 발송 성공:', {
         messageId: result.MessageId,
         to: toEmail,
-        subject: emailParams.Message.Subject.Data
+        subject: emailParams.Message.Subject.Data,
       });
-      
     } catch (error) {
       console.error('❌ 이메일 발송 실패:', error);
       throw new Error(`이메일 발송에 실패했습니다: ${error.message}`);
@@ -76,7 +83,7 @@ export class EmailService {
   private createInvitationEmailTemplate(
     inviterName: string,
     pageName: string,
-    inviteUrl: string
+    inviteUrl: string,
   ): string {
     return `
       <!DOCTYPE html>
@@ -220,7 +227,7 @@ export class EmailService {
   private createInvitationEmailText(
     inviterName: string,
     pageName: string,
-    inviteUrl: string
+    inviteUrl: string,
   ): string {
     return `
 페이지 협업 초대
@@ -243,4 +250,4 @@ ${inviteUrl}
 © 2024 PAGE CUBE. All rights reserved.
     `.trim();
   }
-} 
+}

@@ -96,19 +96,93 @@ jobs:
             --description "Deployment from GitHub Actions - ${{ github.sha }} at ${TIMESTAMP}" \
             --source-bundle S3Bucket=elasticbeanstalk-ap-northeast-2-490004614784,S3Key=backend-deployment-${{ github.sha }}.zip
 
+      - name: Check Environment Status
+        run: |
+          echo "🔍 Checking Elastic Beanstalk environment status..."
+          for i in {1..15}; do
+            echo "Checking environment status (attempt $i/15)..."
+            
+            STATUS=$(aws elasticbeanstalk describe-environments \
+              --environment-names Jungle-backend-prod-env \
+              --query 'Environments[0].Status' \
+              --output text)
+            
+            HEALTH=$(aws elasticbeanstalk describe-environments \
+              --environment-names Jungle-backend-prod-env \
+              --query 'Environments[0].Health' \
+              --output text)
+            
+            echo "Status: $STATUS, Health: $HEALTH"
+            
+            if [ "$STATUS" = "Ready" ]; then
+              echo "✅ Environment is ready for deployment"
+              break
+            else
+              echo "⏳ Environment not ready. Status: $STATUS. Waiting 60 seconds..."
+              if [ $i -eq 15 ]; then
+                echo "❌ Environment failed to reach Ready state after 15 attempts (15 minutes)"
+                echo "Current status: $STATUS"
+                echo "Current health: $HEALTH"
+                echo "📋 Recent events:"
+                aws elasticbeanstalk describe-events \
+                  --environment-name Jungle-backend-prod-env \
+                  --max-items 5 \
+                  --query 'Events[].[EventDate,Severity,Message]' \
+                  --output table
+                exit 1
+              fi
+              sleep 60
+            fi
+          done
+
       - name: Deploy to Elastic Beanstalk
         run: |
+          echo "🚀 Starting deployment to Elastic Beanstalk..."
           aws elasticbeanstalk update-environment \
             --environment-name Jungle-backend-prod-env \
             --version-label ${{ env.VERSION_LABEL }}
 
       - name: Wait for deployment
         run: |
-          aws elasticbeanstalk wait environment-updated \
-            --environment-name Jungle-backend-prod-env
+          echo "⏳ Waiting for deployment to complete..."
+          timeout 1200 aws elasticbeanstalk wait environment-updated \
+            --environment-name Jungle-backend-prod-env || {
+            echo "❌ Deployment timeout after 20 minutes"
+            echo "📋 Current environment status:"
+            aws elasticbeanstalk describe-environments \
+              --environment-names Jungle-backend-prod-env \
+              --query 'Environments[0].{Status:Status,Health:Health,VersionLabel:VersionLabel}'
+            echo "📋 Recent events:"
+            aws elasticbeanstalk describe-events \
+              --environment-name Jungle-backend-prod-env \
+              --max-items 10 \
+              --query 'Events[].[EventDate,Severity,Message]' \
+              --output table
+            exit 1
+          }
 
       - name: Get deployment status
         run: |
+          echo "✅ Deployment completed! Final status:"
           aws elasticbeanstalk describe-environments \
             --environment-names Jungle-backend-prod-env \
-            --query 'Environments[0].{Status:Status,Health:Health,VersionLabel:VersionLabel}'
+            --query 'Environments[0].{Status:Status,Health:Health,VersionLabel:VersionLabel}' \
+            --output table
+          
+          # Health check
+          HEALTH=$(aws elasticbeanstalk describe-environments \
+            --environment-names Jungle-backend-prod-env \
+            --query 'Environments[0].Health' \
+            --output text)
+          
+          if [ "$HEALTH" = "Ok" ] || [ "$HEALTH" = "Info" ]; then
+            echo "🎉 Deployment successful! Environment health: $HEALTH"
+          else
+            echo "⚠️ Deployment completed but environment health is: $HEALTH"
+            echo "📋 Recent events:"
+            aws elasticbeanstalk describe-events \
+              --environment-name Jungle-backend-prod-env \
+              --max-items 5 \
+              --query 'Events[].[EventDate,Severity,Message]' \
+              --output table
+          fi

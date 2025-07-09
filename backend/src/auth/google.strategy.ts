@@ -15,11 +15,20 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: any,
+    done: VerifyCallback,
+  ): Promise<any> {
     const { id, emails } = profile;
     let user = await this.usersService.findBySocial(AuthProvider.GOOGLE, id);
     if (!user) {
-      user = await this.usersService.createSocialUser(AuthProvider.GOOGLE, id, emails[0].value);
+      user = await this.usersService.createSocialUser(
+        AuthProvider.GOOGLE,
+        id,
+        emails[0].value,
+      );
     }
     done(null, user);
   }

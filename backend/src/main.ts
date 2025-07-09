@@ -1,7 +1,7 @@
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { NestExpressApplication } from "@nestjs/platform-express";
-import { join } from "path";
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import * as express from 'express';
 
 async function bootstrap() {
@@ -21,15 +21,17 @@ async function bootstrap() {
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
   // 정적 파일 서빙 설정 (수정된 방식)
-  const publicPath = join(__dirname, "..", "public");
+  const publicPath = join(__dirname, '..', 'public');
   // console.log("Static files path:", publicPath);
-  
+
   // uploads 폴더를 직접 서빙
-  app.useStaticAssets(join(publicPath, "uploads"), {
-    prefix: "/uploads/",
+  app.useStaticAssets(join(publicPath, 'uploads'), {
+    prefix: '/uploads/',
   });
 
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
-  console.log("ImageUploadServer-ver.2: Static file serving enabled (v2) - API prefix configured");
+  console.log(
+    'ImageUploadServer-ver.2: Static file serving enabled (v2) - API prefix configured',
+  );
 }
 bootstrap();
