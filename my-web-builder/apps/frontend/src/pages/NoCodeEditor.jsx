@@ -369,7 +369,7 @@ function NoCodeEditor({ pageId }) {
         onClose={interaction.handleTemplateSaveClose}
         templateData={interaction.templateData}
         setTemplateData={interaction.setTemplateData}
-        onSave={actions.handleSaveAsTemplate}
+        onSave={() => actions.handleSaveAsTemplate(components)}
       />
 
       <InviteModal
