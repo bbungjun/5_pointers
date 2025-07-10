@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@my-project/ui": "*",
     "autoprefixer": "^10.4.21",
     "mysql2": "^3.6.0",
     "next": "14.0.0",

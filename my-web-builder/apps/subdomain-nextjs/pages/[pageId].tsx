@@ -5,27 +5,27 @@ import Head from 'next/head';
 // Next.js 서브도메인 서버용 API 설정
 const API_BASE_URL = process.env.API_BASE_URL || 
   (process.env.NODE_ENV === 'production' 
-    ? 'https://pagecube.net/api'
+    ? 'http://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com/api'
     : 'http://localhost:3000/api');
 
-// Frontend의 실제 컴포넌트들을 직접 import
-import ButtonRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/ButtonRenderer.jsx';
-import TextRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/TextRenderer.jsx';
-import LinkRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/LinkRenderer.jsx';
-import AttendRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/AttendRenderer.jsx';
-import ImageRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/ImageRenderer.jsx';
-import MapInfoRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/MapInfoRenderer.jsx';
-import DdayRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/DdayRenderer.jsx';
-import WeddingContactRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/WeddingContactRenderer.jsx';
-import GridGalleryRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/GridGalleryRenderer.jsx';
-import SlideGalleryRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/SlideGalleryRenderer.jsx';
-import CalendarRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/CalendarRenderer.jsx';
-import BankAccountRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/BankAccountRenderer.jsx';
-import CommentRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/CommentRenderer.jsx';
-import SlidoRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/SlidoRenderer.jsx';
-import WeddingInviteRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/WeddingInviteRenderer.jsx';
-import MusicRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/MusicRenderer.jsx';
-import KakaoTalkShareRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/KakaoTalkShareRenderer';
+// 실제 프론트엔드 컴포넌트들을 import
+import ButtonRenderer from '../components/renderers/ButtonRenderer.jsx';
+import TextRenderer from '../components/renderers/TextRenderer.jsx';
+import LinkRenderer from '../components/renderers/LinkRenderer.jsx';
+import AttendRenderer from '../components/renderers/AttendRenderer.jsx';
+import ImageRenderer from '../components/renderers/ImageRenderer.jsx';
+import MapInfoRenderer from '../components/renderers/MapInfoRenderer.jsx';
+import DdayRenderer from '../components/renderers/DdayRenderer.jsx';
+import WeddingContactRenderer from '../components/renderers/WeddingContactRenderer.jsx';
+import GridGalleryRenderer from '../components/renderers/GridGalleryRenderer.jsx';
+import SlideGalleryRenderer from '../components/renderers/SlideGalleryRenderer.jsx';
+import CalendarRenderer from '../components/renderers/CalendarRenderer.jsx';
+import BankAccountRenderer from '../components/renderers/BankAccountRenderer.jsx';
+import CommentRenderer from '../components/renderers/CommentRenderer.jsx';
+import SlidoRenderer from '../components/renderers/SlidoRenderer.jsx';
+import WeddingInviteRenderer from '../components/renderers/WeddingInviteRenderer.jsx';
+import MusicRenderer from '../components/renderers/MusicRenderer.jsx';
+import KakaoTalkShareRenderer from '../components/renderers/KakaoTalkShareRenderer.jsx';
 
 // API 설정을 전역으로 설정 (컴포넌트들이 사용할 수 있도록)
 if (typeof window !== 'undefined') {
@@ -107,10 +107,14 @@ const DynamicPageRenderer = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🚀 DynamicPageRenderer mounted, components:', components);
     // 컴포넌트가 마운트되면 로딩 완료
-    const timer = setTimeout(() => setIsLoading(false), 500);
+    const timer = setTimeout(() => {
+      console.log('⏰ Loading timer completed, showing content');
+      setIsLoading(false);
+    }, 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [components]);
 
   if (isLoading) {
     return <LoadingSpinner />;
