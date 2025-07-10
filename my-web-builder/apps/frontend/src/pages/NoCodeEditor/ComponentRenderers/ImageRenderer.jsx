@@ -19,8 +19,8 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
   const finalHeight = comp.height || comp.props?.height || 150;
 
   const containerStyle = {
-    width: finalWidth + 'px',
-    height: finalHeight + 'px',
+    width: '100%',
+    height: '100%',
     borderRadius: (comp.props?.borderRadius || 0) + 'px',
     overflow: 'hidden',
     position: 'relative',

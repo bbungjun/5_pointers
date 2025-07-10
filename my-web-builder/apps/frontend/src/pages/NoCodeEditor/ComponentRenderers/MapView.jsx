@@ -29,7 +29,7 @@ function loadKakaoMapsScript() {
   });
 }
 
-function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, width = 400, height = 300 }) {
+function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, comp }) {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
@@ -64,19 +64,41 @@ function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, width = 400, he
             });
           }
           map.setLevel(zoom);
+          // 컨테이너 크기 변경 후 지도 리사이즈
+          setTimeout(() => {
+            map.relayout();
+          }, 100);
         }
       }
       renderMap();
     });
-  }, [lat, lng, zoom]);
+  }, [lat, lng, zoom, comp?.width, comp?.height]);
+
+  // 컨테이너 크기 변화 감지
+  useEffect(() => {
+    if (!mapRef.current) return;
+    
+    const resizeObserver = new ResizeObserver(() => {
+      const map = mapRef.current?._kakao_map_instance;
+      if (map) {
+        setTimeout(() => {
+          map.relayout();
+        }, 50);
+      }
+    });
+    
+    resizeObserver.observe(mapRef.current);
+    
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   return (
-    <div>
-      <div
-        ref={mapRef}
-        style={{ width: width, height: height, borderRadius: 8, border: '1px solid #ccc' }}
-      />
-    </div>
+    <div
+      ref={mapRef}
+      style={{ width: comp?.width || 340, height: comp?.height || 240, borderRadius: 8, border: '1px solid #ccc' }}
+    />
   );
 }
 

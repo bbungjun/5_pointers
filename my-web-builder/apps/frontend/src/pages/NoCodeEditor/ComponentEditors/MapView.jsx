@@ -35,11 +35,12 @@ function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 2, width = 400, he
           });
         }
         map.setLevel(zoom);
+        map.relayout();
         console.log('지도 업데이트됨');
       }
     }
     renderMap();
-  }, [lat, lng, zoom]);
+  }, [lat, lng, zoom, width, height]);
 
   return (
     <div>

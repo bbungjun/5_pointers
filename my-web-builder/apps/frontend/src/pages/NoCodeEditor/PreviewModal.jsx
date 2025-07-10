@@ -31,7 +31,7 @@ const PREVIEW_CSS = `
 
 @media (max-width: 768px) {
   .page-container {
-    padding: 0;
+    padding: 0 !important;
   }
   
   .row-wrapper {

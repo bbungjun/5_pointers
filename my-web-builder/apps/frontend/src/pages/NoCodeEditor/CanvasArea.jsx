@@ -695,7 +695,7 @@ const CanvasArea = forwardRef(
             // 뷰포트별 패딩 조정 (좌측은 컴포넌트 라이브러리 상태에 따라 동적 조정)
             padding:
               viewport === 'mobile'
-                ? '10px'
+                ? '0px'
                 : `20px 40px 120px ${isLibraryOpen ? '40px' : '20px'}`, // 좌측 여백 축소
             boxSizing: 'border-box',
           }}
