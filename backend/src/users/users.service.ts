@@ -108,6 +108,23 @@ export class UsersService {
     );
   }
 
+  // 네비게이션용 내 페이지 목록 조회 (간소화된 정보)
+  async getMyPagesForNavigation(userId: number, currentPageId?: string): Promise<any> {
+    const pages = await this.getMyPages(userId);
+    
+    return {
+      pages: pages.map(page => ({
+        id: page.id,
+        title: page.title,
+        subdomain: page.subdomain,
+        status: page.status,
+        updatedAt: page.updatedAt,
+        isCurrent: page.id === currentPageId
+      })),
+      total: pages.length
+    };
+  }
+
   // 페이지 단일 조회
   async getPage(userId: number, pageId: string): Promise<Pages> {
     // 먼저 페이지 소유자인지 확인
@@ -907,5 +924,35 @@ export class UsersService {
         })();
       </script>
     `;
+  }
+
+  // 디자인 모드 업데이트
+  async updateDesignMode(pageId: string, designMode: 'desktop' | 'mobile'): Promise<any> {
+    const page = await this.pagesRepository.findOne({
+      where: { id: pageId }
+    });
+
+    if (!page) {
+      throw new Error('Page not found');
+    }
+
+    // 페이지의 designMode 속성 업데이트 (content에 저장되어 있을 수 있음)
+    if (!page.content) {
+      page.content = {};
+    }
+
+    // content 객체에 designMode 저장
+    page.content = {
+      ...page.content,
+      designMode: designMode
+    };
+
+    const updatedPage = await this.pagesRepository.save(page);
+    
+    return {
+      message: 'Design mode updated successfully',
+      pageId: pageId,
+      designMode: designMode
+    };
   }
 }
