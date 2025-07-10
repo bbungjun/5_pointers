@@ -736,27 +736,13 @@ const CanvasArea = forwardRef(
                   position: 'absolute',
                   left: line.x,
                   top: 0,
-                  width: 2,
+                  width: 1,
                   height: '100%',
-                  background:
-                    line.type === 'center'
-                      ? '#9C27B0'
-                      : line.type === 'align'
-                        ? '#FF4081'
-                        : line.type === 'spacing'
-                          ? '#00E676'
-                          : '#FFB300',
+                  background: '#FF0000',
                   zIndex: 1000,
                   pointerEvents: 'none',
-                  boxShadow:
-                    line.type === 'center'
-                      ? '0 0 12px rgba(156, 39, 176, 0.8)'
-                      : line.type === 'align'
-                        ? '0 0 8px rgba(255, 64, 129, 0.6)'
-                        : line.type === 'spacing'
-                          ? '0 0 8px rgba(0, 230, 118, 0.6)'
-                          : '0 0 6px rgba(255, 179, 0, 0.5)',
-                  opacity: line.type === 'center' ? 1 : 0.9,
+                  boxShadow: 'none',
+                  opacity: 1,
                 }}
               />
             ))}
@@ -769,26 +755,12 @@ const CanvasArea = forwardRef(
                   left: 0,
                   top: line.y,
                   width: '100%',
-                  height: 2,
-                  background:
-                    line.type === 'center'
-                      ? '#9C27B0'
-                      : line.type === 'align'
-                        ? '#FF4081'
-                        : line.type === 'spacing'
-                          ? '#00E676'
-                          : '#FFB300',
+                  height: 1,
+                  background: '#FF0000',
                   zIndex: 1000,
                   pointerEvents: 'none',
-                  boxShadow:
-                    line.type === 'center'
-                      ? '0 0 12px rgba(156, 39, 176, 0.8)'
-                      : line.type === 'align'
-                        ? '0 0 8px rgba(255, 64, 129, 0.6)'
-                        : line.type === 'spacing'
-                          ? '0 0 8px rgba(0, 230, 118, 0.6)'
-                          : '0 0 6px rgba(255, 179, 0, 0.5)',
-                  opacity: line.type === 'center' ? 1 : 0.9,
+                  boxShadow: 'none',
+                  opacity: 1,
                 }}
               />
             ))}
