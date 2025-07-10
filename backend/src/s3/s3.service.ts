@@ -9,9 +9,12 @@ export class S3Service {
   constructor() {
     this.s3Client = new S3Client({
       region: process.env.AWS_REGION || 'ap-northeast-2',
-credentials: {        accessKeyId: process.env.AWS_ACCESS_KEY_ID,        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,        sessionToken: process.env.AWS_SESSION_TOKEN,      },
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
     });
-    this.bucketName = process.env.AWS_S3_BUCKET_NAME || '5pointers-uploads';
+    this.bucketName = process.env.AWS_S3_BUCKET_NAME || '5pointers-imagebucket';
     console.log('🔧 S3Service 초기화:', {
       region: process.env.AWS_REGION || 'ap-northeast-2',
       bucket: this.bucketName,
@@ -28,7 +31,7 @@ credentials: {        accessKeyId: process.env.AWS_ACCESS_KEY_ID,        secretA
       
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
       const ext = file.originalname.split('.').pop();
-      const key = `images/${year}/${month}/${day}/${uniqueSuffix}.${ext}`;
+      const key = ;
 
       console.log('📤 S3 업로드 시작:', {
         bucket: this.bucketName,
@@ -47,7 +50,7 @@ credentials: {        accessKeyId: process.env.AWS_ACCESS_KEY_ID,        secretA
 
       await this.s3Client.send(command);
       
-      const imageUrl = `https://${this.bucketName}.s3.${process.env.AWS_REGION || 'ap-northeast-2'}.amazonaws.com/${key}`;
+      const imageUrl = ;
       console.log('✅ S3 업로드 완료:', imageUrl);
       
       return imageUrl;
@@ -74,7 +77,7 @@ credentials: {        accessKeyId: process.env.AWS_ACCESS_KEY_ID,        secretA
   // S3 연결 테스트
   async testConnection(): Promise<boolean> {
     try {
-      const testKey = `test/connection-test-${Date.now()}.txt`;
+      const testKey = ;
       const testContent = 'S3 connection test';
       
       const putCommand = new PutObjectCommand({
