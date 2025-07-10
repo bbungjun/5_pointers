@@ -8,7 +8,8 @@ const PREVIEW_CSS = `
 .page-container {
   width: 100%;
   min-height: 100vh;
-  padding: 20px;
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
 }
 
@@ -30,7 +31,7 @@ const PREVIEW_CSS = `
 
 @media (max-width: 768px) {
   .page-container {
-    padding: 10px;
+    padding: 0;
   }
   
   .row-wrapper {
@@ -52,6 +53,7 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
   const [viewMode, setViewMode] = useState('desktop');
   const iframeRef = useRef(null);
   const rootRef = useRef(null);
+  const iframeContainerRef = useRef(null);
 
   // iframe 초기화 (한 번만)
   useEffect(() => {
@@ -78,6 +80,8 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
               width: 100%;
               min-height: 100vh;
               background: #ffffff;
+              padding: 0;
+              margin: 0;
             }
             ${PREVIEW_CSS}
           </style>
@@ -123,6 +127,30 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
       return () => clearTimeout(timeoutId);
     }
   }, [isOpen]);
+
+  // 데스크톱 뷰 스케일 계산
+  useEffect(() => {
+    if (viewMode !== 'desktop' || !iframeContainerRef.current || !iframeRef.current) return;
+
+    const container = iframeContainerRef.current;
+    const iframe = iframeRef.current;
+
+    const updateScale = () => {
+      const containerWidth = container.clientWidth;
+      const containerHeight = container.clientHeight;
+      const scaleX = (containerWidth - 20) / 1920;
+      const scaleY = (containerHeight - 20) / 1080;
+      const scale = Math.min(scaleX, scaleY, 0.8);
+      iframe.style.transform = `scale(${scale})`;
+      iframe.style.transformOrigin = 'center';
+    };
+
+    const resizeObserver = new ResizeObserver(updateScale);
+    resizeObserver.observe(container);
+    updateScale();
+
+    return () => resizeObserver.disconnect();
+  }, [viewMode, isOpen]);
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -204,25 +232,25 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
         </button>
       </div>
       <div
+        ref={iframeContainerRef}
         style={{
           flex: 1,
-          overflow: 'auto',
-          padding: '20px',
+          overflow: 'hidden',
+          padding: '10px',
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'flex-start',
+          alignItems: 'center',
         }}
       >
         <iframe
           ref={iframeRef}
           style={{
-            width: viewMode === 'desktop' ? 'calc(90vw - 10px)' : '375px',
-            height: viewMode === 'desktop' ? 'calc(90vh - 30px)' : '667px',
-            border: 'none',
+            width: viewMode === 'desktop' ? '1920px' : '375px',
+            height: viewMode === 'desktop' ? '1080px' : '667px',
+            border: '1px solid #ccc',
             borderRadius: '8px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            maxWidth: viewMode === 'desktop' ? '1200px' : '375px',
-            maxHeight: viewMode === 'desktop' ? '800px' : '667px',
+            transformOrigin: 'center',
           }}
         />
       </div>

@@ -1,43 +1,32 @@
 /* 반응형 시스템 전용 CSS */
 
-.page-container {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
+.page-container.desktop {
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+}
+
+.page-container.mobile {
+  width: 375px;
+  min-height: 667px;
+  padding: 10px;
   box-sizing: border-box;
 }
 
 .row-wrapper {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
   margin-bottom: 10px;
 }
 
 .component-wrapper {
-  max-width: 100%;
+  max-width: 90%;
   box-sizing: border-box;
+  margin-bottom: 10px;
 }
 
 .desktop-absolute-wrapper {
   position: absolute;
-}
-
-@media (max-width: 768px) {
-  .page-container {
-    padding: 10px;
-  }
-  
-  .row-wrapper {
-    flex-direction: column;
-  }
-  
-  .component-wrapper {
-    width: 100% !important;
-    margin-bottom: 10px;
-  }
-  
-  .desktop-absolute-wrapper {
-    position: static;
-  }
 }

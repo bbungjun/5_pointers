@@ -70,11 +70,21 @@ const ComponentRenderer = ({ component }) => {
   }
 };
 
+const DESKTOP_CANVAS_WIDTH = 1920;
+const DESKTOP_CANVAS_HEIGHT = 1080;
+
 const PreviewRenderer = ({ components = [], forcedViewport = null }) => {
   if (forcedViewport === 'desktop') {
-    // 데스크톱 뷰: position: absolute 사용
     return (
-      <div className="page-container">
+      <div 
+        className="page-container"
+        style={{
+          width: `${DESKTOP_CANVAS_WIDTH}px`,
+          height: `${DESKTOP_CANVAS_HEIGHT}px`,
+          position: 'relative',
+          background: '#ffffff',
+        }}
+      >
         {components.map(component => (
           <div
             key={component.id}
@@ -94,37 +104,48 @@ const PreviewRenderer = ({ components = [], forcedViewport = null }) => {
   }
 
   if (forcedViewport === 'mobile') {
-    // 모바일 뷰: 행 기반 레이아웃
     const rows = groupComponentsIntoRows(components);
     
     return (
-      <div className="page-container">
+      <div 
+        className="page-container"
+        style={{
+          width: '375px',
+          minHeight: '667px',
+          padding: '10px',
+          boxSizing: 'border-box',
+        }}
+      >
         {rows.map((row, rowIndex) => (
           <div key={rowIndex} className="row-wrapper">
-            {row
-              .sort((a, b) => (a.x || 0) - (b.x || 0))
-              .map((component, compIndex) => (
-                <div
-                  key={component.id}
-                  className="component-wrapper"
-                  style={{
-                    order: compIndex,
-                    width: `${Math.min(100, ((component.width || getComponentDimensions(component.type).defaultWidth) / 375) * 100)}%`,
-                    height: component.height || getComponentDimensions(component.type).defaultHeight,
-                  }}
-                >
-                  <ComponentRenderer component={component} />
-                </div>
-              ))}
+            {row.map(component => (
+              <div
+                key={component.id}
+                className="component-wrapper"
+                style={{
+                  order: Math.floor((component.x || 0) / 10),
+                  width: `${component.width || getComponentDimensions(component.type).defaultWidth}px`,
+                }}
+              >
+                <ComponentRenderer component={component} />
+              </div>
+            ))}
           </div>
         ))}
       </div>
     );
   }
 
-  // 기본값: 데스크톱 뷰
   return (
-    <div className="page-container">
+    <div 
+      className="page-container"
+      style={{
+        width: `${DESKTOP_CANVAS_WIDTH}px`,
+        height: `${DESKTOP_CANVAS_HEIGHT}px`,
+        position: 'relative',
+        background: '#ffffff',
+      }}
+    >
       {components.map(component => (
         <div
           key={component.id}
