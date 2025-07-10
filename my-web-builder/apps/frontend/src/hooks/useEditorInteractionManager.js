@@ -10,7 +10,7 @@ export function useEditorInteractionManager(designMode, setDesignMode) {
   // UI 상태 관리
   const [selectedId, setSelectedId] = useState(null);
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(65); // 줌 초기값을 60%로 설정
   const [viewport, setViewport] = useState(designMode);
   const [isLibraryOpen, setIsLibraryOpen] = useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);

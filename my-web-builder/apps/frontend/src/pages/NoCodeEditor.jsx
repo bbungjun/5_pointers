@@ -13,6 +13,7 @@ import TemplateModal from './NoCodeEditor/components/TemplateModal';
 import InviteModal from './NoCodeEditor/components/InviteModal';
 import CanvasComponent from './NoCodeEditor/components/CanvasComponent';
 import UserCursor from './NoCodeEditor/components/UserCursor';
+import WebSocketConnectionGuide from '../components/WebSocketConnectionGuide';
 
 // 훅들
 import { usePageDataManager } from '../hooks/usePageDataManager';
@@ -23,7 +24,6 @@ import { useComponentActions } from '../hooks/useComponentActions';
 // 유틸리티
 import { getUserColor } from '../utils/userColors';
 import {
-  getCanvasSize,
   getComponentDimensions,
 } from './NoCodeEditor/utils/editorUtils';
 
@@ -33,12 +33,14 @@ function NoCodeEditor({ pageId }) {
   // roomId가 없으면 임시 ID 생성
   const effectiveRoomId = roomId || `room-${Date.now()}`;
   
-  console.log('🆔 NoCodeEditor roomId:', roomId);
-  console.log('🆔 Effective roomId:', effectiveRoomId);
-  console.log('🌐 Current URL:', window.location.pathname);
+ 
   const canvasRef = useRef();
   const containerRef = useRef();
   const [components, setComponents] = useState([]);
+  
+  // 다중 선택 관련 상태
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [clipboard, setClipboard] = useState([]);
 
   // 1. 데이터 로딩 및 상태 관리
   const {
@@ -82,6 +84,15 @@ function NoCodeEditor({ pageId }) {
   const interaction = useEditorInteractionManager(designMode, setDesignMode);
 
   // 4. 협업 동기화 로직
+  const collaboration = useCollaboration({
+    roomId: pageId,
+    userInfo,
+    canvasRef,
+    selectedComponentId: interaction.selectedId,
+    onComponentsUpdate: setComponents,
+    viewport: interaction.viewport,
+  });
+
   const {
     otherCursors,
     otherSelections,
@@ -96,32 +107,12 @@ function NoCodeEditor({ pageId }) {
     getHistory,
     setHistory,
     isConnected,
-  } = useCollaboration({
-    roomId: pageId,
-    userInfo,
-    canvasRef,
-    selectedComponentId: interaction.selectedId,
-    onComponentsUpdate: setComponents,
-    viewport: interaction.viewport,
-  });
+    connectionError,
+  } = collaboration;
 
   // 5. 컴포넌트 액션 관리
   const actions = useComponentActions(
-    {
-      otherCursors,
-      otherSelections,
-      updateCursorPosition,
-      addComponent,
-      updateComponent,
-      removeComponent,
-      updateAllComponents,
-      getActiveUsers,
-      undo,
-      redo,
-      getHistory,
-      setHistory,
-      isConnected,
-    },
+    collaboration,
     userInfo,
     components,
     interaction.viewport,
@@ -154,20 +145,92 @@ function NoCodeEditor({ pageId }) {
     });
   }, [interaction.selectedId, components]);
 
-  // Delete 키로 삭제
+  // 연결 오류 알림
+  useEffect(() => {
+    if (connectionError) {
+      console.error('협업 연결 오류:', connectionError);
+    }
+  }, [connectionError]);
+
+  // 키보드 단축키 처리 (Delete, Ctrl+C, Ctrl+V)
   useEffect(() => {
     const onKeyDown = (e) => {
-      if (e.key === 'Delete' && interaction.selectedId) {
-        actions.handleDelete(
-          interaction.selectedId,
-          interaction.selectedId,
-          interaction.setSelectedId
-        );
+      // 텍스트 입력 중이면 무시
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      // Delete 키로 삭제
+      if (e.key === 'Delete') {
+        if (selectedIds.length > 0) {
+          // 다중 선택된 컴포넌트들 삭제
+          selectedIds.forEach(id => {
+            actions.handleDelete(id, id, interaction.setSelectedId);
+          });
+          setSelectedIds([]);
+        } else if (interaction.selectedId) {
+          // 단일 선택된 컴포넌트 삭제
+          actions.handleDelete(
+            interaction.selectedId,
+            interaction.selectedId,
+            interaction.setSelectedId
+          );
+        }
+      }
+
+      // Ctrl+C: 복사
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+        e.preventDefault();
+        const componentsToCopy = selectedIds.length > 0 
+          ? components.filter(comp => selectedIds.includes(comp.id))
+          : interaction.selectedId 
+            ? [components.find(comp => comp.id === interaction.selectedId)]
+            : [];
+        
+        if (componentsToCopy.length > 0) {
+          setClipboard(componentsToCopy.map(comp => ({ ...comp })));
+        }
+      }
+
+      // Ctrl+V: 붙여넣기
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        e.preventDefault();
+        if (clipboard.length > 0) {
+          const newComponents = clipboard.map(comp => ({
+            ...comp,
+            id: `${comp.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            x: comp.x + 20,
+            y: comp.y + 20,
+          }));
+          
+          // 협업 시스템의 addComponent 함수 사용
+          newComponents.forEach(comp => {
+            addComponent(comp);
+          });
+          
+          // 새로 붙여넣은 컴포넌트들을 선택
+          setSelectedIds(newComponents.map(comp => comp.id));
+          if (newComponents.length === 1) {
+            interaction.setSelectedId(newComponents[0].id);
+          }
+        }
+      }
+
+      // Ctrl+A: 전체 선택
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault();
+        setSelectedIds(components.map(comp => comp.id));
+      }
+
+      // Escape: 선택 해제
+      if (e.key === 'Escape') {
+        setSelectedIds([]);
+        interaction.setSelectedId(null);
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [interaction.selectedId, actions.handleDelete]);
+  }, [selectedIds, interaction.selectedId, actions, components, clipboard, interaction.setSelectedId]);
 
   // 브라우저 확대/축소 방지
   useEffect(() => {
@@ -204,6 +267,46 @@ function NoCodeEditor({ pageId }) {
     }
   };
 
+  // 다중 선택 핸들러
+  const handleMultiSelect = (ids) => {
+    console.log('handleMultiSelect 호출:', ids);
+    setSelectedIds(ids);
+    if (ids.length === 1) {
+      interaction.setSelectedId(ids[0]);
+    } else {
+      interaction.setSelectedId(null);
+    }
+  };
+
+  // 컴포넌트 선택 핸들러 (Ctrl+클릭 지원)
+  const handleSelect = (id) => {
+    if (id === null) {
+      // 빈 영역 클릭 시 선택 해제
+      setSelectedIds([]);
+      interaction.setSelectedId(null);
+      return;
+    }
+
+    // Ctrl+클릭으로 다중 선택 토글
+    if (selectedIds.includes(id)) {
+      // 이미 선택된 컴포넌트를 다시 클릭하면 선택 해제
+      const newSelectedIds = selectedIds.filter(selectedId => selectedId !== id);
+      setSelectedIds(newSelectedIds);
+      if (newSelectedIds.length === 1) {
+        interaction.setSelectedId(newSelectedIds[0]);
+      } else if (newSelectedIds.length === 0) {
+        interaction.setSelectedId(null);
+      }
+    } else {
+      // 새로운 컴포넌트 선택
+      const newSelectedIds = [...selectedIds, id];
+      setSelectedIds(newSelectedIds);
+      if (newSelectedIds.length === 1) {
+        interaction.setSelectedId(id);
+      }
+    }
+  };
+
   // 자동저장 훅
   const { isSaving, lastSaved, saveError, saveCount, saveNow } = useAutoSave(
     pageId,
@@ -215,6 +318,13 @@ function NoCodeEditor({ pageId }) {
   const handleComponentsUpdate = useCallback((newComponents) => {
     setComponents(newComponents);
   }, []);
+
+  // 연결 오류 시 로컬 상태 관리 활성화
+  useEffect(() => {
+    if (connectionError) {
+      console.log('🔴 협업 연결 오류로 인해 로컬 상태 관리 활성화');
+    }
+  }, [connectionError]);
 
   // 로딩 상태 처리
   if (isLoading) {
@@ -256,7 +366,8 @@ function NoCodeEditor({ pageId }) {
         onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
         onInviteOpen={interaction.handleInviteOpen}
         roomId={effectiveRoomId}
-        
+        isConnected={isConnected}
+        connectionError={connectionError}
         isAdmin={true}
       />
 
@@ -292,9 +403,11 @@ function NoCodeEditor({ pageId }) {
             canvasRef={canvasRef}
             components={components}
             selectedId={interaction.selectedId}
+            selectedIds={selectedIds}
             users={{}}
             nickname={userInfo.name}
-            onSelect={interaction.handleSelect}
+            onSelect={handleSelect}
+            onMultiSelect={handleMultiSelect}
             onUpdate={actions.handleUpdate}
             onDelete={(id) =>
               actions.handleDelete(
@@ -311,7 +424,10 @@ function NoCodeEditor({ pageId }) {
             canvasHeight={canvasHeight}
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
-            onClick={() => interaction.handleSelect(null)}
+            onClick={() => {
+              interaction.handleSelect(null);
+              setSelectedIds([]);
+            }}
             onMouseMove={() => {}}
             onMouseUp={() => {}}
             otherCursors={otherCursors}
@@ -369,7 +485,7 @@ function NoCodeEditor({ pageId }) {
         onClose={interaction.handleTemplateSaveClose}
         templateData={interaction.templateData}
         setTemplateData={interaction.setTemplateData}
-        onSave={actions.handleSaveAsTemplate}
+        onSave={() => actions.handleSaveAsTemplate(components)}
       />
 
       <InviteModal
@@ -377,6 +493,21 @@ function NoCodeEditor({ pageId }) {
         onClose={interaction.handleInviteClose}
         pageId={pageId}
       />
+
+      {/* WebSocket 연결 안내 UI */}
+      {connectionError && (
+        <div className="websocket-guide">
+          <WebSocketConnectionGuide
+            wsUrl="wss://3.35.50.227:1235"
+            onRetry={() => {
+              // 협업 시스템 재연결 시도
+              if (collaboration.provider) {
+                collaboration.provider.connect();
+              }
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

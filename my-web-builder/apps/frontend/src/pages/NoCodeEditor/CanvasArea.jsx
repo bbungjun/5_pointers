@@ -88,6 +88,7 @@ const CanvasArea = forwardRef(
       canvasRef: externalCanvasRef,
       components,
       selectedId,
+      selectedIds, // 다중 선택된 컴포넌트 ID 배열
       users,
       nickname,
       snapLines,
@@ -98,6 +99,7 @@ const CanvasArea = forwardRef(
       onMouseMove,
       onMouseUp,
       onSelect,
+      onMultiSelect, // 다중 선택 핸들러
       onUpdate,
       onDelete,
       onAddSection,
@@ -140,6 +142,11 @@ const CanvasArea = forwardRef(
     // 컴포넌트 드래그 상태 감지
     const [isComponentDragging, setIsComponentDragging] = useState(false);
 
+    // 다중 선택 관련 상태
+    const [isSelecting, setIsSelecting] = useState(false);
+    const [selectionBox, setSelectionBox] = useState(null);
+    const [selectionStart, setSelectionStart] = useState(null);
+
     const LIBRARY_WIDTH = 240; // 좌측 패널(컴포넌트 라이브러리) width와 동일하게!
 
     // 줌 핸들러
@@ -177,6 +184,12 @@ const CanvasArea = forwardRef(
       if (updateCursorPosition) {
         updateCursorPosition(e.clientX, e.clientY, localZoom, viewport);
       }
+      
+      // 다중 선택 업데이트
+      if (isSelecting) {
+        handleSelectionMove(e);
+      }
+      
       onMouseMove(e);
     };
 
@@ -198,19 +211,108 @@ const CanvasArea = forwardRef(
       }
     };
 
-    // 패닝 중
-    const handleMouseMove = (e) => {
-      if (isDragging) {
-        e.preventDefault();
-        const deltaX = e.clientX - lastMousePos.x;
-        const deltaY = e.clientY - lastMousePos.y;
-        setPan((prev) => ({
-          x: prev.x + deltaX,
-          y: prev.y + deltaY,
-        }));
-        setLastMousePos({ x: e.clientX, y: e.clientY });
+    // 다중 선택 시작
+    const handleSelectionStart = (e) => {
+      // 컴포넌트 위에서 클릭한 경우 다중 선택 시작하지 않음
+      const isClickOnComponent = 
+        e.target.closest('[data-component-id]') !== null ||
+        e.target.closest('.canvas-component') !== null;
+      
+      console.log('선택 시작 시도:', {
+        button: e.button,
+        ctrlKey: e.ctrlKey,
+        metaKey: e.metaKey,
+        isClickOnComponent,
+        target: e.target.className,
+        targetTagName: e.target.tagName
+      });
+      
+      if (e.button === 0 && !e.ctrlKey && !e.metaKey && !isClickOnComponent) {
+        const rect = canvasRefToUse.current.getBoundingClientRect();
+        const scale = localZoom / 100;
+        const x = (e.clientX - rect.left) / scale;
+        const y = (e.clientY - rect.top) / scale;
+        
+        console.log('선택 영역 시작:', { x, y, scale, rect });
+        setSelectionStart({ x, y });
+        setIsSelecting(true);
+        setSelectionBox({ x, y, width: 0, height: 0 });
+      } else {
+        console.log('선택 시작 조건 불만족:', {
+          button: e.button,
+          ctrlKey: e.ctrlKey,
+          metaKey: e.metaKey,
+          isClickOnComponent
+        });
       }
-      onMouseMove(e);
+    };
+
+    // 다중 선택 업데이트
+    const handleSelectionMove = (e) => {
+      if (isSelecting && selectionStart) {
+        const rect = canvasRefToUse.current.getBoundingClientRect();
+        const scale = localZoom / 100;
+        const x = (e.clientX - rect.left) / scale;
+        const y = (e.clientY - rect.top) / scale;
+        
+        const width = x - selectionStart.x;
+        const height = y - selectionStart.y;
+        
+        const newSelectionBox = {
+          x: width < 0 ? x : selectionStart.x,
+          y: height < 0 ? y : selectionStart.y,
+          width: Math.abs(width),
+          height: Math.abs(height)
+        };
+        
+        console.log('선택 영역 업데이트:', newSelectionBox);
+        setSelectionBox(newSelectionBox);
+      }
+    };
+
+    // 다중 선택 완료
+    const handleSelectionEnd = () => {
+      console.log('선택 완료 시도:', { isSelecting, selectionBox: !!selectionBox, onMultiSelect: !!onMultiSelect });
+      
+      if (isSelecting && selectionBox && onMultiSelect) {
+        // 최소 선택 영역 크기 (너무 작은 선택은 무시)
+        const minSize = 5;
+        if (selectionBox.width < minSize || selectionBox.height < minSize) {
+          console.log('선택 영역이 너무 작음:', selectionBox);
+          setIsSelecting(false);
+          setSelectionBox(null);
+          setSelectionStart(null);
+          return;
+        }
+
+        // 선택 영역 내의 컴포넌트들 찾기 (캔버스 경계 무시)
+        const selectedComponents = components.filter(comp => {
+          const compWidth = comp.width || 120;
+          const compHeight = comp.height || 40;
+          const compRight = comp.x + compWidth;
+          const compBottom = comp.y + compHeight;
+          const boxRight = selectionBox.x + selectionBox.width;
+          const boxBottom = selectionBox.y + selectionBox.height;
+          
+          // 컴포넌트가 선택 영역과 겹치는지 확인 (경계 제한 없음)
+          const isSelected = (
+            comp.x < boxRight &&
+            compRight > selectionBox.x &&
+            comp.y < boxBottom &&
+            compBottom > selectionBox.y
+          );
+          
+          return isSelected;
+        });
+        
+        if (selectedComponents.length > 0) {
+          onMultiSelect(selectedComponents.map(comp => comp.id));
+        }
+      }
+      
+      setIsSelecting(false);
+      setSelectionBox(null);
+      setSelectionStart(null);
     };
 
     // 드롭 시 snapLines 항상 초기화
@@ -224,13 +326,20 @@ const CanvasArea = forwardRef(
     // 마우스업
     const handleMouseUp = (e) => {
       setIsDragging(false);
+      
+      // 다중 선택 완료
+      if (isSelecting) {
+        console.log('캔버스에서 선택 완료');
+        handleSelectionEnd();
+      }
+      
       if (onMouseUp) onMouseUp(e);
       if (setSnapLines) {
         setSnapLines({ vertical: [], horizontal: [] });
       }
     };
 
-    // 캔버스 컨테이너에서 마우스 드래그로 스크롤 이동
+    // 캔버스 컨테이너에서 마우스 드래그로 스크롤 이동 (중간 버튼 또는 스페이스바와 함께)
     const handleContainerMouseDown = (e) => {
       if (!ref || !ref.current) return;
       // 컴포넌트 드래그 중이면 패닝하지 않음
@@ -238,18 +347,9 @@ const CanvasArea = forwardRef(
         return;
       }
 
-      // 컨테이너의 빈 영역에서만 동작 (컴포넌트나 컴포넌트 관련 요소 위에서는 무시)
-      const isClickOnComponent =
-        e.target.closest('[data-component-id]') !== null ||
-        e.target.closest('.canvas-component') !== null ||
-        e.target.style.cursor === 'grab' ||
-        e.target.style.cursor === 'grabbing' ||
-        e.target.tagName === 'BUTTON';
-
-      if (
-        (e.target === ref.current || e.target === canvasRefToUse.current) &&
-        !isClickOnComponent
-      ) {
+      // 중간 버튼이나 스페이스바와 함께 클릭한 경우에만 패닝
+      if (e.button === 1 || (e.button === 0 && e.spaceKey)) {
+        console.log('패닝 시작');
         setIsPanning(true);
         setPanStart({
           x: e.clientX,
@@ -359,6 +459,35 @@ const CanvasArea = forwardRef(
       };
     }, []);
 
+    // 다중 선택 전역 마우스 이벤트 리스너 (제거 - 캔버스 내에서만 처리)
+    // useEffect(() => {
+    //   if (isSelecting) {
+    //     console.log('전역 마우스 이벤트 리스너 등록');
+        
+    //     const handleGlobalMouseMove = (e) => {
+    //       console.log('전역 마우스 이동:', e.clientX, e.clientY);
+    //       handleSelectionMove(e);
+    //     };
+        
+    //     const handleGlobalMouseUp = (e) => {
+    //       console.log('전역 마우스 업 - 선택 완료');
+    //       // 약간의 지연을 두어 캔버스의 onMouseUp이 먼저 처리되도록 함
+    //       setTimeout(() => {
+    //         handleSelectionEnd();
+    //       }, 10);
+    //     };
+
+    //     window.addEventListener('mousemove', handleGlobalMouseMove);
+    //     window.addEventListener('mouseup', handleGlobalMouseUp);
+
+    //     return () => {
+    //       console.log('전역 마우스 이벤트 리스너 제거');
+    //       window.removeEventListener('mousemove', handleGlobalMouseMove);
+    //       window.removeEventListener('mouseup', handleGlobalMouseUp);
+    //     };
+    //   }
+    // }, [isSelecting, selectionStart]);
+
     // 키보드 이벤트
     useEffect(() => {
       const handleKeyDown = (e) => {
@@ -448,34 +577,41 @@ const CanvasArea = forwardRef(
     }, []);
 
     // 중앙으로 스크롤 (초기 로딩 시에만)
-    useEffect(() => {
-      const scrollToCenter = () => {
-        if (ref?.current && canvasRefToUse?.current) {
-          const container = ref.current;
-          const canvas = canvasRefToUse.current;
+    // 뷰포트 변경 시 자동 스크롤 제거 - 사용자가 직접 조작할 수 있도록 함
+    // useEffect(() => {
+    //   const scrollToCenter = () => {
+    //     if (ref?.current && canvasRefToUse?.current) {
+    //       const container = ref.current;
+    //       const canvas = canvasRefToUse.current;
 
-          // 중앙으로 스크롤 (부드럽게)
-          container.scrollTo({
-            left: Math.max(0, (canvas.scrollWidth - container.clientWidth) / 2),
-            top: Math.max(
-              0,
-              (canvas.scrollHeight - container.clientHeight) / 2
-            ),
-            behavior: 'smooth',
-          });
-        }
-      };
+    //       // 중앙으로 스크롤 (부드럽게)
+    //       container.scrollTo({
+    //         left: Math.max(0, (canvas.scrollWidth - container.clientWidth) / 2),
+    //         top: Math.max(
+    //           0,
+    //           (canvas.scrollHeight - container.clientHeight) / 2
+    //         ),
+    //         behavior: 'smooth',
+    //       });
+    //     }
+    //   };
 
-      // 약간의 딜레이를 두고 스크롤 (DOM이 완전히 렌더링된 후)
-      const timeoutId = setTimeout(scrollToCenter, 300);
+    //   // 약간의 딜레이를 두고 스크롤 (DOM이 완전히 렌더링된 후)
+    //   const timeoutId = setTimeout(scrollToCenter, 300);
 
-      return () => clearTimeout(timeoutId);
-    }, [viewport]);
+    //   return () => clearTimeout(timeoutId);
+    // }, [viewport]);
 
     // 줌 레벨 동기화
     useEffect(() => {
       setLocalZoom(zoom);
     }, [zoom]);
+
+    // 초기 렌더링 시 줌을 60%로 강제 설정
+    useEffect(() => {
+      setLocalZoom(65);
+      if (onZoomChange) onZoomChange(65);
+    }, []); // 빈 의존성 배열로 초기 렌더링 시에만 실행
 
     // 스타일링 변수들
     const zoomScale = localZoom / 100;
@@ -579,7 +715,11 @@ const CanvasArea = forwardRef(
             onDrop={handleDrop}
             onDragOver={onDragOver}
             onClick={onClick}
-            onMouseDown={handleMouseDown}
+            onMouseDown={(e) => {
+              console.log('캔버스 마우스 다운:', e.target.className);
+              handleMouseDown(e);
+              handleSelectionStart(e);
+            }}
             onMouseMove={handleCanvasMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={(e) => {
@@ -660,14 +800,19 @@ const CanvasArea = forwardRef(
                 return firstIndex === index;
               })
               .map((comp) => {
-                // if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
+                const isSelected = selectedId === comp.id;
+                const isMultiSelected = selectedIds && selectedIds.includes(comp.id);
+                const isAnySelected = isSelected || isMultiSelected;
+                
                 return (
                   <CanvasComponent
                     key={comp.id}
                     comp={comp}
-                    selected={selectedId === comp.id}
+                    selected={isAnySelected}
+                    selectedIds={selectedIds}
                     onSelect={onSelect}
                     onUpdate={onUpdate}
+                    onMultiUpdate={onUpdate} // 다중 선택된 컴포넌트들 업데이트
                     onDelete={onDelete}
                     setSnapLines={setSnapLines}
                     zoom={localZoom}
@@ -691,6 +836,26 @@ const CanvasArea = forwardRef(
                   nickname={nick}
                 />
               ) : null
+            )}
+
+            {/* 다중 선택 영역 표시 */}
+            {selectionBox && (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: selectionBox.x,
+                  top: selectionBox.y,
+                  width: selectionBox.width,
+                  height: selectionBox.height,
+                  border: '2px dashed #3B4EFF',
+                  backgroundColor: 'rgba(59, 78, 255, 0.15)',
+                  pointerEvents: 'none',
+                  zIndex: 1001,
+                  boxShadow: '0 0 8px rgba(59, 78, 255, 0.3)',
+                  // 캔버스 경계를 넘어서도 표시되도록 설정
+                  overflow: 'visible',
+                }}
+              />
             )}
 
             {/* 선택 영역 표시 */}

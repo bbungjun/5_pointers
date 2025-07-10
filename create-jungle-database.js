@@ -10,17 +10,13 @@ async function createJungleDatabase() {
     connectTimeout: 10000
   };
 
-  console.log('🔧 jungle 데이터베이스 생성 중...');
-  console.log('================================');
 
   try {
     // 데이터베이스 지정 없이 연결
     const connection = await mysql.createConnection(config);
-    console.log('✅ RDS 연결 성공!');
 
     // 기존 데이터베이스 목록 확인
     const [databases] = await connection.execute('SHOW DATABASES');
-    console.log('\n📋 현재 데이터베이스 목록:');
     databases.forEach(db => {
       console.log(`  - ${Object.values(db)[0]}`);
     });

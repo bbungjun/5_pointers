@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/page-cube-logo.png" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="PageCube - 누구나 쉽게 만드는 나만의 웹페이지. 드래그 앤 드롭으로 쉽게 만드는 웹사이트 빌더" />
+    <meta name="keywords" content="웹사이트 빌더, 노코드, 웹페이지 제작, 드래그 앤 드롭, 웹디자인" />
+    <meta property="og:title" content="PageCube - 쉽고 빠른 웹페이지 제작" />
+    <meta property="og:description" content="드래그 앤 드롭으로 쉽게 만드는 나만의 웹페이지" />
+    <meta property="og:image" content="/page-cube-logo.png" />
+    <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=erksx77v5q&submodules=geocoder"></script>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.5/kakao.min.js" 
+      integrity="sha384-dok87au0gKqJdxs7msEdBPNnKSRT+/mhTVzq+qOhcL464zXwvcrpjeWvyj1kCdq6" 
+      crossorigin="anonymous"></script>
+    <title>PageCube - 쉽고 빠른 웹페이지 제작</title>
+    <script>
+      // SPA 라우팅을 위한 리다이렉트
+      (function() {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect != location.href) {
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
