@@ -203,6 +203,12 @@ export function getComponentDimensions(type) {
       minWidth: 300,
       minHeight: 200,
     },
+    pageButton: { 
+      defaultWidth: 150,
+      defaultHeight: 50,
+      minWidth: 50,
+      minHeight: 50,
+    },
   };
   return (
     dimensions[type] || {
@@ -211,6 +217,7 @@ export function getComponentDimensions(type) {
       minWidth: 100,
       minHeight: 50,
     }
+
   );
 }
 
@@ -272,13 +279,13 @@ export function resolveCollision(
       let bestOption = moveOptions[0];
       let minDistance = Math.sqrt(
         Math.pow(bestOption.x - draggedComp.x, 2) +
-          Math.pow(bestOption.y - draggedComp.y, 2)
+        Math.pow(bestOption.y - draggedComp.y, 2)
       );
 
       for (const option of moveOptions) {
         const distance = Math.sqrt(
           Math.pow(option.x - draggedComp.x, 2) +
-            Math.pow(option.y - draggedComp.y, 2)
+          Math.pow(option.y - draggedComp.y, 2)
         );
         if (distance < minDistance && option.x >= 0 && option.y >= 0) {
           minDistance = distance;
@@ -618,32 +625,32 @@ export function groupComponentsIntoRows(components) {
 
   // Y 좌표 기준으로 정렬
   const sortedComponents = [...components].sort((a, b) => (a.y || 0) - (b.y || 0));
-  
+
   const rows = [];
-  
+
   for (const component of sortedComponents) {
     const compTop = component.y || 0;
     const compBottom = compTop + (component.height || 50);
-    
+
     // 현재 컴포넌트와 수직으로 겹치는 기존 행 찾기
     let targetRow = null;
-    
+
     for (const row of rows) {
       // 현재 행의 모든 컴포넌트와 겹치는지 확인
       const hasOverlap = row.some(existingComp => {
         const existingTop = existingComp.y || 0;
         const existingBottom = existingTop + (existingComp.height || 50);
-        
+
         // 수직 겹침 확인: Math.max(top1, top2) < Math.min(bottom1, bottom2)
         return Math.max(compTop, existingTop) < Math.min(compBottom, existingBottom);
       });
-      
+
       if (hasOverlap) {
         targetRow = row;
         break;
       }
     }
-    
+
     if (targetRow) {
       // 기존 행에 추가
       targetRow.push(component);
@@ -652,9 +659,9 @@ export function groupComponentsIntoRows(components) {
       rows.push([component]);
     }
   }
-  
+
   // 각 행 내에서 X 좌표 기준으로 정렬
-  return rows.map(row => 
+  return rows.map(row =>
     row.sort((a, b) => (a.x || 0) - (b.x || 0))
   );
 }
@@ -726,7 +733,7 @@ export function calculateSnapLines(
     const dragY = [
       draggedComp.y,
       draggedComp.y +
-        (draggedComp.height || draggedDimensions.defaultHeight) / 2,
+      (draggedComp.height || draggedDimensions.defaultHeight) / 2,
       draggedComp.y + (draggedComp.height || draggedDimensions.defaultHeight),
     ];
     otherY.forEach((oy) => {
