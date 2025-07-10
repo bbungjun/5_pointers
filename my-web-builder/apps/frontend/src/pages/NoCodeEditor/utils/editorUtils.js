@@ -407,7 +407,14 @@ export function arrangeComponentsVertically(
 
 
 // 스냅라인 계산
-export function calculateSnapLines(draggedComp, allComponents, zoom = 100, viewport = 'desktop', getComponentDimensionsFn = getComponentDimensions) {
+export function calculateSnapLines(
+  draggedComp,
+  allComponents,
+  gridSize = 50,
+  viewport = 'desktop',
+  getComponentDimensionsFn = getComponentDimensions
+) {
+  const effectiveGridSize = gridSize || GRID_SIZE; // ReferenceError 방지
   const SNAP_THRESHOLD = 8;
   const snapLines = { vertical: [], horizontal: [] };
   if (!draggedComp) return snapLines;

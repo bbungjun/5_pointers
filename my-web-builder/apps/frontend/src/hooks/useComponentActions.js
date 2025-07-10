@@ -32,7 +32,7 @@ export function useComponentActions(
   const generateUniqueId = () => {
     return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}-${userInfo.id}-${Math.random().toString(36).slice(2, 8)}`;
   };
-
+  
   // 드롭 위치 계산 함수
   const calculateDropPosition = (e) => {
     const effectiveGridSize = GRID_SIZE;
