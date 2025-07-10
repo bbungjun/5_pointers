@@ -132,10 +132,14 @@ const PreviewRenderer = ({ pageContent, forcedViewport }) => {
         className="page-container desktop" 
         style={{ 
           position: 'relative',
-          width: '100%',
+          width: '1945px',
           height: `${maxHeight}px`,
-          padding: '24px',
-          minWidth: '960px'
+          background: '#fff',
+          border: '1px solid #e1e5e9',
+          borderRadius: 12,
+          margin: 0,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+          overflow: 'visible',
         }}
       >
         {pageContent.map(renderComponent)}
