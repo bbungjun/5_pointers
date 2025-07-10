@@ -15,6 +15,8 @@ import CalendarRenderer from '../ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from '../ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import SlidoRenderer from '../ComponentRenderers/SlidoRenderer';
+import PageButtonRenderer from '../ComponentRenderers/PageButtonRenderer';
+
 import {
   clamp,
   resolveCollision,
@@ -319,6 +321,15 @@ function CanvasComponent({
             onUpdate={onUpdate}
           />
         );
+
+      case 'pageButton':
+        return (
+          <PageButtonRenderer
+            component={componentWithFinalStyles}
+            isEditor={true}
+            onUpdate={onUpdate}
+          />
+        );
       default:
         return <span>{comp.props?.text || ''}</span>;
     }
@@ -359,48 +370,48 @@ function CanvasComponent({
         newWidth = Math.max(
           componentDimensions.minWidth,
           Math.round((resizeStart.width + deltaX) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         newHeight = Math.max(
           componentDimensions.minHeight,
           Math.round((resizeStart.height + deltaY) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         break;
       case 'sw':
         newWidth = Math.max(
           componentDimensions.minWidth,
           Math.round((resizeStart.width - deltaX) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         newHeight = Math.max(
           componentDimensions.minHeight,
           Math.round((resizeStart.height + deltaY) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         break;
       case 'ne':
         newWidth = Math.max(
           componentDimensions.minWidth,
           Math.round((resizeStart.width + deltaX) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         newHeight = Math.max(
           componentDimensions.minHeight,
           Math.round((resizeStart.height - deltaY) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         break;
       case 'nw':
         newWidth = Math.max(
           componentDimensions.minWidth,
           Math.round((resizeStart.width - deltaX) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         newHeight = Math.max(
           componentDimensions.minHeight,
           Math.round((resizeStart.height - deltaY) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         break;
     }

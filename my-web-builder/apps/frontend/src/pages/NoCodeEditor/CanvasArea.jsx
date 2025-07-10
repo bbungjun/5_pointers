@@ -577,34 +577,41 @@ const CanvasArea = forwardRef(
     }, []);
 
     // 중앙으로 스크롤 (초기 로딩 시에만)
-    useEffect(() => {
-      const scrollToCenter = () => {
-        if (ref?.current && canvasRefToUse?.current) {
-          const container = ref.current;
-          const canvas = canvasRefToUse.current;
+    // 뷰포트 변경 시 자동 스크롤 제거 - 사용자가 직접 조작할 수 있도록 함
+    // useEffect(() => {
+    //   const scrollToCenter = () => {
+    //     if (ref?.current && canvasRefToUse?.current) {
+    //       const container = ref.current;
+    //       const canvas = canvasRefToUse.current;
 
-          // 중앙으로 스크롤 (부드럽게)
-          container.scrollTo({
-            left: Math.max(0, (canvas.scrollWidth - container.clientWidth) / 2),
-            top: Math.max(
-              0,
-              (canvas.scrollHeight - container.clientHeight) / 2
-            ),
-            behavior: 'smooth',
-          });
-        }
-      };
+    //       // 중앙으로 스크롤 (부드럽게)
+    //       container.scrollTo({
+    //         left: Math.max(0, (canvas.scrollWidth - container.clientWidth) / 2),
+    //         top: Math.max(
+    //           0,
+    //           (canvas.scrollHeight - container.clientHeight) / 2
+    //         ),
+    //         behavior: 'smooth',
+    //       });
+    //     }
+    //   };
 
-      // 약간의 딜레이를 두고 스크롤 (DOM이 완전히 렌더링된 후)
-      const timeoutId = setTimeout(scrollToCenter, 300);
+    //   // 약간의 딜레이를 두고 스크롤 (DOM이 완전히 렌더링된 후)
+    //   const timeoutId = setTimeout(scrollToCenter, 300);
 
-      return () => clearTimeout(timeoutId);
-    }, [viewport]);
+    //   return () => clearTimeout(timeoutId);
+    // }, [viewport]);
 
     // 줌 레벨 동기화
     useEffect(() => {
       setLocalZoom(zoom);
     }, [zoom]);
+
+    // 초기 렌더링 시 줌을 60%로 강제 설정
+    useEffect(() => {
+      setLocalZoom(70);
+      if (onZoomChange) onZoomChange(70);
+    }, []); // 빈 의존성 배열로 초기 렌더링 시에만 실행
 
     // 스타일링 변수들
     const zoomScale = localZoom / 100;
@@ -631,6 +638,7 @@ const CanvasArea = forwardRef(
           : '#fff',
         backgroundSize: showGrid ? `${GRID_SIZE}px ${GRID_SIZE}px` : 'auto',
         backgroundPosition: showGrid ? '0 0' : 'initial',
+        imageRendering: 'pixelated', // 줌 상태에서 그리드 선명도 개선
         border: '1px solid #e1e5e9',
         borderRadius: 12,
         margin: 0,
@@ -728,27 +736,13 @@ const CanvasArea = forwardRef(
                   position: 'absolute',
                   left: line.x,
                   top: 0,
-                  width: 2,
+                  width: 1,
                   height: '100%',
-                  background:
-                    line.type === 'center'
-                      ? '#9C27B0'
-                      : line.type === 'align'
-                        ? '#FF4081'
-                        : line.type === 'spacing'
-                          ? '#00E676'
-                          : '#FFB300',
+                  background: '#FF0000',
                   zIndex: 1000,
                   pointerEvents: 'none',
-                  boxShadow:
-                    line.type === 'center'
-                      ? '0 0 12px rgba(156, 39, 176, 0.8)'
-                      : line.type === 'align'
-                        ? '0 0 8px rgba(255, 64, 129, 0.6)'
-                        : line.type === 'spacing'
-                          ? '0 0 8px rgba(0, 230, 118, 0.6)'
-                          : '0 0 6px rgba(255, 179, 0, 0.5)',
-                  opacity: line.type === 'center' ? 1 : 0.9,
+                  boxShadow: 'none',
+                  opacity: 1,
                 }}
               />
             ))}
@@ -761,26 +755,12 @@ const CanvasArea = forwardRef(
                   left: 0,
                   top: line.y,
                   width: '100%',
-                  height: 2,
-                  background:
-                    line.type === 'center'
-                      ? '#9C27B0'
-                      : line.type === 'align'
-                        ? '#FF4081'
-                        : line.type === 'spacing'
-                          ? '#00E676'
-                          : '#FFB300',
+                  height: 1,
+                  background: '#FF0000',
                   zIndex: 1000,
                   pointerEvents: 'none',
-                  boxShadow:
-                    line.type === 'center'
-                      ? '0 0 12px rgba(156, 39, 176, 0.8)'
-                      : line.type === 'align'
-                        ? '0 0 8px rgba(255, 64, 129, 0.6)'
-                        : line.type === 'spacing'
-                          ? '0 0 8px rgba(0, 230, 118, 0.6)'
-                          : '0 0 6px rgba(255, 179, 0, 0.5)',
-                  opacity: line.type === 'center' ? 1 : 0.9,
+                  boxShadow: 'none',
+                  opacity: 1,
                 }}
               />
             ))}

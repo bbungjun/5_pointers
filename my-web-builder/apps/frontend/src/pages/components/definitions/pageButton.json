@@ -1,0 +1,74 @@
+{
+  "type": "pageButton",
+  "name": "Page Button",
+  "icon": "🔗",
+  "description": "다른 페이지로 이동하는 버튼 컴포넌트",
+  "category": "Navigation",
+  "props": {
+    "buttonText": {
+      "type": "string",
+      "label": "버튼 텍스트",
+      "default": "페이지 이동"
+    },
+    "icon": {
+      "type": "string",
+      "label": "아이콘(이모지)",
+      "default": "📄"
+    },
+    "backgroundColor": {
+      "type": "color",
+      "label": "버튼 배경색",
+      "default": "#007bff"
+    },
+    "textColor": {
+      "type": "color",
+      "label": "텍스트 색상",
+      "default": "#ffffff"
+    },
+    "borderRadius": {
+      "type": "number",
+      "label": "모서리 둥글기",
+      "min": 0,
+      "max": 50,
+      "default": 8,
+      "suffix": "px"
+    },
+    "fontSize": {
+      "type": "number",
+      "label": "폰트 크기",
+      "min": 8,
+      "max": 32,
+      "default": 16,
+      "suffix": "px"
+    },
+    "fontWeight": {
+      "type": "select",
+      "label": "폰트 굵기",
+      "options": ["400", "500", "600", "700"],
+      "default": "600"
+    },
+    "linkedPageId": {
+      "type": "hidden",
+      "default": ""
+    },
+    "deployedUrl": {
+      "type": "hidden",
+      "default": ""
+    }
+  },
+  "defaultProps": {
+    "buttonText": "페이지 이동",
+    "icon": "📄",
+    "backgroundColor": "#007bff",
+    "textColor": "#ffffff",
+    "borderRadius": 8,
+    "fontSize": 16,
+    "fontWeight": "600",
+    "linkedPageId": "",
+    "deployedUrl": ""
+  },
+  "dimensions": {
+    "width": 180,
+    "height": 48
+  }
+}
