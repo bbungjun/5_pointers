@@ -13,6 +13,7 @@ import TemplateModal from './NoCodeEditor/components/TemplateModal';
 import InviteModal from './NoCodeEditor/components/InviteModal';
 import CanvasComponent from './NoCodeEditor/components/CanvasComponent';
 import UserCursor from './NoCodeEditor/components/UserCursor';
+import WebSocketConnectionGuide from '../components/WebSocketConnectionGuide';
 
 // 훅들
 import { usePageDataManager } from '../hooks/usePageDataManager';
@@ -498,6 +499,21 @@ function NoCodeEditor({ pageId }) {
         onClose={interaction.handleInviteClose}
         pageId={pageId}
       />
+
+      {/* WebSocket 연결 안내 UI */}
+      {connectionError && (
+        <div className="websocket-guide">
+          <WebSocketConnectionGuide
+            wsUrl="wss://3.35.50.227:1235"
+            onRetry={() => {
+              // 협업 시스템 재연결 시도
+              if (collaboration.provider) {
+                collaboration.provider.connect();
+              }
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
