@@ -239,7 +239,6 @@ export function useComponentActions(
     if (compDef) {
       const { snappedX, snappedY } = calculateDropPosition(e);
       const dimensions = getComponentDimensions(type);
-      console.log(`🔍 ${type} 컴포넌트 크기:`, dimensions); // 디버깅용 로그
       const width = dimensions.defaultWidth;
       const height = dimensions.defaultHeight;
 
@@ -268,8 +267,6 @@ export function useComponentActions(
         createdBy: userInfo.id,
         createdAt: Date.now(),
       };
-      
-      console.log(`✅ ${type} 컴포넌트 생성:`, { width, height }); // 디버깅용 로그
 
       addComponent(newComponent);
       return uniqueId;
@@ -364,27 +361,48 @@ export function useComponentActions(
   const handleSaveAsTemplate = useCallback(
     async (selectedComponents) => {
       try {
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          alert('로그인이 필요합니다.');
+          return;
+        }
+
         const response = await fetch(
           `${API_BASE_URL}/templates/from-components`,
           {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
             },
             body: JSON.stringify({
               components: selectedComponents,
-              templateData,
+              name: templateData.name,
+              category: templateData.category,
+              tags: templateData.tags ? templateData.tags.split(',').map(tag => tag.trim()) : [],
             }),
           }
         );
 
         if (response.ok) {
           console.log('템플릿 저장 성공');
+          alert('템플릿이 성공적으로 저장되었습니다!');
           setTemplateData({ name: '', category: 'wedding', tags: '' });
           setIsTemplateSaveOpen(false);
+        } else {
+          const errorData = await response.text();
+          console.error('템플릿 저장 실패:', response.status, errorData);
+          
+          if (response.status === 401) {
+            alert('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+          } else {
+            alert(`템플릿 저장에 실패했습니다: ${response.status}`);
+          }
         }
       } catch (error) {
         console.error('템플릿 저장 실패:', error);
+        alert('템플릿 저장 중 오류가 발생했습니다.');
       }
     },
     [templateData, setTemplateData, setIsTemplateSaveOpen]

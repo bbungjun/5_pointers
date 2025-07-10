@@ -59,15 +59,27 @@ function DashboardPage({ user, onLogout }) {
           ? `${API_BASE_URL}/templates`
           : `${API_BASE_URL}/templates?category=${category}`;
 
+      console.log('템플릿 조회 URL:', url);
+
       const response = await fetch(url);
+      console.log('템플릿 조회 응답:', response.status, response.ok);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('템플릿 데이터:', data);
         // 중복된 ID 제거 (같은 ID를 가진 첫 번째 항목만 유지)
         const uniqueTemplates = data.filter((template, index, arr) => {
           const firstIndex = arr.findIndex(t => t.id === template.id);
           return firstIndex === index;
         });
         setTemplates(uniqueTemplates);
+      } else {
+        const errorText = await response.text();
+        console.error('템플릿 조회 실패:', response.status, errorText);
+        
+        if (response.status === 500) {
+          console.error('서버 내부 오류가 발생했습니다. 백엔드 서버를 확인해주세요.');
+        }
       }
     } catch (error) {
       console.error('템플릿 조회 실패:', error);

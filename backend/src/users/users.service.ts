@@ -266,8 +266,11 @@ export class UsersService {
         where: { id: body.templateId },
       });
       if (template && template.content) {
-        // 컴포넌트 ID 재발급
-        content = this.regenerateComponentIds(template.content);
+        // 컴포넌트 ID 재발급 및 구조 통일
+        let componentsArr = Array.isArray(template.content)
+          ? template.content
+          : template.content.components || [];
+        content = { components: this.regenerateComponentIds(componentsArr) };
       }
     }
 
