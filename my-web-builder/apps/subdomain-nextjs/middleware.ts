@@ -14,10 +14,22 @@ export function middleware(request: NextRequest) {
   console.log('Hostname without port:', hostnameWithoutPort);
   console.log('Parts:', parts);
   
-  // 서브도메인이 있고, localhost가 아닌 경우
-  if (parts.length >= 2 && parts[1] === 'localhost') {
+  // 서브도메인이 있는 경우 (localhost 또는 pagecube.net)
+  if (parts.length >= 3 && parts[1] === 'pagecube' && parts[2] === 'net') {
+    // *.pagecube.net 형태
     const subdomain = parts[0];
-    console.log('Detected subdomain:', subdomain);
+    console.log('Detected pagecube subdomain:', subdomain);
+    
+    // 루트 경로로 접근한 경우에만 rewrite
+    if (request.nextUrl.pathname === '/') {
+      const rewriteUrl = new URL(`/${subdomain}`, request.url);
+      console.log('Rewriting to:', rewriteUrl.toString());
+      return NextResponse.rewrite(rewriteUrl);
+    }
+  } else if (parts.length >= 2 && parts[1] === 'localhost') {
+    // *.localhost 형태 (로컬 개발용)
+    const subdomain = parts[0];
+    console.log('Detected localhost subdomain:', subdomain);
     
     // 루트 경로로 접근한 경우에만 rewrite
     if (request.nextUrl.pathname === '/') {
