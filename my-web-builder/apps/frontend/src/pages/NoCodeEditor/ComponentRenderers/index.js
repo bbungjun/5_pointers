@@ -17,3 +17,4 @@ export { default as WeddingInviteRenderer } from './WeddingInviteRenderer';
 export { default as MusicRenderer } from './MusicRenderer';
 export { default as KakaoTalkShareRenderer } from './KakaoTalkShareRenderer';
 export { default as PageRenderer } from './PageRenderer';
+export { default as PageButtonRenderer } from './PageButtonRenderer';
