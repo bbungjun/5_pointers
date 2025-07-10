@@ -31,7 +31,7 @@ export class S3Service {
       
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
       const ext = file.originalname.split('.').pop();
-      const key = ;
+      const key = 'images/' + year + '/' + month + '/' + day + '/' + uniqueSuffix + '.' + ext;
 
       console.log('📤 S3 업로드 시작:', {
         bucket: this.bucketName,
@@ -50,7 +50,8 @@ export class S3Service {
 
       await this.s3Client.send(command);
       
-      const imageUrl = ;
+      const region = process.env.AWS_REGION || 'ap-northeast-2';
+      const imageUrl = 'https://' + this.bucketName + '.s3.' + region + '.amazonaws.com/' + key;
       console.log('✅ S3 업로드 완료:', imageUrl);
       
       return imageUrl;
@@ -77,7 +78,8 @@ export class S3Service {
   // S3 연결 테스트
   async testConnection(): Promise<boolean> {
     try {
-      const testKey = ;
+      const timestamp = Date.now();
+      const testKey = 'test/connection-test-' + timestamp + '.txt';
       const testContent = 'S3 connection test';
       
       const putCommand = new PutObjectCommand({
