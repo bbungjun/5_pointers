@@ -524,8 +524,6 @@ function CanvasComponent({
       setSnapLines(lines);
     }
 
-    console.log('드래그 중:', comp.id, '새 위치:', newX, newY);
-
     // 다중 선택된 컴포넌트들과 함께 이동
     if (selectedIds && selectedIds.length > 1 && selectedIds.includes(comp.id)) {
       // 다중 선택된 컴포넌트들의 상대적 위치를 유지하면서 이동

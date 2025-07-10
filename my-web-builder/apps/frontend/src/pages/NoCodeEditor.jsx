@@ -189,7 +189,6 @@ function NoCodeEditor({ pageId }) {
             : [];
         
         if (componentsToCopy.length > 0) {
-          console.log('복사된 컴포넌트들:', componentsToCopy);
           setClipboard(componentsToCopy.map(comp => ({ ...comp })));
         }
       }
@@ -198,7 +197,6 @@ function NoCodeEditor({ pageId }) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
         e.preventDefault();
         if (clipboard.length > 0) {
-          console.log('붙여넣기 시작, 클립보드:', clipboard);
           const newComponents = clipboard.map(comp => ({
             ...comp,
             id: `${comp.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -206,11 +204,8 @@ function NoCodeEditor({ pageId }) {
             y: comp.y + 20,
           }));
           
-          console.log('새로 생성될 컴포넌트들:', newComponents);
-          
           // 협업 시스템의 addComponent 함수 사용
           newComponents.forEach(comp => {
-            console.log('컴포넌트 추가:', comp.id);
             addComponent(comp);
           });
           
