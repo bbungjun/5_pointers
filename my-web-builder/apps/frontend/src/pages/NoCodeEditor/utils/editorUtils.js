@@ -84,133 +84,7 @@ export async function createPageForComponent(pageName = '새 페이지') {
   }
 }
 
-// 컴포넌트 타입별 기본 크기와 최소 크기 정의 (50px 그리드에 맞춤)
-export function getComponentDimensions(type) {
-  const dimensions = {
-    button: {
-      defaultWidth: 150,
-      defaultHeight: 50,
-      minWidth: 100,
-      minHeight: 50,
-    },
-    text: {
-      defaultWidth: 200,
-      defaultHeight: 50,
-      minWidth: 100,
-      minHeight: 50,
-    },
-    image: {
-      defaultWidth: 200,
-      defaultHeight: 150,
-      minWidth: 100,
-      minHeight: 100,
-    },
-    map: {
-      defaultWidth: 400,
-      defaultHeight: 300,
-      minWidth: 200,
-      minHeight: 150,
-    },
-    link: {
-      defaultWidth: 150,
-      defaultHeight: 50,
-      minWidth: 100,
-      minHeight: 50,
-    },
-    attend: {
-      defaultWidth: 300,
-      defaultHeight: 200,
-      minWidth: 250,
-      minHeight: 150,
-    },
-    dday: {
-      defaultWidth: 400,
-      defaultHeight: 150,
-      minWidth: 150,
-      minHeight: 100,
-    },
-    weddingContact: {
-      defaultWidth: 300,
-      defaultHeight: 250,
-      minWidth: 250,
-      minHeight: 200,
-    },
-    weddingInvite: {
-      defaultWidth: 450,
-      defaultHeight: 500,
-      minWidth: 300,
-      minHeight: 250,
-    },
-    gridGallery: {
-      defaultWidth: 400,
-      defaultHeight: 300,
-      minWidth: 200,
-      minHeight: 200,
-    },
-    slideGallery: {
-      defaultWidth: 400,
-      defaultHeight: 300,
-      minWidth: 200,
-      minHeight: 200,
-    },
-    mapInfo: {
-      defaultWidth: 300,
-      defaultHeight: 300,
-      minWidth: 250,
-      minHeight: 150,
-    },
-    calendar: {
-      defaultWidth: 350,
-      defaultHeight: 450,
-      minWidth: 300,
-      minHeight: 350,
-    },
-    bankAccount: {
-      defaultWidth: 300,
-      defaultHeight: 200,
-      minWidth: 250,
-      minHeight: 150,
-    },
-    comment: {
-      defaultWidth: 500,
-      defaultHeight: 600,
-      minWidth: 250,
-      minHeight: 150,
-    },
-    musicPlayer: {
-      defaultWidth: 50,
-      defaultHeight: 50,
-      minWidth: 50,
-      minHeight: 50,
-    },
-    kakaotalkShare: {
-      defaultWidth: 150,
-      defaultHeight: 50,
-      minWidth: 50,
-      minHeight: 50,
-    },
-    slido: {
-      defaultWidth: 400,
-      defaultHeight: 300,
-      minWidth: 300,
-      minHeight: 200,
-    },
-    pageButton: { 
-      defaultWidth: 150,
-      defaultHeight: 50,
-      minWidth: 50,
-      minHeight: 50,
-    },
-  };
-  return (
-    dimensions[type] || {
-      defaultWidth: 150,
-      defaultHeight: 50,
-      minWidth: 100,
-      minHeight: 50,
-    }
 
-  );
 
 // 랜덤 닉네임/색상 생성
 export function randomNickname() {
@@ -421,19 +295,6 @@ export function adjustComponentsForMobile(components) {
   return adjustments;
 }
 
-// 컴포넌트의 스타일을 반환
-export function getFinalStyles(component, forcedViewport = null) {
-  const { style = {}, mobileStyle = {} } = component;
-
-  // 미리보기/배포 모드에서는 forcedViewport에 따라 스타일 결정
-  if (forcedViewport) {
-    return forcedViewport === 'mobile' ? { ...style, ...mobileStyle } : style;
-  }
-
-  // 편집 모드에서는 현재 편집 중인 뷰포트에 따라 스타일 결정
-  const isMobileView = window.innerWidth <= 768;
-  return isMobileView ? { ...style, ...mobileStyle } : style;
-}
 
 // 컴포넌트를 responsive 구조로 마이그레이션
 export function migrateToResponsive(component) {
@@ -544,54 +405,6 @@ export function arrangeComponentsVertically(
   return arrangementUpdates;
 }
 
-// Row 동적 그룹핑 함수 - 반응형 레이아웃을 위한 컴포넌트 그룹핑
-export function groupComponentsIntoRows(components) {
-  if (!components || components.length === 0) {
-    return [];
-  }
-
-  // Y 좌표 기준으로 정렬
-  const sortedComponents = [...components].sort((a, b) => (a.y || 0) - (b.y || 0));
-
-  const rows = [];
-
-  for (const component of sortedComponents) {
-    const compTop = component.y || 0;
-    const compBottom = compTop + (component.height || 50);
-
-    // 현재 컴포넌트와 수직으로 겹치는 기존 행 찾기
-    let targetRow = null;
-
-    for (const row of rows) {
-      // 현재 행의 모든 컴포넌트와 겹치는지 확인
-      const hasOverlap = row.some(existingComp => {
-        const existingTop = existingComp.y || 0;
-        const existingBottom = existingTop + (existingComp.height || 50);
-
-        // 수직 겹침 확인: Math.max(top1, top2) < Math.min(bottom1, bottom2)
-        return Math.max(compTop, existingTop) < Math.min(compBottom, existingBottom);
-      });
-
-      if (hasOverlap) {
-        targetRow = row;
-        break;
-      }
-    }
-
-    if (targetRow) {
-      // 기존 행에 추가
-      targetRow.push(component);
-    } else {
-      // 새로운 행 생성
-      rows.push([component]);
-    }
-  }
-
-  // 각 행 내에서 X 좌표 기준으로 정렬
-  return rows.map(row =>
-    row.sort((a, b) => (a.x || 0) - (b.x || 0))
-  );
-}
 
 // 스냅라인 계산
 export function calculateSnapLines(draggedComp, allComponents, zoom = 100, viewport = 'desktop', getComponentDimensionsFn = getComponentDimensions) {
