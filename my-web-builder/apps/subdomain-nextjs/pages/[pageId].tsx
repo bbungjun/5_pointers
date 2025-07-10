@@ -230,7 +230,6 @@ const DynamicPageRenderer = ({
                   >
                     <RendererComponent
                       comp={{ ...comp, pageId, width: componentWidth, height: componentHeight }}
-                      component={{ ...comp, pageId, width: componentWidth, height: componentHeight }}
                       isEditor={false}
                       onUpdate={() => {}}
                       onPropsChange={() => {}}
