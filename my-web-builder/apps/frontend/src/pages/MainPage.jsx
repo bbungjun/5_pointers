@@ -64,7 +64,7 @@ function MainPage({ onLogin }) {
             PAGE CUBE
           </h1>
           <p className="text-slate-600 text-lg font-medium leading-relaxed">
-            나ㅋㅋㅋㅋㅋㅋㅋㅋ1231231231231
+            이영준 과자 그만먹어 
           </p>
         </div>
 

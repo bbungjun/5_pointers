@@ -184,7 +184,6 @@ export function useComponentActions(
         createdAt: Date.now(),
       };
 
-      console.log('🆕 새 컴포넌트 생성:', uniqueId, type, { x: clampedX, y: clampedY });
       addComponent(newComponent);
       return uniqueId;
     }
@@ -211,8 +210,6 @@ export function useComponentActions(
   // 컴포넌트 업데이트
   const handleUpdate = useCallback(
     (comp) => {
-      console.log('컴포넌트 업데이트 요청:', comp.id, '타입:', comp.type);
-
       // 기존 컴포넌트 찾기
       const existingComp = components.find((c) => c.id === comp.id);
       if (!existingComp) {
@@ -239,10 +236,7 @@ export function useComponentActions(
 
       // 협업 기능으로 컴포넌트 업데이트
       if (Object.keys(updates).length > 0) {
-        console.log('Y.js 업데이트 호출:', comp.id, updates);
         updateComponent(comp.id, updates);
-      } else {
-        console.log('변경된 속성이 없음');
       }
     },
     [updateComponent, components, viewport]
@@ -251,7 +245,6 @@ export function useComponentActions(
   // 컴포넌트 삭제
   const handleDelete = useCallback(
     (compId) => {
-      console.log('컴포넌트 삭제 요청:', compId);
       removeComponent(compId);
     },
     [removeComponent]
