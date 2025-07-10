@@ -3,7 +3,7 @@ import ButtonRenderer from '../ComponentRenderers/ButtonRenderer';
 import TextRenderer from '../ComponentRenderers/TextRenderer';
 import LinkRenderer from '../ComponentRenderers/LinkRenderer';
 import AttendRenderer from '../ComponentRenderers/AttendRenderer';
-import MapView from '../ComponentEditors/MapView';
+import MapView from '../ComponentRenderers/MapView';
 import DdayRenderer from '../ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from '../ComponentRenderers/WeddingContactRenderer.jsx';
 import WeddingInviteRenderer from '../ComponentRenderers/WeddingInviteRenderer';
@@ -213,7 +213,7 @@ function CanvasComponent({
           />
         );
       case 'map':
-        return <MapView {...(comp.props || {})} />;
+        return <MapView {...(comp.props || {})} comp={componentWithFinalStyles} />;
       case 'dday':
         return (
           <DdayRenderer

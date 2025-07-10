@@ -1,6 +1,6 @@
 {
   "type": "bankAccount",
-  "label": "Bank Account",
+  "label": "은행 계좌 정보",
   "defaultProps": {
     "title": "계좌 안내",
     "groomSide": {

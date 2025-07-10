@@ -239,6 +239,7 @@ export function useComponentActions(
     if (compDef) {
       const { snappedX, snappedY } = calculateDropPosition(e);
       const dimensions = getComponentDimensions(type);
+      console.log(`🔍 ${type} 컴포넌트 크기:`, dimensions); // 디버깅용 로그
       const width = dimensions.defaultWidth;
       const height = dimensions.defaultHeight;
 
@@ -267,6 +268,8 @@ export function useComponentActions(
         createdBy: userInfo.id,
         createdAt: Date.now(),
       };
+      
+      console.log(`✅ ${type} 컴포넌트 생성:`, { width, height }); // 디버깅용 로그
 
       addComponent(newComponent);
       return uniqueId;

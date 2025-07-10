@@ -38,16 +38,16 @@ function CalendarRenderer({ comp, isEditor = false }) {
   
   return (
     <div style={{
-      width: '100%',
-      height: '100%',
+      width: comp.width || 350,
+      height: comp.height || 400,
       backgroundColor: 'white',
       borderRadius: '8px',
       boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-      border: '1px solid #e5e7eb',
-      padding: '16px',
       display: 'flex',
       flexDirection: 'column',
-      minHeight: '300px'
+      minHeight: '300px',
+      padding: '16px',
+      boxSizing: 'border-box'
     }}>
       {title && (
         <h3 style={{
