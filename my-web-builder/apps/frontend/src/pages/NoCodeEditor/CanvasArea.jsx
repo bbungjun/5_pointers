@@ -609,8 +609,8 @@ const CanvasArea = forwardRef(
 
     // 초기 렌더링 시 줌을 60%로 강제 설정
     useEffect(() => {
-      setLocalZoom(65);
-      if (onZoomChange) onZoomChange(65);
+      setLocalZoom(70);
+      if (onZoomChange) onZoomChange(70);
     }, []); // 빈 의존성 배열로 초기 렌더링 시에만 실행
 
     // 스타일링 변수들
@@ -638,6 +638,7 @@ const CanvasArea = forwardRef(
           : '#fff',
         backgroundSize: showGrid ? `${GRID_SIZE}px ${GRID_SIZE}px` : 'auto',
         backgroundPosition: showGrid ? '0 0' : 'initial',
+        imageRendering: 'pixelated', // 줌 상태에서 그리드 선명도 개선
         border: '1px solid #e1e5e9',
         borderRadius: 12,
         margin: 0,
