@@ -32,7 +32,7 @@ jobs:
         run: |
           cd my-web-builder/apps/frontend
           echo "VITE_API_URL=https://pagecube.net/api" > .env.production
-          echo "VITE_YJS_WEBSOCKET_URL=ws://3.35.50.227:1234" >> .env.production
+          echo "VITE_YJS_WEBSOCKET_URL=wss://3.35.50.227:1235" >> .env.production
           echo "VITE_SUBDOMAIN_URL=http://3.35.141.231:3001" >> .env.production
           echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.production
           echo "VITE_KAKAO_CLIENT_ID=${{ secrets.KAKAO_JAVASCRIPT_KEY }}" >> .env.production
