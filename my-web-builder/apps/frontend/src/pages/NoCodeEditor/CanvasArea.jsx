@@ -302,21 +302,12 @@ const CanvasArea = forwardRef(
             compBottom > selectionBox.y
           );
           
-          if (isSelected) {
-            console.log('컴포넌트 선택됨:', comp.id, { comp: { x: comp.x, y: comp.y, width: compWidth, height: compHeight }, box: selectionBox });
-          }
-          
           return isSelected;
         });
         
         if (selectedComponents.length > 0) {
-          console.log('다중 선택 완료:', selectedComponents.map(comp => comp.id));
           onMultiSelect(selectedComponents.map(comp => comp.id));
-        } else {
-          console.log('선택된 컴포넌트가 없음');
         }
-      } else {
-        console.log('선택 완료 조건 불만족:', { isSelecting, hasSelectionBox: !!selectionBox, hasOnMultiSelect: !!onMultiSelect });
       }
       
       setIsSelecting(false);
@@ -802,12 +793,9 @@ const CanvasArea = forwardRef(
                 return firstIndex === index;
               })
               .map((comp) => {
-                // if (comp.type === 'button') console.log('버튼 컴포넌트 렌더링:', comp);
                 const isSelected = selectedId === comp.id;
                 const isMultiSelected = selectedIds && selectedIds.includes(comp.id);
                 const isAnySelected = isSelected || isMultiSelected;
-                
-                console.log(`컴포넌트 ${comp.id} 렌더링:`, { isSelected, isMultiSelected, isAnySelected, selectedIds });
                 
                 return (
                   <CanvasComponent
