@@ -17,7 +17,6 @@ import { Pages } from './users/entities/pages.entity';
 import { Templates } from './users/entities/templates.entity';
 import { PageMembers } from './users/entities/page_members.entity';
 import { Submissions } from './users/entities/submissions.entity';
-import { Templates } from './users/entities/templates.entity';
 
 @Module({
   imports: [
