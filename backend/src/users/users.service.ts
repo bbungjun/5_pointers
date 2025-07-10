@@ -108,21 +108,10 @@ export class UsersService {
     );
   }
 
-  // 네비게이션용 내 페이지 목록 조회 (간소화된 정보)
-  async getMyPagesForNavigation(userId: number, currentPageId?: string): Promise<any> {
-    const pages = await this.getMyPages(userId);
-    
-    return {
-      pages: pages.map(page => ({
-        id: page.id,
-        title: page.title,
-        subdomain: page.subdomain,
-        status: page.status,
-        updatedAt: page.updatedAt,
-        isCurrent: page.id === currentPageId
-      })),
-      total: pages.length
-    };
+  // 네비게이션용 내 페이지 목록 조회 (기존 getMyPages와 동일)
+  async getMyPagesForNavigation(userId: number, currentPageId?: string): Promise<Pages[]> {
+    // 기존 getMyPages 메서드와 동일하게 배열 반환
+    return this.getMyPages(userId);
   }
 
   // 페이지 단일 조회
