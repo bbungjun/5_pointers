@@ -1,13 +1,64 @@
-import { getRendererByType } from '@my-project/ui';
 import React, { useState, useEffect } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 
-// API 기본 URL 설정 - 프로덕션 환경 고려
+// Next.js 서브도메인 서버용 API 설정
 const API_BASE_URL = process.env.API_BASE_URL || 
   (process.env.NODE_ENV === 'production' 
     ? 'https://pagecube.net/api'
     : 'http://localhost:3000/api');
+
+// Frontend의 실제 컴포넌트들을 직접 import
+import ButtonRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/ButtonRenderer.jsx';
+import TextRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/TextRenderer.jsx';
+import LinkRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/LinkRenderer.jsx';
+import AttendRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/AttendRenderer.jsx';
+import ImageRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/ImageRenderer.jsx';
+import MapInfoRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/MapInfoRenderer.jsx';
+import DdayRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/DdayRenderer.jsx';
+import WeddingContactRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/WeddingContactRenderer.jsx';
+import GridGalleryRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/GridGalleryRenderer.jsx';
+import SlideGalleryRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/SlideGalleryRenderer.jsx';
+import CalendarRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/CalendarRenderer.jsx';
+import BankAccountRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/BankAccountRenderer.jsx';
+import CommentRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/CommentRenderer.jsx';
+import SlidoRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/SlidoRenderer.jsx';
+import WeddingInviteRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/WeddingInviteRenderer.jsx';
+import MusicRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/MusicRenderer.jsx';
+import KakaoTalkShareRenderer from '../../frontend/src/pages/NoCodeEditor/ComponentRenderers/KakaoTalkShareRenderer';
+
+// API 설정을 전역으로 설정 (컴포넌트들이 사용할 수 있도록)
+if (typeof window !== 'undefined') {
+  (window as any).API_BASE_URL = API_BASE_URL;
+  console.log('🔧 Next.js 서버 - API_BASE_URL 설정됨:', API_BASE_URL);
+  console.log('🔧 Next.js 서버 - NODE_ENV:', process.env.NODE_ENV);
+}
+
+// 컴포넌트 타입별 렌더러 매핑 함수 (실제 frontend 컴포넌트 사용)
+const getRendererByType = (type: string) => {
+  const renderers: { [key: string]: React.ComponentType<any> } = {
+    'button': ButtonRenderer,
+    'text': TextRenderer,
+    'link': LinkRenderer,
+    'attend': AttendRenderer,
+    'image': ImageRenderer,
+    'mapInfo': MapInfoRenderer,
+    'dday': DdayRenderer,
+    'weddingContact': WeddingContactRenderer,
+    'gridGallery': GridGalleryRenderer,
+    'slideGallery': SlideGalleryRenderer,
+    'calendar': CalendarRenderer,
+    'bankAccount': BankAccountRenderer,
+    'comment': CommentRenderer,
+    'slido': SlidoRenderer,
+    'weddingInvite': WeddingInviteRenderer,
+    'music': MusicRenderer,
+    'kakaoTalkShare': KakaoTalkShareRenderer,
+  };
+
+  console.log(`🎯 Getting renderer for type: ${type}`, renderers[type] ? 'Found' : 'Not found');
+  return renderers[type] || null;
+};
 
 const LoadingSpinner = () => (
   <div style={{
@@ -229,10 +280,19 @@ const DynamicPageRenderer = ({
                     }}
                   >
                     <RendererComponent
-                      comp={{ ...comp, pageId, width: componentWidth, height: componentHeight }}
+                      {...comp.props}
+                      comp={{
+                        ...comp,
+                        pageId: pageId,
+                        width: componentWidth,
+                        height: componentHeight
+                      }}
                       isEditor={false}
                       onUpdate={() => {}}
                       onPropsChange={() => {}}
+                      pageId={pageId}
+                      width={componentWidth}
+                      height={componentHeight}
                     />
                   </div>
                 );
@@ -506,8 +566,22 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     console.log('✅ Page data received:', {
       pageId: pageData.pageId,
       componentsCount: pageData.components?.length || 0,
-      hasComponents: !!pageData.components
+      hasComponents: !!pageData.components,
+      fullPageData: pageData,
+      componentsData: pageData.components
     });
+
+    // 컴포넌트 데이터 상세 로깅
+    if (pageData.components && Array.isArray(pageData.components)) {
+      pageData.components.forEach((comp: any, index: number) => {
+        console.log(`🔍 Component ${index}:`, {
+          type: comp.type,
+          id: comp.id,
+          props: comp.props,
+          fullComponent: comp
+        });
+      });
+    }
 
     // 데이터 검증
     if (!pageData || typeof pageData !== 'object') {
