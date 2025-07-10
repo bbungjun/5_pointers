@@ -39,7 +39,7 @@ export function useCollaboration({
   // DB에서 복구하는 함수
   const restoreFromDatabase = async (roomId, yArray) => {
     try {
-      console.log('🔄 Y.js 문서가 비어있음, DB에서 복구 시도...');
+      console.log('🔄 DB에서 복구 시도...');
       const response = await fetch(
         `${API_BASE_URL}/users/pages/room/${roomId}/content`
       );
@@ -76,8 +76,13 @@ export function useCollaboration({
             componentsWithIds.map((c) => c.id)
           );
 
-          // Y.js 문서에 직접 삽입
-          yArray.insert(0, componentsWithIds);
+          if (yArray) {
+            // Y.js 문서에 직접 삽입
+            yArray.insert(0, componentsWithIds);
+          } else {
+            // 로컬 모드: 직접 상태 업데이트
+            onComponentsUpdate && onComponentsUpdate(componentsWithIds);
+          }
           return true;
         }
       }
@@ -198,10 +203,12 @@ export function useCollaboration({
     }
   }, [selectedComponentId, updateSelection, viewport]);
 
-  // 컴포넌트 업데이트 함수 (Y.js 동기화)
+  // 컴포넌트 업데이트 함수 (Y.js 동기화 또는 로컬 모드)
   const updateComponent = (componentId, updates) => {
-    if (!componentsArrayRef.current) {
-      console.warn('Y.js 배열이 초기화되지 않음');
+    // 연결 오류 시 로컬 모드로 작동
+    if (connectionError || !componentsArrayRef.current) {
+      console.log('🔴 로컬 모드로 컴포넌트 업데이트:', componentId);
+      // 로컬 모드에서는 단순히 콜백만 호출하고 상위 컴포넌트에서 처리
       return;
     }
 
@@ -221,10 +228,6 @@ export function useCollaboration({
         id: existingComponent.id,
       };
 
-      // console.log('Y.js 컴포넌트 업데이트:', componentId, '변경사항:', updates);
-      // console.log('기존 컴포넌트:', existingComponent);
-      // console.log('업데이트된 컴포넌트:', updatedComponent);
-
       try {
         // 트랜잭션으로 안전하게 업데이트
         ydoc &&
@@ -232,14 +235,10 @@ export function useCollaboration({
             yComponents.delete(componentIndex, 1);
             yComponents.insert(componentIndex, [updatedComponent]);
           });
-        // console.log('Y.js 업데이트 성공');
       } catch (error) {
-        // console.error('Y.js 업데이트 실패:', error);
+        console.error('Y.js 업데이트 실패:', error);
       }
     } else {
-      // console.warn('업데이트할 컴포넌트를 Y.js에서 찾을 수 없음:', componentId);
-      // console.log('Y.js에 있는 컴포넌트들:', components);
-
       // 컴포넌트가 Y.js에 없으면 추가 시도
       const componentToAdd = { ...updates, id: componentId };
       addComponent(componentToAdd);

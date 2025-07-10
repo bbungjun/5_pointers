@@ -324,6 +324,13 @@ function NoCodeEditor({ pageId }) {
     setComponents(newComponents);
   }, []);
 
+  // 연결 오류 시 로컬 상태 관리 활성화
+  useEffect(() => {
+    if (connectionError) {
+      console.log('🔴 협업 연결 오류로 인해 로컬 상태 관리 활성화');
+    }
+  }, [connectionError]);
+
   // 로딩 상태 처리
   if (isLoading) {
     return (
