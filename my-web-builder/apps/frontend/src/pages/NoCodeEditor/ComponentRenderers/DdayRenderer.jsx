@@ -118,8 +118,8 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
 
   const getContainerStyle = () => {
     const baseStyle = {
-      width: '100%',
-      height: '100%',
+      width: comp.width || 340,
+      height: comp.height || 150,
       minHeight: '120px',  // 원래 크기로 되돌림
       display: 'flex',
       flexDirection: 'column',
