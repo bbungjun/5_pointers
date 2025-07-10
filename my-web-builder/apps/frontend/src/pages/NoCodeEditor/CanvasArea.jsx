@@ -577,34 +577,41 @@ const CanvasArea = forwardRef(
     }, []);
 
     // 중앙으로 스크롤 (초기 로딩 시에만)
-    useEffect(() => {
-      const scrollToCenter = () => {
-        if (ref?.current && canvasRefToUse?.current) {
-          const container = ref.current;
-          const canvas = canvasRefToUse.current;
+    // 뷰포트 변경 시 자동 스크롤 제거 - 사용자가 직접 조작할 수 있도록 함
+    // useEffect(() => {
+    //   const scrollToCenter = () => {
+    //     if (ref?.current && canvasRefToUse?.current) {
+    //       const container = ref.current;
+    //       const canvas = canvasRefToUse.current;
 
-          // 중앙으로 스크롤 (부드럽게)
-          container.scrollTo({
-            left: Math.max(0, (canvas.scrollWidth - container.clientWidth) / 2),
-            top: Math.max(
-              0,
-              (canvas.scrollHeight - container.clientHeight) / 2
-            ),
-            behavior: 'smooth',
-          });
-        }
-      };
+    //       // 중앙으로 스크롤 (부드럽게)
+    //       container.scrollTo({
+    //         left: Math.max(0, (canvas.scrollWidth - container.clientWidth) / 2),
+    //         top: Math.max(
+    //           0,
+    //           (canvas.scrollHeight - container.clientHeight) / 2
+    //         ),
+    //         behavior: 'smooth',
+    //       });
+    //     }
+    //   };
 
-      // 약간의 딜레이를 두고 스크롤 (DOM이 완전히 렌더링된 후)
-      const timeoutId = setTimeout(scrollToCenter, 300);
+    //   // 약간의 딜레이를 두고 스크롤 (DOM이 완전히 렌더링된 후)
+    //   const timeoutId = setTimeout(scrollToCenter, 300);
 
-      return () => clearTimeout(timeoutId);
-    }, [viewport]);
+    //   return () => clearTimeout(timeoutId);
+    // }, [viewport]);
 
     // 줌 레벨 동기화
     useEffect(() => {
       setLocalZoom(zoom);
     }, [zoom]);
+
+    // 초기 렌더링 시 줌을 60%로 강제 설정
+    useEffect(() => {
+      setLocalZoom(65);
+      if (onZoomChange) onZoomChange(65);
+    }, []); // 빈 의존성 배열로 초기 렌더링 시에만 실행
 
     // 스타일링 변수들
     const zoomScale = localZoom / 100;
