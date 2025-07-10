@@ -1,0 +1,82 @@
+name: Deploy Next.js Subdomain Server
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'my-web-builder/apps/subdomain-nextjs/**'
+      - 'my-web-builder/packages/ui/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd my-web-builder/apps/subdomain-nextjs
+          npm install
+
+      - name: Build Next.js application
+        run: |
+          cd my-web-builder/apps/subdomain-nextjs
+          npm run build
+
+      - name: Create deployment package
+        run: |
+          cd my-web-builder/apps/subdomain-nextjs
+          tar -czf subdomain-nextjs-deploy.tar.gz .next/ package.json pages/ node_modules/ public/ next.config.js styles/ middleware.ts
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN || '' }}
+          aws-region: ap-northeast-2
+
+      - name: Upload deployment package to S3
+        run: |
+          cd my-web-builder/apps/subdomain-nextjs
+          aws s3 cp subdomain-nextjs-deploy.tar.gz s3://elasticbeanstalk-ap-northeast-2-490004614784/subdomain-nextjs-${{ github.sha }}.tar.gz
+
+      - name: Deploy to EC2 via SSM
+        run: |
+          # EC2 인스턴스 ID (실제 인스턴스 ID로 교체 필요)
+          INSTANCE_ID="i-0895813dc286d929c"  # 실제 EC2 인스턴스 ID
+          
+          # SSM을 통해 배포 명령 실행
+          aws ssm send-command \
+            --instance-ids $INSTANCE_ID \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "cd /home/ubuntu",
+              "wget https://elasticbeanstalk-ap-northeast-2-490004614784.s3.amazonaws.com/subdomain-nextjs-${{ github.sha }}.tar.gz",
+              "sudo systemctl stop pm2-ubuntu || true",
+              "pm2 delete nextjs-subdomain || true",
+              "rm -rf /home/ubuntu/nextjs-subdomain",
+              "mkdir -p /home/ubuntu/nextjs-subdomain",
+              "cd /home/ubuntu/nextjs-subdomain",
+              "tar -xzf /home/ubuntu/subdomain-nextjs-${{ github.sha }}.tar.gz",
+              "export NODE_ENV=production",
+              "export API_BASE_URL=https://pagecube.net/api", 
+              "pm2 start npm --name nextjs-subdomain -- start",
+              "pm2 save",
+              "pm2 startup --user ubuntu || true"
+            ]' \
+            --comment "Deploy Next.js Subdomain Server from GitHub Actions"
+
+      - name: Verify deployment
+        run: |
+          echo "🚀 Next.js Subdomain Server deployment initiated"
+          echo "📋 Deployment package: subdomain-nextjs-${{ github.sha }}.tar.gz"
+          echo "🔗 Check deployment status in AWS Systems Manager"
