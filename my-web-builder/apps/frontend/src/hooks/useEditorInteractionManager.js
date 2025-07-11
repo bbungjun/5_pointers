@@ -6,12 +6,12 @@ import { API_BASE_URL } from '../config.js';
  * - UI 상태 관리 (선택, 줌, 패널, 모달 등)
  * - 뷰포트/편집모드 전환 핸들러
  */
-export function useEditorInteractionManager(designMode, setDesignMode) {
+export function useEditorInteractionManager(designMode, setDesignMode, initialViewport = null) {
   // UI 상태 관리
   const [selectedId, setSelectedId] = useState(null);
   const [snapLines, setSnapLines] = useState({ vertical: [], horizontal: [] });
-  const [zoom, setZoom] = useState(70); // 줌 초기값을 60%로 설정
-  const [viewport, setViewport] = useState(designMode);
+  const [zoom, setZoom] = useState(100); // 줌 초기값을 60%로 설정
+  const [viewport, setViewport] = useState(initialViewport || designMode);
   const [isLibraryOpen, setIsLibraryOpen] = useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 

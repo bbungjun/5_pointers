@@ -58,6 +58,7 @@ export class TemplatesController {
       category: string;
       tags?: string[];
       thumbnail_url?: string;
+      canvasSettings?: any;
     },
   ) {
     return this.templatesService.createTemplateFromComponents(
@@ -67,6 +68,7 @@ export class TemplatesController {
       req.user.id,
       body.tags,
       body.thumbnail_url,
+      body.canvasSettings,
     );
   }
 

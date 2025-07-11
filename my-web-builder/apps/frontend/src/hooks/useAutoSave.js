@@ -5,9 +5,10 @@ import { API_BASE_URL } from '../config';
  * 자동저장 Hook (Y.js 백업용)
  * @param {string} roomId - 방 ID (페이지 ID와 동일)
  * @param {Array} components - 컴포넌트 배열
+ * @param {number} canvasHeight - 캔버스 높이
  * @param {number} debounceMs - 디바운스 시간 (기본 2초)
  */
-function useAutoSave(roomId, components, debounceMs = 2000) {
+function useAutoSave(roomId, components, canvasHeight, debounceMs = 2000) {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
   const [saveError, setSaveError] = useState(null);
@@ -26,6 +27,10 @@ function useAutoSave(roomId, components, debounceMs = 2000) {
         setSaveError(null);
 
         const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('인증 토큰이 없습니다.');
+        }
+
         const response = await fetch(
           `${API_BASE_URL}/users/pages/room/${roomId}/content`,
           {
@@ -37,8 +42,8 @@ function useAutoSave(roomId, components, debounceMs = 2000) {
             body: JSON.stringify({
               components: components,
               canvasSettings: {
-                designMode: 'desktop',
-              },
+                canvasHeight: canvasHeight
+              }
             }),
           }
         );
@@ -59,18 +64,18 @@ function useAutoSave(roomId, components, debounceMs = 2000) {
         setIsSaving(false);
       }
     },
-    [roomId]
+    [roomId, canvasHeight]
   );
 
   // 디바운스된 자동저장
   const debouncedSave = useCallback(
-    (data) => {
+    (components) => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
 
       timeoutRef.current = setTimeout(() => {
-        saveToServer(data);
+        saveToServer(components);
       }, debounceMs);
     },
     [saveToServer, debounceMs]
@@ -87,18 +92,23 @@ function useAutoSave(roomId, components, debounceMs = 2000) {
     saveToServer(components);
   }, [roomId, components, saveToServer]);
 
-  // 컴포넌트가 변경될 때 자동저장
+  // 컴포넌트나 캔버스 높이가 변경될 때 자동저장
   useEffect(() => {
     if (!roomId || !components) return;
 
-    const currentDataStr = JSON.stringify(components);
+    const currentData = {
+      components,
+      canvasHeight
+    };
+    const currentDataStr = JSON.stringify(currentData);
+    
     if (lastDataRef.current === currentDataStr) {
       return;
     }
 
     lastDataRef.current = currentDataStr;
     debouncedSave(components);
-  }, [roomId, components, debouncedSave]);
+  }, [roomId, components, canvasHeight, debouncedSave]);
 
   // 컴포넌트 언마운트 시 타이머 정리
   useEffect(() => {

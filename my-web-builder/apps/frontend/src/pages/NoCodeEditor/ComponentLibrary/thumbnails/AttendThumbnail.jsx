@@ -9,7 +9,7 @@ function AttendThumbnail() {
       borderRadius: 8,  // 6 → 8로 확대
       border: '1px solid #e5e7eb',
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: 12,  // 8 → 12로 확대
+      padding: 10,  // 8 → 12로 확대
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between'

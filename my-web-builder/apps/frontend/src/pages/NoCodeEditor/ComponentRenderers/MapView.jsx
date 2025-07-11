@@ -29,11 +29,19 @@ function loadKakaoMapsScript() {
   });
 }
 
-function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, comp }) {
+function KakaoMapView({
+  lat = 37.5665,
+  lng = 126.9780,
+  zoom = 1,                // 기본 확대 레벨 (1) – interactive: false인 경우엔 무조건 1로 강제
+  comp,
+  interactive = false,     // 기본적으로 캔버스에서는 상호작용을 막음
+}) {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
   useEffect(() => {
+    // 캔버스(비인터랙티브)에서는 zoom 값을 무조건 1로 고정
+    const targetZoom = interactive ? zoom : 1;
     loadKakaoMapsScript().then(() => {
       function renderMap() {
         if (!window.kakao || !window.kakao.maps || !window.kakao.maps.LatLng || !mapRef.current) {
@@ -45,14 +53,23 @@ function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, comp }) {
         if (!map) {
           map = new window.kakao.maps.Map(mapRef.current, {
             center,
-            level: zoom,
+            level: targetZoom,
+            draggable: interactive,          // 드래그 가능 여부
+            scrollwheel: interactive,        // 휠 확대·축소 가능 여부
           });
           mapRef.current._kakao_map_instance = map;
           markerRef.current = new window.kakao.maps.Marker({
             position: center,
             map: map,
           });
-          map.setLevel(zoom);
+          // 인터랙션 설정 (드래그/줌)
+          if (typeof map.setDraggable === 'function') {
+            map.setDraggable(interactive);
+          }
+          if (typeof map.setZoomable === 'function') {
+            map.setZoomable(interactive);
+          }
+          map.setLevel(targetZoom);
         } else {
           map.setCenter(center);
           if (markerRef.current) {
@@ -63,7 +80,14 @@ function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, comp }) {
               map: map,
             });
           }
-          map.setLevel(zoom);
+          map.setLevel(targetZoom);
+          // 인터랙션 설정을 업데이트
+          if (typeof map.setDraggable === 'function') {
+            map.setDraggable(interactive);
+          }
+          if (typeof map.setZoomable === 'function') {
+            map.setZoomable(interactive);
+          }
           // 컨테이너 크기 변경 후 지도 리사이즈
           setTimeout(() => {
             map.relayout();
@@ -72,7 +96,7 @@ function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, comp }) {
       }
       renderMap();
     });
-  }, [lat, lng, zoom, comp?.width, comp?.height]);
+  }, [lat, lng, zoom, comp?.width, comp?.height, interactive]);
 
   // 컨테이너 크기 변화 감지
   useEffect(() => {

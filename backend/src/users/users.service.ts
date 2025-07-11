@@ -175,9 +175,8 @@ export class UsersService {
   async updatePageContent(
     userId: number,
     pageId: string,
-    content: any[],
+    content: any,
   ): Promise<Pages> {
-
     // 먼저 페이지 소유자인지 확인
     let page = await this.pagesRepository.findOne({
       where: { id: pageId, owner: { id: userId } },
@@ -212,9 +211,19 @@ export class UsersService {
       }
     }
 
-    page.content = content;
-    const savedPage = await this.pagesRepository.save(page);
+    // content가 객체인 경우 그대로 저장, 아닌 경우 components 배열로 저장
+    if (typeof content === 'object' && !Array.isArray(content)) {
+      page.content = content;
+    } else {
+      page.content = {
+        components: Array.isArray(content) ? content : [],
+        canvasSettings: {
+          canvasHeight: 1080 // 기본값
+        }
+      };
+    }
 
+    const savedPage = await this.pagesRepository.save(page);
     return savedPage;
   }
 
@@ -257,7 +266,15 @@ export class UsersService {
         let componentsArr = Array.isArray(template.content)
           ? template.content
           : template.content.components || [];
-        content = { components: this.regenerateComponentIds(componentsArr) };
+        const canvasSettings =
+          typeof template.content === 'object' && !Array.isArray(template.content)
+            ? template.content.canvasSettings || { canvasHeight: 1080 }
+            : { canvasHeight: 1080 };
+
+        content = {
+          components: this.regenerateComponentIds(componentsArr),
+          canvasSettings,
+        };
       }
     }
 
