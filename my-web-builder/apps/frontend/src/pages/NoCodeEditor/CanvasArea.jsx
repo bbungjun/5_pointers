@@ -698,7 +698,7 @@ const CanvasArea = forwardRef(
             height: `${containerHeight}px`, // 동적 높이 설정
             minWidth: '100%', // 최소 너비는 부모 컨테이너 크기
             display: 'flex',
-            justifyContent: 'flex-start', // 좌측 정렬로 변경
+            justifyContent: viewport === 'mobile' ? 'center' : 'flex-start', // 모바일일 때 중앙 정렬
             alignItems: 'flex-start',
             // 뷰포트별 패딩 조정 (좌측은 컴포넌트 라이브러리 상태에 따라 동적 조정)
             padding:
