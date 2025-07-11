@@ -148,7 +148,12 @@ function DashboardPage({ user, onLogout }) {
       if (response.ok) {
         const newPage = await response.json();
         console.log('새 페이지 생성:', newPage);
-        navigate(`/editor/${newPage.id}`);
+        
+        // 템플릿 정보를 찾아서 웨딩 카테고리인지 확인
+        const template = templates.find(t => t.id === templateId);
+        const viewport = template?.category === 'wedding' ? 'mobile' : 'desktop';
+        
+        navigate(`/editor/${newPage.id}?viewport=${viewport}&category=${template?.category || 'default'}`);
       } else {
         alert('템플릿 페이지 생성에 실패했습니다.');
       }

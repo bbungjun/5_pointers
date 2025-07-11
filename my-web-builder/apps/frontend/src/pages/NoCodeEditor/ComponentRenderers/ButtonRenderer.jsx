@@ -1,8 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function ButtonRenderer({ comp, component, isEditor = false, isPreview = false }) {
+// 유틸리티 함수 내장
+const MOBILE_BASE_WIDTH = 375;
+const pxToVw = (px, minPx, maxPx) => {
+  if (typeof px !== 'number') return px;
+  const vw = (px / MOBILE_BASE_WIDTH) * 100;
+  if (minPx !== undefined && maxPx !== undefined) {
+    return `clamp(${minPx}px, ${vw.toFixed(4)}vw, ${maxPx}px)`;
+  }
+  return `${vw.toFixed(4)}vw`;
+};
+
+function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPreview = false, editingViewport = 'desktop' }) {
   // comp 또는 component 중 하나를 사용 (하위 호환성)
   const actualComp = comp || component;
+  // 모바일 편집 기준일 때 미리보기에서도 모바일 화면 그대로 보여야 함
+  const isLiveMode = mode === 'live' && editingViewport !== 'mobile';
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(actualComp?.props?.text || '');
   const inputRef = useRef();
@@ -62,19 +75,19 @@ function ButtonRenderer({ comp, component, isEditor = false, isPreview = false }
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         style={{
-          fontSize: (actualComp?.props?.fontSize || 18) + 'px',
+          fontSize: isLiveMode ? pxToVw(actualComp?.props?.fontSize || 18, 14, 22) : (actualComp?.props?.fontSize || 18) + 'px',
           fontFamily: fontStyle,
           textAlign: textAlign,
           lineHeight: lineHeight,
-          letterSpacing: letterSpacing + 'px',
+          letterSpacing: isLiveMode ? pxToVw(letterSpacing) : letterSpacing + 'px',
           fontWeight: fontWeight,
           textDecoration: textDecoration,
           transform: italicTransform,
           width: '100%',
           height: '100%',
           border: '1px solid #3B4EFF',
-          borderRadius: 4,
-          padding: '8px 12px',
+          borderRadius: isLiveMode ? pxToVw(4) : '4px',
+          padding: isLiveMode ? `${pxToVw(8)} ${pxToVw(12)}` : '8px 12px',
           boxSizing: 'border-box'
         }}
       />
@@ -108,8 +121,8 @@ function ButtonRenderer({ comp, component, isEditor = false, isPreview = false }
         userSelect: 'none',
         textTransform: 'none',
         lineHeight: lineHeight,
-        letterSpacing: letterSpacing + 'px',
-        padding: '8px 12px',
+        letterSpacing: isLiveMode ? pxToVw(letterSpacing) : letterSpacing + 'px',
+        padding: isLiveMode ? `${pxToVw(8)} ${pxToVw(12)}` : '8px 12px',
         boxSizing: 'border-box',
         textAlign: textAlign,
         overflow: 'visible',
@@ -131,17 +144,17 @@ function ButtonRenderer({ comp, component, isEditor = false, isPreview = false }
         style={{
           display: 'inline-block', // 핵심!
           textAlign: textAlign,
-          letterSpacing: letterSpacing + 'px',
+          letterSpacing: isLiveMode ? pxToVw(letterSpacing) : letterSpacing + 'px',
           lineHeight: lineHeight,
           fontWeight: fontWeight,
           textDecoration: textDecoration,
           transform: italicTransform,
           overflow: 'visible',
-          whiteSpace: 'pre-wrap', // 핵심!
+          whiteSpace: 'pre-wrap',
           textIndent: textAlign === 'center' && letterSpacing !== 0 ? 
-                     (letterSpacing / 2) + 'px' : '0',
+                     (isLiveMode ? pxToVw(letterSpacing / 2) : (letterSpacing / 2) + 'px') : '0',
           marginRight: textAlign === 'center' && letterSpacing !== 0 ? 
-                      (-letterSpacing / 2) + 'px' : '0'
+                      (isLiveMode ? pxToVw(-letterSpacing / 2) : (-letterSpacing / 2) + 'px') : '0'
         }}
       >
         {textContent}

@@ -2,59 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import PreviewRenderer from './PreviewRenderer';
 
-// 반응형 CSS 문자열
+// 최소화된 CSS
 const PREVIEW_CSS = `
-/* 미리보기 전용 CSS - 캔버스 에디터와 동일한 스타일 */
-.page-container {
-  position: relative;
-  background: #ffffff;
-  border: 1px solid #e1e5e9;
-  border-radius: 12px;
-  margin: 0;
-  padding: 0;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  overflow: visible;
-  box-sizing: border-box;
-}
-
-.row-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.component-wrapper {
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.desktop-absolute-wrapper {
-  position: absolute;
-}
-
-@media (max-width: 768px) {
-  .page-container {
-    padding: 0 !important;
-  }
-  
-  .row-wrapper {
-    flex-direction: column;
-  }
-  
-  .component-wrapper {
-    width: 100% !important;
-    margin-bottom: 10px;
-  }
-  
-  .desktop-absolute-wrapper {
-    position: static;
-  }
-}
+  body { margin: 0; padding: 0; }
+  #preview-root { width: 100%; height: 100%; }
 `;
 
-const PreviewModal = ({ isOpen, onClose, components }) => {
-  const [viewMode, setViewMode] = useState('desktop');
+const PreviewModal = ({ isOpen, onClose, components, editingViewport = 'desktop', templateCategory }) => {
+  const [viewMode, setViewMode] = useState(editingViewport);
   const iframeRef = useRef(null);
   const rootRef = useRef(null);
   const iframeContainerRef = useRef(null);
@@ -74,23 +29,8 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
       <!DOCTYPE html>
       <html>
         <head>
-          <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            html, body { 
-              width: 100%;
-              height: 100%;
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-              overflow: hidden;
-            }
-            #preview-root { 
-              width: 100%;
-              height: 100%;
-              background: #f8f9fa;
-            }
-            ${PREVIEW_CSS}
-          </style>
+          <style>${PREVIEW_CSS}</style>
         </head>
         <body>
           <div id="preview-root"></div>
@@ -112,7 +52,7 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
 
     try {
       rootRef.current.render(
-        <PreviewRenderer components={components} forcedViewport={viewMode} />
+        <PreviewRenderer components={components} forcedViewport={viewMode} editingViewport={editingViewport} />
       );
     } catch (error) {
       console.error('Failed to render preview:', error);
@@ -198,18 +138,20 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
           gap: '8px',
         }}
       >
-        <button
-          onClick={() => setViewMode('desktop')}
-          style={{
-            padding: '8px 16px',
-            border:
-              viewMode === 'desktop' ? '2px solid #007bff' : '1px solid #ddd',
-            borderRadius: '4px',
-            background: viewMode === 'desktop' ? '#e7f1ff' : '#fff',
-          }}
-        >
-          데스크톱
-        </button>
+        {templateCategory !== 'wedding' && (
+          <button
+            onClick={() => setViewMode('desktop')}
+            style={{
+              padding: '8px 16px',
+              border:
+                viewMode === 'desktop' ? '2px solid #007bff' : '1px solid #ddd',
+              borderRadius: '4px',
+              background: viewMode === 'desktop' ? '#e7f1ff' : '#fff',
+            }}
+          >
+            데스크톱
+          </button>
+        )}
         <button
           onClick={() => setViewMode('mobile')}
           style={{
@@ -239,17 +181,21 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
         ref={iframeContainerRef}
         style={{
           flex: 1,
-          position: 'relative',
-          overflow: 'hidden',
-          padding: '10px',
-          backgroundColor: '#f8f9fa',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+          background: '#f8f9fa'
         }}
       >
         <iframe
           ref={iframeRef}
           style={{
-            // 동적 크기는 useEffect에서 설정
-            border: 'none',
+            width: viewMode === 'mobile' ? '375px' : '100%',
+            maxWidth: viewMode === 'mobile' ? '375px' : '100%',
+            height: '100%',
+            border: '1px solid #ddd',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
             background: '#ffffff',
           }}
           title="Preview"
