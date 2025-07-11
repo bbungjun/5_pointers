@@ -52,7 +52,7 @@ const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUp
         backgroundColor: noBackground ? 'transparent' : backgroundColor,
         color: textColor,
         border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`,
-        borderRadius: `${borderRadius}px`,
+        borderRadius: 0,
         cursor: linkedPageId ? 'pointer' : 'not-allowed',
         display: 'flex',
         alignItems: 'center',

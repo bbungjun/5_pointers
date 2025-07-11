@@ -23,7 +23,7 @@ function ImageRenderer({ comp, component, isEditor = false, isPreview = false, o
   const containerStyle = {
     width: '100%',
     height: '100%',
-    borderRadius: (actualComp?.props?.borderRadius || 0) + 'px',
+    borderRadius: '0px',
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',

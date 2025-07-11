@@ -128,7 +128,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       justifyContent: 'center',
       alignItems: 'center',
       padding: '10px',     // 원래 크기로 되돌림
-      borderRadius: '12px',
+      borderRadius: 0,
       position: 'relative',
       overflow: 'hidden'
     };
