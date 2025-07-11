@@ -381,6 +381,9 @@ export function useComponentActions(
               name: templateData.name,
               category: templateData.category,
               tags: templateData.tags ? templateData.tags.split(',').map(tag => tag.trim()) : [],
+              canvasSettings: {
+                canvasHeight: canvasHeight
+              }
             }),
           }
         );
@@ -405,7 +408,7 @@ export function useComponentActions(
         alert('템플릿 저장 중 오류가 발생했습니다.');
       }
     },
-    [templateData, setTemplateData, setIsTemplateSaveOpen]
+    [templateData, setTemplateData, setIsTemplateSaveOpen, canvasHeight]
   );
 
   // 섹션 추가

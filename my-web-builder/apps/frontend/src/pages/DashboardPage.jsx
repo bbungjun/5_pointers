@@ -147,20 +147,13 @@ function DashboardPage({ user, onLogout }) {
 
       if (response.ok) {
         const newPage = await response.json();
-        // 템플릿 정보 찾기
-        const template = templates.find(t => t.id === templateId);
-        
-        // 템플릿 정보를 URL 파라미터로 전달
-        const templateParam = template ? encodeURIComponent(JSON.stringify(template)) : null;
-        const editorUrl = templateParam 
-          ? `/editor/${newPage.id}?template=${templateParam}`
-          : `/editor/${newPage.id}`;
-        
-        navigate(editorUrl);
+        console.log('새 페이지 생성:', newPage);
+        navigate(`/editor/${newPage.id}`);
       } else {
         alert('템플릿 페이지 생성에 실패했습니다.');
       }
     } catch (error) {
+      console.error('템플릿 페이지 생성 실패:', error);
       alert('템플릿 페이지 생성에 실패했습니다.');
     }
   };
@@ -257,11 +250,13 @@ function DashboardPage({ user, onLogout }) {
 
       if (response.ok) {
         const newPage = await response.json();
+        console.log('새 페이지 생성:', newPage);
         navigate(`/editor/${newPage.id}`);
       } else {
         alert('페이지 생성에 실패했습니다.');
       }
     } catch (error) {
+      console.error('페이지 생성 실패:', error);
       alert('페이지 생성에 실패했습니다.');
     }
   };

@@ -96,6 +96,7 @@ export class TemplatesService {
     authorId: number,
     tags?: string[],
     thumbnail_url?: string,
+    canvasSettings?: any,
   ) {
     try {
 
@@ -115,7 +116,10 @@ export class TemplatesService {
         name,
         category,
         thumbnail_url,
-        content: components || [], // 에디터에서 전달받은 컴포넌트 배열
+        content: {
+          components: components || [],
+          canvasSettings: canvasSettings || { canvasHeight: 1080 }
+        },
         tags: tags || [],
         author,
         authorId,
@@ -155,8 +159,19 @@ export class TemplatesService {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
 
-    // 컴포넌트 ID 재발급
-    const newContent = this.regenerateComponentIds(template.content);
+    // 컴포넌트 ID 재발급 및 캔버스 설정 복원
+    let newContent;
+    if (typeof template.content === 'object' && !Array.isArray(template.content)) {
+      newContent = {
+        components: this.regenerateComponentIds(template.content.components || []),
+        canvasSettings: template.content.canvasSettings || { canvasHeight: 1080 }
+      };
+    } else {
+      newContent = {
+        components: this.regenerateComponentIds(Array.isArray(template.content) ? template.content : []),
+        canvasSettings: { canvasHeight: 1080 }
+      };
+    }
 
     // 새 페이지 생성
     const newPage = this.pagesRepository.create({

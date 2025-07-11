@@ -328,9 +328,10 @@ function NoCodeEditor({ pageId }) {
 
   // 자동저장 훅
   const { isSaving, lastSaved, saveError, saveCount, saveNow } = useAutoSave(
-    pageId,
-    components,
-    2000
+    pageId,          // roomId (페이지 ID)
+    components,      // 컴포넌트 배열
+    canvasHeight,    // 현재 캔버스 높이
+    2000             // 디바운스 시간 (2초)
   );
 
   // 컴포넌트 업데이트 핸들러
