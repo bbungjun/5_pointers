@@ -50,10 +50,10 @@ export class GeneratorService {
           // 다른 사용자가 사용 중인 서브도메인인 경우 - 에러 발생
           throw new Error(`서브도메인 '${requestedSubdomain}'는 이미 사용 중입니다. 다른 서브도메인을 선택해주세요.`);
         }
-        // 동일한 사용자가 소유한 서브도메인인 경우 - 해당 페이지를 업데이트
+        // 동일한 사용자가 소유한 서브도메인인 경우 - 해당 페이지를 재사용 (ID 변경 안함)
         page = existingPageBySubdomain;
-        page.id = projectId; // 새로운 프로젝트 ID로 업데이트
         page.status = PageStatus.DEPLOYED;
+        page.title = 'Deployed Page'; // 제목 업데이트
         await this.pagesRepository.save(page);
       } else {
         // 서브도메인이 사용되지 않는 경우 - 새 페이지 생성
