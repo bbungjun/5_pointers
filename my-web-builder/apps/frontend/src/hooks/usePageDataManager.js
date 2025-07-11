@@ -8,12 +8,12 @@ import useAutoSave from './useAutoSave';
  * - components, designMode 상태 관리
  * - 자동 저장 기능
  */
-export function usePageDataManager(roomId) {
+export function usePageDataManager(roomId, initialViewport = 'desktop') {
   const [components, setComponents] = useState([]);
-  const [designMode, setDesignMode] = useState('desktop');
+  const [designMode, setDesignMode] = useState(initialViewport);
   const [pageTitle, setPageTitle] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [canvasHeight, setCanvasHeight] = useState(1080);
+  const [canvasHeight, setCanvasHeight] = useState(initialViewport === 'mobile' ? 667 : 1080);
 
   // 자동 저장 훅
   const autoSave = useAutoSave(roomId, components, canvasHeight);

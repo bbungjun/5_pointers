@@ -5,12 +5,12 @@ export default function WeddingInviteRenderer({ comp }) {
         containerWidth = comp.width || 450,
         containerHeight = comp.height || 400,
         title = "Our Love Story",
-        titleFontFamily = "Dancing Script, cursive, Noto Sans KR, 맑은 고딕, sans-serif",
-        titleFontSize = 32,
+        titleFontFamily = "Playfair Display, serif",
+        titleFontSize = 36,
         titleFontStyle = "italic",
-        titleFontWeight = "normal",
+        titleFontWeight = "600",
         titleTextDecoration = "none",
-        titleColor = "#222",
+        titleColor = "#4A4A4A",
         titleAlign = comp.props.titleAlign || comp.props.textAlign || "center",
 
         content = [
@@ -22,14 +22,14 @@ export default function WeddingInviteRenderer({ comp }) {
             "지켜나갈 수 있게 앞날을",
             "축복해 주시면 감사하겠습니다."
         ],
-        contentFontFamily = "Noto Sans KR, 맑은 고딕, sans-serif",
-        contentFontSize = 22,
-        contentFontWeight = "normal",
+        contentFontFamily = "Montserrat, sans-serif",
+        contentFontSize = 18,
+        contentFontWeight = "400",
         contentFontStyle = "normal",
         contentTextDecoration = "none",
-        contentColor = "#444",
+        contentColor = "#4A4A4A",
         contentAlign = comp.props.contentAlign || comp.props.textAlign || "center",
-        backgroundColor = "#fff"
+        backgroundColor = "#FAF9F6"
     } = comp.props;
 
     // px 변환
@@ -40,7 +40,7 @@ export default function WeddingInviteRenderer({ comp }) {
     return (
         <div
             style={{
-                padding: 32,
+                padding: 40,
                 background: backgroundColor,
                 borderRadius: 16,
                 width: '100%',
@@ -53,8 +53,8 @@ export default function WeddingInviteRenderer({ comp }) {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '2px solid #e3e3e3',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                border: '1px solid #BDB5A6',
+                boxShadow: '0 8px 32px rgba(189, 181, 166, 0.15)',
             }}
         >
             {/* 제목 */}

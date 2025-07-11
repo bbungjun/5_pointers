@@ -9,10 +9,21 @@ function DdayEditor({ selectedComp, onUpdate }) {
 
   const backgroundOptions = [
     { name: '기본', value: '' },
-    { name: '꽃 배경 2', value: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800' },
-    { name: '자연 배경', value: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800' },
-    { name: '하늘 배경', value: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800' },
-    { name: '집 앞 꽃', value: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8JUVCJUIyJTlBJUVBJUJEJTgzJTIwJUVCJUIwJUIwJUVBJUIyJUJEJUVEJTk5JTk0JUVCJUE5JUI0fGVufDB8fDB8fHww' }
+    { name: '웨딩 교회', value: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800' },
+    { name: '웨딩 아치', value: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800' },
+    { name: '웨딩 케이크', value: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800' },
+    { name: '웨딩 반지', value: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800' },
+    { name: '웨딩 부케', value: 'https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=800' },
+    { name: '웨딩 드레스', value: 'https://images.unsplash.com/photo-1594736797933-d0ad7ac80409?w=800' },
+    { name: '웨딩 테이블', value: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800' },
+    { name: '웨딩 장식', value: 'https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=800' },
+    { name: '순백 장미', value: 'https://images.unsplash.com/photo-1595348020847-b3ca7ad67df5?w=800' },
+    { name: '모란 꽃', value: 'https://images.unsplash.com/photo-1518895312237-a2a964d95b11?w=800' },
+    { name: '로맨틱 꽃다발', value: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800' },
+    { name: '벚꽃 배경', value: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800' },
+    { name: '라벤더 필드', value: 'https://images.unsplash.com/photo-1611858517488-9b05b3e3e93c?w=800' },
+    { name: '골든 아워 자연', value: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800' },
+    { name: '소프트 핑크', value: 'https://images.unsplash.com/photo-1502790671504-542ad42d5189?w=800' }
   ];
 
   return (

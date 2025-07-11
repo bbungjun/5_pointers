@@ -17,3 +17,4 @@ export { default as ImageListEditor } from "./ImageListEditor";
 export { default as ThumbnailEditor } from "./ThumbnailEditor";
 export { default as TextAreaEditor } from "./TextAreaEditor";
 export { default as SelectEditor } from "./SelectEditor";
+export { default as ColorPaletteEditor } from "./ColorPaletteEditor";
