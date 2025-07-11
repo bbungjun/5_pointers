@@ -1,5 +1,8 @@
-import React from 'react';
-import { groupComponentsIntoRows, getComponentDimensions } from './utils/editorUtils';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  groupComponentsIntoRows,
+  getComponentDimensions,
+} from './utils/editorUtils';
 import ButtonRenderer from './ComponentRenderers/ButtonRenderer';
 import TextRenderer from './ComponentRenderers/TextRenderer';
 import LinkRenderer from './ComponentRenderers/LinkRenderer';
@@ -63,62 +66,107 @@ const ComponentRenderer = ({ component }) => {
       return <PageRenderer component={component} isEditor={false} />;
     default:
       return (
-        <div style={{ width: '100%', height: '100%', border: '1px solid #ccc', ...component.props?.style }}>
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            border: '1px solid #ccc',
+            ...component.props?.style,
+          }}
+        >
           {component.type}
         </div>
       );
   }
 };
 
-const DESKTOP_CANVAS_WIDTH = 1920;
-const DESKTOP_CANVAS_HEIGHT = 1080;
+// 컴포넌트들의 실제 영역 계산
+const calculateActualDimensions = (components) => {
+  if (!components || components.length === 0) {
+    return { width: 400, height: 300, offsetX: 0, offsetY: 0 };
+  }
+
+  let maxX = 0;
+  let maxY = 0;
+  let minX = Infinity;
+  let minY = Infinity;
+
+  components.forEach((component) => {
+    const x = component.x || 0;
+    const y = component.y || 0;
+    const width =
+      component.width || getComponentDimensions(component.type).defaultWidth;
+    const height =
+      component.height || getComponentDimensions(component.type).defaultHeight;
+
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x + width);
+    maxY = Math.max(maxY, y + height);
+  });
+
+  const actualWidth = Math.max(400, maxX - minX + 40); // 최소 400px + 여백 40px
+  const actualHeight = Math.max(300, maxY - minY + 40); // 최소 300px + 여백 40px
+
+  return {
+    width: actualWidth,
+    height: actualHeight,
+    offsetX: Math.max(0, minX - 20), // 왼쪽 여백 20px
+    offsetY: Math.max(0, minY - 20), // 위쪽 여백 20px
+  };
+};
 
 const PreviewRenderer = ({ components = [], forcedViewport = null }) => {
-  if (forcedViewport === 'desktop') {
-    return (
-      <div 
-        className="page-container"
-        style={{
-          width: `${DESKTOP_CANVAS_WIDTH}px`,
-          height: `${DESKTOP_CANVAS_HEIGHT}px`,
-          position: 'relative',
-          background: '#ffffff',
-        }}
-      >
-        {components.map(component => (
-          <div
-            key={component.id}
-            className="desktop-absolute-wrapper"
-            style={{
-              left: component.x || 0,
-              top: component.y || 0,
-              width: component.width || getComponentDimensions(component.type).defaultWidth,
-              height: component.height || getComponentDimensions(component.type).defaultHeight,
-            }}
-          >
-            <ComponentRenderer component={component} />
-          </div>
-        ))}
-      </div>
-    );
-  }
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef(null);
+  
+  // 캔버스 에디터와 동일한 고정 크기 사용
+  const canvasWidth = forcedViewport === 'mobile' ? 375 : 1920;
+  const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
+
+  // 데스크톱 모드에서만 스케일 계산
+  useEffect(() => {
+    if (forcedViewport !== 'desktop' || !containerRef.current) {
+      return;
+    }
+
+    const calculateScale = () => {
+      const parentElement = containerRef.current.parentElement;
+      if (!parentElement) return;
+
+      const availableWidth = parentElement.clientWidth;
+      const availableHeight = parentElement.clientHeight;
+
+      const scaleX = availableWidth / canvasWidth;
+      const scaleY = availableHeight / canvasHeight;
+
+      setScale(Math.min(scaleX, scaleY));
+    };
+
+    calculateScale();
+
+    const iframeWindow = containerRef.current.ownerDocument.defaultView;
+    iframeWindow.addEventListener('resize', calculateScale);
+
+    return () => {
+      iframeWindow.removeEventListener('resize', calculateScale);
+    };
+  }, [forcedViewport, canvasWidth, canvasHeight]);
 
   if (forcedViewport === 'mobile') {
     const rows = groupComponentsIntoRows(components);
-    
+
     return (
-      <div 
+      <div
         className="page-container"
         style={{
-          width: '375px',
-          minHeight: '667px',
-          padding: '0px',
-          boxSizing: 'border-box',
+          width: `${canvasWidth}px`,
+          height: `${canvasHeight}px`,
         }}
       >
         {rows.map((row, rowIndex) => (
           <div key={rowIndex} className="row-wrapper">
-            {row.map(component => (
+            {row.map((component) => (
               <div
                 key={component.id}
                 className="component-wrapper"
@@ -136,25 +184,38 @@ const PreviewRenderer = ({ components = [], forcedViewport = null }) => {
     );
   }
 
+  // 데스크톱 모드: 자동 스케일링으로 iframe에 맞게 표시
   return (
-    <div 
+    <div
+      ref={containerRef}
       className="page-container"
       style={{
-        width: `${DESKTOP_CANVAS_WIDTH}px`,
-        height: `${DESKTOP_CANVAS_HEIGHT}px`,
+        width: `${canvasWidth}px`,
+        height: `${canvasHeight}px`,
         position: 'relative',
         background: '#ffffff',
+        margin: 0,
+        padding: 0,
+        overflow: 'visible',
+        boxSizing: 'border-box',
+        transform: `scale(${scale})`,
+        transformOrigin: 'top left',
       }}
     >
-      {components.map(component => (
+      {components.map((component) => (
         <div
           key={component.id}
           className="desktop-absolute-wrapper"
           style={{
+            position: 'absolute',
             left: component.x || 0,
             top: component.y || 0,
-            width: component.width || getComponentDimensions(component.type).defaultWidth,
-            height: component.height || getComponentDimensions(component.type).defaultHeight,
+            width:
+              component.width ||
+              getComponentDimensions(component.type).defaultWidth,
+            height:
+              component.height ||
+              getComponentDimensions(component.type).defaultHeight,
           }}
         >
           <ComponentRenderer component={component} />
