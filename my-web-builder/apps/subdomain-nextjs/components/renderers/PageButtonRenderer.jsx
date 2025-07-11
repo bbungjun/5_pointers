@@ -1,8 +1,20 @@
 import React from 'react';
 
-const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }) => {
-  // component 또는 comp 중 하나를 사용 (하위 호환성)
-  const actualComp = comp || component;
+const PageButtonRenderer = ({ component, comp, isEditor, onUpdate }) => {
+  // 디버깅을 위한 로그 추가
+  console.log('🔍 PageButtonRenderer props:', { component, comp, isEditor });
+  
+  // component 또는 comp prop 둘 다 처리
+  const compData = component || comp;
+  console.log('🔍 PageButtonRenderer compData:', compData);
+  
+  if (!compData) {
+    console.error('❌ PageButtonRenderer: compData is null or undefined');
+    return <div>PageButtonRenderer: No component data</div>;
+  }
+  
+  console.log('🔍 PageButtonRenderer compData.props:', compData.props);
+  
   const {
     buttonText = '페이지 이동',
     icon = '📄',
@@ -20,12 +32,10 @@ const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUp
     noBorder = false,
     linkedPageId = '',
     deployedUrl = ''
-  } = actualComp?.props || {};
+  } = compData?.props || {};
 
   const handleClick = (e) => {
-    if (isPreview) return; // 미리보기에서는 클릭 비활성화
     if (!linkedPageId) return;
-    
     if (isEditor) {
       if (e.ctrlKey || e.metaKey) {
         e.stopPropagation();
@@ -65,13 +75,14 @@ const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUp
         position: 'relative',
         opacity: linkedPageId ? 1 : 0.5,
         userSelect: 'none',
-        transition: 'background 0.2s'
+        transition: 'background 0.2s',
+        whiteSpace: 'pre-wrap' // ✅
       }}
       onClick={handleClick}
       title={
         isEditor
           ? linkedPageId
-            ? `${buttonText} (${navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'}+클릭으로 이동)`
+            ? `${buttonText} (${navigator?.platform?.includes('Mac') ? 'Cmd' : 'Ctrl'}+클릭으로 이동)`
             : '페이지가 연결되지 않음'
           : buttonText
       }
@@ -104,37 +115,25 @@ const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUp
       >
         {buttonText}
       </span>
-      {isEditor && (
-        <span style={{
-          position: 'absolute',
-          top: 6,
-          right: 10,
-          background: 'rgba(0,0,0,0.7)',
-          color: 'white',
-          borderRadius: '4px',
-          fontSize: '10px',
-          padding: '2px 6px'
-        }}>
-          {navigator.platform.includes('Mac') ? '⌘+클릭' : 'Ctrl+클릭'}
-        </span>
-      )}
-      {isEditor && (
-        <span style={{
-          position: 'absolute',
-          bottom: 6,
-          right: 10,
-          backgroundColor: linkedPageId ? '#10b981' : '#f59e0b',
-          color: 'white',
-          borderRadius: '50%',
-          width: '16px',
-          height: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '10px'
-        }}>
-          {linkedPageId ? '🔗' : '⚠️'}
-        </span>
+      
+      {!linkedPageId && isEditor && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '-25px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: '12px',
+            padding: '4px 8px',
+            backgroundColor: '#dc3545',
+            color: 'white',
+            borderRadius: '4px',
+            whiteSpace: 'nowrap',
+            zIndex: 10
+          }}
+        >
+          페이지 연결 필요
+        </div>
       )}
     </div>
   );

@@ -19,11 +19,9 @@ export class GeneratorService {
   async deploy(deployDto: DeployDto): Promise<{ url: string }> {
     const { projectId, userId, components } = deployDto;
 
-    // console.log('🚀 Deploy 서비스 시작:', { projectId, userId, componentsCount: components?.length });
 
     // 1. projectId 유효성 확인
     if (!projectId) {
-      // console.error('❌ Project ID 없음');
       throw new Error('Project ID is required');
     }
 
@@ -35,7 +33,6 @@ export class GeneratorService {
       userDomain ||
       `${userId}-${projectId}`.toLowerCase().replace(/[^a-z0-9-]/g, '');
 
-    // console.log('📝 서브도메인 생성:', { userDomain, subdomain });
 
     let page;
     try {
@@ -43,7 +40,6 @@ export class GeneratorService {
       page = await this.pagesRepository.findOne({ where: { id: projectId } });
       
       if (!page) {
-        // console.log('📄 새 페이지 생성');
         page = this.pagesRepository.create({
           id: projectId,
           subdomain: subdomain,
@@ -53,14 +49,12 @@ export class GeneratorService {
         });
         await this.pagesRepository.save(page);
       } else {
-        // console.log('📄 기존 페이지 업데이트');
         // 기존 페이지가 있으면 서브도메인 업데이트 및 DEPLOYED 상태로 설정
         page.subdomain = subdomain;
         page.status = PageStatus.DEPLOYED;
         await this.pagesRepository.save(page);
       }
     } catch (dbError) {
-      // console.error('❌ 데이터베이스 오류:', dbError);
       throw new Error(`데이터베이스 저장 실패: ${dbError.message}`);
     }
 
@@ -73,17 +67,14 @@ export class GeneratorService {
       ? `https://${subdomain}.pagecube.net`
       : `http://${subdomain}.localhost:3001`;
 
-    // console.log('🌍 URL 생성:', { isProduction, url });
 
     try {
       // 5. 컴포넌트 데이터를 pages 테이블의 content 컬럼에 저장
       page.content = { components };
       const savedPage = await this.pagesRepository.save(page);
       
-      // console.log('✅ 배포 완료:', { subdomain, url, pageId: savedPage.id });
       return { url };
     } catch (saveError) {
-      // console.error('❌ 컴포넌트 저장 실패:', saveError);
       throw new Error(`컴포넌트 저장 실패: ${saveError.message}`);
     }
   }

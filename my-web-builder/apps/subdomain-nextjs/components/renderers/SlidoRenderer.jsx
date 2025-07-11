@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL } from '../../config';
 
 function SlidoRenderer({ comp, isEditor = false, pageId }) {
   const { question, placeholder, backgroundColor } = comp.props;

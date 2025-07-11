@@ -609,8 +609,8 @@ const CanvasArea = forwardRef(
 
     // 초기 렌더링 시 줌을 60%로 강제 설정
     useEffect(() => {
-      setLocalZoom(70);
-      if (onZoomChange) onZoomChange(70);
+      setLocalZoom(100);
+      if (onZoomChange) onZoomChange(100);
     }, []); // 빈 의존성 배열로 초기 렌더링 시에만 실행
 
     // 스타일링 변수들

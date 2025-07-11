@@ -137,9 +137,6 @@ export class UsersService {
       });
 
       if (!member) {
-        console.error(
-          `페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`,
-        );
         throw new Error('Page not found');
       }
 
@@ -149,7 +146,6 @@ export class UsersService {
       });
 
       if (!page) {
-        console.error(`페이지를 찾을 수 없음: ${pageId}`);
         throw new Error('Page not found');
       }
     }
@@ -181,9 +177,6 @@ export class UsersService {
     pageId: string,
     content: any[],
   ): Promise<Pages> {
-    console.log(
-      `DB 업데이트 시도: 페이지 ${pageId}, 사용자 ${userId}, 컴포넌트 ${content.length}개`,
-    );
 
     // 먼저 페이지 소유자인지 확인
     let page = await this.pagesRepository.findOne({
@@ -206,9 +199,6 @@ export class UsersService {
       });
 
       if (!member) {
-        console.error(
-          `페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`,
-        );
         throw new Error('Page not found');
       }
 
@@ -218,15 +208,12 @@ export class UsersService {
       });
 
       if (!page) {
-        console.error(`페이지를 찾을 수 없음: ${pageId}`);
         throw new Error('Page not found');
       }
     }
 
-    console.log(`기존 컨텐츠: ${page.content?.length || 0}개 컴포넌트`);
     page.content = content;
     const savedPage = await this.pagesRepository.save(page);
-    console.log(`DB 저장 완료: ${savedPage.content?.length || 0}개 컴포넌트`);
 
     return savedPage;
   }
@@ -664,7 +651,6 @@ export class UsersService {
     componentId: string;
     pageName?: string;
   }) {
-    console.log('📄 새 페이지 생성 시작:', createDto);
 
     try {
       // 1. 새 페이지 생성
@@ -686,7 +672,6 @@ export class UsersService {
       });
 
       const savedPage = await this.pagesRepository.save(newPage);
-      console.log('✅ 새 페이지 생성 완료:', savedPage.id, savedPage.title);
 
       // 2. 부모 페이지의 연결 정보 업데이트
       await this.addPageConnection(createDto.parentPageId, {
@@ -705,7 +690,6 @@ export class UsersService {
         },
       };
     } catch (error) {
-      console.error('❌ 페이지 생성 실패:', error);
       throw new Error('페이지 생성 실패: ' + error.message);
     }
   }
@@ -750,9 +734,7 @@ export class UsersService {
 
       // 부모 페이지 업데이트
       await this.pagesRepository.update(pageId, { content });
-      console.log('✅ 부모 페이지 연결 정보 업데이트 완료');
     } catch (error) {
-      console.error('❌ 페이지 연결 정보 업데이트 실패:', error);
       throw error;
     }
   }

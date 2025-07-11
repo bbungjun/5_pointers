@@ -19,7 +19,6 @@ export class TemplatesService {
   // 공개 템플릿 목록 조회
   async getPublicTemplates(category?: string) {
     try {
-      console.log('템플릿 조회 시작:', { category });
       
       const query = this.templatesRepository
         .createQueryBuilder('template')
@@ -32,7 +31,6 @@ export class TemplatesService {
       }
 
       const templates = await query.getMany();
-      console.log('템플릿 조회 성공 (DB):', templates.length, '개');
       
       return templates;
     } catch (error) {
@@ -100,7 +98,6 @@ export class TemplatesService {
     thumbnail_url?: string,
   ) {
     try {
-      console.log('템플릿 생성 시작:', { name, category, authorId, componentsCount: components?.length });
 
       // 작성자 조회
       const author = await this.usersRepository.findOne({
@@ -112,7 +109,6 @@ export class TemplatesService {
         throw new NotFoundException('사용자를 찾을 수 없습니다.');
       }
 
-      console.log('작성자 조회 성공:', author.nickname);
 
       // 컴포넌트 배열로 템플릿 생성
       const template = this.templatesRepository.create({
@@ -126,7 +122,6 @@ export class TemplatesService {
       });
 
       const savedTemplate = await this.templatesRepository.save(template);
-      console.log('템플릿 생성 성공 (DB 저장):', savedTemplate.id);
       
       return savedTemplate;
     } catch (error) {

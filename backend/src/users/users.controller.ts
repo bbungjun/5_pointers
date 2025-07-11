@@ -292,7 +292,6 @@ export class UsersController {
       pageName?: string;
     },
   ) {
-    console.log('🆕 Page 컴포넌트에서 페이지 생성 요청:', createDto);
     return this.usersService.createPageFromComponent(createDto);
   }
 

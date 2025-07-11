@@ -22,6 +22,7 @@ import SlidoRenderer from './ComponentRenderers/SlidoRenderer';
 import MusicRenderer from './ComponentRenderers/MusicRenderer';
 import PageRenderer from './ComponentRenderers/PageRenderer';
 import KakaoTalkShareRenderer from './ComponentRenderers/KakaoTalkShareRenderer';
+import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
 
 // 컴포넌트 렌더링 헬퍼
 const ComponentRenderer = ({ component }) => {
@@ -64,6 +65,8 @@ const ComponentRenderer = ({ component }) => {
       return <KakaoTalkShareRenderer comp={component} isEditor={false} />;
     case 'page':
       return <PageRenderer component={component} isEditor={false} />;
+    case 'pageButton':
+      return <PageButtonRenderer comp={component} isEditor={false} isPreview={true} />;
     default:
       return (
         <div
