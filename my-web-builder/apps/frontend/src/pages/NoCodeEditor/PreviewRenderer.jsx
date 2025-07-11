@@ -170,7 +170,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
         }}
       >
         {rows.map((row, rowIndex) => (
-          <div key={rowIndex} className="row-wrapper">
+          <div key={rowIndex} className="row-wrapper" style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
             {row.map((component) => {
               const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
               const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;

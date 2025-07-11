@@ -114,21 +114,27 @@ const DynamicPageRenderer = ({
   pageId: string;
   subdomain?: string;
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);
 
   useEffect(() => {
-    console.log('🚀 DynamicPageRenderer mounted, components:', components);
-    // 컴포넌트가 마운트되면 로딩 완료
-    const timer = setTimeout(() => {
-      console.log('⏰ Loading timer completed, showing content');
-      setIsLoading(false);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [components]);
+    setIsMounted(true);
+    
+    const checkViewport = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
 
-  if (isLoading) {
+    checkViewport();
+    window.addEventListener('resize', checkViewport);
+
+    return () => window.removeEventListener('resize', checkViewport);
+  }, []);
+
+  if (!isMounted) {
     return <LoadingSpinner />;
   }
+
+  const sortedComponents = [...components].sort((a, b) => (a.y || 0) - (b.y || 0));
 
   return (
     <>
@@ -160,11 +166,26 @@ const DynamicPageRenderer = ({
             scroll-behavior: smooth;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            width: 100%;
+            overflow-x: auto;
           }
           
           body {
             line-height: 1.6;
             color: #333;
+          }
+          
+          /* 모바일 반응형 처리 */
+          @media (max-width: 768px) {
+            .page-container {
+              width: 100vw !important;
+              min-width: 100vw !important;
+              transform-origin: top left;
+            }
+            
+            .component-container {
+              max-width: calc(100vw - 20px);
+            }
           }
           
           /* 컴포넌트 호버 효과 */
@@ -197,14 +218,18 @@ const DynamicPageRenderer = ({
       </Head>
       
       <div
+        className="page-container"
         style={{
-          position: 'relative',
-          width: '100vw',
+          position: isMobileView ? 'static' : 'relative',
+          display: isMobileView ? 'flex' : 'block',
+          flexDirection: isMobileView ? 'column' : 'unset',
+          alignItems: isMobileView ? 'center' : 'unset',
+          gap: isMobileView ? '16px' : '0',
+          padding: isMobileView ? '16px' : '0',
+          width: '100%',
           minHeight: '100vh',
           background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-          overflow: 'auto',
-          padding: '0',
-          margin: '0'
+          overflowX: 'hidden'
         }}
       >
         {/* 배경 패턴 */}
@@ -227,7 +252,7 @@ const DynamicPageRenderer = ({
           minHeight: '100vh'
         }}>
           {components && components.length > 0 ? (
-            components.map((comp) => {
+            sortedComponents.map((comp) => {
               try {
                 console.log('🎯 Rendering component:', comp.type, 'with data:', comp);
                 const RendererComponent = getRendererByType(comp.type);
@@ -281,18 +306,29 @@ const DynamicPageRenderer = ({
                 const componentWidth = comp.width || defaultSize.width;
                 const componentHeight = comp.height || defaultSize.height;
 
+                const wrapperStyle = isMobileView ? {
+                  position: 'relative',
+                  width: '90%',
+                  maxWidth: '600px',
+                  height: 'auto',
+                  zIndex: 2,
+                  marginBottom: '16px',
+                  display: 'flex',
+                  justifyContent: 'center'
+                } : {
+                  position: 'absolute',
+                  left: comp.x || 0,
+                  top: comp.y || 0,
+                  width: `${componentWidth}px`,
+                  height: `${componentHeight}px`,
+                  zIndex: 2
+                };
+
                 return (
                   <div
                     key={comp.id}
                     className="component-container"
-                    style={{
-                      position: 'absolute',
-                      left: comp.x || 0,
-                      top: comp.y || 0,
-                      width: `${componentWidth}px`,
-                      height: `${componentHeight}px`,
-                      zIndex: 2
-                    }}
+                    style={wrapperStyle}
                   >
                     {(() => {
                       console.log('🚀 About to render component:', comp.type);

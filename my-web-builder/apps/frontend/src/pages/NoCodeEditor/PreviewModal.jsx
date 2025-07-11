@@ -4,8 +4,21 @@ import PreviewRenderer from './PreviewRenderer';
 
 // 최소화된 CSS
 const PREVIEW_CSS = `
-  body { margin: 0; padding: 0; }
+  body { margin: 0; padding: 0; width: 100%; overflow-x: auto; }
   #preview-root { width: 100%; height: 100%; }
+  
+  /* 모바일 반응형 처리 */
+  @media (max-width: 768px) {
+    .page-container {
+      width: 100vw !important;
+      min-width: 100vw !important;
+      transform-origin: top left;
+    }
+    
+    .component-container, .desktop-absolute-wrapper {
+      max-width: calc(100vw - 20px);
+    }
+  }
 `;
 
 const PreviewModal = ({ isOpen, onClose, components, editingViewport = 'desktop', templateCategory }) => {
