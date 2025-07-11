@@ -7,12 +7,20 @@ import * as express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // 글로벌 API 접두사 설정 - pagecube.net 로그인 이슈 해결 (2025-07-07)
+  // 글로벌 API 접두사 설정 - ddukddak.org 로그인 이슈 해결 (2025-07-07)
   app.setGlobalPrefix('api');
 
   // CORS 허용 설정
   app.enableCors({
-    origin: true,
+    origin: [
+      'https://ddukddak.org',
+      'https://www.ddukddak.org',
+      'https://pagecube.net',
+      'https://www.pagecube.net',
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://localhost:3001'
+    ],
     credentials: true,
   });
 
