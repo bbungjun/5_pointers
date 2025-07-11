@@ -16,4 +16,6 @@ export { default as SlidoRenderer } from './SlidoRenderer';
 export { default as WeddingInviteRenderer } from './WeddingInviteRenderer';
 export { default as MusicRenderer } from './MusicRenderer';
 export { default as KakaoTalkShareRenderer } from './KakaoTalkShareRenderer';
+export { default as MapView } from './MapView';
 export { default as PageRenderer } from './PageRenderer';
+export { default as PageButtonRenderer } from './PageButtonRenderer';

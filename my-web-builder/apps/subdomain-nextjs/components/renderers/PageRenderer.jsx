@@ -1,6 +1,20 @@
 import React from 'react';
 
-const PageRenderer = ({ component, isEditor, onUpdate }) => {
+const PageRenderer = ({ component, comp, isEditor, onUpdate }) => {
+  // 디버깅을 위한 로그 추가
+  console.log('🔍 PageRenderer props:', { component, comp, isEditor });
+  
+  // component 또는 comp prop 둘 다 처리
+  const compData = component || comp;
+  console.log('🔍 PageRenderer compData:', compData);
+  
+  if (!compData) {
+    console.error('❌ PageRenderer: compData is null or undefined');
+    return <div>PageRenderer: No component data</div>;
+  }
+  
+  console.log('🔍 PageRenderer compData.props:', compData.props);
+  
   const {
     pageName = '새 페이지',
     description = '',
@@ -15,7 +29,7 @@ const PageRenderer = ({ component, isEditor, onUpdate }) => {
     fontWeight = '500',
     linkedPageId = '',
     deployedUrl = ''
-  } = component.props || {};
+  } = compData?.props || {};
 
   const handleClick = (e) => {
     if (isEditor) {
