@@ -166,18 +166,25 @@ const PreviewRenderer = ({ components = [], forcedViewport = null }) => {
       >
         {rows.map((row, rowIndex) => (
           <div key={rowIndex} className="row-wrapper">
-            {row.map((component) => (
-              <div
-                key={component.id}
-                className="component-wrapper"
-                style={{
-                  order: Math.floor((component.x || 0) / 10),
-                  width: `${component.width || getComponentDimensions(component.type).defaultWidth}px`,
-                }}
-              >
-                <ComponentRenderer component={component} />
-              </div>
-            ))}
+            {row.map((component) => {
+              const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
+              const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
+              const finalWidth = originalWidth > canvasWidth ? canvasWidth - 20 : originalWidth;
+              
+              return (
+                <div
+                  key={component.id}
+                  className="component-wrapper"
+                  style={{
+                    order: Math.floor((component.x || 0) / 10),
+                    width: `${finalWidth}px`,
+                    height: `${originalHeight}px`
+                  }}
+                >
+                  <ComponentRenderer component={component} />
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
