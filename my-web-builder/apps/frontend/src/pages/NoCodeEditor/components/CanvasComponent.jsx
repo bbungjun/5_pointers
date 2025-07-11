@@ -50,6 +50,12 @@ function CanvasComponent({
 }) {
   const ref = useRef();
 
+  const handleComponentUpdate = (updatedComp) => {
+    if (onUpdate) {
+      onUpdate(updatedComp);
+    }
+  };
+
   // 더블클릭 시 텍스트 편집
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props?.text || '');
@@ -275,6 +281,7 @@ function CanvasComponent({
           <BankAccountRenderer
             comp={componentWithFinalStyles}
             isEditor={true}
+            onUpdate={handleComponentUpdate}
           />
         );
       case 'comment':
@@ -540,7 +547,7 @@ function CanvasComponent({
       // 다중 선택된 컴포넌트들의 상대적 위치를 유지하면서 이동
       const deltaX = newX - currentX;
       const deltaY = newY - currentY;
-      
+
       selectedIds.forEach(selectedId => {
         if (selectedId !== comp.id) {
           const selectedComp = components.find(c => c.id === selectedId);
@@ -614,7 +621,8 @@ function CanvasComponent({
         left: currentX,
         top: currentY,
         width: currentWidth,
-        height: currentHeight,
+        //height: currentHeight,
+        height: comp.type === 'bankAccount' ? 'auto' : currentHeight,
         border: selected ? '2px solid #3B4EFF' : '1px solid transparent',
         cursor: isDragging ? 'grabbing' : 'grab',
         background: selected ? 'rgba(59, 78, 255, 0.05)' : 'transparent',
