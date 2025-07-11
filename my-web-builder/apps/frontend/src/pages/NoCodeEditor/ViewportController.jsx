@@ -7,12 +7,17 @@ import { VIEWPORT_CONFIGS } from './utils/editorUtils';
  * Webflow/Figma 스타일의 직관적인 뷰포트 전환 UI를 제공합니다.
  * 사용자는 데스크탑, 태블릿, 모바일 뷰 간을 즉시 전환할 수 있습니다.
  */
-const ViewportController = ({ currentViewport, onViewportChange }) => {
+const ViewportController = ({ currentViewport, onViewportChange, templateCategory }) => {
   // 뷰포트 설정을 중앙 집중식으로 관리
-  const viewports = Object.entries(VIEWPORT_CONFIGS).map(([id, config]) => ({
+  let viewports = Object.entries(VIEWPORT_CONFIGS).map(([id, config]) => ({
     id,
     ...config,
   }));
+  
+  // 웨딩 카테고리인 경우 모바일만 표시
+  if (templateCategory === 'wedding') {
+    viewports = viewports.filter(viewport => viewport.id === 'mobile');
+  }
 
   return (
     <div
