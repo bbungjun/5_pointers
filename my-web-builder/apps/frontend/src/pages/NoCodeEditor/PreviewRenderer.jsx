@@ -108,17 +108,12 @@ const PreviewRenderer = ({ components = [], forcedViewport = null }) => {
     
     return (
       <div 
-        className="page-container desktop" 
-        style={{ 
-          position: 'relative',
-          width: '1945px',
-          height: `${maxHeight}px`,
-          background: '#fff',
-          border: '1px solid #e1e5e9',
-          borderRadius: 12,
-          margin: 0,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-          overflow: 'visible',
+        className="page-container"
+        style={{
+          width: '375px',
+          minHeight: '667px',
+          padding: '0px',
+          boxSizing: 'border-box',
         }}
       >
         {rows.map((row, rowIndex) => (

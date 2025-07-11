@@ -365,6 +365,7 @@ function NoCodeEditor({ pageId }) {
         onPreviewOpen={interaction.handlePreviewOpen}
         onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
         onInviteOpen={interaction.handleInviteOpen}
+        pageId={pageId}
         roomId={effectiveRoomId}
         isConnected={isConnected}
         connectionError={connectionError}
