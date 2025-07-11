@@ -31,7 +31,7 @@ const PREVIEW_CSS = `
 
 @media (max-width: 768px) {
   .page-container {
-    padding: 0;
+    padding: 0 !important;
   }
   
   .row-wrapper {
@@ -55,6 +55,12 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
   const rootRef = useRef(null);
   const iframeContainerRef = useRef(null);
 
+  // 컨텐츠 높이를 동적으로 계산
+  const maxHeight = Math.max(
+    1080,
+    ...(components || []).map(comp => (comp.y || 0) + (comp.height || 100))
+  );
+
   // iframe 초기화 (한 번만)
   useEffect(() => {
     if (!isOpen || !iframeRef.current) return;
@@ -71,14 +77,15 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body { 
+            body, #preview-root { 
               margin: 0; 
               padding: 0;
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              overflow: hidden; /* 스크롤 완전 제거 */
             }
             #preview-root { 
               width: 100%;
-              min-height: 100vh;
+              height: 100%;
               background: #ffffff;
               padding: 0;
               margin: 0;
@@ -235,24 +242,37 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
         ref={iframeContainerRef}
         style={{
           flex: 1,
+          position: 'relative',
           overflow: 'hidden',
-          padding: '10px',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          padding: '0', // 여백 제거        
         }}
       >
-        <iframe
-          ref={iframeRef}
+        <div
           style={{
-            width: viewMode === 'desktop' ? '1920px' : '375px',
-            height: viewMode === 'desktop' ? '1080px' : '667px',
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            transformOrigin: 'center',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            width: '1945px',
+            height: '1080px',
+            transform: 'translate(-50%, -50%) scale(0.65)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+            borderRadius: '12px',
+            overflowX: 'hidden',
+            overflowY: 'auto',
+            background: '#fff',            
           }}
-        />
+        >
+          <iframe
+            ref={iframeRef}
+            style={{
+              width: '100%',
+              height: `${maxHeight}px`,
+              border: 'none',
+              background: '#fff',
+              borderRadius: '12px',
+            }}
+          />
+        </div>
       </div>
     </div>
   );

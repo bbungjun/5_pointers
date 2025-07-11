@@ -13,6 +13,7 @@ export default defineConfig({
     },
   },
   server: {
+    historyApiFallback: true, // SPA 라우팅 지원
     proxy: {
       "/api": {
         target: "http://localhost:3000",

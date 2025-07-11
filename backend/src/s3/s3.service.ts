@@ -8,7 +8,7 @@ export class S3Service {
 
   constructor() {
     this.s3Client = new S3Client({
-      region: process.env.AWS_REGION || 'ap-northeast-2',
+      region: 'ap-northeast-2',
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -16,7 +16,7 @@ export class S3Service {
     });
     this.bucketName = process.env.AWS_S3_BUCKET_NAME || '5pointers-imagebucket';
     console.log('🔧 S3Service 초기화:', {
-      region: process.env.AWS_REGION || 'ap-northeast-2',
+      region: 'ap-northeast-2',
       bucket: this.bucketName,
       hasAccessKey: !!process.env.AWS_ACCESS_KEY_ID,
     });
@@ -45,12 +45,11 @@ export class S3Service {
         Key: key,
         Body: file.buffer,
         ContentType: file.mimetype,
-        ACL: 'public-read',
       });
 
       await this.s3Client.send(command);
       
-      const region = process.env.AWS_REGION || 'ap-northeast-2';
+      const region = 'ap-northeast-2';
       const imageUrl = 'https://' + this.bucketName + '.s3.' + region + '.amazonaws.com/' + key;
       console.log('✅ S3 업로드 완료:', imageUrl);
       

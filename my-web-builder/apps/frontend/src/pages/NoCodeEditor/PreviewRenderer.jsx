@@ -4,7 +4,7 @@ import ButtonRenderer from './ComponentRenderers/ButtonRenderer';
 import TextRenderer from './ComponentRenderers/TextRenderer';
 import LinkRenderer from './ComponentRenderers/LinkRenderer';
 import AttendRenderer from './ComponentRenderers/AttendRenderer';
-import MapView from './ComponentEditors/MapView';
+import MapView from './ComponentRenderers/MapView';
 import DdayRenderer from './ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './ComponentRenderers/WeddingContactRenderer';
 import WeddingInviteRenderer from './ComponentRenderers/WeddingInviteRenderer';
@@ -32,7 +32,7 @@ const ComponentRenderer = ({ component }) => {
     case 'attend':
       return <AttendRenderer comp={component} isEditor={false} />;
     case 'map':
-      return <MapView {...(component.props || {})} />;
+      return <MapView {...(component.props || {})} comp={component} />;
     case 'dday':
       return <DdayRenderer comp={component} isEditor={false} />;
     case 'weddingContact':
@@ -108,12 +108,17 @@ const PreviewRenderer = ({ components = [], forcedViewport = null }) => {
     
     return (
       <div 
-        className="page-container"
-        style={{
-          width: '375px',
-          minHeight: '667px',
-          padding: '10px',
-          boxSizing: 'border-box',
+        className="page-container desktop" 
+        style={{ 
+          position: 'relative',
+          width: '1945px',
+          height: `${maxHeight}px`,
+          background: '#fff',
+          border: '1px solid #e1e5e9',
+          borderRadius: 12,
+          margin: 0,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+          overflow: 'visible',
         }}
       >
         {rows.map((row, rowIndex) => (
