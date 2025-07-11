@@ -159,7 +159,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
         width: '100%',
         height: '100%',
         padding: styles.containerPadding,
-        borderRadius: '8px',
+        borderRadius: 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
         minWidth: styles.minWidth,
