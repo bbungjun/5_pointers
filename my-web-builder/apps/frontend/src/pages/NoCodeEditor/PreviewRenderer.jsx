@@ -1,147 +1,243 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  groupComponentsIntoRows,
+  getComponentDimensions,
+} from './utils/editorUtils';
 import ButtonRenderer from './ComponentRenderers/ButtonRenderer';
 import TextRenderer from './ComponentRenderers/TextRenderer';
 import LinkRenderer from './ComponentRenderers/LinkRenderer';
 import AttendRenderer from './ComponentRenderers/AttendRenderer';
-import MapView from './ComponentEditors/MapView';
+import MapView from './ComponentRenderers/MapView';
 import DdayRenderer from './ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from './ComponentRenderers/WeddingContactRenderer';
 import WeddingInviteRenderer from './ComponentRenderers/WeddingInviteRenderer';
 import ImageRenderer from './ComponentRenderers/ImageRenderer';
 import GridGalleryRenderer from './ComponentRenderers/GridGalleryRenderer';
 import SlideGalleryRenderer from './ComponentRenderers/SlideGalleryRenderer';
-import MapInfoRenderer from './ComponentRenderers/MapInfoRenderer';
+import { MapInfoRenderer } from './ComponentRenderers';
 import CalendarRenderer from './ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from './ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from './ComponentRenderers/CommentRenderer';
-import { groupComponentsIntoRows } from './utils/editorUtils';
-import './styles/preview.css';
+import SlidoRenderer from './ComponentRenderers/SlidoRenderer';
+import MusicRenderer from './ComponentRenderers/MusicRenderer';
+import PageRenderer from './ComponentRenderers/PageRenderer';
+import KakaoTalkShareRenderer from './ComponentRenderers/KakaoTalkShareRenderer';
+import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
 
-const PreviewRenderer = ({ pageContent, forcedViewport }) => {
-  if (!pageContent || !Array.isArray(pageContent)) {
-    return (
-      <div className="empty-page">
-        <div>
-          <div className="empty-page-icon">📄</div>
-          <div>페이지에 컴포넌트를 추가해보세요</div>
+// 컴포넌트 렌더링 헬퍼
+const ComponentRenderer = ({ component, editingViewport }) => {
+  const props = { comp: component, mode: 'live', isEditor: false, editingViewport };
+  switch (component.type) {
+    case 'button':
+      return <ButtonRenderer {...props} />;
+    case 'text':
+      return <TextRenderer {...props} />;
+    case 'link':
+      return <LinkRenderer {...props} />;
+    case 'attend':
+      return <AttendRenderer {...props} />;
+    case 'map':
+      return <MapView {...(component.props || {})} comp={component} mode="live" />;
+    case 'dday':
+      return <DdayRenderer {...props} />;
+    case 'weddingContact':
+      return <WeddingContactRenderer {...props} />;
+    case 'weddingInvite':
+      return <WeddingInviteRenderer {...props} />;
+    case 'image':
+      return <ImageRenderer {...props} />;
+    case 'gridGallery':
+      return <GridGalleryRenderer {...props} />;
+    case 'slideGallery':
+      return <SlideGalleryRenderer {...props} />;
+    case 'mapInfo':
+      return <MapInfoRenderer {...props} />;
+    case 'calendar':
+      return <CalendarRenderer {...props} />;
+    case 'bankAccount':
+      return <BankAccountRenderer {...props} />;
+    case 'comment':
+      return <CommentRenderer {...props} />;
+    case 'slido':
+      return <SlidoRenderer {...props} />;
+    case 'musicPlayer':
+      return <MusicRenderer {...props} />;
+    case 'kakaotalkShare':
+      return <KakaoTalkShareRenderer {...props} />;
+    case 'page':
+      return <PageRenderer component={component} mode="live" isEditor={false} />;
+    case 'pageButton':
+      return <PageButtonRenderer {...props} isPreview={true} />;
+    default:
+      return (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            border: '1px solid #ccc',
+            ...component.props?.style,
+          }}
+        >
+          {component.type}
         </div>
-      </div>
-    );
+      );
+  }
+};
+
+// 컴포넌트들의 실제 영역 계산
+const calculateActualDimensions = (components) => {
+  if (!components || components.length === 0) {
+    return { width: 400, height: 300, offsetX: 0, offsetY: 0 };
   }
 
-  // 뷰포트 모드 결정
-  const isMobileMode = forcedViewport === 'mobile' || (!forcedViewport && window.innerWidth <= 768);
-  
-  // 개별 컴포넌트 렌더링 함수
-  const renderComponent = (comp) => {
-    const componentContent = (() => {
-      switch (comp.type) {
-        case 'button':
-          return <ButtonRenderer comp={comp} />;
-        case 'text':
-          return <TextRenderer comp={comp} />;
-        case 'link':
-          return <LinkRenderer comp={comp} />;
-        case 'attend':
-          return <AttendRenderer comp={comp} />;
-        case 'map':
-          return <MapView {...comp.props} />;
-        case 'dday':
-          return <DdayRenderer comp={comp} />;
-        case 'weddingContact':
-          return <WeddingContactRenderer comp={comp} />;
-        case 'weddingInvite':
-          return <WeddingInviteRenderer comp={comp} />;
-        case 'image':
-          return <ImageRenderer comp={comp} />;
-        case 'gridGallery':
-          return <GridGalleryRenderer comp={comp} />;
-        case 'slideGallery':
-          return <SlideGalleryRenderer comp={comp} />;
-        case 'mapInfo':
-          return <MapInfoRenderer comp={comp} />;
-        case 'calendar':
-          return <CalendarRenderer comp={comp} />;
-        case 'bankAccount':
-          return <BankAccountRenderer comp={comp} />;
-        case 'comment':
-          return <CommentRenderer comp={comp} />;
-        default:
-          return null;
-      }
-    })();
+  let maxX = 0;
+  let maxY = 0;
+  let minX = Infinity;
+  let minY = Infinity;
 
-    if (!componentContent) return null;
+  components.forEach((component) => {
+    const x = component.x || 0;
+    const y = component.y || 0;
+    const width =
+      component.width || getComponentDimensions(component.type).defaultWidth;
+    const height =
+      component.height || getComponentDimensions(component.type).defaultHeight;
 
-    // 데스크톱: 절대 위치 유지, 모바일: 세로 정렬
-    if (isMobileMode) {
-      // 모바일에서는 세로 정렬 + 너비 축소
-      return (
-        <div
-          key={comp.id}
-          className="component"
-          style={{
-            width: comp.width ? `${comp.width}px` : 'auto',
-            height: comp.height ? `${comp.height}px` : 'auto',
-            marginBottom: '16px',
-          }}
-        >
-          {componentContent}
-        </div>
-      );
-    } else {
-      // 데스크톱에서는 절대 위치 유지
-      return (
-        <div
-          key={comp.id}
-          style={{
-            position: 'absolute',
-            left: comp.x || 0,
-            top: comp.y || 0,
-            width: comp.width || 'auto',
-            height: comp.height || 'auto',
-          }}
-        >
-          {componentContent}
-        </div>
-      );
-    }
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x + width);
+    maxY = Math.max(maxY, y + height);
+  });
+
+  const actualWidth = Math.max(400, maxX - minX + 40); // 최소 400px + 여백 40px
+  const actualHeight = Math.max(300, maxY - minY + 40); // 최소 300px + 여백 40px
+
+  return {
+    width: actualWidth,
+    height: actualHeight,
+    offsetX: Math.max(0, minX - 20), // 왼쪽 여백 20px
+    offsetY: Math.max(0, minY - 20), // 위쪽 여백 20px
   };
+};
 
-  if (isMobileMode) {
-    // 모바일: 세로 정렬 레이아웃
-    const rows = groupComponentsIntoRows(pageContent);
+const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewport = 'desktop' }) => {
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef(null);
+  
+  // 캔버스 에디터와 동일한 고정 크기 사용
+  const canvasWidth = forcedViewport === 'mobile' ? 375 : 1920;
+  const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
+  const isMobileView = forcedViewport === 'mobile';
+
+  // 데스크톱 모드에서만 스케일 계산
+  useEffect(() => {
+    if (isMobileView || !containerRef.current) {
+      return;
+    }
+
+    const calculateScale = () => {
+      const parentElement = containerRef.current.parentElement;
+      if (!parentElement) return;
+
+      const availableWidth = parentElement.clientWidth;
+      const availableHeight = parentElement.clientHeight;
+
+      const scaleX = availableWidth / canvasWidth;
+      const scaleY = availableHeight / canvasHeight;
+
+      setScale(Math.min(scaleX, scaleY));
+    };
+
+    calculateScale();
+
+    const iframeWindow = containerRef.current.ownerDocument.defaultView;
+    iframeWindow.addEventListener('resize', calculateScale);
+
+    return () => {
+      iframeWindow.removeEventListener('resize', calculateScale);
+    };
+  }, [isMobileView, canvasWidth, canvasHeight]);
+
+  if (forcedViewport === 'mobile' && editingViewport !== 'mobile') {
+    const rows = groupComponentsIntoRows(components);
+
     return (
-      <div className="page-container mobile" style={{ padding: '16px' }}>
+      <div
+        className="page-container"
+        style={{
+          width: `${canvasWidth}px`,
+          height: `${canvasHeight}px`,
+        }}
+      >
         {rows.map((row, rowIndex) => (
-          <div key={rowIndex} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
-            {row.map(renderComponent)}
+          <div key={rowIndex} className="row-wrapper">
+            {row.map((component) => {
+              const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
+              const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
+              const finalWidth = originalWidth > canvasWidth ? canvasWidth - 20 : originalWidth;
+              
+              return (
+                <div
+                  key={component.id}
+                  className="component-wrapper"
+                  style={{
+                    order: Math.floor((component.x || 0) / 10),
+                    width: `${finalWidth}px`,
+                    height: `${originalHeight}px`
+                  }}
+                >
+                  <ComponentRenderer component={component} editingViewport={editingViewport} />
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
     );
-  } else {
-    // 데스크톱: 절대 위치 레이아웃
-    const maxHeight = Math.max(
-      1080,
-      ...pageContent.map(comp => (comp.y || 0) + (comp.height || 100))
-    );
-    
-    return (
-      <div 
-        className="page-container desktop" 
-        style={{ 
-          position: 'relative',
-          width: '100%',
-          height: `${maxHeight}px`,
-          padding: '24px',
-          minWidth: '960px'
-        }}
-      >
-        {pageContent.map(renderComponent)}
-      </div>
-    );
   }
+
+  // 컨테이너 스타일 설정
+  const containerStyle = {
+    background: '#ffffff',
+    transformOrigin: 'top left',
+    width: isMobileView ? '100%' : `${canvasWidth}px`,
+    height: isMobileView ? 'auto' : `${canvasHeight}px`,
+    minHeight: isMobileView ? `${canvasHeight}px` : 'auto',
+    transform: `scale(${isMobileView ? 1 : scale})`,
+    overflow: isMobileView ? 'auto' : 'visible',
+    position: 'relative',
+    margin: 0,
+    padding: 0,
+    boxSizing: 'border-box',
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="page-container"
+      style={containerStyle}
+    >
+      {components.map((component) => (
+        <div
+          key={component.id}
+          className="desktop-absolute-wrapper"
+          style={{
+            position: 'absolute',
+            left: component.x || 0,
+            top: component.y || 0,
+            width:
+              component.width ||
+              getComponentDimensions(component.type).defaultWidth,
+            height:
+              component.height ||
+              getComponentDimensions(component.type).defaultHeight,
+          }}
+        >
+          <ComponentRenderer component={component} editingViewport={editingViewport} />
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default PreviewRenderer;

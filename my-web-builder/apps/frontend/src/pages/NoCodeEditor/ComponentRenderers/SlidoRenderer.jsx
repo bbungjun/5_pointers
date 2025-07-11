@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../../config';
 
-function SlidoRenderer({ comp, isEditor = false }) {
+function SlidoRenderer({ comp, isEditor = false, pageId }) {
   const { question, placeholder, backgroundColor } = comp.props;
   const [opinions, setOpinions] = useState([]);
   const [newOpinion, setNewOpinion] = useState('');
@@ -203,10 +203,21 @@ function SlidoRenderer({ comp, isEditor = false }) {
   const fetchOpinions = async () => {
     if (isEditor) return; // 에디터 모드에서는 API 호출 안함
     
+    const actualPageId = pageId || comp.pageId;
+    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
+    
+    if (!actualPageId || !actualApiBaseUrl) {
+      return;
+    }
+    
     try {
-      const response = await fetch(`${API_BASE_URL}/users/pages/${comp.pageId}/slido/${comp.id}`);
+      const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/slido/${comp.id}`;
+      
+      const response = await fetch(apiUrl);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('🚀 SlidoRenderer - API 응답 데이터:', data);
         setOpinions(data);
         
         // 의견 그룹 업데이트
@@ -216,9 +227,11 @@ function SlidoRenderer({ comp, isEditor = false }) {
         // 산재된 의견 생성
         const scattered = createScatteredOpinions(data, groups);
         setScatteredOpinions(scattered);
+      } else {
+        console.error('❌ SlidoRenderer - API 응답 오류:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('의견 조회 실패:', error);
+      console.error('❌ SlidoRenderer - 의견 조회 실패:', error);
     }
   };
 
@@ -230,17 +243,31 @@ function SlidoRenderer({ comp, isEditor = false }) {
     setIsSubmitting(true);
     const submittedContent = newOpinion.trim();
     
-    try {
-      
-      console.log('API 요청 시작:', {
-        url: `${API_BASE_URL}/users/pages/${comp.pageId}/slido/${comp.id}`,
-        pageId: comp.pageId,
-        componentId: comp.id,
-        content: submittedContent
+    const actualPageId = pageId || comp.pageId;
+    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
+    
+    console.log('🚀 SlidoRenderer - handleSubmitOpinion 호출');
+    console.log('🚀 SlidoRenderer - actualPageId:', actualPageId);
+    console.log('🚀 SlidoRenderer - actualApiBaseUrl:', actualApiBaseUrl);
+    console.log('🚀 SlidoRenderer - comp.id:', comp.id);
+    console.log('🚀 SlidoRenderer - submittedContent:', submittedContent);
+    
+    if (!actualPageId || !actualApiBaseUrl) {
+      console.error('❌ SlidoRenderer - pageId 또는 API_BASE_URL이 없습니다', {
+        actualPageId,
+        actualApiBaseUrl,
+        comp: comp
       });
-
-      const response = await fetch(`${API_BASE_URL}/users/pages/${comp.pageId}/slido/${comp.id}`, {
-
+      alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    try {
+      const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/slido/${comp.id}`;
+      console.log('🚀 SlidoRenderer - POST API 호출 URL:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -249,11 +276,10 @@ function SlidoRenderer({ comp, isEditor = false }) {
         body: JSON.stringify({ content: submittedContent })
       });
 
-      console.log('API 응답 상태:', response.status);
+      console.log('🚀 SlidoRenderer - POST API 응답 상태:', response.status);
 
       if (response.ok) {
         const result = await response.json();
-        console.log('API 응답 성공:', result);
         
         // 의견 제출 후 팝업 표시 (한 번만)
         setCenterPopup(submittedContent);
@@ -281,7 +307,9 @@ function SlidoRenderer({ comp, isEditor = false }) {
 
   // 실시간 업데이트를 위한 폴링
   useEffect(() => {
-    if (!isEditor) {
+    const actualPageId = pageId || comp.pageId;
+    
+    if (!isEditor && actualPageId) {
       fetchOpinions(); // 초기 로드
       intervalRef.current = setInterval(fetchOpinions, 5000); // 5초마다 업데이트 (팝업 없이)
     }
@@ -291,7 +319,7 @@ function SlidoRenderer({ comp, isEditor = false }) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [comp.id, comp.pageId, isEditor]);
+  }, [comp.id, pageId, comp.pageId, isEditor]);
 
   // 애니메이션 스타일
   const getOpinionStyle = (opinion) => {

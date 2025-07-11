@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../../../config';
 
-function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
+function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId }) {
   const { title, placeholder, backgroundColor } = comp.props;
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
@@ -16,16 +16,28 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
   const fetchComments = async () => {
     if (isEditor) return; // 에디터 모드에서는 API 호출 안함
 
+    const actualPageId = pageId || comp.pageId;
+    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
+    
+    if (!actualPageId || !actualApiBaseUrl) {
+      return;
+    }
+
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/users/pages/${comp.pageId}/comments/${comp.id}`
-      );
+      const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
+      
+      const response = await fetch(apiUrl);
+      console.log('🚀 CommentRenderer - API 응답 상태:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('🚀 CommentRenderer - API 응답 데이터:', data);
         setComments(data);
+      } else {
+        console.error('❌ CommentRenderer - API 응답 오류:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('댓글 조회 실패:', error);
+      console.error('❌ CommentRenderer - 댓글 조회 실패:', error);
     }
   };
 
@@ -37,25 +49,53 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
       return;
     }
 
+    const actualPageId = pageId || comp.pageId;
+    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
+    
+    console.log('🚀 CommentRenderer - handleSubmitComment 호출');
+    console.log('🚀 CommentRenderer - actualPageId:', actualPageId);
+    console.log('🚀 CommentRenderer - actualApiBaseUrl:', actualApiBaseUrl);
+    console.log('🚀 CommentRenderer - comp.id:', comp.id);
+    console.log('🚀 CommentRenderer - newComment:', newComment);
+    
+    if (!actualPageId || !actualApiBaseUrl) {
+      console.error('❌ CommentRenderer - pageId 또는 API_BASE_URL이 없습니다', {
+        actualPageId,
+        actualApiBaseUrl,
+        comp: comp
+      });
+      alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+      return;
+    }
+
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/users/pages/${comp.pageId}/comments/${comp.id}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newComment),
-        }
-      );
+      const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
+      console.log('🚀 CommentRenderer - POST API 호출 URL:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newComment),
+      });
 
       if (response.ok) {
+        const result = await response.json();
+        
         setNewComment({ author: '', content: '', password: '' });
-        fetchComments(); // 댓글 목록 새로고침
+        await fetchComments(); // 댓글 목록 새로고침
+        alert('댓글이 성공적으로 등록되었습니다.');
       } else {
-        alert('댓글 작성에 실패했습니다.');
+        const errorText = await response.text();
+        console.error('API 응답 에러:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        });
+        alert(`댓글 등록에 실패했습니다. (${response.status}: ${response.statusText})`);
       }
     } catch (error) {
-      console.error('댓글 작성 실패:', error);
-      alert('댓글 작성에 실패했습니다.');
+      console.error('댓글 등록 실패:', error);
+      alert(`댓글 등록에 실패했습니다. 네트워크 오류: ${error.message}`);
     }
   };
 
@@ -119,7 +159,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
         width: '100%',
         height: '100%',
         padding: styles.containerPadding,
-        borderRadius: '8px',
+        borderRadius: 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
         minWidth: styles.minWidth,
@@ -155,7 +195,8 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop' }) {
       >
         <div
           style={{
-            display: 'grid',
+            display: 'flex',
+            flexDirection: 'column', 
             gridTemplateColumns: styles.gridColumns,
             gap: viewport === 'mobile' ? '8px' : '12px',
             marginBottom: viewport === 'mobile' ? '8px' : '12px',

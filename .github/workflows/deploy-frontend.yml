@@ -32,12 +32,12 @@ jobs:
         run: |
           cd my-web-builder/apps/frontend
           rm -f .env.production
-          echo "VITE_API_URL=https://pagecube.net/api" > .env.production
+          echo "VITE_API_URL=https://ddukddak.org/api" > .env.production
           echo "VITE_YJS_WEBSOCKET_URL=wss://3.35.50.227:1235" >> .env.production
           echo "VITE_SUBDOMAIN_URL=http://3.35.141.231:3001" >> .env.production
           echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.production
           echo "VITE_KAKAO_CLIENT_ID=${{ secrets.KAKAO_JAVASCRIPT_KEY }}" >> .env.production
-          echo "VITE_FRONTEND_URL=https://pagecube.net" >> .env.production
+          echo "VITE_FRONTEND_URL=https://ddukddak.org" >> .env.production
           echo "Created .env.production:"
           cat .env.production
 
@@ -51,7 +51,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          # aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ap-northeast-2
 
       - name: Deploy to S3
@@ -62,5 +62,5 @@ jobs:
       - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id E1YH7W2565N4LY \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"

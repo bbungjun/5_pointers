@@ -8,7 +8,15 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: [
+      'https://ddukddak.org',
+      'https://www.ddukddak.org',
+      'https://pagecube.net',
+      'https://www.pagecube.net',
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://localhost:3001'
+    ],
     credentials: true,
   },
   namespace: '/invite',

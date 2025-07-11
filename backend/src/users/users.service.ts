@@ -1,5 +1,4 @@
-import { In } from 'typeorm';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users, AuthProvider } from './entities/users.entity';
@@ -109,6 +108,12 @@ export class UsersService {
     );
   }
 
+  // 네비게이션용 내 페이지 목록 조회 (기존 getMyPages와 동일)
+  async getMyPagesForNavigation(userId: number, currentPageId?: string): Promise<Pages[]> {
+    // 기존 getMyPages 메서드와 동일하게 배열 반환
+    return this.getMyPages(userId);
+  }
+
   // 페이지 단일 조회
   async getPage(userId: number, pageId: string): Promise<Pages> {
     // 먼저 페이지 소유자인지 확인
@@ -132,9 +137,6 @@ export class UsersService {
       });
 
       if (!member) {
-        console.error(
-          `페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`,
-        );
         throw new Error('Page not found');
       }
 
@@ -144,7 +146,6 @@ export class UsersService {
       });
 
       if (!page) {
-        console.error(`페이지를 찾을 수 없음: ${pageId}`);
         throw new Error('Page not found');
       }
     }
@@ -174,12 +175,8 @@ export class UsersService {
   async updatePageContent(
     userId: number,
     pageId: string,
-    content: any[],
+    content: any,
   ): Promise<Pages> {
-    console.log(
-      `DB 업데이트 시도: 페이지 ${pageId}, 사용자 ${userId}, 컴포넌트 ${content.length}개`,
-    );
-
     // 먼저 페이지 소유자인지 확인
     let page = await this.pagesRepository.findOne({
       where: { id: pageId, owner: { id: userId } },
@@ -201,9 +198,6 @@ export class UsersService {
       });
 
       if (!member) {
-        console.error(
-          `페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`,
-        );
         throw new Error('Page not found');
       }
 
@@ -213,16 +207,23 @@ export class UsersService {
       });
 
       if (!page) {
-        console.error(`페이지를 찾을 수 없음: ${pageId}`);
         throw new Error('Page not found');
       }
     }
 
-    console.log(`기존 컨텐츠: ${page.content?.length || 0}개 컴포넌트`);
-    page.content = content;
-    const savedPage = await this.pagesRepository.save(page);
-    console.log(`DB 저장 완료: ${savedPage.content?.length || 0}개 컴포넌트`);
+    // content가 객체인 경우 그대로 저장, 아닌 경우 components 배열로 저장
+    if (typeof content === 'object' && !Array.isArray(content)) {
+      page.content = content;
+    } else {
+      page.content = {
+        components: Array.isArray(content) ? content : [],
+        canvasSettings: {
+          canvasHeight: 1080 // 기본값
+        }
+      };
+    }
 
+    const savedPage = await this.pagesRepository.save(page);
     return savedPage;
   }
 
@@ -261,8 +262,19 @@ export class UsersService {
         where: { id: body.templateId },
       });
       if (template && template.content) {
-        // 컴포넌트 ID 재발급
-        content = this.regenerateComponentIds(template.content);
+        // 컴포넌트 ID 재발급 및 구조 통일
+        let componentsArr = Array.isArray(template.content)
+          ? template.content
+          : template.content.components || [];
+        const canvasSettings =
+          typeof template.content === 'object' && !Array.isArray(template.content)
+            ? template.content.canvasSettings || { canvasHeight: 1080 }
+            : { canvasHeight: 1080 };
+
+        content = {
+          components: this.regenerateComponentIds(componentsArr),
+          canvasSettings,
+        };
       }
     }
 
@@ -352,315 +364,42 @@ export class UsersService {
   generateHTML(components: any[]): string {
     const componentHTML = components
       .map((comp) => {
-        const baseStyle = `position: absolute; left: ${comp.x}px; top: ${comp.y}px;`;
+        const style = `position: absolute; left: ${comp.x}px; top: ${comp.y}px; color: ${comp.props.color}; font-size: ${comp.props.fontSize}px;`;
 
         switch (comp.type) {
           case 'button':
-            return `
-              <button 
-                style="${baseStyle} 
-                  background: ${comp.props.bg || '#3B4EFF'}; 
-                  color: ${comp.props.color || '#ffffff'}; 
-                  font-size: ${comp.props.fontSize || 16}px;
-                  font-weight: 600;
-                  padding: 14px 28px; 
-                  border: none; 
-                  border-radius: 12px; 
-                  cursor: pointer;
-                  box-shadow: 0 4px 12px rgba(59, 78, 255, 0.3);
-                  transition: all 0.3s ease;
-                  font-family: inherit;"
-                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(59, 78, 255, 0.4)'"
-                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(59, 78, 255, 0.3)'"
-              >
-                ${comp.props.text || 'Button'}
-              </button>`;
-
+            return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
           case 'text':
-            return `
-              <div style="${baseStyle} 
-                color: ${comp.props.color || '#1f2937'}; 
-                font-size: ${comp.props.fontSize || 16}px;
-                font-weight: ${comp.props.fontWeight || 400};
-                line-height: 1.6;
-                font-family: inherit;">
-                ${comp.props.text || 'Text'}
-              </div>`;
-
+            return `<div style="${style}">${comp.props.text}</div>`;
           case 'link':
-            return `
-              <a href="${comp.props.url || '#'}" 
-                 style="${baseStyle} 
-                   color: ${comp.props.color || '#3B4EFF'}; 
-                   font-size: ${comp.props.fontSize || 16}px;
-                   text-decoration: none;
-                   border-bottom: 2px solid transparent;
-                   transition: all 0.3s ease;
-                   font-family: inherit;"
-                 onmouseover="this.style.borderBottomColor='${comp.props.color || '#3B4EFF'}'"
-                 onmouseout="this.style.borderBottomColor='transparent'">
-                ${comp.props.text || 'Link'}
-              </a>`;
-
+            return `<a href="${comp.props.url}" style="${style} text-decoration: underline;">${comp.props.text}</a>`;
           case 'attend':
-            return `
-              <button 
-                style="${baseStyle} 
-                  background: linear-gradient(135deg, ${comp.props.bg || '#10B981'}, ${comp.props.bg ? this.adjustColor(comp.props.bg, -20) : '#059669'}); 
-                  color: ${comp.props.color || '#ffffff'}; 
-                  font-size: ${comp.props.fontSize || 16}px;
-                  font-weight: 600;
-                  padding: 16px 32px; 
-                  border: none; 
-                  border-radius: 12px; 
-                  cursor: pointer;
-                  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-                  transition: all 0.3s ease;
-                  font-family: inherit;"
-                onmouseover="this.style.transform='translateY(-3px) scale(1.02)'; this.style.boxShadow='0 8px 25px rgba(16, 185, 129, 0.4)'"
-                onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 20px rgba(16, 185, 129, 0.3)'"
-              >
-                ${comp.props.text || '참석하기'}
-              </button>`;
-
+            return `<button style="${style} background: ${comp.props.bg}; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">${comp.props.text}</button>`;
           case 'comment':
             return this.generateCommentHTML(comp);
-
           case 'slido':
             return this.generateSlidoHTML(comp);
-
           default:
-            return `
-              <div style="${baseStyle} 
-                color: ${comp.props.color || '#1f2937'}; 
-                font-size: ${comp.props.fontSize || 16}px;
-                font-family: inherit;">
-                ${comp.props.text || 'Component'}
-              </div>`;
+            return `<div style="${style}">${comp.props.text}</div>`;
         }
       })
       .join('');
 
     return `
       <!DOCTYPE html>
-      <html lang="ko">
+      <html>
       <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="5pointers로 제작된 웹사이트">
-        <title>5pointers 웹사이트</title>
-        
-        <!-- Google Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-        
-        <!-- Favicon -->
-        <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
-        
+        <title>Deployed Site</title>
         <style>
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          
-          html {
-            scroll-behavior: smooth;
-          }
-          
-          body { 
-            margin: 0; 
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; 
-            position: relative; 
-            min-height: 100vh;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            line-height: 1.6;
-            color: #1f2937;
-            overflow-x: hidden;
-          }
-          
-          /* 스크롤바 스타일링 */
-          ::-webkit-scrollbar {
-            width: 8px;
-          }
-          
-          ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-          }
-          
-          ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-          }
-          
-          ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-          }
-          
-          /* 애니메이션 */
-          @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(30px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          
-          .animate-fade-in {
-            animation: fadeInUp 0.6s ease-out;
-          }
-          
-          /* 반응형 디자인 */
-          @media (max-width: 768px) {
-            body {
-              padding: 10px;
-            }
-          }
-          
-          /* 로딩 애니메이션 */
-          .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-          }
-          
-          .loading.hidden {
-            opacity: 0;
-            pointer-events: none;
-          }
-          
-          .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e2e8f0;
-            border-top: 4px solid #3B4EFF;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-          }
-          
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-          
-          /* 푸터 스타일 */
-          .footer {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 12px 0 0 0;
-            border-top: 1px solid #e2e8f0;
-            border-left: 1px solid #e2e8f0;
-            font-size: 12px;
-            color: #64748b;
-            z-index: 1000;
-          }
-          
-          .footer a {
-            color: #3B4EFF;
-            text-decoration: none;
-            font-weight: 500;
-          }
-          
-          .footer a:hover {
-            text-decoration: underline;
-          }
+          body { margin: 0; padding: 20px; font-family: Inter, sans-serif; position: relative; min-height: 100vh; }
         </style>
       </head>
       <body>
-        <!-- 로딩 화면 -->
-        <div class="loading" id="loading">
-          <div class="spinner"></div>
-        </div>
-        
-        <!-- 메인 컨텐츠 -->
-        <main role="main">
-          ${componentHTML}
-        </main>
-        
-        <!-- 푸터 -->
-        <footer class="footer">
-          Made with ❤️ by <a href="https://5pointers.com" target="_blank">5pointers</a>
-        </footer>
-        
-        <script>
-          // 페이지 로딩 완료 후 로딩 화면 숨기기
-          window.addEventListener('load', function() {
-            const loading = document.getElementById('loading');
-            setTimeout(() => {
-              loading.classList.add('hidden');
-            }, 500);
-          });
-          
-          // 컴포넌트 애니메이션 적용
-          document.addEventListener('DOMContentLoaded', function() {
-            const elements = document.querySelectorAll('button, div, a');
-            elements.forEach((el, index) => {
-              setTimeout(() => {
-                el.classList.add('animate-fade-in');
-              }, index * 100);
-            });
-          });
-          
-          // 스크롤 이벤트 (필요시)
-          let ticking = false;
-          
-          function updateScrollPosition() {
-            // 스크롤 기반 애니메이션이나 효과를 여기에 추가
-            ticking = false;
-          }
-          
-          window.addEventListener('scroll', function() {
-            if (!ticking) {
-              requestAnimationFrame(updateScrollPosition);
-              ticking = true;
-            }
-          });
-          
-          // 부드러운 스크롤링을 위한 함수
-          function smoothScrollTo(element) {
-            element.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center'
-            });
-          }
-        </script>
+        ${componentHTML}
       </body>
       </html>
     `;
-  }
-
-  // 색상 조정 함수 (그라데이션용)
-  private adjustColor(color: string, amount: number): string {
-    const usePound = color[0] === '#';
-    const col = usePound ? color.slice(1) : color;
-    const num = parseInt(col, 16);
-    let r = (num >> 16) + amount;
-    let g = ((num >> 8) & 0x00ff) + amount;
-    let b = (num & 0x0000ff) + amount;
-    r = r > 255 ? 255 : r < 0 ? 0 : r;
-    g = g > 255 ? 255 : g < 0 ? 0 : g;
-    b = b > 255 ? 255 : b < 0 ? 0 : b;
-    return (
-      (usePound ? '#' : '') +
-      String('000000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6)
-    );
   }
 
   // 댓글 조회
@@ -766,68 +505,24 @@ export class UsersService {
     componentId: string,
     slidoData: { content: string },
   ): Promise<any> {
-    // Input validation
-    if (!pageId || !componentId) {
-      throw new Error('Page ID and Component ID are required');
-    }
+    const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+    if (!page) throw new Error('Page not found');
 
-    if (
-      !slidoData ||
-      !slidoData.content ||
-      slidoData.content.trim().length === 0
-    ) {
-      throw new Error('Content is required');
-    }
+    const submission = this.submissionsRepository.create({
+      page: page,
+      pageId: pageId,
+      component_id: componentId,
+      data: {
+        content: slidoData.content,
+      },
+    });
 
-    if (slidoData.content.length > 1000) {
-      throw new Error('Content exceeds maximum length (1000 characters)');
-    }
-
-    try {
-      // Find page
-      const page = await this.pagesRepository.findOne({
-        where: { id: pageId },
-      });
-      if (!page) {
-        throw new Error(`Page not found with ID: ${pageId}`);
-      }
-
-      // Create submission
-      const submission = this.submissionsRepository.create({
-        page: page,
-        pageId: pageId,
-        component_id: componentId,
-        data: {
-          content: slidoData.content.trim(),
-        },
-      });
-
-      // Save submission
-      const saved = await this.submissionsRepository.save(submission);
-
-      return {
-        id: saved.id,
-        content: saved.data.content,
-        createdAt: saved.createdAt,
-      };
-    } catch (error) {
-      console.error('Error in createSlido:', {
-        pageId,
-        componentId,
-        error: error.message,
-        stack: error.stack,
-      });
-
-      if (
-        error.message.includes('not found') ||
-        error.message.includes('required') ||
-        error.message.includes('exceeds')
-      ) {
-        throw error;
-      }
-
-      throw new Error('Failed to create slido submission');
-    }
+    const saved = await this.submissionsRepository.save(submission);
+    return {
+      id: saved.id,
+      content: saved.data.content,
+      createdAt: saved.createdAt,
+    };
   }
 
   // 페이지 콘텐츠 조회 (roomId 기반)
@@ -973,7 +668,6 @@ export class UsersService {
     componentId: string;
     pageName?: string;
   }) {
-    console.log('📄 새 페이지 생성 시작:', createDto);
 
     try {
       // 1. 새 페이지 생성
@@ -995,7 +689,6 @@ export class UsersService {
       });
 
       const savedPage = await this.pagesRepository.save(newPage);
-      console.log('✅ 새 페이지 생성 완료:', savedPage.id, savedPage.title);
 
       // 2. 부모 페이지의 연결 정보 업데이트
       await this.addPageConnection(createDto.parentPageId, {
@@ -1014,7 +707,6 @@ export class UsersService {
         },
       };
     } catch (error) {
-      console.error('❌ 페이지 생성 실패:', error);
       throw new Error('페이지 생성 실패: ' + error.message);
     }
   }
@@ -1059,9 +751,7 @@ export class UsersService {
 
       // 부모 페이지 업데이트
       await this.pagesRepository.update(pageId, { content });
-      console.log('✅ 부모 페이지 연결 정보 업데이트 완료');
     } catch (error) {
-      console.error('❌ 페이지 연결 정보 업데이트 실패:', error);
       throw error;
     }
   }
@@ -1227,149 +917,33 @@ export class UsersService {
     `;
   }
 
-  // 서브도메인으로 페이지 찾기 (페이지 서빙용)
-  async findPageBySubdomain(subdomain: string): Promise<Pages | null> {
-    try {
-      const page = await this.pagesRepository.findOne({
-        where: {
-          subdomain: subdomain,
-          status: PageStatus.DEPLOYED,
-        },
-        relations: ['user'],
-      });
+  // 디자인 모드 업데이트
+  async updateDesignMode(pageId: string, designMode: 'desktop' | 'mobile'): Promise<any> {
+    const page = await this.pagesRepository.findOne({
+      where: { id: pageId }
+    });
 
-      return page || null;
-    } catch (error) {
-      console.error('서브도메인으로 페이지 검색 오류:', error);
-      return null;
-    }
-  }
-
-  async updateDesignMode(
-    pageId: string,
-    designMode: 'desktop' | 'mobile',
-  ): Promise<Pages> {
-    const page = await this.pagesRepository.findOne({ where: { id: pageId } });
     if (!page) {
-      throw new NotFoundException('페이지를 찾을 수 없습니다.');
+      throw new Error('Page not found');
     }
 
-    // content가 없으면 초기화
+    // 페이지의 designMode 속성 업데이트 (content에 저장되어 있을 수 있음)
     if (!page.content) {
-      page.content = { components: [], canvasSettings: {} };
-    }
-    // content가 배열이면 새로운 형식으로 변환
-    else if (Array.isArray(page.content)) {
-      page.content = {
-        components: page.content,
-        canvasSettings: {},
-      };
+      page.content = {};
     }
 
-    // canvasSettings가 없으면 초기화
-    if (!page.content.canvasSettings) {
-      page.content.canvasSettings = {};
-    }
+    // content 객체에 designMode 저장
+    page.content = {
+      ...page.content,
+      designMode: designMode
+    };
 
-    // designMode 업데이트
-    page.content.canvasSettings.designMode = designMode;
-
-    return this.pagesRepository.save(page);
-  }
-
-  /**
-   * 페이지 네비게이션용 페이지 목록 조회 (Page 컴포넌트로 연결된 페이지들만)
-   */
-  async getMyPagesForNavigation(userId: number, currentPageId?: string) {
-    try {
-      let pagesToShow = [];
-
-      if (currentPageId) {
-        // 현재 페이지 정보 조회
-        const currentPage = await this.pagesRepository.findOne({
-          where: { id: currentPageId, owner: { id: userId } },
-          select: ['id', 'title', 'content', 'subdomain', 'status', 'createdAt', 'updatedAt']
-        });
-
-        if (currentPage) {
-          // 현재 페이지를 목록에 추가
-          pagesToShow.push(currentPage);
-
-          // 현재 페이지의 pageConnections에서 연결된 페이지들 조회
-          const pageConnections = currentPage.content?.pageConnections || [];
-          
-          if (pageConnections.length > 0) {
-            const linkedPageIds = pageConnections.map(conn => conn.linkedPageId);
-            
-            // 연결된 페이지들 조회
-            const linkedPages = await this.pagesRepository.find({
-              where: { 
-                id: In(linkedPageIds),
-                owner: { id: userId }
-              },
-              select: [
-                'id',
-                'title', 
-                'subdomain',
-                'status',
-                'content',
-                'createdAt',
-                'updatedAt'
-              ]
-            });
-
-            pagesToShow.push(...linkedPages);
-          }
-        }
-      }
-
-      // 페이지가 없으면 사용자의 모든 페이지 조회 (fallback)
-      if (pagesToShow.length === 0) {
-        console.log('연결된 페이지가 없어서 모든 페이지 조회');
-        pagesToShow = await this.pagesRepository.find({
-          where: { owner: { id: userId } },
-          order: { updatedAt: 'DESC' },
-          take: 10, // 최대 10개만
-          select: [
-            'id',
-            'title', 
-            'subdomain',
-            'status',
-            'content',
-            'createdAt',
-            'updatedAt'
-          ]
-        });
-      }
-
-      // 중복 제거 (현재 페이지가 연결 목록에도 있을 수 있음)
-      const uniquePages = pagesToShow.filter((page, index, self) => 
-        index === self.findIndex(p => p.id === page.id)
-      );
-
-      // 페이지 네비게이션에 필요한 메타데이터 포함
-      const pagesWithMetadata = uniquePages.map(page => ({
-        id: page.id,
-        title: page.title,
-        subdomain: page.subdomain,
-        status: page.status,
-        content: {
-          components: page.content?.components || [],
-          metadata: {
-            totalComponents: page.content?.components?.length || 0,
-            pageComponentCount: page.content?.pageConnections?.length || 0,
-            lastModified: page.updatedAt
-          }
-        },
-        createdAt: page.createdAt,
-        updatedAt: page.updatedAt
-      }));
-
-      console.log('페이지 네비게이션용 목록 조회 완료:', uniquePages.length, '개');
-      return pagesWithMetadata;
-    } catch (error) {
-      console.error('페이지 네비게이션 목록 조회 실패:', error);
-      throw new Error('페이지 목록 조회 실패: ' + error.message);
-    }
+    const updatedPage = await this.pagesRepository.save(page);
+    
+    return {
+      message: 'Design mode updated successfully',
+      pageId: pageId,
+      designMode: designMode
+    };
   }
 }

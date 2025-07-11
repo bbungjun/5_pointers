@@ -25,7 +25,7 @@ const isProductionEnvironment = () => {
   // 2. URL 기반 감지 (브라우저에서 가장 확실한 방법)
   const currentUrl = typeof window !== 'undefined' ? window.location.hostname : '';
   const isS3Domain = currentUrl.includes('s3-website') || currentUrl.includes('amazonaws.com');
-  const isPagecubeDomain = currentUrl.includes('pagecube.net');
+  const isDdukddakDomain = currentUrl.includes('ddukddak.org');
   const isCloudFrontDomain = currentUrl.includes('cloudfront.net');
   
   console.log('🔍 환경 감지:', {
@@ -33,11 +33,11 @@ const isProductionEnvironment = () => {
     nodeEnv,
     currentUrl,
     isS3Domain,
-    isPagecubeDomain,
+    isDdukddakDomain,
     isCloudFrontDomain
   });
   
-  return viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isPagecubeDomain || isCloudFrontDomain;
+  return viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isDdukddakDomain || isCloudFrontDomain;
 };
 
 // 로컬 네트워크 IP 주소 감지 함수
@@ -63,7 +63,7 @@ const getLocalNetworkIP = () => {
 
 // API 서버 설정 - 환경변수 기반
 export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 
-  (isProductionEnvironment() ? 'https://pagecube.net/api' : 'http://localhost:3000/api');
+  (isProductionEnvironment() ? 'https://ddukddak.org/api' : 'http://localhost:3000/api');
 
 // Y.js WebSocket 서버 설정 - 환경변수 기반
 export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('VITE_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') ||
@@ -91,7 +91,7 @@ export const getDeployedUrl = (subdomain) => {
   
   if (isProduction) {
     // 프로덕션: CloudFront 우회하여 백엔드 API 직접 접근
-    const url = `https://pagecube.net/api/generator/deployed-sites/${subdomain}`;
+    const url = `https://ddukddak.org/api/generator/deployed-sites/${subdomain}`;
     console.log('✅ 프로덕션 URL 생성 (API 엔드포인트 기반):', url);
     return url;
   } else {

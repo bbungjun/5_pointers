@@ -25,6 +25,7 @@ function Inspector({ selectedComp, onUpdate, viewport }) {
     musicPlayer: ComponentEditors.MusicEditor,
     kakaotalkShare: ComponentEditors.KakaoTalkShareEditor,
     page: ComponentEditors.PageEditor,
+    pageButton: ComponentEditors.PageButtonEditor,
   };
 
   const SpecificEditor = editorMap[selectedComp.type];

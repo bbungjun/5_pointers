@@ -171,7 +171,7 @@ export class UsersController {
 
     fs.writeFileSync(filePath, file.buffer);
 
-    return ;
+    return `/uploads/images/${year}/${month}/${day}/${filename}`;
   }
 
   @Post('pages/:pageId/deploy')
@@ -292,7 +292,6 @@ export class UsersController {
       pageName?: string;
     },
   ) {
-    console.log('🆕 Page 컴포넌트에서 페이지 생성 요청:', createDto);
     return this.usersService.createPageFromComponent(createDto);
   }
 

@@ -14,27 +14,23 @@ export class AppController {
   async getRoot(@Req() req: Request, @Res() res: Response) {
     try {
       const host = req.get('host') || req.get('x-forwarded-host') || '';
-      console.log('🌐 Root request - Host:', host);
 
       // 서브도메인 추출
       const subdomain = this.extractSubdomain(host);
 
       if (subdomain) {
-        console.log('🔍 서브도메인 감지:', subdomain);
 
         // 서브도메인이 있으면 페이지 데이터 조회
         const pageData =
           await this.generatorService.getPageBySubdomain(subdomain);
 
         if (pageData) {
-          console.log('✅ 페이지 데이터 발견:', pageData.pageId);
           const html = await this.generatorService.generateStaticHTML(
             pageData.components,
           );
           res.setHeader('Content-Type', 'text/html; charset=utf-8');
           return res.send(html);
         } else {
-          console.log('❌ 페이지 데이터 없음');
           return res.status(404).send(`
             <h1>사이트를 찾을 수 없습니다</h1>
             <p>서브도메인 "${subdomain}"에 배포된 사이트가 없습니다.</p>
@@ -44,10 +40,8 @@ export class AppController {
       }
 
       // 서브도메인이 없으면 기본 응답
-      console.log('🏠 기본 응답 반환');
       return res.send(this.appService.getHello());
     } catch (error) {
-      console.error('루트 요청 처리 오류:', error);
       return res.status(500).send(`
         <h1>서버 오류</h1>
         <p>잠시 후 다시 시도해주세요.</p>
@@ -68,13 +62,13 @@ export class AppController {
     const hostnameWithoutPort = host.split(':')[0];
     const parts = hostnameWithoutPort.split('.');
 
-    // pagecube.net 도메인 체크
+    // ddukddak.org 도메인 체크
     if (
       parts.length >= 3 &&
-      parts[parts.length - 2] === 'pagecube' &&
-      parts[parts.length - 1] === 'net'
+      parts[parts.length - 2] === 'ddukddak' &&
+      parts[parts.length - 1] === 'org'
     ) {
-      // test.pagecube.net -> test
+      // test.ddukddak.org -> test
       const subdomain = parts[0];
       // api 서브도메인은 제외 (API 전용)
       if (subdomain === 'api') return null;

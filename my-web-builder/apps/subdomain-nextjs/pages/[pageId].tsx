@@ -1,13 +1,74 @@
-import { getRendererByType } from '@my-project/ui';
 import React, { useState, useEffect } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 
-// API 기본 URL 설정 - 프로덕션 환경 고려
+// Next.js 서브도메인 서버용 API 설정
 const API_BASE_URL = process.env.API_BASE_URL || 
   (process.env.NODE_ENV === 'production' 
-    ? 'https://pagecube.net/api'
+    ? 'http://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com/api'
     : 'http://localhost:3000/api');
+
+// 실제 프론트엔드 컴포넌트들을 import
+import ButtonRenderer from '../components/renderers/ButtonRenderer.jsx';
+import TextRenderer from '../components/renderers/TextRenderer.jsx';
+import LinkRenderer from '../components/renderers/LinkRenderer.jsx';
+import AttendRenderer from '../components/renderers/AttendRenderer.jsx';
+import ImageRenderer from '../components/renderers/ImageRenderer.jsx';
+import MapInfoRenderer from '../components/renderers/MapInfoRenderer.jsx';
+import DdayRenderer from '../components/renderers/DdayRenderer.jsx';
+import WeddingContactRenderer from '../components/renderers/WeddingContactRenderer.jsx';
+import GridGalleryRenderer from '../components/renderers/GridGalleryRenderer.jsx';
+import SlideGalleryRenderer from '../components/renderers/SlideGalleryRenderer.jsx';
+import CalendarRenderer from '../components/renderers/CalendarRenderer.jsx';
+import BankAccountRenderer from '../components/renderers/BankAccountRenderer.jsx';
+import CommentRenderer from '../components/renderers/CommentRenderer.jsx';
+import SlidoRenderer from '../components/renderers/SlidoRenderer.jsx';
+import WeddingInviteRenderer from '../components/renderers/WeddingInviteRenderer.jsx';
+import MusicRenderer from '../components/renderers/MusicRenderer.jsx';
+import KakaoTalkShareRenderer from '../components/renderers/KakaoTalkShareRenderer.jsx';
+import MapView from '../components/renderers/MapView.jsx';
+import PageRenderer from '../components/renderers/PageRenderer.jsx';
+import PageButtonRenderer from '../components/renderers/PageButtonRenderer.jsx';
+
+// API 설정을 전역으로 설정 (컴포넌트들이 사용할 수 있도록)
+if (typeof window !== 'undefined') {
+  (window as any).API_BASE_URL = API_BASE_URL;
+  console.log('🔧 Next.js 서버 - API_BASE_URL 설정됨:', API_BASE_URL);
+  console.log('🔧 Next.js 서버 - NODE_ENV:', process.env.NODE_ENV);
+}
+
+// 컴포넌트 타입별 렌더러 매핑 함수 (프론트엔드 PreviewRenderer와 완전히 일치)
+const getRendererByType = (type: string) => {
+  const renderers: { [key: string]: React.ComponentType<any> } = {
+    'button': ButtonRenderer,
+    'text': TextRenderer,
+    'link': LinkRenderer,
+    'attend': AttendRenderer,
+    'image': ImageRenderer,
+    'mapInfo': MapInfoRenderer,
+    'dday': DdayRenderer,
+    'weddingContact': WeddingContactRenderer,
+    'gridGallery': GridGalleryRenderer,
+    'slideGallery': SlideGalleryRenderer,
+    'calendar': CalendarRenderer,
+    'bankAccount': BankAccountRenderer,
+    'comment': CommentRenderer,
+    'slido': SlidoRenderer,
+    'weddingInvite': WeddingInviteRenderer,
+    'map': MapView,
+    // 프론트엔드 PreviewRenderer와 정확히 동일한 타입명 사용
+    'musicPlayer': MusicRenderer,  // ✅ 프론트엔드와 일치
+    'kakaotalkShare': KakaoTalkShareRenderer,  // ✅ 프론트엔드와 일치  
+    'page': PageRenderer,  // ✅ 프론트엔드와 일치
+    // 백워드 호환성을 위한 추가 매핑
+    'music': MusicRenderer,
+    'kakaoTalkShare': KakaoTalkShareRenderer,
+    'pageButton': PageButtonRenderer,
+  };
+
+  console.log(`🎯 Getting renderer for type: ${type}`, renderers[type] ? 'Found' : 'Not found');
+  return renderers[type] || null;
+};
 
 const LoadingSpinner = () => (
   <div style={{
@@ -56,10 +117,14 @@ const DynamicPageRenderer = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🚀 DynamicPageRenderer mounted, components:', components);
     // 컴포넌트가 마운트되면 로딩 완료
-    const timer = setTimeout(() => setIsLoading(false), 500);
+    const timer = setTimeout(() => {
+      console.log('⏰ Loading timer completed, showing content');
+      setIsLoading(false);
+    }, 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [components]);
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -164,6 +229,7 @@ const DynamicPageRenderer = ({
           {components && components.length > 0 ? (
             components.map((comp) => {
               try {
+                console.log('🎯 Rendering component:', comp.type, 'with data:', comp);
                 const RendererComponent = getRendererByType(comp.type);
 
                 if (!RendererComponent) {
@@ -228,12 +294,33 @@ const DynamicPageRenderer = ({
                       zIndex: 2
                     }}
                   >
-                    <RendererComponent
-                      comp={{ ...comp, pageId, width: componentWidth, height: componentHeight }}
-                      isEditor={false}
-                      onUpdate={() => {}}
-                      onPropsChange={() => {}}
-                    />
+                    {(() => {
+                      console.log('🚀 About to render component:', comp.type);
+                      console.log('🚀 Component data:', comp);
+                      console.log('🚀 Component props:', comp.props);
+                      const componentData = {
+                        ...comp,
+                        pageId: pageId,
+                        width: componentWidth,
+                        height: componentHeight
+                      };
+                      console.log('🚀 Final component data:', componentData);
+                      
+                      return (
+                        <RendererComponent
+                          {...comp.props}
+                          component={componentData}
+                          comp={componentData}
+                          mode="live"
+                          isEditor={false}
+                          onUpdate={() => {}}
+                          onPropsChange={() => {}}
+                          pageId={pageId}
+                          width={componentWidth}
+                          height={componentHeight}
+                        />
+                      );
+                    })()}
                   </div>
                 );
               } catch (error) {
@@ -447,6 +534,97 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     console.log('🎯 Extracted subdomain:', subdomain);
 
+    // 테스트용 mock 데이터 (test123 등 특정 subdomain에 대해)
+    if (subdomain === 'test123' || subdomain === 'demo' || subdomain === 'test') {
+      console.log('🧪 Using mock data for testing');
+      const mockPageData = {
+        pageId: subdomain,
+        components: [
+          {
+            id: 'test-music-1',
+            type: 'musicPlayer',
+            x: 50,
+            y: 50,
+            width: 300,
+            height: 100,
+            props: {
+              title: '테스트 음악',
+              artist: '테스트 아티스트',
+              audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+              autoPlay: false
+            }
+          },
+          {
+            id: 'test-kakao-1',
+            type: 'kakaotalkShare',
+            x: 400,
+            y: 50,
+            width: 200,
+            height: 80,
+            props: {
+              title: '테스트 카카오톡 공유',
+              description: '테스트 설명',
+              imageUrl: 'https://via.placeholder.com/300x200',
+              linkUrl: 'https://test.com'
+            }
+          },
+          {
+            id: 'test-page-1',
+            type: 'page',
+            x: 50,
+            y: 200,
+            width: 250,
+            height: 150,
+            props: {
+              pageName: '테스트 페이지',
+              description: '페이지 설명',
+              backgroundColor: '#ffffff',
+              textColor: '#333333',
+              linkedPageId: 'test-linked-page',
+              deployedUrl: 'https://example.com'
+            }
+          },
+          {
+            id: 'test-pagebutton-1',
+            type: 'pageButton',
+            x: 350,
+            y: 200,
+            width: 200,
+            height: 60,
+            props: {
+              buttonText: '페이지 이동',
+              backgroundColor: '#007bff',
+              textColor: '#ffffff',
+              linkedPageId: 'test-target-page',
+              deployedUrl: 'https://target.com'
+            }
+          },
+          {
+            id: 'test-map-1',
+            type: 'map',
+            x: 50,
+            y: 400,
+            width: 400,
+            height: 300,
+            props: {
+              latitude: 37.5665,
+              longitude: 126.9780,
+              zoom: 15,
+              title: '서울 시청'
+            }
+          }
+        ]
+      };
+
+      return {
+        props: {
+          pageData: mockPageData,
+          pageId: subdomain,
+          subdomain,
+        },
+      };
+    }
+
     // API 요청 헤더 설정
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -506,8 +684,22 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     console.log('✅ Page data received:', {
       pageId: pageData.pageId,
       componentsCount: pageData.components?.length || 0,
-      hasComponents: !!pageData.components
+      hasComponents: !!pageData.components,
+      fullPageData: pageData,
+      componentsData: pageData.components
     });
+
+    // 컴포넌트 데이터 상세 로깅
+    if (pageData.components && Array.isArray(pageData.components)) {
+      pageData.components.forEach((comp: any, index: number) => {
+        console.log(`🔍 Component ${index}:`, {
+          type: comp.type,
+          id: comp.id,
+          props: comp.props,
+          fullComponent: comp
+        });
+      });
+    }
 
     // 데이터 검증
     if (!pageData || typeof pageData !== 'object') {

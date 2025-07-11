@@ -56,7 +56,7 @@ function LinkEditor({ selectedComp, onUpdate }) {
       </div>
 
       <ColorEditor
-        value={selectedComp.props?.color || '#3B4EFF'}
+        value={selectedComp.props?.color || '#D8BFD8'}
         onChange={(value) => updateProperty('color', value)}
         label="글자 색상"
       />

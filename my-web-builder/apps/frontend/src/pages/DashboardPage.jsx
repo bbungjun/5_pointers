@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import InvitationNotifications from '../components/InvitationNotifications';
 import NotificationToggle from '../components/NotificationToggle';
-import pageCubeLogo from '../assets/page-cube-logo.png';
+import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
+import ddukddakLogo from '../assets/page-cube-logo.png';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 10);
@@ -59,15 +60,27 @@ function DashboardPage({ user, onLogout }) {
           ? `${API_BASE_URL}/templates`
           : `${API_BASE_URL}/templates?category=${category}`;
 
+      console.log('템플릿 조회 URL:', url);
+
       const response = await fetch(url);
+      console.log('템플릿 조회 응답:', response.status, response.ok);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('템플릿 데이터:', data);
         // 중복된 ID 제거 (같은 ID를 가진 첫 번째 항목만 유지)
         const uniqueTemplates = data.filter((template, index, arr) => {
           const firstIndex = arr.findIndex(t => t.id === template.id);
           return firstIndex === index;
         });
         setTemplates(uniqueTemplates);
+      } else {
+        const errorText = await response.text();
+        console.error('템플릿 조회 실패:', response.status, errorText);
+        
+        if (response.status === 500) {
+          console.error('서버 내부 오류가 발생했습니다. 백엔드 서버를 확인해주세요.');
+        }
       }
     } catch (error) {
       console.error('템플릿 조회 실패:', error);
@@ -135,7 +148,12 @@ function DashboardPage({ user, onLogout }) {
       if (response.ok) {
         const newPage = await response.json();
         console.log('새 페이지 생성:', newPage);
-        navigate(`/editor/${newPage.id}`);
+        
+        // 템플릿 정보를 찾아서 웨딩 카테고리인지 확인
+        const template = templates.find(t => t.id === templateId);
+        const viewport = template?.category === 'wedding' ? 'mobile' : 'desktop';
+        
+        navigate(`/editor/${newPage.id}?viewport=${viewport}&category=${template?.category || 'default'}`);
       } else {
         alert('템플릿 페이지 생성에 실패했습니다.');
       }
@@ -261,8 +279,8 @@ function DashboardPage({ user, onLogout }) {
             <div className="flex items-center gap-6">
               <div className="relative group">
                 <img
-                  src={pageCubeLogo}
-                  alt="Page Cube"
+                  src={ddukddakLogo}
+                  alt="DdukDdak"
                   className="w-10 h-10 object-contain transform group-hover:scale-105 transition duration-300"
                 />
               </div>
@@ -526,7 +544,7 @@ function DashboardPage({ user, onLogout }) {
         </div>
 
         {/* 테마 선택 섹션 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-12">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600/10 to-indigo-600/10 rounded-xl flex items-center justify-center transform rotate-45">
@@ -586,21 +604,14 @@ function DashboardPage({ user, onLogout }) {
                     className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
                   >
                     <div className="p-4">
-                      {template.thumbnail_url ? (
-                        <div className="relative rounded-lg overflow-hidden mb-4 aspect-video">
-                          <img
-                            src={template.thumbnail_url}
-                            alt={template.name}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                        </div>
-                      ) : (
-                        <div className="relative rounded-lg overflow-hidden mb-4 aspect-video bg-slate-100 flex items-center justify-center">
-                          <div className="w-12 h-12 bg-slate-200 rounded-xl flex items-center justify-center transform rotate-45">
-                            <div className="w-8 h-8 bg-slate-300 rounded-lg"></div>
-                          </div>
-                        </div>
-                      )}
+                      {/* 템플릿 캔버스 미리보기 */}
+                      <div className="relative rounded-lg overflow-hidden mb-4 aspect-video bg-slate-50">
+                        <TemplateCanvasPreview 
+                          template={template} 
+                          className="w-full h-full"
+                        />
+                      </div>
+                      
                       <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors">
                         {template.name}
                       </h4>
@@ -619,9 +630,9 @@ function DashboardPage({ user, onLogout }) {
             )}
           </div>
         </div>
-      </div>
+              </div>
 
-      {/* 삭제 확인 모달 */}
+        {/* 삭제 확인 모달 */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">

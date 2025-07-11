@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { API_BASE_URL } from '../config';
 import useAutoSave from './useAutoSave';
 
@@ -8,15 +8,15 @@ import useAutoSave from './useAutoSave';
  * - components, designMode 상태 관리
  * - 자동 저장 기능
  */
-export function usePageDataManager(roomId) {
+export function usePageDataManager(roomId, initialViewport = 'desktop') {
   const [components, setComponents] = useState([]);
-  const [designMode, setDesignMode] = useState('desktop');
+  const [designMode, setDesignMode] = useState(initialViewport);
   const [pageTitle, setPageTitle] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [canvasHeight, setCanvasHeight] = useState(1080);
+  const [canvasHeight, setCanvasHeight] = useState(initialViewport === 'mobile' ? 667 : 1080);
 
   // 자동 저장 훅
-  const autoSave = useAutoSave(roomId, components);
+  const autoSave = useAutoSave(roomId, components, canvasHeight);
 
   // JWT Base64URL 디코딩 함수 (한글 지원)
   const decodeJWTPayload = (token) => {
@@ -75,6 +75,11 @@ export function usePageDataManager(roomId) {
             if (pageData.content.canvasSettings?.designMode) {
               setDesignMode(pageData.content.canvasSettings.designMode);
             }
+
+            // 캔버스 높이 복원 (있는 경우)
+            if (pageData.content.canvasSettings?.canvasHeight) {
+              setCanvasHeight(pageData.content.canvasSettings.canvasHeight);
+            }
           } else {
             // 이전 형식: content가 직접 배열인 경우
             setComponents(pageData.content || []);
@@ -110,10 +115,19 @@ export function usePageDataManager(roomId) {
   }, [roomId]);
 
   // designMode 변경 시 캔버스 높이 조정
+  const prevDesignModeRef = useRef(designMode);
   useEffect(() => {
-    const newHeight = designMode === 'mobile' ? 667 : 1080;
-    setCanvasHeight(newHeight);
-  }, [designMode]);
+    // designMode가 실제로 변경된 경우에만 실행
+    if (prevDesignModeRef.current !== designMode) {
+      const newHeight = designMode === 'mobile' ? 667 : 1080;
+      // 현재 캔버스 높이가 기본값(또는 이전 모드 기본값)과 동일한 경우에만 업데이트
+      const defaultPrevHeight = prevDesignModeRef.current === 'mobile' ? 667 : 1080;
+      if (canvasHeight === defaultPrevHeight) {
+        setCanvasHeight(newHeight);
+      }
+      prevDesignModeRef.current = designMode;
+    }
+  }, [designMode, canvasHeight]);
 
   return {
     // 상태

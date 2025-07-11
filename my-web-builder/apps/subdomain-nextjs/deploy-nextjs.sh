@@ -25,7 +25,7 @@ tar -xzf /tmp/nextjs-subdomain-manual.tar.gz
 echo "🔧 환경 변수 설정..."
 export NODE_ENV=production
 export PORT=3000
-export API_BASE_URL="https://pagecube.net/api"
+export API_BASE_URL="https://ddukddak.org/api"
 
 # PM2로 Next.js 서버 시작
 echo "🚀 Next.js 서버 시작..."

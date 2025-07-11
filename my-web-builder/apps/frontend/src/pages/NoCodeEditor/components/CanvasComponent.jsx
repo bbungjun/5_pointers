@@ -3,7 +3,7 @@ import ButtonRenderer from '../ComponentRenderers/ButtonRenderer';
 import TextRenderer from '../ComponentRenderers/TextRenderer';
 import LinkRenderer from '../ComponentRenderers/LinkRenderer';
 import AttendRenderer from '../ComponentRenderers/AttendRenderer';
-import MapView from '../ComponentEditors/MapView';
+import MapView from '../ComponentRenderers/MapView';
 import DdayRenderer from '../ComponentRenderers/DdayRenderer';
 import WeddingContactRenderer from '../ComponentRenderers/WeddingContactRenderer.jsx';
 import WeddingInviteRenderer from '../ComponentRenderers/WeddingInviteRenderer';
@@ -15,6 +15,8 @@ import CalendarRenderer from '../ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from '../ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import SlidoRenderer from '../ComponentRenderers/SlidoRenderer';
+import PageButtonRenderer from '../ComponentRenderers/PageButtonRenderer';
+
 import {
   clamp,
   resolveCollision,
@@ -47,6 +49,12 @@ function CanvasComponent({
   updateCursorPosition, // 협업 커서 위치 업데이트 함수
 }) {
   const ref = useRef();
+
+  const handleComponentUpdate = (updatedComp) => {
+    if (onUpdate) {
+      onUpdate(updatedComp);
+    }
+  };
 
   // 더블클릭 시 텍스트 편집
   const [editing, setEditing] = useState(false);
@@ -211,7 +219,7 @@ function CanvasComponent({
           />
         );
       case 'map':
-        return <MapView {...(comp.props || {})} />;
+        return <MapView {...(comp.props || {})} comp={componentWithFinalStyles} />;
       case 'dday':
         return (
           <DdayRenderer
@@ -273,6 +281,7 @@ function CanvasComponent({
           <BankAccountRenderer
             comp={componentWithFinalStyles}
             isEditor={true}
+            onUpdate={handleComponentUpdate}
           />
         );
       case 'comment':
@@ -319,6 +328,15 @@ function CanvasComponent({
             onUpdate={onUpdate}
           />
         );
+
+      case 'pageButton':
+        return (
+          <PageButtonRenderer
+            component={componentWithFinalStyles}
+            isEditor={true}
+            onUpdate={onUpdate}
+          />
+        );
       default:
         return <span>{comp.props?.text || ''}</span>;
     }
@@ -359,48 +377,48 @@ function CanvasComponent({
         newWidth = Math.max(
           componentDimensions.minWidth,
           Math.round((resizeStart.width + deltaX) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         newHeight = Math.max(
           componentDimensions.minHeight,
           Math.round((resizeStart.height + deltaY) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         break;
       case 'sw':
         newWidth = Math.max(
           componentDimensions.minWidth,
           Math.round((resizeStart.width - deltaX) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         newHeight = Math.max(
           componentDimensions.minHeight,
           Math.round((resizeStart.height + deltaY) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         break;
       case 'ne':
         newWidth = Math.max(
           componentDimensions.minWidth,
           Math.round((resizeStart.width + deltaX) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         newHeight = Math.max(
           componentDimensions.minHeight,
           Math.round((resizeStart.height - deltaY) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         break;
       case 'nw':
         newWidth = Math.max(
           componentDimensions.minWidth,
           Math.round((resizeStart.width - deltaX) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         newHeight = Math.max(
           componentDimensions.minHeight,
           Math.round((resizeStart.height - deltaY) / effectiveGridSize) *
-            effectiveGridSize
+          effectiveGridSize
         );
         break;
     }
@@ -524,14 +542,12 @@ function CanvasComponent({
       setSnapLines(lines);
     }
 
-    console.log('드래그 중:', comp.id, '새 위치:', newX, newY);
-
     // 다중 선택된 컴포넌트들과 함께 이동
     if (selectedIds && selectedIds.length > 1 && selectedIds.includes(comp.id)) {
       // 다중 선택된 컴포넌트들의 상대적 위치를 유지하면서 이동
       const deltaX = newX - currentX;
       const deltaY = newY - currentY;
-      
+
       selectedIds.forEach(selectedId => {
         if (selectedId !== comp.id) {
           const selectedComp = components.find(c => c.id === selectedId);
@@ -605,7 +621,8 @@ function CanvasComponent({
         left: currentX,
         top: currentY,
         width: currentWidth,
-        height: currentHeight,
+        //height: currentHeight,
+        height: comp.type === 'bankAccount' ? 'auto' : currentHeight,
         border: selected ? '2px solid #3B4EFF' : '1px solid transparent',
         cursor: isDragging ? 'grabbing' : 'grab',
         background: selected ? 'rgba(59, 78, 255, 0.05)' : 'transparent',
@@ -622,13 +639,7 @@ function CanvasComponent({
       onMouseDown={handleDragStart}
       onClick={(e) => {
         e.stopPropagation();
-        if (e.ctrlKey || e.metaKey) {
-          // Ctrl+클릭으로 다중 선택 토글
-          // 이 기능은 부모 컴포넌트에서 처리해야 함
-          onSelect(comp.id);
-        } else {
-          onSelect(comp.id);
-        }
+        onSelect(comp.id, e);
       }}
     >
       {renderContent()}

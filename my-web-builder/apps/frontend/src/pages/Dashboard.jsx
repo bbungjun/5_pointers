@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config';
 
 function Dashboard() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // 빈 페이지 생성
   const handleCreateNewPage = () => {
@@ -11,44 +13,54 @@ function Dashboard() {
     navigate(`/editor/${newId}`);
   };
 
-  // API에서 받은 템플릿 데이터로 페이지 생성
-  const handleCreateWithTemplate = (templateData) => {
-    const newId = Math.random().toString(36).slice(2, 10);
-    const templateParam = encodeURIComponent(JSON.stringify(templateData));
-    navigate(`/editor/${newId}?template=${templateParam}`);
+  // 템플릿으로 페이지 생성
+  const handleCreateWithTemplate = async (template) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/templates/${template.id}/create-page`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: `${template.name} 복사본`,
+        })
+      });
+
+      if (response.ok) {
+        const newPage = await response.json();
+        // 웨딩 템플릿인 경우 모바일 뷰포트로 설정
+        const viewport = template.category === 'wedding' ? 'mobile' : 'desktop';
+        const url = `/editor/${newPage.id}?viewport=${viewport}`;
+        console.log('네비게이션 URL:', url, 'template.category:', template.category);
+        navigate(url);
+      } else {
+        console.error('템플릿으로 페이지 생성 실패');
+      }
+    } catch (error) {
+      console.error('템플릿 페이지 생성 오류:', error);
+    }
   };
   
   // 템플릿 목록 가져오기
   useEffect(() => {
-    // 실제 API 호출 (예시)
     const fetchTemplates = async () => {
       try {
-        // 여기에 실제 API 호출 로직 추가
-        // const response = await fetch('/api/templates');
-        // const data = await response.json();
-        
-        // 임시 데이터
-        const mockTemplates = [{
-          id: '1',
-          title: 'Sample Template',
-          content: [
-            {x: 100, y: 100, id: '1', type: 'button', props: {text: '클릭하세요', bg: '#3B4EFF', color: '#fff'}},
-            {x: 100, y: 200, id: '2', type: 'text', props: {text: '템플릿 텍스트', fontSize: 18}}
-          ]
-        }];
-        setTemplates(mockTemplates);
+        setLoading(true);
+        const response = await fetch(`${API_BASE_URL}/templates`);
+        if (response.ok) {
+          const data = await response.json();
+          setTemplates(data);
+        }
       } catch (error) {
         console.error('템플릿 로딩 실패:', error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchTemplates();
   }, []);
-  
-  // 템플릿 선택
-  const handleSelectTemplate = (template) => {
-    console.log('선택된 템플릿:', template);
-    handleCreateWithTemplate(template);
-  };
 
   return (
     <div style={{

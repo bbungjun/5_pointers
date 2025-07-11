@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import useAutoSave from '../hooks/useAutoSave';
 import SaveStatusIndicator from '../components/SaveStatusIndicator';
 
@@ -13,6 +13,7 @@ import TemplateModal from './NoCodeEditor/components/TemplateModal';
 import InviteModal from './NoCodeEditor/components/InviteModal';
 import CanvasComponent from './NoCodeEditor/components/CanvasComponent';
 import UserCursor from './NoCodeEditor/components/UserCursor';
+import WebSocketConnectionGuide from '../components/WebSocketConnectionGuide';
 
 // 훅들
 import { usePageDataManager } from '../hooks/usePageDataManager';
@@ -23,17 +24,30 @@ import { useComponentActions } from '../hooks/useComponentActions';
 // 유틸리티
 import { getUserColor } from '../utils/userColors';
 import {
-  getCanvasSize,
   getComponentDimensions,
 } from './NoCodeEditor/utils/editorUtils';
 
 function NoCodeEditor({ pageId }) {
   const { roomId } = useParams();
+  const [searchParams] = useSearchParams();
   
   // roomId가 없으면 임시 ID 생성
   const effectiveRoomId = roomId || `room-${Date.now()}`;
   
- 
+  // URL 파라미터에서 초기 뷰포트 설정 읽기
+  const initialViewport = searchParams.get('viewport') || 'desktop';
+  
+  // URL 파라미터에서 템플릿 카테고리 확인
+  const templateCategory = searchParams.get('template') ? 
+    (() => {
+      try {
+        const templateData = JSON.parse(decodeURIComponent(searchParams.get('template')));
+        return templateData.category;
+      } catch {
+        return null;
+      }
+    })() : null;
+  
   const canvasRef = useRef();
   const containerRef = useRef();
   const [components, setComponents] = useState([]);
@@ -72,16 +86,21 @@ function NoCodeEditor({ pageId }) {
       payload.name ||
       payload.email?.split('@')[0] ||
       '사용자';
+    const role = payload.role || 'USER';
 
     return {
       id: userId,
       name: nickname,
       color: getUserColor(userId),
+      role: role,
     };
   });
 
-  // 3. UI 상호작용 관리
-  const interaction = useEditorInteractionManager(designMode, setDesignMode);
+  // isAdmin 상태 추가
+  const isAdmin = userInfo?.role === 'ADMIN';
+
+  // 3. UI 상호작용 관리 (초기 뷰포트 설정 포함)
+  const interaction = useEditorInteractionManager(designMode, setDesignMode, initialViewport);
 
   // 4. 협업 동기화 로직
   const collaboration = useCollaboration({
@@ -188,7 +207,6 @@ function NoCodeEditor({ pageId }) {
             : [];
         
         if (componentsToCopy.length > 0) {
-          console.log('복사된 컴포넌트들:', componentsToCopy);
           setClipboard(componentsToCopy.map(comp => ({ ...comp })));
         }
       }
@@ -197,7 +215,6 @@ function NoCodeEditor({ pageId }) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
         e.preventDefault();
         if (clipboard.length > 0) {
-          console.log('붙여넣기 시작, 클립보드:', clipboard);
           const newComponents = clipboard.map(comp => ({
             ...comp,
             id: `${comp.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -205,11 +222,8 @@ function NoCodeEditor({ pageId }) {
             y: comp.y + 20,
           }));
           
-          console.log('새로 생성될 컴포넌트들:', newComponents);
-          
           // 협업 시스템의 addComponent 함수 사용
           newComponents.forEach(comp => {
-            console.log('컴포넌트 추가:', comp.id);
             addComponent(comp);
           });
           
@@ -284,7 +298,7 @@ function NoCodeEditor({ pageId }) {
   };
 
   // 컴포넌트 선택 핸들러 (Ctrl+클릭 지원)
-  const handleSelect = (id) => {
+  const handleSelect = (id, event) => {
     if (id === null) {
       // 빈 영역 클릭 시 선택 해제
       setSelectedIds([]);
@@ -293,30 +307,37 @@ function NoCodeEditor({ pageId }) {
     }
 
     // Ctrl+클릭으로 다중 선택 토글
-    if (selectedIds.includes(id)) {
-      // 이미 선택된 컴포넌트를 다시 클릭하면 선택 해제
-      const newSelectedIds = selectedIds.filter(selectedId => selectedId !== id);
-      setSelectedIds(newSelectedIds);
-      if (newSelectedIds.length === 1) {
-        interaction.setSelectedId(newSelectedIds[0]);
-      } else if (newSelectedIds.length === 0) {
-        interaction.setSelectedId(null);
+    if (event && (event.ctrlKey || event.metaKey)) {
+      if (selectedIds.includes(id)) {
+        // 이미 선택된 컴포넌트를 Ctrl+클릭하면 선택 해제
+        const newSelectedIds = selectedIds.filter(selectedId => selectedId !== id);
+        setSelectedIds(newSelectedIds);
+        if (newSelectedIds.length === 1) {
+          interaction.setSelectedId(newSelectedIds[0]);
+        } else if (newSelectedIds.length === 0) {
+          interaction.setSelectedId(null);
+        }
+      } else {
+        // 새로운 컴포넌트를 Ctrl+클릭하면 다중 선택에 추가
+        const newSelectedIds = [...selectedIds, id];
+        setSelectedIds(newSelectedIds);
+        if (newSelectedIds.length === 1) {
+          interaction.setSelectedId(id);
+        }
       }
     } else {
-      // 새로운 컴포넌트 선택
-      const newSelectedIds = [...selectedIds, id];
-      setSelectedIds(newSelectedIds);
-      if (newSelectedIds.length === 1) {
-        interaction.setSelectedId(id);
-      }
+      // 일반 클릭은 단일 선택
+      setSelectedIds([id]);
+      interaction.setSelectedId(id);
     }
   };
 
   // 자동저장 훅
   const { isSaving, lastSaved, saveError, saveCount, saveNow } = useAutoSave(
-    pageId,
-    components,
-    2000
+    pageId,          // roomId (페이지 ID)
+    components,      // 컴포넌트 배열
+    canvasHeight,    // 현재 캔버스 높이
+    2000             // 디바운스 시간 (2초)
   );
 
   // 컴포넌트 업데이트 핸들러
@@ -370,10 +391,12 @@ function NoCodeEditor({ pageId }) {
         onPreviewOpen={interaction.handlePreviewOpen}
         onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
         onInviteOpen={interaction.handleInviteOpen}
+        pageId={pageId}
         roomId={effectiveRoomId}
         isConnected={isConnected}
         connectionError={connectionError}
-        isAdmin={true}
+        isAdmin={isAdmin}
+        templateCategory={templateCategory}
       />
 
       {/* 저장 상태 표시 */}
@@ -498,6 +521,21 @@ function NoCodeEditor({ pageId }) {
         onClose={interaction.handleInviteClose}
         pageId={pageId}
       />
+
+      {/* WebSocket 연결 안내 UI */}
+      {connectionError && (
+        <div className="websocket-guide">
+          <WebSocketConnectionGuide
+            wsUrl="wss://3.35.50.227:1235"
+            onRetry={() => {
+              // 협업 시스템 재연결 시도
+              if (collaboration.provider) {
+                collaboration.provider.connect();
+              }
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NotificationToggle from '../../../components/NotificationToggle';
-import pageCubeLogo from '../../../assets/page-cube-logo.png';
+import ddukddakLogo from '../../../assets/page-cube-logo.png';
 import { useDeploy } from '../ComponentLibrary/hooks/useDeploy';
 import DeployModal from './DeployModal';
 import PageNavigation from './PageNavigation';
@@ -22,6 +22,7 @@ function EditorHeader({
   isConnected,
   connectionError,
   isAdmin,
+  templateCategory = null,
 }) {
   const navigate = useNavigate();
 
@@ -69,12 +70,12 @@ function EditorHeader({
           onClick={handleLogoClick}
         >
           <img
-            src={pageCubeLogo}
-            alt="Page Cube"
+            src={ddukddakLogo}
+            alt="DdukDdak"
             className="w-10 h-10 object-contain"
           />
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent whitespace-nowrap">
-            PAGE CUBE
+            DDUKDDAK
           </h1>
         </div>
       </div>
@@ -92,7 +93,7 @@ n          {/* 페이지 네비게이션 */}
             </label>
             <select
               value={designMode}
-              onChange={(e) => onDesignModeChange(e.target.value, roomId)}
+              onChange={(e) => onDesignModeChange(e.target.value, pageId)}
               className="
                 px-3 py-2 text-sm
                 bg-white border border-gray-300 rounded-lg
@@ -101,7 +102,7 @@ n          {/* 페이지 네비게이션 */}
                 cursor-pointer
               "
             >
-              <option value="desktop">💻 데스크탑</option>
+              {templateCategory !== 'wedding' && <option value="desktop">💻 데스크탑</option>}
               <option value="mobile">📱 모바일</option>
             </select>
           </div>

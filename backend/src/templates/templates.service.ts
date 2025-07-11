@@ -18,17 +18,25 @@ export class TemplatesService {
 
   // 공개 템플릿 목록 조회
   async getPublicTemplates(category?: string) {
-    const query = this.templatesRepository
-      .createQueryBuilder('template')
-      .leftJoinAndSelect('template.author', 'author')
-      .where('template.isPublic = :isPublic', { isPublic: true })
-      .orderBy('template.createdAt', 'DESC');
+    try {
+      
+      const query = this.templatesRepository
+        .createQueryBuilder('template')
+        .leftJoinAndSelect('template.author', 'author')
+        .where('template.isPublic = :isPublic', { isPublic: true })
+        .orderBy('template.createdAt', 'DESC');
 
-    if (category) {
-      query.andWhere('template.category = :category', { category });
+      if (category && category !== 'all') {
+        query.andWhere('template.category = :category', { category });
+      }
+
+      const templates = await query.getMany();
+      
+      return templates;
+    } catch (error) {
+      console.error('템플릿 조회 실패:', error);
+      throw error;
     }
-
-    return query.getMany();
   }
 
   // 페이지를 템플릿으로 저장
@@ -88,31 +96,42 @@ export class TemplatesService {
     authorId: number,
     tags?: string[],
     thumbnail_url?: string,
+    canvasSettings?: any,
   ) {
-    // 작성자 조회
-    const author = await this.usersRepository.findOne({
-      where: { id: authorId },
-    });
+    try {
 
-    if (!author) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+      // 작성자 조회
+      const author = await this.usersRepository.findOne({
+        where: { id: authorId },
+      });
+
+      if (!author) {
+        console.error('사용자를 찾을 수 없습니다:', authorId);
+        throw new NotFoundException('사용자를 찾을 수 없습니다.');
+      }
+
+
+      // 컴포넌트 배열로 템플릿 생성
+      const template = this.templatesRepository.create({
+        name,
+        category,
+        thumbnail_url,
+        content: {
+          components: components || [],
+          canvasSettings: canvasSettings || { canvasHeight: 1080 }
+        },
+        tags: tags || [],
+        author,
+        authorId,
+      });
+
+      const savedTemplate = await this.templatesRepository.save(template);
+      
+      return savedTemplate;
+    } catch (error) {
+      console.error('템플릿 생성 실패:', error);
+      throw error;
     }
-
-    // console.log('템플릿 생성 - 컴포넌트 개수:', components.length);
-    // console.log('컴포넌트 데이터:', components);
-
-    // 컴포넌트 배열로 템플릿 생성
-    const template = this.templatesRepository.create({
-      name,
-      category,
-      thumbnail_url,
-      content: components || [], // 에디터에서 전달받은 컴포넌트 배열
-      tags: tags || [],
-      author,
-      authorId,
-    });
-
-    return this.templatesRepository.save(template);
   }
 
   // 템플릿으로 새 페이지 생성
@@ -140,8 +159,19 @@ export class TemplatesService {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
 
-    // 컴포넌트 ID 재발급
-    const newContent = this.regenerateComponentIds(template.content);
+    // 컴포넌트 ID 재발급 및 캔버스 설정 복원
+    let newContent;
+    if (typeof template.content === 'object' && !Array.isArray(template.content)) {
+      newContent = {
+        components: this.regenerateComponentIds(template.content.components || []),
+        canvasSettings: template.content.canvasSettings || { canvasHeight: 1080 }
+      };
+    } else {
+      newContent = {
+        components: this.regenerateComponentIds(Array.isArray(template.content) ? template.content : []),
+        canvasSettings: { canvasHeight: 1080 }
+      };
+    }
 
     // 새 페이지 생성
     const newPage = this.pagesRepository.create({
@@ -184,4 +214,6 @@ export class TemplatesService {
   private generateRandomSubdomain(): string {
     return 'tmpl-' + Math.random().toString(36).substring(2, 10);
   }
+
+
 }

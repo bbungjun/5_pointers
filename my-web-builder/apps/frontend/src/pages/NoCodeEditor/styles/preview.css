@@ -1,11 +1,17 @@
-/* 반응형 레이아웃 시스템 - CSS 미디어 쿼리 기반 */
+/* 반응형 시스템 전용 CSS */
 
-/* 페이지 전체 컴테이너 */
+/* 페이지 전체 컨테이너 */
 .page-container {
-  width: 100%;
+  width: 1920px;
+  min-height: 1080px; /* 최소 높이만 보장 */
+  position: relative;
+  background: #fff;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  margin: 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: visible;
   box-sizing: border-box;
-  background: #ffffff;
-  padding: 24px; /* 데스크톱 기본 패딩 */
 }
 
 /* 모바일에서 패딩 조정 */
@@ -46,78 +52,35 @@
 /* 기존 미리보기 컴테이너 (호환성을 위해 유지) */
 .preview-container {
   position: relative;
-  margin: 0 auto;
-  background: #ffffff;
-  overflow: hidden;
 }
 
-.preview-container.mobile {
+.page-container.mobile {
   width: 375px;
   min-height: 667px;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .preview-container.desktop {
   width: 1920px;
   min-height: 1080px;
+  margin: 0 auto;
 }
 
-/* 빈 페이지 스타일 */
 .empty-page {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  font-size: 16px;
-  color: #6c757d;
-  background: #f8f9fa;
-  text-align: center;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
-.empty-page-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+.component-wrapper {
+  max-width: 90%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
 }
 
-/* 기존 컴포넌트 스타일 (호환성을 위해 유지) */
-.preview-component {
+.desktop-absolute-wrapper {
   position: absolute;
-  pointer-events: auto;
-}
-
-/* 컴포넌트 타입별 스타일 */
-.preview-component.text {
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-.preview-component.button {
-  display: inline-block;
-}
-
-.preview-component.image {
-  max-width: 100%;
-  height: auto;
-}
-
-/* 편집 모드 스타일 */
-.editor-canvas {
-  position: relative;
-  background: #ffffff;
-  margin: 0 auto;
-  overflow: visible;
-}
-
-.editor-component {
-  position: absolute;
-  pointer-events: auto;
-  user-select: none;
-}
-
-/* 반응형 스케일링 */
-.preview-container.mobile .preview-component {
-  transform-origin: top left;
-}
-
-.preview-container.desktop .preview-component {
-  transform-origin: top left;
 }
