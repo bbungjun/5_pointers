@@ -17,13 +17,14 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
     if (isEditor) return; // 에디터 모드에서는 API 호출 안함
 
     const actualPageId = pageId || comp.pageId;
+    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
     
-    if (!actualPageId || !API_BASE_URL) {
+    if (!actualPageId || !actualApiBaseUrl) {
       return;
     }
 
     try {
-      const apiUrl = `${API_BASE_URL}/users/pages/${actualPageId}/comments/${comp.id}`;
+      const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
       
       const response = await fetch(apiUrl);
       console.log('🚀 CommentRenderer - API 응답 상태:', response.status);
@@ -49,17 +50,18 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
     }
 
     const actualPageId = pageId || comp.pageId;
+    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
     
     console.log('🚀 CommentRenderer - handleSubmitComment 호출');
     console.log('🚀 CommentRenderer - actualPageId:', actualPageId);
-    console.log('🚀 CommentRenderer - API_BASE_URL:', API_BASE_URL);
+    console.log('🚀 CommentRenderer - actualApiBaseUrl:', actualApiBaseUrl);
     console.log('🚀 CommentRenderer - comp.id:', comp.id);
     console.log('🚀 CommentRenderer - newComment:', newComment);
     
-    if (!actualPageId || !API_BASE_URL) {
-      console.error('❌ CommentRenderer - pageId 또는 API 베이스 URL이 없습니다', {
+    if (!actualPageId || !actualApiBaseUrl) {
+      console.error('❌ CommentRenderer - pageId 또는 API_BASE_URL이 없습니다', {
         actualPageId,
-        API_BASE_URL,
+        actualApiBaseUrl,
         comp: comp
       });
       alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
@@ -67,7 +69,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
     }
 
     try {
-      const apiUrl = `${API_BASE_URL}/users/pages/${actualPageId}/comments/${comp.id}`;
+      const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
       console.log('🚀 CommentRenderer - POST API 호출 URL:', apiUrl);
       
       const response = await fetch(apiUrl, {

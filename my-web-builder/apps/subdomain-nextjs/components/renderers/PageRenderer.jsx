@@ -1,32 +1,19 @@
 import React from 'react';
 
-const PageRenderer = ({ comp, isEditor, onUpdate, ...restProps }) => {
-  console.log('PageRenderer received props:', { comp, isEditor, onUpdate, restProps });
-  console.log('comp?.props:', comp?.props);
+const PageRenderer = ({ component, comp, isEditor, onUpdate }) => {
+  // 디버깅을 위한 로그 추가
+  console.log('🔍 PageRenderer props:', { component, comp, isEditor });
   
-  // comp가 있을 경우 comp.props를, 없을 경우 restProps를 사용
-  const propsSource = comp?.props || restProps || {};
+  // component 또는 comp prop 둘 다 처리
+  const compData = component || comp;
+  console.log('🔍 PageRenderer compData:', compData);
   
-  // pageButton 타입의 경우 특별 처리
-  if (comp?.type === 'pageButton') {
-    const pageButtonProps = {
-      pageName: propsSource.pageName || comp?.pageName || '새 페이지',
-      description: propsSource.description || comp?.description || '',
-      thumbnail: propsSource.thumbnail || comp?.thumbnail || '',
-      thumbnailType: propsSource.thumbnailType || comp?.thumbnailType || 'auto',
-      backgroundColor: propsSource.backgroundColor || comp?.backgroundColor || '#ffffff',
-      textColor: propsSource.textColor || comp?.textColor || '#333333',
-      borderColor: propsSource.borderColor || comp?.borderColor || '#007bff',
-      borderWidth: propsSource.borderWidth || comp?.borderWidth || '2px',
-      borderRadius: propsSource.borderRadius || comp?.borderRadius || 8,
-      fontSize: propsSource.fontSize || comp?.fontSize || 14,
-      fontWeight: propsSource.fontWeight || comp?.fontWeight || '500',
-      linkedPageId: propsSource.linkedPageId || comp?.linkedPageId || '',
-      deployedUrl: propsSource.deployedUrl || comp?.deployedUrl || ''
-    };
-    
-    return renderPageComponent(pageButtonProps, isEditor);
+  if (!compData) {
+    console.error('❌ PageRenderer: compData is null or undefined');
+    return <div>PageRenderer: No component data</div>;
   }
+  
+  console.log('🔍 PageRenderer compData.props:', compData.props);
   
   const {
     pageName = '새 페이지',
@@ -42,7 +29,7 @@ const PageRenderer = ({ comp, isEditor, onUpdate, ...restProps }) => {
     fontWeight = '500',
     linkedPageId = '',
     deployedUrl = ''
-  } = propsSource;
+  } = compData?.props || {};
 
   const handleClick = (e) => {
     if (isEditor) {
@@ -54,48 +41,6 @@ const PageRenderer = ({ comp, isEditor, onUpdate, ...restProps }) => {
       navigateToLinkedPage();
     }
   };
-
-  const navigateToLinkedPage = () => {
-    if (isEditor && linkedPageId) {
-      window.location.href = `/editor/${linkedPageId}`;
-    } else if (!isEditor && deployedUrl) {
-      window.location.href = deployedUrl;
-    }
-  };
-
-  return renderPageComponent({
-    pageName,
-    description,
-    thumbnail,
-    thumbnailType,
-    backgroundColor,
-    textColor,
-    borderColor,
-    borderWidth,
-    borderRadius,
-    fontSize,
-    fontWeight,
-    linkedPageId,
-    deployedUrl
-  }, isEditor, handleClick);
-};
-
-const renderPageComponent = (props, isEditor, handleClick) => {
-  const {
-    pageName,
-    description,
-    thumbnail,
-    thumbnailType,
-    backgroundColor,
-    textColor,
-    borderColor,
-    borderWidth,
-    borderRadius,
-    fontSize,
-    fontWeight,
-    linkedPageId,
-    deployedUrl
-  } = props;
 
   const navigateToLinkedPage = () => {
     if (isEditor && linkedPageId) {
