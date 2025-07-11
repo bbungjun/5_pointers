@@ -91,16 +91,18 @@ function ButtonRenderer({ comp, isEditor = false }) {
         alignItems: 'center', 
         justifyContent: textAlign === 'left' ? 'flex-start' : 
                        textAlign === 'right' ? 'flex-end' : 'center',
-        background: comp.props?.bg || '#3B4EFF', 
-        color: comp.props?.color || '#fff',
+        background: comp.props?.bg || 'linear-gradient(135deg, #D8BFD8 0%, #C8A2C8 50%, #B794B7 100%)', 
+        color: comp.props?.color || '#FFFFFF',
         fontSize: (comp.props?.fontSize || 18) + 'px', 
-        fontFamily: fontStyle,
-        fontWeight: fontWeight,
+        fontFamily: fontStyle || 'Montserrat, Playfair Display, serif',
+        fontWeight: fontWeight || '600',
         textDecoration: textDecoration,
-        borderRadius: 6, 
+        borderRadius: 8, 
         cursor: 'pointer',
-        border: 'none',
+        border: '1px solid rgba(216, 191, 216, 0.3)',
         outline: 'none',
+        boxShadow: '0 4px 16px rgba(216, 191, 216, 0.3)',
+        transition: 'all 0.3s ease',
         userSelect: 'none',
         textTransform: 'none',
         lineHeight: lineHeight,
@@ -112,6 +114,16 @@ function ButtonRenderer({ comp, isEditor = false }) {
         position: 'relative'
       }}
       onDoubleClick={handleDoubleClick}
+      onMouseEnter={(e) => {
+        e.target.style.background = comp.props?.bg ? `${comp.props.bg}dd` : 'linear-gradient(135deg, #E6D3E6 0%, #D4B8D4 50%, #C29FC2 100%)';
+        e.target.style.transform = 'translateY(-2px)';
+        e.target.style.boxShadow = '0 8px 24px rgba(216, 191, 216, 0.4)';
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.background = comp.props?.bg || 'linear-gradient(135deg, #D8BFD8 0%, #C8A2C8 50%, #B794B7 100%)';
+        e.target.style.transform = 'translateY(0)';
+        e.target.style.boxShadow = '0 4px 16px rgba(216, 191, 216, 0.3)';
+      }}
     >
       <div
         style={{

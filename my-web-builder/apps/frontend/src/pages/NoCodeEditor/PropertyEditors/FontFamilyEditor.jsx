@@ -50,6 +50,60 @@ function FontFamilyEditor({ label, value, onChange }) {
     }
   ];
 
+  // 웨딩 테마 폰트 (우아하고 로맨틱한 폰트들)
+  const weddingFonts = [
+    { 
+      value: '"Playfair Display", serif', 
+      label: 'Playfair Display',
+      italicSupport: true
+    },
+    { 
+      value: '"Montserrat", sans-serif', 
+      label: 'Montserrat',
+      italicSupport: true
+    },
+    { 
+      value: '"Great Vibes", cursive', 
+      label: 'Great Vibes',
+      italicSupport: true
+    },
+    { 
+      value: '"Dancing Script", cursive', 
+      label: 'Dancing Script',
+      italicSupport: true
+    },
+    { 
+      value: '"Cormorant Garamond", serif', 
+      label: 'Cormorant Garamond',
+      italicSupport: true
+    },
+    { 
+      value: '"Lato", sans-serif', 
+      label: 'Lato',
+      italicSupport: true
+    },
+    { 
+      value: '"Merriweather", serif', 
+      label: 'Merriweather',
+      italicSupport: true
+    },
+    { 
+      value: '"Poppins", sans-serif', 
+      label: 'Poppins',
+      italicSupport: true
+    },
+    { 
+      value: '"Crimson Text", serif', 
+      label: 'Crimson Text',
+      italicSupport: true
+    },
+    { 
+      value: '"Libre Baskerville", serif', 
+      label: 'Libre Baskerville',
+      italicSupport: true
+    }
+  ];
+
   // 영어 폰트 (모든 폰트 기울임 지원)
   const englishFonts = [
     { 
@@ -106,7 +160,7 @@ function FontFamilyEditor({ label, value, onChange }) {
 
   // 현재 선택된 폰트의 라벨 찾기
   const getCurrentFontLabel = () => {
-    const allFonts = [...koreanFonts, ...englishFonts];
+    const allFonts = [...koreanFonts, ...weddingFonts, ...englishFonts];
     const currentFont = allFonts.find(font => font.value === value);
     return currentFont ? currentFont.label : 'Noto Sans KR';
   };
@@ -280,6 +334,59 @@ function FontFamilyEditor({ label, value, onChange }) {
                 {font.value === value && (
                   <span style={{ 
                     color: '#3b82f6', 
+                    fontSize: '12px',
+                    fontFamily: 'Arial, sans-serif'
+                  }}>✓</span>
+                )}
+              </div>
+            ))}
+
+            {/* 웨딩 테마 폰트 섹션 */}
+            <div style={{
+              padding: '6px 12px 4px 12px',
+              fontSize: '11px',
+              fontWeight: '600',
+              color: '#D8BFD8',
+              backgroundColor: '#fdf8fd',
+              borderTop: '1px solid #e5e7eb',
+              borderBottom: '1px solid #e5e7eb',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              웨딩 테마 폰트
+            </div>
+            {weddingFonts.map((font) => (
+              <div
+                key={font.value}
+                onClick={() => handleFontSelect(font.value)}
+                style={{
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  fontFamily: font.value,
+                  fontSize: '14px',
+                  backgroundColor: font.value === value ? '#fdf8fd' : 'transparent',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  color: '#374151'
+                }}
+                onMouseEnter={(e) => {
+                  if (font.value !== value) {
+                    e.target.style.backgroundColor = '#fef9fe';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (font.value !== value) {
+                    e.target.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <span style={{ fontFamily: font.value }}>
+                  {font.label} <span style={{ fontSize: '12px', color: '#D8BFD8' }}>Wedding</span>
+                </span>
+                {font.value === value && (
+                  <span style={{ 
+                    color: '#D8BFD8', 
                     fontSize: '12px',
                     fontFamily: 'Arial, sans-serif'
                   }}>✓</span>

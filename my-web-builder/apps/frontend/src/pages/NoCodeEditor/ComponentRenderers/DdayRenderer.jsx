@@ -51,69 +51,71 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     };
   }, [targetDate]);
 
-  // 원래 크기로 되돌린 물방울 스타일
+  // 웨딩 테마 우아한 카드 스타일
   const bubbleStyle = {
-    width: '60px',
-    height: '60px',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle at 25% 25%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.1) 70%, rgba(255,255,255,0.05) 100%)',
+    width: '65px',
+    height: '65px',
+    borderRadius: '12px',
+    background: 'linear-gradient(135deg, #FAF9F6 0%, #F5F3F0 50%, #EBE8E4 100%)',
     boxShadow: `
-      0 0 20px rgba(255,255,255,0.3),
-      0 0 40px rgba(255,255,255,0.1),
-      inset 0 0 20px rgba(255,255,255,0.3),
-      inset -8px -8px 20px rgba(0,0,0,0.05)
+      0 4px 12px rgba(189, 181, 166, 0.15),
+      0 2px 4px rgba(189, 181, 166, 0.1),
+      inset 0 1px 0 rgba(255,255,255,0.8)
     `,
-    border: '1px solid rgba(255,255,255,0.2)',
-    backdropFilter: 'blur(15px)',
+    border: '1px solid #BDB5A6',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     margin: '5px',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    transition: 'all 0.3s ease'
   };
 
-  // 원래 크기로 되돌린 하이라이트
+  // 웨딩 테마 우아한 하이라이트
   const bubbleHighlight = {
     position: 'absolute',
-    top: '18%',
-    left: '28%',
-    width: '18px',
-    height: '18px',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 70%, transparent 100%)',
-    filter: 'blur(1.5px)'
+    top: '10%',
+    left: '15%',
+    width: '20px',
+    height: '20px',
+    borderRadius: '8px',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)',
+    filter: 'blur(1px)'
   };
 
-  // 숫자 크기만 키움
+  // 웨딩 테마 우아한 숫자 스타일
   const numberStyle = {
-    fontSize: '20px',  // 18px → 20px
+    fontSize: '22px',
     fontWeight: '700',
     lineHeight: '1',
-    color: '#ffffff',
+    color: '#4A4A4A',
+    fontFamily: 'Playfair Display, serif',
     zIndex: 2,
     position: 'relative'
   };
 
-  // 라벨 크기만 키움
+  // 웨딩 테마 우아한 라벨 스타일
   const labelStyle = {
-    fontSize: '11px',  // 10px → 11px
-    fontWeight: '600',
+    fontSize: '12px',
+    fontWeight: '500',
     textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    color: '#ffffff',
+    letterSpacing: '1px',
+    color: '#BDB5A6',
     textAlign: 'center',
-    marginTop: '4px'
+    marginTop: '6px',
+    fontFamily: 'Montserrat, sans-serif'
   };
 
-  // 콜론 크기만 키움
+  // 웨딩 테마 우아한 콜론 스타일
   const colonStyle = {
-    fontSize: '26px',  // 24px → 26px
-    fontWeight: '700',
-    color: '#ffffff',
+    fontSize: '28px',
+    fontWeight: '300',
+    color: '#BDB5A6',
     display: 'flex',
     alignItems: 'center',
-    margin: '0 2px'
+    margin: '0 4px',
+    fontFamily: 'Playfair Display, serif'
   };
 
   const getContainerStyle = () => {
@@ -143,7 +145,8 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
 
     return {
       ...baseStyle,
-      background: `linear-gradient(135deg, ${backgroundColor} 0%, #e0f2fe 100%)`
+      background: `linear-gradient(135deg, ${backgroundColor} 0%, #F5F3F0 50%, #EBE8E4 100%)`,
+      border: '1px solid rgba(189, 181, 166, 0.2)'
     };
   };
 
@@ -211,16 +214,18 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
         </div>
       </div>
 
-      {/* 목표 날짜 표시 - 글자 크기만 키움 */}
+      {/* 웨딩 테마 목표 날짜 표시 */}
       <div style={{
-        fontSize: '13px',    // 12px → 13px
+        fontSize: '14px',
         fontWeight: '500',
-        color: '#ffffff',
+        color: '#4A4A4A',
         textAlign: 'center',
-        background: 'rgba(255,255,255,0.1)',
-        padding: '4px 10px',  // 원래 크기로 되돌림
-        borderRadius: '12px',
-        backdropFilter: 'blur(8px)'
+        background: 'rgba(189, 181, 166, 0.1)',
+        padding: '6px 12px',
+        borderRadius: '16px',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(189, 181, 166, 0.2)',
+        fontFamily: 'Montserrat, sans-serif'
       }}>
         {new Date(targetDate).toLocaleDateString('ko-KR', {
           year: 'numeric',
