@@ -14,11 +14,11 @@ export function middleware(request: NextRequest) {
   console.log('Hostname without port:', hostnameWithoutPort);
   console.log('Parts:', parts);
   
-  // 서브도메인이 있는 경우 (localhost 또는 pagecube.net)
-  if (parts.length >= 3 && parts[1] === 'pagecube' && parts[2] === 'net') {
-    // *.pagecube.net 형태
+  // 서브도메인이 있는 경우 (localhost 또는 ddukddak.org)
+  if (parts.length >= 3 && parts[1] === 'ddukddak' && parts[2] === 'org') {
+    // *.ddukddak.org 형태
     const subdomain = parts[0];
-    console.log('Detected pagecube subdomain:', subdomain);
+    console.log('Detected ddukddak subdomain:', subdomain);
     
     // 루트 경로로 접근한 경우에만 rewrite
     if (request.nextUrl.pathname === '/') {

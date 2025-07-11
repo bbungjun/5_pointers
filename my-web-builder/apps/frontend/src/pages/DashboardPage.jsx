@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../config';
 import InvitationNotifications from '../components/InvitationNotifications';
 import NotificationToggle from '../components/NotificationToggle';
 import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
-import pageCubeLogo from '../assets/page-cube-logo.png';
+import ddukddakLogo from '../assets/page-cube-logo.png';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 10);
@@ -274,8 +274,8 @@ function DashboardPage({ user, onLogout }) {
             <div className="flex items-center gap-6">
               <div className="relative group">
                 <img
-                  src={pageCubeLogo}
-                  alt="Page Cube"
+                  src={ddukddakLogo}
+                  alt="DdukDdak"
                   className="w-10 h-10 object-contain transform group-hover:scale-105 transition duration-300"
                 />
               </div>
