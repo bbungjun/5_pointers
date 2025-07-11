@@ -17,7 +17,7 @@ export function getComponentDimensions(type) {
     mapInfo: { defaultWidth: 300, defaultHeight: 250, minWidth: 250, minHeight: 150 },
     calendar: { defaultWidth: 350, defaultHeight: 400, minWidth: 300, minHeight: 350 },
     bankAccount: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
-    comment: { defaultWidth: 350, defaultHeight: 400, minWidth: 250, minHeight: 150 },
+    comment: { defaultWidth: 350, defaultHeight: 650, minWidth: 250, minHeight: 150 },
     musicPlayer: { defaultWidth: 50, defaultHeight: 50, minWidth: 50, minHeight: 50 },
     kakaotalkShare: { defaultWidth: 150, defaultHeight: 50, minWidth: 50, minHeight: 50 },
     slido: { defaultWidth: 350, defaultHeight: 250, minWidth: 300, minHeight: 200 },
