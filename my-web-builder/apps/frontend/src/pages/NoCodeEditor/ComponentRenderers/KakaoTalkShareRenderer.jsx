@@ -64,14 +64,40 @@ export default function KakaoTalkShareRenderer({ comp, isEditor }) {
   };
 
   return (
-    <button onClick={handleShare} style={{
-      padding: '8px 16px',
-      backgroundColor: '#FEE500',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '14px'
-    }}>
+    <button 
+      onClick={handleShare} 
+      style={{
+        padding: '12px 24px',
+        backgroundColor: '#BDB5A6',
+        color: '#FAF9F6',
+        border: '1px solid #BDB5A6',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        fontSize: '16px',
+        fontFamily: 'Montserrat, sans-serif',
+        fontWeight: '600',
+        boxShadow: '0 2px 8px rgba(189, 181, 166, 0.2)',
+        transition: 'all 0.3s ease',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px'
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.backgroundColor = '#A6A099';
+        e.target.style.transform = 'translateY(-1px)';
+        e.target.style.boxShadow = '0 4px 12px rgba(189, 181, 166, 0.3)';
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.backgroundColor = '#BDB5A6';
+        e.target.style.transform = 'translateY(0)';
+        e.target.style.boxShadow = '0 2px 8px rgba(189, 181, 166, 0.2)';
+      }}
+    >
+      <span style={{
+        fontSize: '18px',
+        marginRight: '4px'
+      }}>💌</span>
       {buttonTitle || "카카오톡 공유"}
     </button>
   );
