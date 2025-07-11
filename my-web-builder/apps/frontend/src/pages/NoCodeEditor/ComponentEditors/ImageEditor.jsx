@@ -4,7 +4,8 @@ import {
   NumberEditor,
   ImageSourceEditor,
   ObjectFitEditor,
-  BorderRadiusEditor
+  BorderRadiusEditor,
+  SelectEditor
 } from '../PropertyEditors';
 
 function ImageEditor({ selectedComp, onUpdate }) {
@@ -104,6 +105,45 @@ function ImageEditor({ selectedComp, onUpdate }) {
         onChange={(value) => updateProperty('borderRadius', value)}
         label="모서리 둥글기"
         max={50}
+      />
+
+      {/* 특수효과 섹션 */}
+      <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
+      <div style={{ 
+        fontSize: 12, 
+        color: '#65676b', 
+        fontWeight: 600, 
+        marginBottom: 12,
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+      }}>
+        Wedding Effects
+      </div>
+
+      <SelectEditor
+        value={selectedComp.props?.weddingEffect || 'none'}
+        onChange={(value) => updateProperty('weddingEffect', value)}
+        label="웨딩 특수효과"
+        options={[
+          { value: 'none', label: '없음' },
+          { value: 'falling-snow', label: '눈내리기 ❄️' },
+          { value: 'falling-petals', label: '꽃잃 떨어지기 🌸' },
+          { value: 'floating-hearts', label: '떠다니는 하트 ❤️' },
+          { value: 'sparkle-stars', label: '반짝이는 별 ✨' },
+          { value: 'golden-particles', label: '골든 파티클 ✨' },
+          { value: 'butterfly-dance', label: '나비 노래 🦋' },
+          { value: 'romantic-bubbles', label: '로맨틱 버블 🥰' },
+          { value: 'light-rays', label: '빛 줄기 ✨' }
+        ]}
+      />
+
+      <NumberEditor
+        value={selectedComp.props?.effectIntensity || 50}
+        onChange={(value) => updateProperty('effectIntensity', value)}
+        label="효과 강도"
+        min={0}
+        max={100}
+        suffix="%"
       />
     </div>
   );
