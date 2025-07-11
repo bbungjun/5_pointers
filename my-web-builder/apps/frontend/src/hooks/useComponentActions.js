@@ -380,6 +380,7 @@ export function useComponentActions(
               components: selectedComponents,
               name: templateData.name,
               category: templateData.category,
+              editingMode: viewport === 'mobile' ? 'mobile' : 'desktop', // 현재 뷰포트에 따라 편집 기준 설정
               tags: templateData.tags ? templateData.tags.split(',').map(tag => tag.trim()) : [],
               canvasSettings: {
                 canvasHeight: canvasHeight

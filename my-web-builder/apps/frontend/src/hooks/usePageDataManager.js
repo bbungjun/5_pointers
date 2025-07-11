@@ -10,10 +10,10 @@ import useAutoSave from './useAutoSave';
  */
 export function usePageDataManager(roomId, initialViewport = 'desktop') {
   const [components, setComponents] = useState([]);
-  const [designMode, setDesignMode] = useState(initialViewport);
+  const [designMode, setDesignMode] = useState(initialViewport); // 초기값을 파라미터로 설정
   const [pageTitle, setPageTitle] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [canvasHeight, setCanvasHeight] = useState(initialViewport === 'mobile' ? 667 : 1080);
+  const [canvasHeight, setCanvasHeight] = useState(1080);
 
   // 자동 저장 훅
   const autoSave = useAutoSave(roomId, components, canvasHeight);

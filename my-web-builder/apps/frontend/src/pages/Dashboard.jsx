@@ -30,10 +30,10 @@ function Dashboard() {
 
       if (response.ok) {
         const newPage = await response.json();
-        // 웨딩 템플릿인 경우 모바일 뷰포트로 설정
-        const viewport = template.category === 'wedding' ? 'mobile' : 'desktop';
+        // 템플릿의 편집 기준에 따라 뷰포트 설정
+        const viewport = template.editingMode === 'mobile' ? 'mobile' : 'desktop';
         const url = `/editor/${newPage.id}?viewport=${viewport}`;
-        console.log('네비게이션 URL:', url, 'template.category:', template.category);
+        console.log('네비게이션 URL:', url, 'template.editingMode:', template.editingMode);
         navigate(url);
       } else {
         console.error('템플릿으로 페이지 생성 실패');

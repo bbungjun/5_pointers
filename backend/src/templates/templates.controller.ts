@@ -32,6 +32,7 @@ export class TemplatesController {
       pageId: string;
       name: string;
       category: string;
+      editingMode?: 'desktop' | 'mobile';
       tags?: string[];
       thumbnail_url?: string;
     },
@@ -41,6 +42,7 @@ export class TemplatesController {
       body.name,
       body.category,
       req.user.id,
+      body.editingMode || 'desktop',
       body.tags,
       body.thumbnail_url,
     );
@@ -56,6 +58,7 @@ export class TemplatesController {
       components: any[];
       name: string;
       category: string;
+      editingMode?: 'desktop' | 'mobile';
       tags?: string[];
       thumbnail_url?: string;
       canvasSettings?: any;
@@ -66,6 +69,7 @@ export class TemplatesController {
       body.name,
       body.category,
       req.user.id,
+      body.editingMode || 'desktop',
       body.tags,
       body.thumbnail_url,
       body.canvasSettings,
