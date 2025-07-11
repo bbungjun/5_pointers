@@ -86,13 +86,18 @@ function NoCodeEditor({ pageId }) {
       payload.name ||
       payload.email?.split('@')[0] ||
       '사용자';
+    const role = payload.role || 'USER';
 
     return {
       id: userId,
       name: nickname,
       color: getUserColor(userId),
+      role: role,
     };
   });
+
+  // isAdmin 상태 추가
+  const isAdmin = userInfo?.role === 'ADMIN';
 
   // 3. UI 상호작용 관리 (초기 뷰포트 설정 포함)
   const interaction = useEditorInteractionManager(designMode, setDesignMode, initialViewport);
@@ -383,7 +388,7 @@ function NoCodeEditor({ pageId }) {
         roomId={effectiveRoomId}
         isConnected={isConnected}
         connectionError={connectionError}
-        isAdmin={true}
+        isAdmin={isAdmin}
         templateCategory={templateCategory}
       />
 

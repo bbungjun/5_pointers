@@ -1,6 +1,6 @@
 {
   "type": "kakaotalkShare",
-  "label": "💛 카카오톡 공유하기",
+  "label": "카카오톡 공유",
   "defaultProps": {
     "title": "공유할 제목",
     "description": "공유할 설명",
