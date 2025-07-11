@@ -12,7 +12,7 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
   const {
     title = "Our Love Story",
     titleFontFamily = "\"Dancing Script\", \"cursive\", \"Noto Sans KR\", \"맑은 고딕\", sans-serif",
-    titleFontSize = 32,
+    titleFontSize = 30,
     titleFontStyle = "italic",
     titleFontWeight = "normal",
     titleTextDecoration = "none",
@@ -28,7 +28,7 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
       "축복해 주시면 감사하겠습니다."
     ],
     contentFontFamily = "\"Noto Sans KR\", \"맑은 고딕\", sans-serif",
-    contentFontSize = 26,
+    contentFontSize = 18,
     contentFontWeight = "normal",
     contentFontStyle = "normal",
     contentTextDecoration = "none",
