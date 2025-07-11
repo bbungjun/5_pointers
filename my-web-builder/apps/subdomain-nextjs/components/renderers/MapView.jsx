@@ -29,11 +29,20 @@ function loadKakaoMapsScript() {
   });
 }
 
-function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, width = 400, height = 300 }) {
+function KakaoMapView({ 
+  lat = 37.5665, 
+  lng = 126.9780, 
+  zoom = 1,                // 확대된 상태로 기본 설정
+  width = 400, 
+  height = 300,
+  interactive = false      // 배포된 페이지에서는 기본적으로 상호작용 비활성화
+}) {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
   useEffect(() => {
+    // 배포된 페이지에서는 zoom을 1로 고정하여 확대된 상태로 표시
+    const targetZoom = interactive ? zoom : 1;
     loadKakaoMapsScript().then(() => {
       function renderMap() {
         if (!window.kakao || !window.kakao.maps || !window.kakao.maps.LatLng || !mapRef.current) {
@@ -45,14 +54,23 @@ function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, width = 400, he
         if (!map) {
           map = new window.kakao.maps.Map(mapRef.current, {
             center,
-            level: zoom,
+            level: targetZoom,
+            draggable: interactive,          // 드래그 가능 여부
+            scrollwheel: interactive,        // 휠 확대·축소 가능 여부
           });
           mapRef.current._kakao_map_instance = map;
           markerRef.current = new window.kakao.maps.Marker({
             position: center,
             map: map,
           });
-          map.setLevel(zoom);
+          map.setLevel(targetZoom);
+          // 인터랙션 설정 (드래그/줌)
+          if (typeof map.setDraggable === 'function') {
+            map.setDraggable(interactive);
+          }
+          if (typeof map.setZoomable === 'function') {
+            map.setZoomable(interactive);
+          }
         } else {
           map.setCenter(center);
           if (markerRef.current) {
@@ -63,12 +81,19 @@ function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 0, width = 400, he
               map: map,
             });
           }
-          map.setLevel(zoom);
+          map.setLevel(targetZoom);
+          // 인터랙션 설정을 업데이트
+          if (typeof map.setDraggable === 'function') {
+            map.setDraggable(interactive);
+          }
+          if (typeof map.setZoomable === 'function') {
+            map.setZoomable(interactive);
+          }
         }
       }
       renderMap();
     });
-  }, [lat, lng, zoom]);
+  }, [lat, lng, zoom, interactive]);
 
   return (
     <div>
