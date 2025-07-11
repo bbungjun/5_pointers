@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import useAutoSave from '../hooks/useAutoSave';
 import SaveStatusIndicator from '../components/SaveStatusIndicator';
 
@@ -29,11 +29,25 @@ import {
 
 function NoCodeEditor({ pageId }) {
   const { roomId } = useParams();
+  const [searchParams] = useSearchParams();
   
   // roomId가 없으면 임시 ID 생성
   const effectiveRoomId = roomId || `room-${Date.now()}`;
   
- 
+  // URL 파라미터에서 초기 뷰포트 설정 읽기
+  const initialViewport = searchParams.get('viewport') || 'desktop';
+  
+  // URL 파라미터에서 템플릿 카테고리 확인
+  const templateCategory = searchParams.get('template') ? 
+    (() => {
+      try {
+        const templateData = JSON.parse(decodeURIComponent(searchParams.get('template')));
+        return templateData.category;
+      } catch {
+        return null;
+      }
+    })() : null;
+  
   const canvasRef = useRef();
   const containerRef = useRef();
   const [components, setComponents] = useState([]);
@@ -80,8 +94,8 @@ function NoCodeEditor({ pageId }) {
     };
   });
 
-  // 3. UI 상호작용 관리
-  const interaction = useEditorInteractionManager(designMode, setDesignMode);
+  // 3. UI 상호작용 관리 (초기 뷰포트 설정 포함)
+  const interaction = useEditorInteractionManager(designMode, setDesignMode, initialViewport);
 
   // 4. 협업 동기화 로직
   const collaboration = useCollaboration({
@@ -370,6 +384,7 @@ function NoCodeEditor({ pageId }) {
         isConnected={isConnected}
         connectionError={connectionError}
         isAdmin={true}
+        templateCategory={templateCategory}
       />
 
       {/* 저장 상태 표시 */}
