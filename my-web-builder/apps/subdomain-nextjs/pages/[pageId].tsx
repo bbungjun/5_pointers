@@ -26,6 +26,8 @@ import SlidoRenderer from '../components/renderers/SlidoRenderer.jsx';
 import WeddingInviteRenderer from '../components/renderers/WeddingInviteRenderer.jsx';
 import MusicRenderer from '../components/renderers/MusicRenderer.jsx';
 import KakaoTalkShareRenderer from '../components/renderers/KakaoTalkShareRenderer.jsx';
+import MapView from '../components/renderers/MapView.jsx';
+import PageRenderer from '../components/renderers/PageRenderer.jsx';
 
 // API 설정을 전역으로 설정 (컴포넌트들이 사용할 수 있도록)
 if (typeof window !== 'undefined') {
@@ -54,6 +56,8 @@ const getRendererByType = (type: string) => {
     'weddingInvite': WeddingInviteRenderer,
     'music': MusicRenderer,
     'kakaoTalkShare': KakaoTalkShareRenderer,
+    'map': MapView,
+    'pageButton': PageRenderer,
   };
 
   console.log(`🎯 Getting renderer for type: ${type}`, renderers[type] ? 'Found' : 'Not found');
@@ -284,7 +288,6 @@ const DynamicPageRenderer = ({
                     }}
                   >
                     <RendererComponent
-                      {...comp.props}
                       comp={{
                         ...comp,
                         pageId: pageId,

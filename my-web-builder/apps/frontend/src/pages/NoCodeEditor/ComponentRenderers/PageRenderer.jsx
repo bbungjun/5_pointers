@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PageRenderer = ({ component, isEditor, onUpdate }) => {
+const PageRenderer = ({ comp, isEditor, onUpdate }) => {
   const {
     pageName = '새 페이지',
     description = '',
@@ -15,7 +15,7 @@ const PageRenderer = ({ component, isEditor, onUpdate }) => {
     fontWeight = '500',
     linkedPageId = '',
     deployedUrl = ''
-  } = component.props || {};
+  } = comp?.props || {};
 
   const handleClick = (e) => {
     if (isEditor) {

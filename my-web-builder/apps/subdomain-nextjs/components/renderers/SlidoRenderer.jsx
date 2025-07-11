@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../config';
 
 function SlidoRenderer({ comp, isEditor = false, pageId }) {
@@ -204,14 +204,13 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
     if (isEditor) return; // 에디터 모드에서는 API 호출 안함
     
     const actualPageId = pageId || comp.pageId;
-    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
     
-    if (!actualPageId || !actualApiBaseUrl) {
+    if (!actualPageId || !API_BASE_URL) {
       return;
     }
     
     try {
-      const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/slido/${comp.id}`;
+      const apiUrl = `${API_BASE_URL}/users/pages/${actualPageId}/slido/${comp.id}`;
       
       const response = await fetch(apiUrl);
       
@@ -244,18 +243,17 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
     const submittedContent = newOpinion.trim();
     
     const actualPageId = pageId || comp.pageId;
-    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
     
     console.log('🚀 SlidoRenderer - handleSubmitOpinion 호출');
     console.log('🚀 SlidoRenderer - actualPageId:', actualPageId);
-    console.log('🚀 SlidoRenderer - actualApiBaseUrl:', actualApiBaseUrl);
+    console.log('🚀 SlidoRenderer - API_BASE_URL:', API_BASE_URL);
     console.log('🚀 SlidoRenderer - comp.id:', comp.id);
     console.log('🚀 SlidoRenderer - submittedContent:', submittedContent);
     
-    if (!actualPageId || !actualApiBaseUrl) {
-      console.error('❌ SlidoRenderer - pageId 또는 API_BASE_URL이 없습니다', {
+    if (!actualPageId || !API_BASE_URL) {
+      console.error('❌ SlidoRenderer - pageId 또는 API 베이스 URL이 없습니다', {
         actualPageId,
-        actualApiBaseUrl,
+        API_BASE_URL,
         comp: comp
       });
       alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
@@ -264,7 +262,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
     }
     
     try {
-      const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/slido/${comp.id}`;
+      const apiUrl = `${API_BASE_URL}/users/pages/${actualPageId}/slido/${comp.id}`;
       console.log('🚀 SlidoRenderer - POST API 호출 URL:', apiUrl);
       
       const response = await fetch(apiUrl, {
