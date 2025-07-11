@@ -195,7 +195,8 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
       >
         <div
           style={{
-            display: 'grid',
+            display: 'flex',
+            flexDirection: 'column', 
             gridTemplateColumns: styles.gridColumns,
             gap: viewport === 'mobile' ? '8px' : '12px',
             marginBottom: viewport === 'mobile' ? '8px' : '12px',
