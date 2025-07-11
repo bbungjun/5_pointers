@@ -1,4 +1,49 @@
-// 컴포넌트별 렌더러들을 export
+// 컴포넌트별 렌더러들을 import
+import ButtonRenderer from './ButtonRenderer';
+import TextRenderer from './TextRenderer';
+import LinkRenderer from './LinkRenderer';
+import AttendRenderer from './AttendRenderer';
+import ImageRenderer from './ImageRenderer';
+import MapInfoRenderer from './MapInfoRenderer';
+import DdayRenderer from './DdayRenderer';
+import WeddingContactRenderer from './WeddingContactRenderer';
+import GridGalleryRenderer from './GridGalleryRenderer';
+import SlideGalleryRenderer from './SlideGalleryRenderer';
+import CalendarRenderer from './CalendarRenderer';
+import BankAccountRenderer from './BankAccountRenderer';
+import CommentRenderer from './CommentRenderer';
+import SlidoRenderer from './SlidoRenderer';
+import WeddingInviteRenderer from './WeddingInviteRenderer';
+import MusicRenderer from './MusicRenderer';
+import KakaoTalkShareRenderer from './KakaoTalkShareRenderer';
+import PageRenderer from './PageRenderer';
+import PageButtonRenderer from './PageButtonRenderer';
+
+// 컴포넌트 렌더러 객체 생성
+export const ComponentRenderers = {
+  button: ButtonRenderer,
+  text: TextRenderer,
+  link: LinkRenderer,
+  attend: AttendRenderer,
+  image: ImageRenderer,
+  'map-info': MapInfoRenderer,
+  'map_info': MapInfoRenderer,
+  'd-day': DdayRenderer,
+  'wedding-contact': WeddingContactRenderer,
+  'grid-gallery': GridGalleryRenderer,
+  'slide-gallery': SlideGalleryRenderer,
+  calendar: CalendarRenderer,
+  'bank-account': BankAccountRenderer,
+  comment: CommentRenderer,
+  slido: SlidoRenderer,
+  'wedding-invite': WeddingInviteRenderer,
+  music: MusicRenderer,
+  'kakaotalk-share': KakaoTalkShareRenderer,
+  page: PageRenderer,
+  pageButton: PageButtonRenderer,
+};
+
+// 개별 export도 유지
 export { default as ButtonRenderer } from './ButtonRenderer';
 export { default as TextRenderer } from './TextRenderer';
 export { default as LinkRenderer } from './LinkRenderer';

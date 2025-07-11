@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 
-function ImageRenderer({ comp, isEditor = false, onUpdate }) {
+function ImageRenderer({ comp, component, isEditor = false, isPreview = false, onUpdate }) {
+  // comp 또는 component 중 하나를 사용 (하위 호환성)
+  const actualComp = comp || component;
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -15,13 +17,13 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
   };
 
   // 캔버스에서 조정된 크기를 우선 사용, 없으면 props의 기본값 사용
-  const finalWidth = comp.width || comp.props?.width || 200;
-  const finalHeight = comp.height || comp.props?.height || 150;
+  const finalWidth = actualComp?.width || actualComp?.props?.width || 200;
+  const finalHeight = actualComp?.height || actualComp?.props?.height || 150;
 
   const containerStyle = {
     width: '100%',
     height: '100%',
-    borderRadius: (comp.props?.borderRadius || 0) + 'px',
+    borderRadius: (actualComp?.props?.borderRadius || 0) + 'px',
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
@@ -32,7 +34,7 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
   };
 
   // 이미지가 없는 경우 플레이스홀더
-  if (!comp.props?.src) {
+  if (!actualComp?.props?.src) {
     return (
       <div style={containerStyle}>
         <div style={{
@@ -102,14 +104,14 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
 
       {/* 실제 이미지 */}
       <img
-        src={comp.props?.src}
-        alt={comp.props?.alt || '이미지'}
+        src={actualComp?.props?.src}
+        alt={actualComp?.props?.alt || '이미지'}
         onLoad={handleImageLoad}
         onError={handleImageError}
         style={{
           width: '100%',
           height: '100%',
-          objectFit: comp.props?.objectFit || 'cover',
+          objectFit: actualComp?.props?.objectFit || 'cover',
           display: imageError ? 'none' : 'block'
         }}
       />
