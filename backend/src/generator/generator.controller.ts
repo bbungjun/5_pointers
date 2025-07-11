@@ -29,13 +29,10 @@ export class GeneratorController {
    */
   @Post('deploy')
   async deploy(@Body() deployDto: DeployDto) {
-    console.log('🚀 Deploy request received:', deployDto);
     try {
       const result = await this.generatorService.deploy(deployDto);
-      console.log('✅ Deploy successful:', result);
       return result;
     } catch (error) {
-      console.error('❌ Deploy failed:', error);
       throw error;
     }
   }
@@ -98,7 +95,6 @@ export class GeneratorController {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.send(html);
     } catch (error) {
-      console.error('배포된 사이트 조회 오류:', error);
       res.status(500).send('<h1>서버 오류가 발생했습니다</h1>');
     }
   }
@@ -130,7 +126,6 @@ export class GeneratorController {
         components: pageData.components,
       };
     } catch (error) {
-      console.error('경로 기반 사이트 API 오류:', error);
       throw error;
     }
   }
@@ -146,7 +141,6 @@ export class GeneratorController {
   async getSubdomainFromHost(@Req() req: Request, @Res() res: Response) {
     try {
       const host = req.get('host') || req.get('x-forwarded-host') || '';
-      console.log('🌐 Host 헤더:', host);
 
       // 서브도메인 추출 (예: test.pagecube.net -> test)
       const subdomain = this.extractSubdomain(host);
@@ -159,7 +153,6 @@ export class GeneratorController {
         `);
       }
 
-      console.log('🔍 추출된 서브도메인:', subdomain);
 
       const pageData =
         await this.generatorService.getPageBySubdomain(subdomain);
@@ -177,7 +170,6 @@ export class GeneratorController {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.send(html);
     } catch (error) {
-      console.error('서브도메인 HOST 처리 오류:', error);
       res.status(500).send(`
         <h1>서버 오류</h1>
         <p>잠시 후 다시 시도해주세요.</p>
