@@ -6,7 +6,7 @@ export default function WeddingInviteRenderer({ comp }) {
         containerHeight = comp.height || 400,
         title = "Our Love Story",
         titleFontFamily = "Playfair Display, serif",
-        titleFontSize = 36,
+        titleFontSize = 30,
         titleFontStyle = "italic",
         titleFontWeight = "600",
         titleTextDecoration = "none",
@@ -42,7 +42,7 @@ export default function WeddingInviteRenderer({ comp }) {
             style={{
                 padding: 40,
                 background: backgroundColor,
-                borderRadius: 16,
+                borderRadius: 0,
                 width: '100%',
                 height: '100%',
                 minWidth: 200,

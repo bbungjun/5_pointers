@@ -6,7 +6,7 @@ export function getComponentDimensions(type) {
     button: { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 },
     text: { defaultWidth: 200, defaultHeight: 50, minWidth: 100, minHeight: 50 },
     image: { defaultWidth: 200, defaultHeight: 150, minWidth: 100, minHeight: 100 },
-    map: { defaultWidth: 350, defaultHeight: 240, minWidth: 200, minHeight: 150 },
+    map: { defaultWidth: 350, defaultHeight: 250, minWidth: 200, minHeight: 150 },
     link: { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 },
     attend: { defaultWidth: 300, defaultHeight: 200, minWidth: 250, minHeight: 150 },
     dday: { defaultWidth: 350, defaultHeight: 150, minWidth: 150, minHeight: 100 },
