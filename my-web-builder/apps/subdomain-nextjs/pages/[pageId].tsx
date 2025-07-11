@@ -311,6 +311,7 @@ const DynamicPageRenderer = ({
                           {...comp.props}
                           component={componentData}
                           comp={componentData}
+                          mode="live"
                           isEditor={false}
                           onUpdate={() => {}}
                           onPropsChange={() => {}}
