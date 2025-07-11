@@ -86,13 +86,18 @@ function NoCodeEditor({ pageId }) {
       payload.name ||
       payload.email?.split('@')[0] ||
       '사용자';
+    const role = payload.role || 'USER';
 
     return {
       id: userId,
       name: nickname,
       color: getUserColor(userId),
+      role: role,
     };
   });
+
+  // isAdmin 상태 추가
+  const isAdmin = userInfo?.role === 'ADMIN';
 
   // 3. UI 상호작용 관리 (초기 뷰포트 설정 포함)
   const interaction = useEditorInteractionManager(designMode, setDesignMode, initialViewport);
@@ -323,9 +328,10 @@ function NoCodeEditor({ pageId }) {
 
   // 자동저장 훅
   const { isSaving, lastSaved, saveError, saveCount, saveNow } = useAutoSave(
-    pageId,
-    components,
-    2000
+    pageId,          // roomId (페이지 ID)
+    components,      // 컴포넌트 배열
+    canvasHeight,    // 현재 캔버스 높이
+    2000             // 디바운스 시간 (2초)
   );
 
   // 컴포넌트 업데이트 핸들러
@@ -383,7 +389,7 @@ function NoCodeEditor({ pageId }) {
         roomId={effectiveRoomId}
         isConnected={isConnected}
         connectionError={connectionError}
-        isAdmin={true}
+        isAdmin={isAdmin}
         templateCategory={templateCategory}
       />
 
