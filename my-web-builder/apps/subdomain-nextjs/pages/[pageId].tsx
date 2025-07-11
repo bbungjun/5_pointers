@@ -26,6 +26,9 @@ import SlidoRenderer from '../components/renderers/SlidoRenderer.jsx';
 import WeddingInviteRenderer from '../components/renderers/WeddingInviteRenderer.jsx';
 import MusicRenderer from '../components/renderers/MusicRenderer.jsx';
 import KakaoTalkShareRenderer from '../components/renderers/KakaoTalkShareRenderer.jsx';
+import MapView from '../components/renderers/MapView.jsx';
+import PageRenderer from '../components/renderers/PageRenderer.jsx';
+import PageButtonRenderer from '../components/renderers/PageButtonRenderer.jsx';
 
 // API 설정을 전역으로 설정 (컴포넌트들이 사용할 수 있도록)
 if (typeof window !== 'undefined') {
@@ -34,7 +37,7 @@ if (typeof window !== 'undefined') {
   console.log('🔧 Next.js 서버 - NODE_ENV:', process.env.NODE_ENV);
 }
 
-// 컴포넌트 타입별 렌더러 매핑 함수 (실제 frontend 컴포넌트 사용)
+// 컴포넌트 타입별 렌더러 매핑 함수 (프론트엔드 PreviewRenderer와 완전히 일치)
 const getRendererByType = (type: string) => {
   const renderers: { [key: string]: React.ComponentType<any> } = {
     'button': ButtonRenderer,
@@ -52,8 +55,15 @@ const getRendererByType = (type: string) => {
     'comment': CommentRenderer,
     'slido': SlidoRenderer,
     'weddingInvite': WeddingInviteRenderer,
+    'map': MapView,
+    // 프론트엔드 PreviewRenderer와 정확히 동일한 타입명 사용
+    'musicPlayer': MusicRenderer,  // ✅ 프론트엔드와 일치
+    'kakaotalkShare': KakaoTalkShareRenderer,  // ✅ 프론트엔드와 일치  
+    'page': PageRenderer,  // ✅ 프론트엔드와 일치
+    // 백워드 호환성을 위한 추가 매핑
     'music': MusicRenderer,
     'kakaoTalkShare': KakaoTalkShareRenderer,
+    'pageButton': PageButtonRenderer,
   };
 
   console.log(`🎯 Getting renderer for type: ${type}`, renderers[type] ? 'Found' : 'Not found');
@@ -219,6 +229,7 @@ const DynamicPageRenderer = ({
           {components && components.length > 0 ? (
             components.map((comp) => {
               try {
+                console.log('🎯 Rendering component:', comp.type, 'with data:', comp);
                 const RendererComponent = getRendererByType(comp.type);
 
                 if (!RendererComponent) {
@@ -283,21 +294,32 @@ const DynamicPageRenderer = ({
                       zIndex: 2
                     }}
                   >
-                    <RendererComponent
-                      {...comp.props}
-                      comp={{
+                    {(() => {
+                      console.log('🚀 About to render component:', comp.type);
+                      console.log('🚀 Component data:', comp);
+                      console.log('🚀 Component props:', comp.props);
+                      const componentData = {
                         ...comp,
                         pageId: pageId,
                         width: componentWidth,
                         height: componentHeight
-                      }}
-                      isEditor={false}
-                      onUpdate={() => {}}
-                      onPropsChange={() => {}}
-                      pageId={pageId}
-                      width={componentWidth}
-                      height={componentHeight}
-                    />
+                      };
+                      console.log('🚀 Final component data:', componentData);
+                      
+                      return (
+                        <RendererComponent
+                          {...comp.props}
+                          component={componentData}
+                          comp={componentData}
+                          isEditor={false}
+                          onUpdate={() => {}}
+                          onPropsChange={() => {}}
+                          pageId={pageId}
+                          width={componentWidth}
+                          height={componentHeight}
+                        />
+                      );
+                    })()}
                   </div>
                 );
               } catch (error) {
@@ -510,6 +532,97 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     // 그 외의 경우 pageId를 subdomain으로 사용
 
     console.log('🎯 Extracted subdomain:', subdomain);
+
+    // 테스트용 mock 데이터 (test123 등 특정 subdomain에 대해)
+    if (subdomain === 'test123' || subdomain === 'demo' || subdomain === 'test') {
+      console.log('🧪 Using mock data for testing');
+      const mockPageData = {
+        pageId: subdomain,
+        components: [
+          {
+            id: 'test-music-1',
+            type: 'musicPlayer',
+            x: 50,
+            y: 50,
+            width: 300,
+            height: 100,
+            props: {
+              title: '테스트 음악',
+              artist: '테스트 아티스트',
+              audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+              autoPlay: false
+            }
+          },
+          {
+            id: 'test-kakao-1',
+            type: 'kakaotalkShare',
+            x: 400,
+            y: 50,
+            width: 200,
+            height: 80,
+            props: {
+              title: '테스트 카카오톡 공유',
+              description: '테스트 설명',
+              imageUrl: 'https://via.placeholder.com/300x200',
+              linkUrl: 'https://test.com'
+            }
+          },
+          {
+            id: 'test-page-1',
+            type: 'page',
+            x: 50,
+            y: 200,
+            width: 250,
+            height: 150,
+            props: {
+              pageName: '테스트 페이지',
+              description: '페이지 설명',
+              backgroundColor: '#ffffff',
+              textColor: '#333333',
+              linkedPageId: 'test-linked-page',
+              deployedUrl: 'https://example.com'
+            }
+          },
+          {
+            id: 'test-pagebutton-1',
+            type: 'pageButton',
+            x: 350,
+            y: 200,
+            width: 200,
+            height: 60,
+            props: {
+              buttonText: '페이지 이동',
+              backgroundColor: '#007bff',
+              textColor: '#ffffff',
+              linkedPageId: 'test-target-page',
+              deployedUrl: 'https://target.com'
+            }
+          },
+          {
+            id: 'test-map-1',
+            type: 'map',
+            x: 50,
+            y: 400,
+            width: 400,
+            height: 300,
+            props: {
+              latitude: 37.5665,
+              longitude: 126.9780,
+              zoom: 15,
+              title: '서울 시청'
+            }
+          }
+        ]
+      };
+
+      return {
+        props: {
+          pageData: mockPageData,
+          pageId: subdomain,
+          subdomain,
+        },
+      };
+    }
 
     // API 요청 헤더 설정
     const headers: HeadersInit = {
