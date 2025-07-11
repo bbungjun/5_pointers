@@ -19,6 +19,24 @@ function LinkRenderer({ comp, isEditor = false }) {
     }
   };
 
+  const handleClick = (e) => {
+    e.stopPropagation();
+    if (!isEditor && comp.props.href) {
+      const url = comp.props.href;
+      // URL 형식 확인 및 보정
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      } else if (url.startsWith('www.')) {
+        window.open(`https://${url}`, '_blank', 'noopener,noreferrer');
+      } else if (url.includes('.')) {
+        window.open(`https://${url}`, '_blank', 'noopener,noreferrer');
+      } else {
+        // 상대 경로나 다른 형태의 링크
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    }
+  };
+
   const handleBlur = () => {
     setEditing(false);
     if (editValue !== comp.props.text) {
@@ -53,13 +71,17 @@ function LinkRenderer({ comp, isEditor = false }) {
     <div 
       className={`${isEditor ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
       style={{
-        color: comp.props.color, 
-        fontSize: comp.props.fontSize,
-        whiteSpace: 'pre-wrap' // ✅ 줄바꿈 지원
+        color: comp.props.color || '#D8BFD8', 
+        fontSize: comp.props.fontSize || '16px',
+        whiteSpace: 'pre-wrap', // ✅ 줄바꿈 지원
+        textDecoration: 'underline',
+        fontFamily: comp.props.fontFamily || 'Montserrat, sans-serif'
       }}
       onDoubleClick={handleDoubleClick}
+      onClick={handleClick}
+      title={comp.props.href ? `링크: ${comp.props.href}` : '링크 URL이 설정되지 않았습니다'}
     >
-      {comp.props.text}
+      {comp.props.text || '링크 텍스트'}
     </div>
   );
 }
