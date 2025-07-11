@@ -4,12 +4,16 @@ import PreviewRenderer from './PreviewRenderer';
 
 // 반응형 CSS 문자열
 const PREVIEW_CSS = `
-/* 반응형 시스템 전용 CSS */
+/* 미리보기 전용 CSS - 캔버스 에디터와 동일한 스타일 */
 .page-container {
-  width: 100%;
-  min-height: 100vh;
-  padding: 0;
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
   margin: 0;
+  padding: 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: visible;
   box-sizing: border-box;
 }
 
@@ -55,11 +59,7 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
   const rootRef = useRef(null);
   const iframeContainerRef = useRef(null);
 
-  // 컨텐츠 높이를 동적으로 계산
-  const maxHeight = Math.max(
-    1080,
-    ...(components || []).map(comp => (comp.y || 0) + (comp.height || 100))
-  );
+  // 컨텐츠 높이 계산은 PreviewRenderer에서 자동으로 처리됨
 
   // iframe 초기화 (한 번만)
   useEffect(() => {
@@ -77,18 +77,17 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body, #preview-root { 
-              margin: 0; 
-              padding: 0;
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            html, body { 
+              width: 100%;
+              height: 100%;
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-              overflow: hidden; /* 스크롤 완전 제거 */
+              overflow: hidden;
             }
             #preview-root { 
               width: 100%;
               height: 100%;
-              background: #ffffff;
-              padding: 0;
-              margin: 0;
+              background: #f8f9fa;
             }
             ${PREVIEW_CSS}
           </style>
@@ -135,28 +134,24 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
     }
   }, [isOpen]);
 
-  // 데스크톱 뷰 스케일 계산
+  // iframe 크기 조정 (단순화)
   useEffect(() => {
-    if (viewMode !== 'desktop' || !iframeContainerRef.current || !iframeRef.current) return;
+    if (!iframeRef.current || !iframeContainerRef.current) return;
 
-    const container = iframeContainerRef.current;
     const iframe = iframeRef.current;
+    const container = iframeContainerRef.current;
 
-    const updateScale = () => {
-      const containerWidth = container.clientWidth;
-      const containerHeight = container.clientHeight;
-      const scaleX = (containerWidth - 20) / 1920;
-      const scaleY = (containerHeight - 20) / 1080;
-      const scale = Math.min(scaleX, scaleY, 0.8);
-      iframe.style.transform = `scale(${scale})`;
-      iframe.style.transformOrigin = 'center';
-    };
+    // 컨테이너 크기 가져오기
+    const containerRect = container.getBoundingClientRect();
+    const availableWidth = containerRect.width - 20;
+    const availableHeight = containerRect.height - 20;
 
-    const resizeObserver = new ResizeObserver(updateScale);
-    resizeObserver.observe(container);
-    updateScale();
-
-    return () => resizeObserver.disconnect();
+    // iframe을 컨테이너 크기에 맞게 설정
+    iframe.style.width = `${availableWidth}px`;
+    iframe.style.height = `${availableHeight}px`;
+    iframe.style.border = 'none';
+    iframe.style.display = 'block';
+    iframe.style.backgroundColor = '#ffffff';
   }, [viewMode, isOpen]);
 
   // ESC 키로 모달 닫기
@@ -207,7 +202,8 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
           onClick={() => setViewMode('desktop')}
           style={{
             padding: '8px 16px',
-            border: viewMode === 'desktop' ? '2px solid #007bff' : '1px solid #ddd',
+            border:
+              viewMode === 'desktop' ? '2px solid #007bff' : '1px solid #ddd',
             borderRadius: '4px',
             background: viewMode === 'desktop' ? '#e7f1ff' : '#fff',
           }}
@@ -218,7 +214,8 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
           onClick={() => setViewMode('mobile')}
           style={{
             padding: '8px 16px',
-            border: viewMode === 'mobile' ? '2px solid #007bff' : '1px solid #ddd',
+            border:
+              viewMode === 'mobile' ? '2px solid #007bff' : '1px solid #ddd',
             borderRadius: '4px',
             background: viewMode === 'mobile' ? '#e7f1ff' : '#fff',
           }}
@@ -244,35 +241,19 @@ const PreviewModal = ({ isOpen, onClose, components }) => {
           flex: 1,
           position: 'relative',
           overflow: 'hidden',
-          padding: '0', // 여백 제거        
+          padding: '10px',
+          backgroundColor: '#f8f9fa',
         }}
       >
-        <div
+        <iframe
+          ref={iframeRef}
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            width: '1945px',
-            height: '1080px',
-            transform: 'translate(-50%, -50%) scale(0.65)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-            borderRadius: '12px',
-            overflowX: 'hidden',
-            overflowY: 'auto',
-            background: '#fff',            
+            // 동적 크기는 useEffect에서 설정
+            border: 'none',
+            background: '#ffffff',
           }}
-        >
-          <iframe
-            ref={iframeRef}
-            style={{
-              width: '100%',
-              height: `${maxHeight}px`,
-              border: 'none',
-              background: '#fff',
-              borderRadius: '12px',
-            }}
-          />
-        </div>
+          title="Preview"
+        />
       </div>
     </div>
   );

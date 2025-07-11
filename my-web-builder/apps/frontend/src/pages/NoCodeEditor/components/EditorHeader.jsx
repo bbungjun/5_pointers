@@ -92,7 +92,7 @@ n          {/* 페이지 네비게이션 */}
             </label>
             <select
               value={designMode}
-              onChange={(e) => onDesignModeChange(e.target.value, roomId)}
+              onChange={(e) => onDesignModeChange(e.target.value, pageId)}
               className="
                 px-3 py-2 text-sm
                 bg-white border border-gray-300 rounded-lg
