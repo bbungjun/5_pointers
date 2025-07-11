@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import InvitationNotifications from '../components/InvitationNotifications';
 import NotificationToggle from '../components/NotificationToggle';
+import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
 import pageCubeLogo from '../assets/page-cube-logo.png';
 
 function randomId() {
@@ -535,7 +536,7 @@ function DashboardPage({ user, onLogout }) {
         </div>
 
         {/* 테마 선택 섹션 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-12">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600/10 to-indigo-600/10 rounded-xl flex items-center justify-center transform rotate-45">
@@ -595,21 +596,14 @@ function DashboardPage({ user, onLogout }) {
                     className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
                   >
                     <div className="p-4">
-                      {template.thumbnail_url ? (
-                        <div className="relative rounded-lg overflow-hidden mb-4 aspect-video">
-                          <img
-                            src={template.thumbnail_url}
-                            alt={template.name}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                        </div>
-                      ) : (
-                        <div className="relative rounded-lg overflow-hidden mb-4 aspect-video bg-slate-100 flex items-center justify-center">
-                          <div className="w-12 h-12 bg-slate-200 rounded-xl flex items-center justify-center transform rotate-45">
-                            <div className="w-8 h-8 bg-slate-300 rounded-lg"></div>
-                          </div>
-                        </div>
-                      )}
+                      {/* 템플릿 캔버스 미리보기 */}
+                      <div className="relative rounded-lg overflow-hidden mb-4 aspect-video bg-slate-50">
+                        <TemplateCanvasPreview 
+                          template={template} 
+                          className="w-full h-full"
+                        />
+                      </div>
+                      
                       <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors">
                         {template.name}
                       </h4>
@@ -628,9 +622,9 @@ function DashboardPage({ user, onLogout }) {
             )}
           </div>
         </div>
-      </div>
+              </div>
 
-      {/* 삭제 확인 모달 */}
+        {/* 삭제 확인 모달 */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">

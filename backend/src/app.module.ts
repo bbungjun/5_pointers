@@ -34,6 +34,7 @@ import { Submissions } from './users/entities/submissions.entity';
       entities: [Users, Pages, Templates, PageMembers, Submissions],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: false,
+
     }),
     AuthModule,
     UsersModule,
