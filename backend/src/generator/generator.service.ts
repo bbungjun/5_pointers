@@ -29,49 +29,71 @@ export class GeneratorService {
     const userDomain = deployDto.domain
       ?.toLowerCase()
       .replace(/[^a-z0-9-]/g, '');
-    const subdomain =
+    const requestedSubdomain =
       userDomain ||
       `${userId}-${projectId}`.toLowerCase().replace(/[^a-z0-9-]/g, '');
 
-
+    // 3. userId 변환 및 기존 페이지 확인
+    const numericUserId = parseInt(userId.replace(/\D/g, '')) || 1;
+    let subdomain = requestedSubdomain;
+    
     let page;
     try {
-      // 3. pages 테이블에 레코드가 없으면 생성, 있으면 서브도메인과 상태 업데이트
-      page = await this.pagesRepository.findOne({ where: { id: projectId } });
+      // 4. 서브도메인 소유권 확인 및 프로젝트 페이지 확인
+      const existingPageBySubdomain = await this.pagesRepository.findOne({
+        where: { subdomain: requestedSubdomain, status: PageStatus.DEPLOYED }
+      });
       
-      if (!page) {
-        page = this.pagesRepository.create({
-          id: projectId,
-          subdomain: subdomain,
-          title: 'Deployed Page',
-          status: PageStatus.DEPLOYED,
-          userId: parseInt(userId.replace(/\D/g, '')) || 1,
-        });
-        await this.pagesRepository.save(page);
-      } else {
-        // 기존 페이지가 있으면 서브도메인 업데이트 및 DEPLOYED 상태로 설정
-        page.subdomain = subdomain;
+      // 서브도메인이 이미 사용 중인 경우 소유권 확인
+      if (existingPageBySubdomain) {
+        if (existingPageBySubdomain.userId !== numericUserId) {
+          // 다른 사용자가 사용 중인 서브도메인인 경우 - 에러 발생
+          throw new Error(`서브도메인 '${requestedSubdomain}'는 이미 사용 중입니다. 다른 서브도메인을 선택해주세요.`);
+        }
+        // 동일한 사용자가 소유한 서브도메인인 경우 - 해당 페이지를 업데이트
+        page = existingPageBySubdomain;
+        page.id = projectId; // 새로운 프로젝트 ID로 업데이트
         page.status = PageStatus.DEPLOYED;
         await this.pagesRepository.save(page);
+      } else {
+        // 서브도메인이 사용되지 않는 경우 - 새 페이지 생성
+        page = await this.pagesRepository.findOne({ where: { id: projectId } });
+        
+        if (!page) {
+          // 완전히 새로운 페이지 생성
+          page = this.pagesRepository.create({
+            id: projectId,
+            subdomain: subdomain,
+            title: 'Deployed Page',
+            status: PageStatus.DEPLOYED,
+            userId: numericUserId,
+          });
+          await this.pagesRepository.save(page);
+        } else {
+          // 기존 프로젝트의 서브도메인 변경
+          page.subdomain = subdomain;
+          page.status = PageStatus.DEPLOYED;
+          await this.pagesRepository.save(page);
+        }
       }
     } catch (dbError) {
+      if (dbError.message.includes('서브도메인')) {
+        throw dbError; // 서브도메인 중복 에러는 그대로 전달
+      }
       throw new Error(`데이터베이스 저장 실패: ${dbError.message}`);
     }
 
-    // 4. 최종 배포 URL 생성 (프로덕션에서는 실제 서브도메인 사용)
-    const isProduction =
-      process.env.NODE_ENV === 'production' ||
-      process.env.DB_HOST !== 'localhost' ||
-      process.env.API_BASE_URL?.includes('pagecube.net');
+    // 5. 최종 배포 URL 생성 (프로덕션에서는 실제 서브도메인 사용)
+    const isProduction = process.env.NODE_ENV === 'production';
     const url = isProduction
-      ? `https://${subdomain}.pagecube.net`
+      ? `http://${subdomain}.pagecube.net`
       : `http://${subdomain}.localhost:3001`;
 
 
     try {
-      // 5. 컴포넌트 데이터를 pages 테이블의 content 컬럼에 저장
+      // 6. 컴포넌트 데이터를 pages 테이블의 content 컬럼에 저장
       page.content = { components };
-      const savedPage = await this.pagesRepository.save(page);
+      await this.pagesRepository.save(page);
       
       return { url };
     } catch (saveError) {
@@ -100,10 +122,8 @@ export class GeneratorService {
       deployments: [
         {
           deployedUrl:
-            process.env.NODE_ENV === 'production' ||
-            process.env.DB_HOST !== 'localhost' ||
-            process.env.API_BASE_URL?.includes('pagecube.net')
-              ? `https://${page.subdomain}.pagecube.net`
+            process.env.NODE_ENV === 'production'
+              ? `http://${page.subdomain}.pagecube.net`
               : `http://localhost:3001/${page.subdomain}`,
           deployedAt: page.updatedAt,
           subdomain: page.subdomain,
