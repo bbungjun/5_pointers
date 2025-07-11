@@ -18,6 +18,13 @@ const PREVIEW_CSS = `
     .component-container, .desktop-absolute-wrapper {
       max-width: calc(100vw - 20px);
     }
+    
+    /* 버튼 컴포넌트 기본 스타일 (유동적 크기 조절을 위해 !important 제거) */
+    .component-container button,
+    .desktop-absolute-wrapper button {
+      min-font-size: 12px;
+      max-font-size: 18px;
+    }
   }
 `;
 

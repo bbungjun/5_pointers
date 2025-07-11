@@ -124,8 +124,9 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
   const [scale, setScale] = useState(1);
   const containerRef = useRef(null);
   
-  // 캔버스 에디터와 동일한 고정 크기 사용
-  const canvasWidth = forcedViewport === 'mobile' ? 375 : 1920;
+  // 캔버스 크기를 뷰포트에 맞게 설정
+  const [actualCanvasWidth, setActualCanvasWidth] = useState(375);
+  const canvasWidth = forcedViewport === 'mobile' ? actualCanvasWidth : 1920;
   const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
   const isMobileView = forcedViewport === 'mobile';
 

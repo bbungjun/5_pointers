@@ -116,12 +116,17 @@ const DynamicPageRenderer = ({
 }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
+  const [canvasWidth, setCanvasWidth] = useState(375);
 
   useEffect(() => {
     setIsMounted(true);
     
     const checkViewport = () => {
-      setIsMobileView(window.innerWidth <= 768);
+      const isMobile = window.innerWidth <= 768;
+      setIsMobileView(isMobile);
+      if (isMobile) {
+        setCanvasWidth(window.innerWidth - 40); // 여백 40px
+      }
     };
 
     checkViewport();
@@ -186,6 +191,8 @@ const DynamicPageRenderer = ({
             .component-container {
               max-width: calc(100vw - 20px);
             }
+            
+            /* CSS 반응형 제거 - ButtonRenderer 내부 로직에 위임 */
           }
           
           /* 컴포넌트 호버 효과 */
@@ -224,8 +231,7 @@ const DynamicPageRenderer = ({
           display: isMobileView ? 'flex' : 'block',
           flexDirection: isMobileView ? 'column' : 'unset',
           alignItems: isMobileView ? 'center' : 'unset',
-          gap: isMobileView ? '16px' : '0',
-          padding: isMobileView ? '16px' : '0',
+          justifyContent: isMobileView ? 'flex-start' : 'unset',
           width: '100%',
           minHeight: '100vh',
           background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
@@ -249,7 +255,11 @@ const DynamicPageRenderer = ({
         <div style={{
           position: 'relative',
           zIndex: 1,
-          minHeight: '100vh'
+          minHeight: '100vh',
+          width: '100%',
+          display: isMobileView ? 'flex' : 'block',
+          flexDirection: isMobileView ? 'column' : 'unset',
+          alignItems: isMobileView ? 'center' : 'unset'
         }}>
           {components && components.length > 0 ? (
             sortedComponents.map((comp) => {
@@ -303,24 +313,21 @@ const DynamicPageRenderer = ({
                 };
 
                 const defaultSize = getComponentDefaultSize(comp.type);
-                const componentWidth = comp.width || defaultSize.width;
-                const componentHeight = comp.height || defaultSize.height;
+                const originalWidth = comp.width || defaultSize.width;
+                const originalHeight = comp.height || defaultSize.height;
 
                 const wrapperStyle = isMobileView ? {
                   position: 'relative',
-                  width: '90%',
-                  maxWidth: '600px',
-                  height: 'auto',
-                  zIndex: 2,
-                  marginBottom: '16px',
+                  width: `min(${originalWidth}px, 90vw)`,
                   display: 'flex',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  alignItems: 'center'
                 } : {
                   position: 'absolute',
                   left: comp.x || 0,
                   top: comp.y || 0,
-                  width: `${componentWidth}px`,
-                  height: `${componentHeight}px`,
+                  width: `${originalWidth}px`,
+                  height: `${originalHeight}px`,
                   zIndex: 2
                 };
 
@@ -337,23 +344,22 @@ const DynamicPageRenderer = ({
                       const componentData = {
                         ...comp,
                         pageId: pageId,
-                        width: componentWidth,
-                        height: componentHeight
+                        width: originalWidth,
+                        height: originalHeight
                       };
-                      console.log('🚀 Final component data:', componentData);
                       
                       return (
                         <RendererComponent
                           {...comp.props}
                           component={componentData}
-                          comp={componentData}
+                          comp={{ ...comp, width: originalWidth, height: originalHeight }}
                           mode="live"
                           isEditor={false}
                           onUpdate={() => {}}
                           onPropsChange={() => {}}
                           pageId={pageId}
-                          width={componentWidth}
-                          height={componentHeight}
+                          width={originalWidth}
+                          height={originalHeight}
                         />
                       );
                     })()}
