@@ -1,6 +1,8 @@
 import React from 'react';
 
-const PageButtonRenderer = ({ component, isEditor, onUpdate }) => {
+const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }) => {
+  // component 또는 comp 중 하나를 사용 (하위 호환성)
+  const actualComp = comp || component;
   const {
     buttonText = '페이지 이동',
     icon = '📄',
@@ -18,10 +20,12 @@ const PageButtonRenderer = ({ component, isEditor, onUpdate }) => {
     noBorder = false,
     linkedPageId = '',
     deployedUrl = ''
-  } = component.props || {};
+  } = actualComp?.props || {};
 
   const handleClick = (e) => {
+    if (isPreview) return; // 미리보기에서는 클릭 비활성화
     if (!linkedPageId) return;
+    
     if (isEditor) {
       if (e.ctrlKey || e.metaKey) {
         e.stopPropagation();
