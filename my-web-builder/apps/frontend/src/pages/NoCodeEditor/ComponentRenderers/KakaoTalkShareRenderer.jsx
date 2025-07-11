@@ -67,11 +67,13 @@ export default function KakaoTalkShareRenderer({ comp, isEditor }) {
     <button 
       onClick={handleShare} 
       style={{
-        padding: '12px 24px',
-        backgroundColor: '#BDB5A6',
-        color: '#FAF9F6',
-        border: '1px solid #BDB5A6',
-        borderRadius: '8px',
+        width: '100%',
+        height: '100%',
+        padding: 0,
+        backgroundColor: '#FEE500',
+        color: '#191600', 
+        border: '1px solid #FEE500',
+        borderRadius: 0,
         cursor: 'pointer',
         fontSize: '16px',
         fontFamily: 'Montserrat, sans-serif',
@@ -83,21 +85,21 @@ export default function KakaoTalkShareRenderer({ comp, isEditor }) {
         justifyContent: 'center',
         gap: '8px'
       }}
-      onMouseEnter={(e) => {
-        e.target.style.backgroundColor = '#A6A099';
-        e.target.style.transform = 'translateY(-1px)';
-        e.target.style.boxShadow = '0 4px 12px rgba(189, 181, 166, 0.3)';
-      }}
-      onMouseLeave={(e) => {
-        e.target.style.backgroundColor = '#BDB5A6';
-        e.target.style.transform = 'translateY(0)';
-        e.target.style.boxShadow = '0 2px 8px rgba(189, 181, 166, 0.2)';
-      }}
+      // onMouseEnter={(e) => {
+      //   e.target.style.backgroundColor = '#A6A099';
+      //   e.target.style.transform = 'translateY(-1px)';
+      //   e.target.style.boxShadow = '0 4px 12px rgba(189, 181, 166, 0.3)';
+      // }}
+      // onMouseLeave={(e) => {
+      //   e.target.style.backgroundColor = '#BDB5A6';
+      //   e.target.style.transform = 'translateY(0)';
+      //   e.target.style.boxShadow = '0 2px 8px rgba(189, 181, 166, 0.2)';
+      // }}
     >
       <span style={{
         fontSize: '18px',
         marginRight: '4px'
-      }}>💌</span>
+      }}></span>
       {buttonTitle || "카카오톡 공유"}
     </button>
   );

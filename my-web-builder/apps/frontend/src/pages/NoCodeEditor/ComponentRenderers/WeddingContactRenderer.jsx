@@ -42,7 +42,7 @@ function WeddingContactRenderer({ comp }) {
       height: '100%',
       background: '#FAF9F6',
       border: '1px solid #BDB5A6',
-      borderRadius: '16px',
+      borderRadius: 0,
       padding: '28px',
       color: '#4A4A4A',
       fontFamily: 'Montserrat, sans-serif',

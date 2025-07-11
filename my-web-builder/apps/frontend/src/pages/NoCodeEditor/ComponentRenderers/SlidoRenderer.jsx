@@ -375,7 +375,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
         width: '100%',
         height: '100%',
         padding: '20px',
-        borderRadius: '16px',
+        borderRadius: 0,
         border: isEditor ? '2px dashed #3b82f6' : '2px solid #e5e7eb',
         backgroundColor: backgroundColor || '#ffffff',
         display: 'flex',

@@ -106,7 +106,7 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate }) {
     width: "100%",
     height: "100%",
     backgroundColor,
-    borderRadius: borderRadius + "px",
+    borderRadius: 0,
     overflow: "hidden",
     fontFamily: "system-ui, -apple-system, sans-serif",
     display: "flex",

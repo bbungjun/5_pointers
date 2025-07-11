@@ -21,7 +21,7 @@ export default function MapInfoRenderer({ comp }) {
       style={{
         padding: 8,
         background: bgColor,
-        borderRadius: 8,
+        borderRadius: 0,
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
