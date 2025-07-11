@@ -52,9 +52,7 @@ export class InvitationsService {
         inviterName,
       );
 
-      console.log(`✅ 초대 이메일 발송 성공: ${email}`);
     } catch (error) {
-      console.error(`❌ 초대 이메일 발송 실패 (${email}):`, error.message);
 
       // 개발 모드에서는 콘솔에 백업 메시지 출력
       if (process.env.NODE_ENV === 'development') {
@@ -170,10 +168,6 @@ export class InvitationsService {
       };
     } catch (error) {
       // 이메일 발송 실패해도 초대 링크는 생성됨
-      console.warn(
-        '이메일 발송 실패, 하지만 초대 링크 생성 완료:',
-        error.message,
-      );
 
       return {
         message:
@@ -252,9 +246,6 @@ export class InvitationsService {
 
     // 이메일 일치 확인 (보안 강화)
     if (invitation.email && invitation.email !== user.email) {
-      console.error(
-        `이메일 불일치: 초대된 이메일 ${invitation.email}, 로그인한 이메일 ${user.email}`,
-      );
       throw new BadRequestException(
         '초대된 이메일과 로그인한 이메일이 일치하지 않습니다.',
       );

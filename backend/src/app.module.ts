@@ -33,7 +33,8 @@ import { Submissions } from './users/entities/submissions.entity';
       database: process.env.DB_DATABASE || 'jungle',
       entities: [Users, Pages, Templates, PageMembers, Submissions],
       synchronize: process.env.NODE_ENV !== 'production',
-      logging: process.env.NODE_ENV !== 'false',
+      logging: false,
+
     }),
     AuthModule,
     UsersModule,
