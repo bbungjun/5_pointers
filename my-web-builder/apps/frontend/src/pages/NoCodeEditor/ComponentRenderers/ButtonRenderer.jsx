@@ -93,19 +93,11 @@ function ButtonRenderer({ comp, component, isEditor = false, isPreview = false }
         alignItems: 'center', 
         justifyContent: textAlign === 'left' ? 'flex-start' : 
                        textAlign === 'right' ? 'flex-end' : 'center',
-<<<<<<< HEAD
         background: comp.props?.bg || 'linear-gradient(135deg, #D8BFD8 0%, #C8A2C8 50%, #B794B7 100%)', 
         color: comp.props?.color || '#FFFFFF',
         fontSize: (comp.props?.fontSize || 18) + 'px', 
         fontFamily: fontStyle || 'Montserrat, Playfair Display, serif',
         fontWeight: fontWeight || '600',
-=======
-        background: actualComp?.props?.bg || '#3B4EFF', 
-        color: actualComp?.props?.color || '#fff',
-        fontSize: (actualComp?.props?.fontSize || 18) + 'px', 
-        fontFamily: fontStyle,
-        fontWeight: fontWeight,
->>>>>>> 9244cecce3321d93963937d383c9a202aeec34cd
         textDecoration: textDecoration,
         borderRadius: 8, 
         cursor: 'pointer',
