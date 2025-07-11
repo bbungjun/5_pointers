@@ -124,7 +124,7 @@ function DashboardPage({ user, onLogout }) {
   }, [selectedCategory]);
 
   // 템플릿으로 페이지 생성
-  const handleCreateFromTemplate = async (templateId) => {
+  const handleCreateFromTemplate = async (template) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -139,7 +139,7 @@ function DashboardPage({ user, onLogout }) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          templateId: templateId,
+          templateId: template.id,
           title: `Template Page ${Date.now()}`,
           subdomain: `template-${Date.now()}`,
         }),
@@ -148,12 +148,11 @@ function DashboardPage({ user, onLogout }) {
       if (response.ok) {
         const newPage = await response.json();
         console.log('새 페이지 생성:', newPage);
-        
-        // 템플릿 정보를 찾아서 웨딩 카테고리인지 확인
-        const template = templates.find(t => t.id === templateId);
-        const viewport = template?.category === 'wedding' ? 'mobile' : 'desktop';
-        
-        navigate(`/editor/${newPage.id}?viewport=${viewport}&category=${template?.category || 'default'}`);
+        // 템플릿의 편집 기준에 따라 뷰포트 설정
+        const viewport = template.editingMode === 'mobile' ? 'mobile' : 'desktop';
+        const url = `/editor/${newPage.id}?viewport=${viewport}`;
+        console.log('네비게이션 URL:', url, 'template.editingMode:', template.editingMode);
+        navigate(url);
       } else {
         alert('템플릿 페이지 생성에 실패했습니다.');
       }
@@ -600,7 +599,7 @@ function DashboardPage({ user, onLogout }) {
                 {templates.map((template) => (
                   <div
                     key={template.id}
-                    onClick={() => handleCreateFromTemplate(template.id)}
+                    onClick={() => handleCreateFromTemplate(template)}
                     className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
                   >
                     <div className="p-4">
