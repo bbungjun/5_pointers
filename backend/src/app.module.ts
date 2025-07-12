@@ -23,6 +23,8 @@ import { Submissions } from './users/entities/submissions.entity';
     S3Module,
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env.production', '.env'],
+      ignoreEnvFile: false, // .env 파일을 무시하지 않음
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',

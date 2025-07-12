@@ -25,31 +25,38 @@ async function bootstrap() {
       const allowedOrigins = [
         'https://ddukddak.org',
         'https://www.ddukddak.org',
-        'https://pagecube.net',
-        'https://www.pagecube.net',
+        // 환경 변수로부터 추가 도메인 허용
+        process.env.FRONTEND_URL,
+        process.env.ALLOWED_ORIGINS?.split(',') || [],
         'http://localhost:5173',
         'http://localhost:3000',
         'http://localhost:3001'
-      ];
+      ].flat().filter(Boolean);
       
       const subdomainPatterns = [
         /^https?:\/\/[^.]+\.ddukddak\.org$/,
-        /^https?:\/\/[^.]+\.pagecube\.net$/,
         /^https?:\/\/[^.]+\.localhost:\d+$/
       ];
       
+      console.log('[CORS] 요청 Origin:', origin);
+      console.log('[CORS] 허용된 Origins:', allowedOrigins);
+
       if (!origin) {
+        console.log('[CORS] Origin 없음 - 허용');
         return callback(null, true);
       }
       
       if (allowedOrigins.includes(origin)) {
+        console.log('[CORS] Origin 허용됨:', origin);
         return callback(null, true);
       }
       
       if (subdomainPatterns.some(pattern => pattern.test(origin))) {
+        console.log('[CORS] 서브도메인 패턴 매치:', origin);
         return callback(null, true);
       }
       
+      console.log('[CORS] Origin 거부됨:', origin);
       return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
