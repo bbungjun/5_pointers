@@ -129,8 +129,18 @@ function App() {
       // 리디렉션 URL 정리
       localStorage.removeItem('redirectUrl');
       console.log('App.jsx: 로그인 후 원래 목적지로 이동:', redirectUrl);
-      // 전체 URL로 이동 (초대 링크 처리를 위해)
-      window.location.href = redirectUrl;
+      
+      // URL 파라미터가 저장되어 있는지 확인
+      const savedParams = localStorage.getItem('invitationParams');
+      if (savedParams) {
+        console.log('App.jsx: 저장된 파라미터 발견:', savedParams);
+        // 파라미터는 InvitationHandler에서 처리하도록 그대로 두고
+        // 초대 링크로 이동
+        window.location.href = redirectUrl;
+      } else {
+        // 일반적인 리디렉션의 경우
+        window.location.href = redirectUrl;
+      }
     }
   };
 

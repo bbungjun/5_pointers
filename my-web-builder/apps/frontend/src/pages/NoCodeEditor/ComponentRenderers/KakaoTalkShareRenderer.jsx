@@ -11,9 +11,19 @@ export default function KakaoTalkShareRenderer({ comp, isEditor }) {
   }, [isEditor]);
 
   useEffect(() => {
-    // 배포 환경(Next.js)에서만 카카오 SDK 초기화
+    // 배포 환경에서만 카카오 SDK 초기화
     if (!isEditor && typeof window !== "undefined" && window.Kakao && !isInitialized.current) {
-      const KAKAO_JS_KEY = (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_KAKAO_JS_KEY) || 'abf280bb54e158e4414d83da34cfbd83';
+      // 환경 변수 안전하게 접근
+      let KAKAO_JS_KEY = 'abf280bb54e158e4414d83da34cfbd83'; // 기본값
+      
+      try {
+        // 브라우저 환경에서 환경 변수 접근 시도
+        if (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_KAKAO_JS_KEY) {
+          KAKAO_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
+        }
+      } catch (error) {
+        console.log('환경 변수 접근 실패, 기본값 사용:', error);
+      }
 
       console.log('카카오 SDK 초기화 시도 - KAKAO_JS_KEY:', KAKAO_JS_KEY);
 

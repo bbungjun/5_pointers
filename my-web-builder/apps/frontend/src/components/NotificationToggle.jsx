@@ -72,8 +72,25 @@ function NotificationToggle() {
         // 초대 목록에서 제거
         setInvitations(prev => prev.filter(inv => inv.invitationToken !== invitationToken));
         setUnreadCount(prev => Math.max(0, prev - 1));
-        // 에디터 페이지로 이동
-        navigate(`/editor/${pageId}`);
+        
+        // 초대 정보에서 viewport와 fromTemplate 파라미터 가져오기
+        const invitation = invitations.find(inv => inv.invitationToken === invitationToken);
+        const viewport = invitation?.viewport;
+        const fromTemplate = invitation?.fromTemplate;
+        
+        // URL 파라미터 구성
+        const params = new URLSearchParams();
+        if (viewport) params.append('viewport', viewport);
+        if (fromTemplate) params.append('fromTemplate', fromTemplate);
+        
+        const queryString = params.toString();
+        const targetUrl = queryString ? `/editor/${pageId}?${queryString}` : `/editor/${pageId}`;
+        
+        console.log('NotificationToggle: 에디터로 이동:', targetUrl);
+        console.log('NotificationToggle: 파라미터:', { viewport, fromTemplate });
+        
+        // 에디터 페이지로 이동 (파라미터 포함)
+        navigate(targetUrl);
         setIsOpen(false);
       } else {
         const errorData = await response.json();
