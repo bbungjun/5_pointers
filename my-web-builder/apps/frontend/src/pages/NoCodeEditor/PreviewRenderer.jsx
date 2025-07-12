@@ -170,7 +170,8 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
           width: `${canvasWidth}px`,
           height: `${canvasHeight}px`,
           position: 'relative',
-          background: '#ffffff'
+          background: '#ffffff',
+          overflowX: 'hidden'
         }}
       >
         {components.map((component) => (
@@ -201,7 +202,8 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
           width: `${canvasWidth}px`,
           height: `${canvasHeight}px`,
           position: 'relative',
-          background: '#ffffff'
+          background: '#ffffff',
+          overflowX: 'hidden'
         }}
       >
         {components.map((component) => (

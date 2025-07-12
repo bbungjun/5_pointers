@@ -158,17 +158,16 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
       style={{
         width: '100%',
         height: '100%',
-        padding: styles.containerPadding,
         borderRadius: 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
-        minWidth: styles.minWidth,
-        minHeight: styles.minHeight,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'auto',
         fontFamily:
           'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        boxSizing: 'border-box',
+        padding: '16px'
       }}
     >
       <h3

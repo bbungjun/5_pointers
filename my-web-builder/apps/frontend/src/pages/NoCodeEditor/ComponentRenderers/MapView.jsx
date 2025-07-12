@@ -35,6 +35,7 @@ function KakaoMapView({
   zoom = 1,                // 기본 확대 레벨 (1) – interactive: false인 경우엔 무조건 1로 강제
   comp,
   interactive = false,     // 기본적으로 캔버스에서는 상호작용을 막음
+  mode = 'preview'         // 'preview' 또는 'live'
 }) {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
@@ -121,7 +122,13 @@ function KakaoMapView({
   return (
     <div
       ref={mapRef}
-      style={{ width: comp?.width || 340, height: comp?.height || 240, borderRadius: 0, border: '1px solid #ccc' }}
+      style={{ 
+        width: '100%', 
+        height: '100%', 
+        borderRadius: 0, 
+        border: mode === 'preview' ? '1px solid #ccc' : 'none',
+        boxSizing: 'border-box'
+      }}
     />
   );
 }

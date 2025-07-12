@@ -108,8 +108,8 @@ const PreviewModal = ({ isOpen, onClose, components, editingViewport = 'desktop'
 
     // 컨테이너 크기 가져오기
     const containerRect = container.getBoundingClientRect();
-    const availableWidth = containerRect.width - 20;
-    const availableHeight = containerRect.height - 20;
+    const availableWidth = containerRect.width;
+    const availableHeight = containerRect.height;
 
     // iframe을 컨테이너 크기에 맞게 설정
     iframe.style.width = `${availableWidth}px`;
@@ -209,7 +209,6 @@ const PreviewModal = ({ isOpen, onClose, components, editingViewport = 'desktop'
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '20px',
           background: '#f8f9fa'
         }}
       >
