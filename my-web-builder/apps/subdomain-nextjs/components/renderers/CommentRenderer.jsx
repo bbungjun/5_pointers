@@ -1,7 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../../config';
 
-function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId }) {
+function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId, mode = 'live', width, height }) {
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
   const { title, placeholder, backgroundColor } = comp.props;
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
@@ -156,28 +170,37 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
   return (
     <div
       style={{
-        width: '100%',
-        height: '100%',
-        padding: styles.containerPadding,
         borderRadius: '8px',
         border: '1px solid #e5e7eb',
         backgroundColor,
-        minWidth: styles.minWidth,
-        minHeight: styles.minHeight,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'auto',
         fontFamily:
           'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        ...(isLiveMode ? {
+          width: '100%',
+          maxWidth: `${width}px`,
+          aspectRatio: `${width} / ${height}`,
+          padding: `clamp(12px, 3vw, 24px)`,
+          minWidth: `clamp(150px, 30vw, 250px)`,
+          minHeight: `clamp(90px, 25vw, 150px)`
+        } : {
+          width: '100%',
+          height: '100%',
+          padding: styles.containerPadding,
+          minWidth: styles.minWidth,
+          minHeight: styles.minHeight
+        })
       }}
     >
       <h3
         style={{
-          fontSize: styles.titleFontSize,
+          fontSize: isLiveMode ? `clamp(${Math.max(12, 18 * 0.7)}px, ${(18 / 375) * 100}vw, 18px)` : styles.titleFontSize,
           fontWeight: '600',
-          marginBottom: '16px',
+          marginBottom: isLiveMode ? `clamp(10px, 2.5vw, 16px)` : '16px',
           color: '#1f2937',
-          whiteSpace: 'pre-wrap', // ✅
+          whiteSpace: 'pre-wrap'
         }}
       >
         {title || '축하 메세지를 남겨주세요'}
@@ -187,8 +210,8 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
       <form
         onSubmit={handleSubmitComment}
         style={{
-          marginBottom: viewport === 'mobile' ? '16px' : '24px',
-          padding: styles.commentPadding,
+          marginBottom: isLiveMode ? `clamp(12px, 3vw, 24px)` : (viewport === 'mobile' ? '16px' : '24px'),
+          padding: isLiveMode ? `clamp(8px, 2vw, 16px)` : styles.commentPadding,
           backgroundColor: '#f9fafb',
           borderRadius: '8px',
         }}
@@ -209,10 +232,10 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
               setNewComment({ ...newComment, author: e.target.value })
             }
             style={{
-              padding: styles.inputPadding,
+              padding: isLiveMode ? `clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px)` : styles.inputPadding,
               border: '1px solid #d1d5db',
               borderRadius: '6px',
-              fontSize: styles.inputFontSize,
+              fontSize: isLiveMode ? `clamp(${Math.max(10, 14 * 0.7)}px, ${(14 / 375) * 100}vw, 14px)` : styles.inputFontSize,
               outline: 'none',
             }}
             onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
@@ -226,10 +249,10 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
               setNewComment({ ...newComment, password: e.target.value })
             }
             style={{
-              padding: styles.inputPadding,
+              padding: isLiveMode ? `clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px)` : styles.inputPadding,
               border: '1px solid #d1d5db',
               borderRadius: '6px',
-              fontSize: styles.inputFontSize,
+              fontSize: isLiveMode ? `clamp(${Math.max(10, 14 * 0.7)}px, ${(14 / 375) * 100}vw, 14px)` : styles.inputFontSize,
               outline: 'none',
             }}
             onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
@@ -244,14 +267,14 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
           }
           style={{
             width: '100%',
-            padding: styles.inputPadding,
+            padding: isLiveMode ? `clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px)` : styles.inputPadding,
             border: '1px solid #d1d5db',
             borderRadius: '6px',
-            fontSize: styles.inputFontSize,
+            fontSize: isLiveMode ? `clamp(${Math.max(10, 14 * 0.7)}px, ${(14 / 375) * 100}vw, 14px)` : styles.inputFontSize,
             outline: 'none',
             resize: 'none',
-            minHeight: styles.textareaHeight,
-            whiteSpace: 'pre-wrap', // ✅
+            minHeight: isLiveMode ? `clamp(40px, 10vw, 80px)` : styles.textareaHeight,
+            whiteSpace: 'pre-wrap',
           }}
           onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
           onBlur={(e) => (e.target.style.borderColor = '#d1d5db')}

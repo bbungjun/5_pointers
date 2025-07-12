@@ -5,6 +5,15 @@ import { join } from 'path';
 import * as express from 'express';
 
 async function bootstrap() {
+  // 환경 변수 디버깅
+  console.log('[Main] 환경 변수 확인:', {
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    DB_HOST: process.env.DB_HOST ? '설정됨' : '설정되지 않음',
+    JWT_SECRET: process.env.JWT_SECRET ? '설정됨' : '설정되지 않음',
+    JWT_SECRET_LENGTH: process.env.JWT_SECRET?.length || 0
+  });
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // 글로벌 API 접두사 설정 - ddukddak.org 로그인 이슈 해결 (2025-07-07)
@@ -16,32 +25,39 @@ async function bootstrap() {
       const allowedOrigins = [
         'https://ddukddak.org',
         'https://www.ddukddak.org',
-        'https://pagecube.net',
-        'https://www.pagecube.net',
+        // 환경 변수로부터 추가 도메인 허용
+        process.env.FRONTEND_URL,
+        process.env.ALLOWED_ORIGINS?.split(',') || [],
         'http://localhost:5173',
         'http://localhost:3000',
         'http://localhost:3001',
         'http://127.0.0.1:5173',
-      ];
+      ].flat().filter(Boolean);
       
       const subdomainPatterns = [
         /^https?:\/\/[^.]+\.ddukddak\.org$/,
-        /^https?:\/\/[^.]+\.pagecube\.net$/,
         /^https?:\/\/[^.]+\.localhost:\d+$/
       ];
       
+      console.log('[CORS] 요청 Origin:', origin);
+      console.log('[CORS] 허용된 Origins:', allowedOrigins);
+
       if (!origin) {
+        console.log('[CORS] Origin 없음 - 허용');
         return callback(null, true);
       }
       
       if (allowedOrigins.includes(origin)) {
+        console.log('[CORS] Origin 허용됨:', origin);
         return callback(null, true);
       }
       
       if (subdomainPatterns.some(pattern => pattern.test(origin))) {
+        console.log('[CORS] 서브도메인 패턴 매치:', origin);
         return callback(null, true);
       }
       
+      console.log('[CORS] Origin 거부됨:', origin);
       return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,

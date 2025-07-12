@@ -1,9 +1,17 @@
 import React from 'react';
 
-export default function WeddingInviteRenderer({ comp }) {
+// 유틸리티 함수
+const MOBILE_BASE_WIDTH = 375;
+const pxToVw = (px) => `${(px / MOBILE_BASE_WIDTH) * 100}vw`;
+
+export default function WeddingInviteRenderer({ comp, mode = 'preview' }) {
+    const isLiveMode = mode === 'live';
+    
+    // 원본 크기 정보
+    const containerWidth = comp.width || 450;
+    const containerHeight = comp.height || 400;
+    
     const {
-        containerWidth = comp.width || 450,
-        containerHeight = comp.height || 400,
         title = "Our Love Story",
         titleFontFamily = "Dancing Script, cursive, Noto Sans KR, 맑은 고딕, sans-serif",
         titleFontSize = 32,
@@ -40,40 +48,41 @@ export default function WeddingInviteRenderer({ comp }) {
     return (
         <div
             style={{
-                padding: 32,
                 background: backgroundColor,
-                borderRadius: 16,
-                width: '100%',
-                height: '100%',
-                minWidth: 200,
-                minHeight: 120,
+                borderRadius: isLiveMode ? pxToVw(16) : 16,
                 boxSizing: 'border-box',
-                overflow: 'auto',
+                overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 border: '2px solid #e3e3e3',
                 boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                width: '100%',
+                height: '100%',
+                aspectRatio: isLiveMode ? `${containerWidth} / ${containerHeight}` : undefined,
+                padding: isLiveMode ? pxToVw(32) : 32,
+                minWidth: isLiveMode ? undefined : 200,
+                minHeight: isLiveMode ? undefined : 120
             }}
         >
             {/* 제목 */}
             <div
                 style={{
                     fontFamily: titleFontFamily,
-                    fontSize: toPx(titleFontSize),
+                    fontSize: isLiveMode ? pxToVw(titleFontSize) : toPx(titleFontSize),
                     fontStyle: titleFontStyle,
                     fontWeight: titleFontWeight,
                     textDecoration: titleTextDecoration,
                     color: titleColor,
-                    marginBottom: 28,
+                    marginBottom: isLiveMode ? pxToVw(28) : 28,
                     textAlign: titleAlign,
                     width: '100%',
                     letterSpacing: 1,
                     lineHeight: 1.2,
                     wordBreak: 'keep-all',
                     background: 'none',
-                    whiteSpace: 'pre-wrap' // ✅ 연속 스페이스/줄바꿈 반영
+                    whiteSpace: 'pre-wrap'
                 }}
             >
                 {title || <span style={{ color: "#bbb" }}>제목 없음</span>}
@@ -83,7 +92,7 @@ export default function WeddingInviteRenderer({ comp }) {
             <div
                 style={{
                     fontFamily: contentFontFamily,
-                    fontSize: toPx(contentFontSize),
+                    fontSize: isLiveMode ? pxToVw(contentFontSize) : toPx(contentFontSize),
                     fontWeight: contentFontWeight,
                     fontStyle: contentFontStyle,
                     textDecoration: contentTextDecoration,
@@ -93,11 +102,14 @@ export default function WeddingInviteRenderer({ comp }) {
                     width: '100%',
                     wordBreak: 'keep-all',
                     background: 'none',
-                    whiteSpace: 'pre-wrap' // ✅ 연속 스페이스/줄바꿈 반영
+                    whiteSpace: 'pre-wrap'
                 }}
             >
                 {contentLines.map((line, idx) => (
-                    <div key={idx} style={{ minHeight: 24, whiteSpace: 'pre-wrap' }}>
+                    <div key={idx} style={{ 
+                        minHeight: isLiveMode ? pxToVw(24) : 24, 
+                        whiteSpace: 'pre-wrap' 
+                    }}>
                         {line && line.trim().length > 0 ? line : <span style={{ opacity: 0.3 }}>　</span>}
                     </div>
                 ))}
