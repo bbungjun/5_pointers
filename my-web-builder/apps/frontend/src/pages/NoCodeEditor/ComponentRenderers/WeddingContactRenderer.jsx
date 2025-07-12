@@ -34,7 +34,7 @@ function PersonRow({ name, phone1, phone2, phone3, role, deceased }) {
   );
 }
 
-function WeddingContactRenderer({ comp }) {
+function WeddingContactRenderer({ comp, mode = 'editor', isEditor = false }) {
   const p = comp.props;
   return (
     <div style={{
@@ -43,7 +43,6 @@ function WeddingContactRenderer({ comp }) {
       background: '#FAF9F6',
       border: '1px solid #BDB5A6',
       borderRadius: 0,
-      padding: '28px',
       color: '#4A4A4A',
       fontFamily: 'Montserrat, sans-serif',
       boxShadow: '0 8px 32px rgba(189, 181, 166, 0.15)',

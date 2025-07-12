@@ -127,7 +127,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: '10px',     // 원래 크기로 되돌림
+      // padding: '10px',     // 패딩삭제
       borderRadius: 0,
       position: 'relative',
       overflow: 'hidden'

@@ -84,7 +84,12 @@ const PreviewModal = ({
   const [viewMode, setViewMode] = useState(editingViewport);
   const iframeRef = useRef(null);
   const rootRef = useRef(null);
-  const containerRef = useRef(null);
+  const iframeContainerRef = useRef(null);
+
+  // editingViewport 변경 시 viewMode 동기화
+  useEffect(() => {
+    setViewMode(editingViewport === 'mobile' ? 'mobile' : 'desktop');
+  }, [editingViewport]);
 
   // iframe 초기화
   useEffect(() => {
@@ -93,6 +98,16 @@ const PreviewModal = ({
     const iframe = iframeRef.current;
     const iframeDocument = iframe.contentDocument;
     if (!iframeDocument) return;
+
+    // 기존 root 정리
+    if (rootRef.current) {
+      try {
+        rootRef.current.unmount();
+        rootRef.current = null;
+      } catch (error) {
+        console.warn('Failed to unmount existing root:', error);
+      }
+    }
 
     iframeDocument.open();
     iframeDocument.write(`
@@ -110,10 +125,10 @@ const PreviewModal = ({
     iframeDocument.close();
 
     const rootElement = iframeDocument.getElementById("preview-root");
-    if (rootElement && !rootRef.current) {
+    if (rootElement) {
       rootRef.current = createRoot(rootElement);
     }
-  }, [isOpen]);
+  }, [isOpen, viewMode]);
 
   // 컴포넌트 렌더링
   useEffect(() => {
@@ -151,7 +166,27 @@ const PreviewModal = ({
     }
   }, [isOpen]);
 
-  // ESC 키 처리
+  // iframe 크기 조정 (단순화)
+  useEffect(() => {
+    if (!iframeRef.current || !iframeContainerRef.current) return;
+
+    const iframe = iframeRef.current;
+    const container = iframeContainerRef.current;
+
+    // 컨테이너 크기 가져오기
+    const containerRect = container.getBoundingClientRect();
+    const availableWidth = containerRect.width;
+    const availableHeight = containerRect.height;
+
+    // iframe을 컨테이너 크기에 맞게 설정
+    iframe.style.width = `${availableWidth}px`;
+    iframe.style.height = `${availableHeight}px`;
+    iframe.style.border = 'none';
+    iframe.style.display = 'block';
+    iframe.style.backgroundColor = '#ffffff';
+  }, [viewMode, isOpen]);
+
+  // ESC 키로 모달 닫기
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape" && isOpen) {
@@ -192,7 +227,7 @@ const PreviewModal = ({
     ),
 
     // 프리뷰 영역
-    React.createElement("div", { className: "preview-container", ref: containerRef },
+    React.createElement("div", { className: "preview-container", ref: iframeContainerRef },
       viewMode === "mobile" ? 
         React.createElement("div", { className: "iphone-wrapper" },
           React.createElement("div", { className: "iphone-frame" },

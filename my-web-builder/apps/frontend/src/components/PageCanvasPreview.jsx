@@ -111,7 +111,6 @@ const PageCanvasPreview = ({ page, className = '' }) => {
                     <RendererComponent
                       comp={comp}
                       isPreview={true}
-                      isEditor={false}
                       style={{
                         width: '100%',
                         height: '100%',

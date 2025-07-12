@@ -1,6 +1,6 @@
 import React from 'react';
 
-function AttendRenderer({ comp, isEditor = false }) {
+function AttendRenderer({ comp, mode = 'editor' }) {
   // 컴포넌트 크기를 인라인 스타일로 적용
   const containerStyle = {
     width: '100%',
@@ -8,7 +8,7 @@ function AttendRenderer({ comp, isEditor = false }) {
     backgroundColor: comp.props.backgroundColor || '#f8f9fa',
     borderRadius: 0,
     boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-    padding: '24px',
+    // padding: '24px',
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
@@ -63,7 +63,7 @@ function AttendRenderer({ comp, isEditor = false }) {
         }}
         onClick={e => {
           e.stopPropagation();
-          if (isEditor) {
+          if (mode === 'preview') {
             alert('참석 기능은 배포 모드에서 사용 가능합니다.');
           }
         }}

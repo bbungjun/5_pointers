@@ -11,7 +11,7 @@ const pxToVw = (px, minPx, maxPx) => {
   return `${vw.toFixed(4)}vw`;
 };
 
-function ButtonRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
+function ButtonRenderer({ comp, mode = 'live', width, height }) {
   // SSR 안전한 모바일 감지
   const [isLiveMode, setIsLiveMode] = useState(false);
   
@@ -46,7 +46,7 @@ function ButtonRenderer({ comp, isEditor = false, mode = 'live', width, height }
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    if (isEditor) {
+    if (mode === 'editor') {
       setEditing(true);
       setEditValue(comp.props?.text || '');
     }
@@ -77,7 +77,7 @@ function ButtonRenderer({ comp, isEditor = false, mode = 'live', width, height }
   const isItalic = comp.props?.fontStyle;
   const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
 
-  if (editing && isEditor) {
+  if (editing && mode === 'editor') {
     return (
       <input
         ref={inputRef}

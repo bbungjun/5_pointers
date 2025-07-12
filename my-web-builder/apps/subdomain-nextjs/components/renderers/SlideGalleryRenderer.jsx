@@ -20,7 +20,21 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
-function SlideGalleryRenderer({ comp, isEditor = false, onUpdate }) {
+function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width, height }) {
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const autoPlayRef = useRef(null);
@@ -106,11 +120,15 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate }) {
     width: "100%",
     height: "100%",
     backgroundColor,
-    borderRadius: borderRadius + "px",
     overflow: "hidden",
     fontFamily: "system-ui, -apple-system, sans-serif",
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
+    ...(isLiveMode ? {
+      borderRadius: `clamp(${Math.max(4, borderRadius * 0.7)}px, ${(borderRadius / 375) * 100}vw, ${borderRadius}px)`
+    } : {
+      borderRadius: borderRadius + "px"
+    })
   };
 
   // 메인 슬라이드 영역 스타일

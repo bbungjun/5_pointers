@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
+<<<<<<< HEAD
 function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', setModalOpen }) {
+=======
+function BankAccountRenderer({ comp, mode = 'editor', onUpdate }) {
+>>>>>>> 20b1daa8a7a711a7c4e27fcef6b0846b1b32c891
   const { title, groomSide, brideSide, backgroundColor } = comp.props;
   const [groomModalOpen, setGroomModalOpen] = useState(false);
   const [brideModalOpen, setBrideModalOpen] = useState(false);

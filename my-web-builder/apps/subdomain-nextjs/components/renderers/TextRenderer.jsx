@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function TextRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
+function TextRenderer({ comp, mode = 'live', width, height }) {
   const [isLiveMode, setIsLiveMode] = useState(false);
   
   useEffect(() => {
@@ -27,7 +27,7 @@ function TextRenderer({ comp, isEditor = false, mode = 'live', width, height }) 
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    if (isEditor) {
+    if (mode === 'editor') {
       setEditing(true);
       setEditValue(comp.props?.text || '');
     }
@@ -49,7 +49,7 @@ function TextRenderer({ comp, isEditor = false, mode = 'live', width, height }) 
     }
   };
 
-  if (editing && isEditor) {
+  if (editing && mode === 'editor') {
     return (
       <input
         ref={inputRef}

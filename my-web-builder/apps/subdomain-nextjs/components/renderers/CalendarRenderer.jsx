@@ -1,6 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-function CalendarRenderer({ comp, isEditor = false }) {
+function CalendarRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
   const { weddingDate, title, highlightColor } = comp.props;
   
   // 날짜 파싱
@@ -41,13 +55,20 @@ function CalendarRenderer({ comp, isEditor = false }) {
       width: '100%',
       height: '100%',
       backgroundColor: 'white',
-      borderRadius: '8px',
       boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
       border: '1px solid #e5e7eb',
-      padding: '16px',
       display: 'flex',
       flexDirection: 'column',
-      minHeight: '300px'
+      boxSizing: 'border-box',
+      ...(isLiveMode ? {
+        borderRadius: `clamp(4px, 1.5vw, 8px)`,
+        padding: `clamp(8px, 3vw, 16px)`,
+        minHeight: `clamp(180px, 50vw, 300px)`
+      } : {
+        borderRadius: '8px',
+        padding: '16px',
+        minHeight: '300px'
+      })
     }}>
       {title && (
         <h3 style={{
