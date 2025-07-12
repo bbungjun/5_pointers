@@ -35,7 +35,8 @@ function KakaoMapView({
   zoom = 1,                // 확대된 상태로 기본 설정
   width = 400, 
   height = 300,
-  interactive = false      // 배포된 페이지에서는 기본적으로 상호작용 비활성화
+  interactive = false,     // 배포된 페이지에서는 기본적으로 상호작용 비활성화
+  mode = 'live'            // 'preview' 또는 'live'
 }) {
   const mapRef = useRef(null);
   const markerRef = useRef(null);

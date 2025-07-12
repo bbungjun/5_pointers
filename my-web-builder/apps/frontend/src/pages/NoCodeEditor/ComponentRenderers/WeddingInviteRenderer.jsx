@@ -47,7 +47,6 @@ export default function WeddingInviteRenderer({ comp }) {
                 height: '100%',
                 minWidth: 200,
                 minHeight: 120,
-                boxSizing: 'border-box',
                 overflow: 'auto',
                 display: 'flex',
                 flexDirection: 'column',

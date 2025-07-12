@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function LinkRenderer({ comp, isEditor = false }) {
+function LinkRenderer({ comp, mode = 'editor' }) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props.text);
   const inputRef = useRef();
@@ -13,7 +13,7 @@ function LinkRenderer({ comp, isEditor = false }) {
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    if (isEditor) {
+    if (mode === 'editor') {
       setEditing(true);
       setEditValue(comp.props.text);
     }
@@ -21,7 +21,7 @@ function LinkRenderer({ comp, isEditor = false }) {
 
   const handleClick = (e) => {
     e.stopPropagation();
-    if (!isEditor && comp.props.href) {
+    if (mode !== 'editor' && comp.props.href) {
       const url = comp.props.href;
       // URL 형식 확인 및 보정
       if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -53,7 +53,7 @@ function LinkRenderer({ comp, isEditor = false }) {
     }
   };
 
-  if (editing && isEditor) {
+  if (editing && mode === 'editor') {
     return (
       <input
         ref={inputRef}
@@ -69,7 +69,7 @@ function LinkRenderer({ comp, isEditor = false }) {
 
   return (
     <div 
-      className={`${isEditor ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
+      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
       style={{
         color: comp.props.color || '#D8BFD8', 
         fontSize: comp.props.fontSize || '16px',

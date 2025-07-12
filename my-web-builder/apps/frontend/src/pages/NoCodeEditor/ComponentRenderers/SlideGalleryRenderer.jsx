@@ -20,7 +20,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
-function SlideGalleryRenderer({ comp, isEditor = false, onUpdate }) {
+function SlideGalleryRenderer({ comp, mode = 'editor', onUpdate }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const autoPlayRef = useRef(null);
@@ -61,11 +61,10 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate }) {
         clearInterval(autoPlayRef.current);
       }
     };
-  }, [autoPlay, autoPlayInterval, images.length, isEditor]);
+  }, [autoPlay, autoPlayInterval, images.length, mode]);
 
   // 키보드 네비게이션
   useEffect(() => {
-    // if (isEditor) return; // 임시: 편집모드에서도 키보드 활성화
 
     const handleKeyDown = (e) => {
       if (e.key === "ArrowLeft") {

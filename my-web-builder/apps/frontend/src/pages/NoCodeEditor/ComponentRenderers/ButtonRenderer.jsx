@@ -35,7 +35,7 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    if (isEditor && !isPreview) {
+    if (mode === 'preview') {
       setEditing(true);
       setEditValue(actualComp?.props?.text || '');
     }

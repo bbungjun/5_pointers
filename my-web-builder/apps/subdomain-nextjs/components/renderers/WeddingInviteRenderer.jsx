@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-// 유틸리티 함수
-const MOBILE_BASE_WIDTH = 375;
-const pxToVw = (px) => `${(px / MOBILE_BASE_WIDTH) * 100}vw`;
-
-export default function WeddingInviteRenderer({ comp, mode = 'preview' }) {
-    const isLiveMode = mode === 'live';
+export default function WeddingInviteRenderer({ comp, mode = 'preview', width, height }) {
+    const [isLiveMode, setIsLiveMode] = useState(false);
+    
+    useEffect(() => {
+        if (mode === 'live' && typeof window !== 'undefined') {
+            setIsLiveMode(window.innerWidth <= 768);
+            
+            const handleResize = () => {
+                setIsLiveMode(window.innerWidth <= 768);
+            };
+            
+            window.addEventListener('resize', handleResize);
+            return () => window.removeEventListener('resize', handleResize);
+        }
+    }, [mode]);
     
     // 원본 크기 정보
     const containerWidth = comp.width || 450;
@@ -49,7 +58,6 @@ export default function WeddingInviteRenderer({ comp, mode = 'preview' }) {
         <div
             style={{
                 background: backgroundColor,
-                borderRadius: isLiveMode ? pxToVw(16) : 16,
                 boxSizing: 'border-box',
                 overflow: 'hidden',
                 display: 'flex',
@@ -60,22 +68,29 @@ export default function WeddingInviteRenderer({ comp, mode = 'preview' }) {
                 boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
                 width: '100%',
                 height: '100%',
-                aspectRatio: isLiveMode ? `${containerWidth} / ${containerHeight}` : undefined,
-                padding: isLiveMode ? pxToVw(32) : 32,
-                minWidth: isLiveMode ? undefined : 200,
-                minHeight: isLiveMode ? undefined : 120
+                ...(isLiveMode ? {
+                    borderRadius: `clamp(8px, 3vw, 16px)`,
+                    padding: `clamp(16px, 6vw, 32px)`,
+                    minWidth: `clamp(120px, 40vw, 200px)`,
+                    minHeight: `clamp(80px, 30vw, 120px)`
+                } : {
+                    borderRadius: 16,
+                    padding: 32,
+                    minWidth: 200,
+                    minHeight: 120
+                })
             }}
         >
             {/* 제목 */}
             <div
                 style={{
                     fontFamily: titleFontFamily,
-                    fontSize: isLiveMode ? pxToVw(titleFontSize) : toPx(titleFontSize),
+                    fontSize: isLiveMode ? `clamp(${Math.max(16, titleFontSize * 0.7)}px, ${(titleFontSize / 375) * 100}vw, ${titleFontSize}px)` : toPx(titleFontSize),
                     fontStyle: titleFontStyle,
                     fontWeight: titleFontWeight,
                     textDecoration: titleTextDecoration,
                     color: titleColor,
-                    marginBottom: isLiveMode ? pxToVw(28) : 28,
+                    marginBottom: isLiveMode ? `clamp(14px, 5vw, 28px)` : 28,
                     textAlign: titleAlign,
                     width: '100%',
                     letterSpacing: 1,
@@ -92,7 +107,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'preview' }) {
             <div
                 style={{
                     fontFamily: contentFontFamily,
-                    fontSize: isLiveMode ? pxToVw(contentFontSize) : toPx(contentFontSize),
+                    fontSize: isLiveMode ? `clamp(${Math.max(12, contentFontSize * 0.7)}px, ${(contentFontSize / 375) * 100}vw, ${contentFontSize}px)` : toPx(contentFontSize),
                     fontWeight: contentFontWeight,
                     fontStyle: contentFontStyle,
                     textDecoration: contentTextDecoration,
@@ -107,7 +122,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'preview' }) {
             >
                 {contentLines.map((line, idx) => (
                     <div key={idx} style={{ 
-                        minHeight: isLiveMode ? pxToVw(24) : 24, 
+                        minHeight: isLiveMode ? `clamp(12px, 4vw, 24px)` : 24, 
                         whiteSpace: 'pre-wrap' 
                     }}>
                         {line && line.trim().length > 0 ? line : <span style={{ opacity: 0.3 }}>　</span>}
