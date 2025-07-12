@@ -257,24 +257,24 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
         />
         <button
           type="submit"
-          disabled={isEditor}
+          disabled={mode = 'editor'}
           style={{
             marginTop: viewport === 'mobile' ? '8px' : '12px',
             padding: styles.buttonPadding,
             borderRadius: '6px',
             fontSize: styles.inputFontSize,
             border: 'none',
-            cursor: isEditor ? 'not-allowed' : 'pointer',
-            backgroundColor: isEditor ? '#d1d5db' : '#2563eb',
-            color: isEditor ? '#6b7280' : '#ffffff',
+            cursor: mode = 'editor' ? 'not-allowed' : 'pointer',
+            backgroundColor: mode = 'editor' ? '#d1d5db' : '#2563eb',
+            color: mode = 'editor' ? '#6b7280' : '#ffffff',
             transition: 'background-color 0.2s',
             whiteSpace: 'pre-wrap', // ✅
           }}
           onMouseOver={(e) => {
-            if (!isEditor) e.target.style.backgroundColor = '#1d4ed8';
+            if (mode != 'editor') e.target.style.backgroundColor = '#1d4ed8';
           }}
           onMouseOut={(e) => {
-            if (!isEditor) e.target.style.backgroundColor = '#2563eb';
+            if (mode != 'editor') e.target.style.backgroundColor = '#2563eb';
           }}
         >
           {isEditor ? '배포 후 사용 가능' : '댓글 작성'}
@@ -283,7 +283,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
 
       {/* 댓글 목록 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {isEditor ? (
+        {mode = 'editor' ? (
           <>
             <div
               style={{

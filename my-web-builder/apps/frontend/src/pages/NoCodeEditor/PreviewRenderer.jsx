@@ -27,7 +27,7 @@ import LinkCopyRenderer from './ComponentRenderers/LinkCopyRenderer';
 
 // 컴포넌트 렌더링 헬퍼
 const ComponentRenderer = ({ component, editingViewport }) => {
-  const props = { comp: component, mode: 'preview', isEditor: false, editingViewport };
+  const props = { comp: component, mode: 'preview', editingViewport };
   switch (component.type) {
     case 'button':
       return <ButtonRenderer {...props} />;
@@ -66,7 +66,7 @@ const ComponentRenderer = ({ component, editingViewport }) => {
     case 'kakaotalkShare':
       return <KakaoTalkShareRenderer {...props} />;
     case 'page':
-      return <PageRenderer component={component} mode="preview" isEditor={false} />;
+      return <PageRenderer component={component} mode="preview" />;
     case 'pageButton':
       return <PageButtonRenderer {...props} isPreview={true} />;
     case 'linkcopy': // 추가

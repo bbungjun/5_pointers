@@ -20,9 +20,9 @@ const PageRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }
   } = actualComp?.props || {};
 
   const handleClick = (e) => {
-    if (isPreview) return; // 미리보기에서는 클릭 비활성화
+    if (mode == 'preview') return; // 미리보기에서는 클릭 비활성화
     
-    if (isEditor) {
+    if (mode == 'editor') {
       if (e.ctrlKey || e.metaKey) {
         e.stopPropagation();
         navigateToLinkedPage();
@@ -33,9 +33,9 @@ const PageRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }
   };
 
   const navigateToLinkedPage = () => {
-    if (isEditor && linkedPageId) {
+    if (mode == 'editor' && linkedPageId) {
       window.location.href = `/editor/${linkedPageId}`;
-    } else if (!isEditor && deployedUrl) {
+    } else if (!mode == 'editor' && deployedUrl) {
       window.location.href = deployedUrl;
     }
   };
@@ -85,7 +85,7 @@ const PageRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }
       position: 'relative'
     },
     onClick: handleClick,
-    title: isEditor 
+    title: mode == 'editor' 
       ? `${pageName} (${navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'}+클릭으로 페이지 이동)` 
       : `${pageName}으로 이동`
   }, [

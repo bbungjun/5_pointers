@@ -1,6 +1,6 @@
 import React from 'react';
 
-function AttendRenderer({ comp, isEditor = false }) {
+function AttendRenderer({ comp, mode = 'editor' }) {
   // 컴포넌트 크기를 인라인 스타일로 적용
   const containerStyle = {
     width: '100%',
@@ -63,7 +63,7 @@ function AttendRenderer({ comp, isEditor = false }) {
         }}
         onClick={e => {
           e.stopPropagation();
-          if (isEditor) {
+          if (mode === 'preview') {
             alert('참석 기능은 배포 모드에서 사용 가능합니다.');
           }
         }}

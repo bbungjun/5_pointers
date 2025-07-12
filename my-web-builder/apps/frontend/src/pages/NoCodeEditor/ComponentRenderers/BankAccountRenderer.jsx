@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function BankAccountRenderer({ comp, isEditor = false, onUpdate }) {
+function BankAccountRenderer({ comp, mode = 'editor', onUpdate }) {
   const { title, groomSide, brideSide, backgroundColor } = comp.props;
   const [groomOpen, setGroomOpen] = useState(false);
   const [brideOpen, setBrideOpen] = useState(false);
