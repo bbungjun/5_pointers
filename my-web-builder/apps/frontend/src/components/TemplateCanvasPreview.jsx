@@ -90,14 +90,14 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   const getPreviewDimensions = () => {
     if (editingMode === 'mobile') {
       return {
-        width: 200,  // 모바일 화면 영역 크기
-        height: 400, // 더 길게 만든 높이
+        width: 200,  // 모바일 화면 영역 크기 확대
+        height: 400, // 더 길게 만든 높이 확대
         aspectRatio: '1/2'
       };
     } else {
       return {
-        width: 300,  // 데스크톱 비율 (16:9)
-        height: 200,
+        width: 400,  // 데스크톱 비율 (16:9) 확대
+        height: 300,
         aspectRatio: '16/9'
       };
     }
@@ -106,7 +106,16 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   const previewDimensions = getPreviewDimensions();
   const scaleX = previewDimensions.width / contentWidth;
   const scaleY = previewDimensions.height / contentHeight;
-  const finalScale = Math.min(scaleX, scaleY, 0.65); // 최대 0.25 스케일
+  
+  // 편집 기준에 따른 스케일 전략
+  let finalScale;
+  if (editingMode === 'mobile') {
+    // 모바일: 화면 너비를 꽉 채우도록 스케일 조정
+    finalScale = Math.max(scaleX, scaleY, 0.4);
+  } else {
+    // 데스크톱: 적절한 비율 유지하면서 크게 보이도록
+    finalScale = Math.min(scaleX, scaleY, 1.2);
+  }
 
   return (
     <div className={`relative bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
@@ -148,8 +157,8 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
               <div 
                 className="relative bg-white rounded-[1.25rem] overflow-hidden border border-gray-600"
                 style={{
-                  width: '180px',
-                  height: '360px', // 더 길게 만듦
+                  width: `${previewDimensions.width}px`,
+                  height: `${previewDimensions.height}px`,
                 }}
               >
                 {/* 컨텐츠 영역 */}
