@@ -32,6 +32,10 @@ function DashboardPage({ user, onLogout }) {
   const [mobileTemplates, setMobileTemplates] = useState([]);
   const [desktopTemplates, setDesktopTemplates] = useState([]);
   
+  // 전체 템플릿 데이터 (페이지네이션용)
+  const [allMobileTemplates, setAllMobileTemplates] = useState([]);
+  const [allDesktopTemplates, setAllDesktopTemplates] = useState([]);
+  
   // 페이지네이션 상태
   const [mobileCurrentPage, setMobileCurrentPage] = useState(1);
   const [mobileTotalPages, setMobileTotalPages] = useState(1);
@@ -193,6 +197,10 @@ function DashboardPage({ user, onLogout }) {
           console.log('모바일 템플릿:', mobileData);
           console.log('데스크톱 템플릿:', desktopData);
           
+          // 전체 데이터 저장
+          setAllMobileTemplates(mobileData);
+          setAllDesktopTemplates(desktopData);
+          
           // 모바일 페이지네이션
           const mobileStart = (mobileCurrentPage - 1) * mobileItemsPerPage;
           const mobileEnd = mobileStart + mobileItemsPerPage;
@@ -269,9 +277,22 @@ function DashboardPage({ user, onLogout }) {
   useEffect(() => {
     // 필터 변경이 아닌 페이지 변경일 때만 실행
     if (mobileCurrentPage > 1 || desktopCurrentPage > 1) {
-      fetchTemplates(selectedCategory, selectedDevice);
+      // 페이지네이션 시에는 저장된 전체 데이터를 사용하여 스크롤 위치 유지
+      if (selectedDevice === 'all') {
+        // 모바일 페이지네이션
+        const mobileStart = (mobileCurrentPage - 1) * mobileItemsPerPage;
+        const mobileEnd = mobileStart + mobileItemsPerPage;
+        const mobilePagedData = allMobileTemplates.slice(mobileStart, mobileEnd);
+        setMobileTemplates(mobilePagedData);
+        
+        // 데스크톱 페이지네이션
+        const desktopStart = (desktopCurrentPage - 1) * desktopItemsPerPage;
+        const desktopEnd = desktopStart + desktopItemsPerPage;
+        const desktopPagedData = allDesktopTemplates.slice(desktopStart, desktopEnd);
+        setDesktopTemplates(desktopPagedData);
+      }
     }
-  }, [mobileCurrentPage, desktopCurrentPage]);
+  }, [mobileCurrentPage, desktopCurrentPage, allMobileTemplates, allDesktopTemplates, selectedDevice]);
 
   // 페이지네이션 핸들러 (스크롤 위치 유지)
   const handlePageChange = (deviceType, newPage) => {
