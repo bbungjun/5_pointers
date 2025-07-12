@@ -200,6 +200,8 @@ function CanvasComponent({
           <TextRenderer
             comp={componentWithFinalStyles}
             mode="editor"
+            isPreview={false}
+            isSelected={selected}
             onUpdate={onUpdate}
           />
         );

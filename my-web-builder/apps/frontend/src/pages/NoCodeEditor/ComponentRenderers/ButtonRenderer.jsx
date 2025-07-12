@@ -1,5 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+// 사용 가능한 폰트 목록
+const AVAILABLE_FONTS = [
+  'Playfair Display',
+  'Adelio Darmanto',
+  'Bodoni',
+  'Brooke Smith Script',
+  'Chalisa Oktavia',
+  'Dearly Loved One',
+  'Deluxe Edition',
+  'Dreamland',
+  'EB Garamond',
+  'Elsie',
+  'England Hand',
+  'Hijrnotes',
+  'La Paloma',
+  'Millerstone',
+  'Montserrat',
+  'Pinyon Script',
+  'Prata',
+  'Underland'
+];
+
 // 유틸리티 함수 내장
 const MOBILE_BASE_WIDTH = 375;
 const pxToVw = (px, minPx, maxPx) => {
@@ -57,7 +79,7 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
     }
   };
 
-  const fontStyle = actualComp?.props?.fontFamily || 'Arial, sans-serif';
+  const fontStyle = actualComp?.props?.fontFamily || 'Playfair Display, serif';
   const textAlign = actualComp?.props?.textAlign || 'center';
   const lineHeight = actualComp?.props?.lineHeight || 1.2;
   const letterSpacing = actualComp?.props?.letterSpacing || 0;
@@ -109,7 +131,7 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
         background: comp.props?.bg || 'linear-gradient(135deg, #D8BFD8 0%, #C8A2C8 50%, #B794B7 100%)', 
         color: comp.props?.color || '#FFFFFF',
         fontSize: (comp.props?.fontSize || 18) + 'px', 
-        fontFamily: fontStyle || 'Montserrat, Playfair Display, serif',
+        fontFamily: fontStyle || 'Playfair Display, serif',
         fontWeight: fontWeight || '600',
         textDecoration: textDecoration,
         borderRadius: 0, 

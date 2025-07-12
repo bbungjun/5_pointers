@@ -14,7 +14,7 @@ export function getComponentDimensions(type) {
     weddingInvite: { defaultWidth: 375, defaultHeight: 400, minWidth: 300, minHeight: 250 },
     gridGallery: { defaultWidth: 375, defaultHeight: 250, minWidth: 200, minHeight: 200 },
     slideGallery: { defaultWidth: 375, defaultHeight: 250, minWidth: 200, minHeight:200 },
-    mapInfo: { defaultWidth: 375, defaultHeight: 300, minWidth: 250, minHeight: 150 },
+    mapInfo: { defaultWidth: 280, defaultHeight: 200, minWidth: 200, minHeight: 120 },
     calendar: { defaultWidth: 375, defaultHeight: 400, minWidth: 300, minHeight: 350 },
     bankAccount: { defaultWidth: 375, defaultHeight: 200, minWidth: 250, minHeight: 150 },
     comment: { defaultWidth: 375, defaultHeight: 650, minWidth: 250, minHeight: 150 },

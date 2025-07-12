@@ -26,8 +26,8 @@ import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
 import LinkCopyRenderer from './ComponentRenderers/LinkCopyRenderer';
 
 // 컴포넌트 렌더링 헬퍼
-const ComponentRenderer = ({ component, editingViewport }) => {
-  const props = { comp: component, mode: 'preview', editingViewport };
+const ComponentRenderer = ({ component, editingViewport, setModalOpen }) => {
+  const props = { comp: component, mode: 'preview', isEditor: false, editingViewport, setModalOpen };
   switch (component.type) {
     case 'button':
       return <ButtonRenderer {...props} />;
@@ -125,10 +125,8 @@ const calculateActualDimensions = (components) => {
 
 const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewport = 'desktop' }) => {
   const [scale, setScale] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const containerRef = useRef(null);
-  
-  // 캔버스 크기를 뷰포트에 맞게 설정
-  // const actualCanvasWidth = 375;
   const [actualCanvasWidth, setActualCanvasWidth] = useState(375);
   const canvasWidth = forcedViewport === 'mobile' ? actualCanvasWidth : 1920;
   const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
@@ -178,25 +176,37 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
           overflowX: 'hidden'
         }}
       >
-        {components.map((component) => (
-          <div
-            key={component.id}
-            className="mobile-absolute-wrapper"
-            style={{
-              position: 'absolute',
-              left: component.x || 0,
-              top: component.y || 0,
-              width: component.width || getComponentDimensions(component.type).defaultWidth,
-              height: component.height || getComponentDimensions(component.type).defaultHeight,
-            }}
-          >
-            <ComponentRenderer component={component} editingViewport={editingViewport} />
+        {rows.map((row, rowIndex) => (
+          <div key={rowIndex} className="row-wrapper" style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: '12px',
+            flexWrap: 'wrap'
+          }}>
+            {row.map((component) => {
+              const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
+              const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
+              const finalWidth = Math.min(originalWidth, canvasWidth - 40);
+
+              return (
+                <div
+                  key={component.id}
+                  className="component-wrapper"
+                  style={{
+                    width: `${finalWidth}px`,
+                    height: `${originalHeight}px`
+                  }}
+                >
+                  <ComponentRenderer component={component} editingViewport={editingViewport} setModalOpen={setIsModalOpen} />
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
     );
   }
-  
+
   // 모바일 편집 기준 → 모바일 미리보기: 그대로 표시 (절대 위치)
   if (forcedViewport === 'mobile' && editingViewport === 'mobile') {
     return (
@@ -222,7 +232,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
               height: component.height || getComponentDimensions(component.type).defaultHeight,
             }}
           >
-            <ComponentRenderer component={component} editingViewport={editingViewport} />
+            <ComponentRenderer component={component} editingViewport={editingViewport} setModalOpen={setIsModalOpen} />
           </div>
         ))}
       </div>
@@ -236,10 +246,10 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
     width: isMobileView ? '100%' : `${canvasWidth}px`,
     height: isMobileView ? 'auto' : `${canvasHeight}px`,
     minHeight: isMobileView ? `${canvasHeight}px` : 'auto',
-    transform: `scale(${isMobileView ? 1 : scale})`,
+    transform: isModalOpen ? 'none' : `scale(${isMobileView ? 1 : scale})`,
     overflow: isMobileView ? 'auto' : 'visible',
     position: 'relative',
-    margin: "0 auto",
+    margin: 0,
     padding: 0,
     boxSizing: 'border-box',
   };
@@ -266,7 +276,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
               getComponentDimensions(component.type).defaultHeight,
           }}
         >
-          <ComponentRenderer component={component} editingViewport={editingViewport} />
+          <ComponentRenderer component={component} editingViewport={editingViewport} setModalOpen={setIsModalOpen} />
         </div>
       ))}
     </div>

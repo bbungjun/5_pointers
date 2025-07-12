@@ -1,4 +1,5 @@
 import React from 'react';
+import { FontFamilyEditor, TextAlignEditor, LineHeightEditor, LetterSpacingEditor, TextStyleEditor, ColorEditor } from '../PropertyEditors';
 
 function CommentEditor({ selectedComp, onUpdate }) {
   const handlePropChange = (propName, value) => {
@@ -50,6 +51,76 @@ function CommentEditor({ selectedComp, onUpdate }) {
           }}
         />
       </div>
+
+      {/* 폰트 섹션 */}
+      <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
+      <div style={{ 
+        fontSize: 12, 
+        color: '#65676b', 
+        fontWeight: 600, 
+        marginBottom: 12,
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+      }}>
+        Typography
+      </div>
+
+      <FontFamilyEditor
+        value={selectedComp.props?.fontFamily || 'Playfair Display'}
+        onChange={(value) => handlePropChange('fontFamily', value)}
+        label="글꼴"
+      />
+
+      <TextAlignEditor
+        value={selectedComp.props?.textAlign || 'left'}
+        onChange={(value) => handlePropChange('textAlign', value)}
+        label="텍스트 정렬"
+      />
+
+      <LineHeightEditor
+        value={selectedComp.props?.lineHeight || 1.2}
+        onChange={(value) => handlePropChange('lineHeight', value)}
+        label="줄 간격"
+      />
+
+      <LetterSpacingEditor
+        value={selectedComp.props?.letterSpacing || 0}
+        onChange={(value) => handlePropChange('letterSpacing', value)}
+        label="글자 간격"
+      />
+
+      <TextStyleEditor
+        value={{
+          fontWeight: selectedComp.props?.fontWeight || false,
+          fontStyle: selectedComp.props?.fontStyle || false,
+          textDecoration: selectedComp.props?.textDecoration || false
+        }}
+        onChange={(styles) => {
+          handlePropChange('fontWeight', styles.fontWeight);
+          handlePropChange('fontStyle', styles.fontStyle);
+          handlePropChange('textDecoration', styles.textDecoration);
+        }}
+        label="스타일"
+      />
+
+      {/* 색상 섹션 */}
+      <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
+      <div style={{ 
+        fontSize: 12, 
+        color: '#65676b', 
+        fontWeight: 600, 
+        marginBottom: 12,
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+      }}>
+        Colors
+      </div>
+
+      <ColorEditor
+        value={selectedComp.props?.color || '#1f2937'}
+        onChange={(value) => handlePropChange('color', value)}
+        label="텍스트 색상"
+      />
       
       <div>
         <label style={{

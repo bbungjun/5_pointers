@@ -51,14 +51,14 @@ function AttendRenderer({ comp, mode = 'editor' }) {
         style={{
           width: '100%',
           padding: '12px 16px',
-          color: 'white',
+          color: comp.props?.color || 'white',
           fontSize: '18px',
           fontWeight: 'bold',
           border: 'none',
           borderRadius: '8px',
           cursor: 'pointer',
           letterSpacing: '0.5px',
-          background: comp.props.buttonColor || '#aeb8fa',
+          background: comp.props?.bg || comp.props.buttonColor || '#aeb8fa',
           whiteSpace: 'pre-wrap'
         }}
         onClick={e => {
