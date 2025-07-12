@@ -5,6 +5,15 @@ import { join } from 'path';
 import * as express from 'express';
 
 async function bootstrap() {
+  // 환경 변수 디버깅
+  console.log('[Main] 환경 변수 확인:', {
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    DB_HOST: process.env.DB_HOST ? '설정됨' : '설정되지 않음',
+    JWT_SECRET: process.env.JWT_SECRET ? '설정됨' : '설정되지 않음',
+    JWT_SECRET_LENGTH: process.env.JWT_SECRET?.length || 0
+  });
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // 글로벌 API 접두사 설정 - ddukddak.org 로그인 이슈 해결 (2025-07-07)
