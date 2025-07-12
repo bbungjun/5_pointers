@@ -159,7 +159,8 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
     };
   }, [isMobileView, canvasWidth, canvasHeight]);
 
-  if (forcedViewport === 'mobile' && editingViewport !== 'mobile') {
+  // 데스크톱 편집 기준 → 모바일 미리보기: 재배치 적용
+  if (forcedViewport === 'mobile' && editingViewport === 'desktop') {
     const rows = groupComponentsIntoRows(components);
 
     return (
@@ -167,39 +168,55 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
         className="page-container"
         style={{
           width: `${canvasWidth}px`,
-          minHeight: `${canvasHeight}px`,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '16px',
-          padding: '16px 0'
+          height: `${canvasHeight}px`,
+          position: 'relative',
+          background: '#ffffff'
         }}
       >
-        {rows.map((row, rowIndex) => (
-          <div key={rowIndex} className="row-wrapper" style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            gap: '12px',
-            flexWrap: 'wrap'
-          }}>
-            {row.map((component) => {
-              const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
-              const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
-              const finalWidth = Math.min(originalWidth, canvasWidth - 40);
-              
-              return (
-                <div
-                  key={component.id}
-                  className="component-wrapper"
-                  style={{
-                    width: `${finalWidth}px`,
-                    height: `${originalHeight}px`
-                  }}
-                >
-                  <ComponentRenderer component={component} editingViewport={editingViewport} />
-                </div>
-              );
-            })}
+        {components.map((component) => (
+          <div
+            key={component.id}
+            className="mobile-absolute-wrapper"
+            style={{
+              position: 'absolute',
+              left: component.x || 0,
+              top: component.y || 0,
+              width: component.width || getComponentDimensions(component.type).defaultWidth,
+              height: component.height || getComponentDimensions(component.type).defaultHeight,
+            }}
+          >
+            <ComponentRenderer component={component} editingViewport={editingViewport} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  // 모바일 편집 기준 → 모바일 미리보기: 그대로 표시 (절대 위치)
+  if (forcedViewport === 'mobile' && editingViewport === 'mobile') {
+    return (
+      <div
+        className="page-container"
+        style={{
+          width: `${canvasWidth}px`,
+          height: `${canvasHeight}px`,
+          position: 'relative',
+          background: '#ffffff'
+        }}
+      >
+        {components.map((component) => (
+          <div
+            key={component.id}
+            className="mobile-absolute-wrapper"
+            style={{
+              position: 'absolute',
+              left: component.x || 0,
+              top: component.y || 0,
+              width: component.width || getComponentDimensions(component.type).defaultWidth,
+              height: component.height || getComponentDimensions(component.type).defaultHeight,
+            }}
+          >
+            <ComponentRenderer component={component} editingViewport={editingViewport} />
           </div>
         ))}
       </div>

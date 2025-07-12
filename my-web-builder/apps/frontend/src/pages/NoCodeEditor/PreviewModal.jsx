@@ -29,10 +29,15 @@ const PREVIEW_CSS = `
 `;
 
 const PreviewModal = ({ isOpen, onClose, components, editingViewport = 'desktop', templateCategory }) => {
-  const [viewMode, setViewMode] = useState(editingViewport);
+  const [viewMode, setViewMode] = useState(editingViewport === 'mobile' ? 'mobile' : 'desktop');
   const iframeRef = useRef(null);
   const rootRef = useRef(null);
   const iframeContainerRef = useRef(null);
+
+  // editingViewport 변경 시 viewMode 동기화
+  useEffect(() => {
+    setViewMode(editingViewport === 'mobile' ? 'mobile' : 'desktop');
+  }, [editingViewport]);
 
   // 컨텐츠 높이 계산은 PreviewRenderer에서 자동으로 처리됨
 

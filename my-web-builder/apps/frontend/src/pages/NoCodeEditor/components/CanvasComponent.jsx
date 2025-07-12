@@ -232,6 +232,7 @@ function CanvasComponent({
         return (
           <WeddingContactRenderer
             comp={componentWithFinalStyles}
+            mode="editor"
             isEditor={true}
             onUpdate={onUpdate}
           />
