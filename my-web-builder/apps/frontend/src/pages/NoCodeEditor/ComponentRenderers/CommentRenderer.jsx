@@ -1,6 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../../../config';
 
+// 사용 가능한 폰트 목록
+const AVAILABLE_FONTS = [
+  'Playfair Display',
+  'Adelio Darmanto',
+  'Bodoni',
+  'Brooke Smith Script',
+  'Chalisa Oktavia',
+  'Dearly Loved One',
+  'Deluxe Edition',
+  'Dreamland',
+  'EB Garamond',
+  'Elsie',
+  'England Hand',
+  'Hijrnotes',
+  'La Paloma',
+  'Millerstone',
+  'Montserrat',
+  'Pinyon Script',
+  'Prata',
+  'Underland'
+];
+
 function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }) {
   const { title, placeholder, backgroundColor } = comp.props;
   const [comments, setComments] = useState([]);
@@ -153,6 +175,16 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
 
   const styles = getResponsiveStyles();
 
+  // 폰트 관련 속성들
+  const fontFamily = comp.props?.fontFamily || 'Playfair Display, serif';
+  const textAlign = comp.props?.textAlign || 'left';
+  const lineHeight = comp.props?.lineHeight || 1.2;
+  const letterSpacing = comp.props?.letterSpacing || 0;
+  const fontWeight = comp.props?.fontWeight ? 'bold' : 'normal';
+  const textDecoration = comp.props?.textDecoration ? 'underline' : 'none';
+  const isItalic = comp.props?.fontStyle;
+  const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
+
   return (
     <div
       style={{
@@ -164,17 +196,23 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
         display: 'flex',
         flexDirection: 'column',
         overflow: 'auto',
-        fontFamily:
-          'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: fontFamily,
+        padding: styles.containerPadding,
       }}
     >
       <h3
         style={{
           fontSize: styles.titleFontSize,
-          fontWeight: '600',
+          fontWeight: fontWeight === 'bold' ? 'bold' : '600',
           marginBottom: '16px',
-          color: '#1f2937',
-          whiteSpace: 'pre-wrap', // ✅
+          color: comp.props?.color || '#1f2937',
+          whiteSpace: 'pre-wrap',
+          fontFamily: fontFamily,
+          textAlign: textAlign,
+          lineHeight: lineHeight,
+          letterSpacing: letterSpacing + 'px',
+          textDecoration: textDecoration,
+          transform: italicTransform,
         }}
       >
         {title || '축하 메세지를 남겨주세요'}
@@ -446,19 +484,29 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
               <div style={{ paddingRight: '32px' }}>
                 <div
                   style={{
-                    fontWeight: '500',
-                    color: '#1f2937',
+                    fontWeight: fontWeight === 'bold' ? 'bold' : '500',
+                    color: comp.props?.color || '#1f2937',
                     marginBottom: '4px',
+                    fontFamily: fontFamily,
+                    textAlign: textAlign,
+                    letterSpacing: letterSpacing + 'px',
+                    textDecoration: textDecoration,
+                    transform: italicTransform,
                   }}
                 >
                   {comment.author}
                 </div>
                 <div
                   style={{
-                    color: '#4b5563',
+                    color: comp.props?.color || '#4b5563',
                     fontSize: '14px',
-                    lineHeight: '1.5',
-                    whiteSpace: 'pre-wrap', // ✅
+                    lineHeight: lineHeight,
+                    whiteSpace: 'pre-wrap',
+                    fontFamily: fontFamily,
+                    textAlign: textAlign,
+                    letterSpacing: letterSpacing + 'px',
+                    textDecoration: textDecoration,
+                    transform: italicTransform,
                   }}
                 >
                   {comment.content}

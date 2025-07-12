@@ -58,48 +58,88 @@ function FontFamilyEditor({ label, value, onChange }) {
       italicSupport: true
     },
     { 
+      value: '"Adelio Darmanto", cursive', 
+      label: 'Adelio Darmanto',
+      italicSupport: true
+    },
+    { 
+      value: '"Bodoni", serif', 
+      label: 'Bodoni',
+      italicSupport: true
+    },
+    { 
+      value: '"Brooke Smith Script", cursive', 
+      label: 'Brooke Smith Script',
+      italicSupport: true
+    },
+    { 
+      value: '"Chalisa Oktavia", cursive', 
+      label: 'Chalisa Oktavia',
+      italicSupport: true
+    },
+    { 
+      value: '"Dearly Loved One", cursive', 
+      label: 'Dearly Loved One',
+      italicSupport: true
+    },
+    { 
+      value: '"Deluxe Edition", serif', 
+      label: 'Deluxe Edition',
+      italicSupport: true
+    },
+    { 
+      value: '"Dreamland", cursive', 
+      label: 'Dreamland',
+      italicSupport: true
+    },
+    { 
+      value: '"EB Garamond", serif', 
+      label: 'EB Garamond',
+      italicSupport: true
+    },
+    { 
+      value: '"Elsie", serif', 
+      label: 'Elsie',
+      italicSupport: true
+    },
+    { 
+      value: '"England Hand", cursive', 
+      label: 'England Hand',
+      italicSupport: true
+    },
+    { 
+      value: '"Hijrnotes", cursive', 
+      label: 'Hijrnotes',
+      italicSupport: true
+    },
+    { 
+      value: '"La Paloma", cursive', 
+      label: 'La Paloma',
+      italicSupport: true
+    },
+    { 
+      value: '"Millerstone", serif', 
+      label: 'Millerstone',
+      italicSupport: true
+    },
+    { 
       value: '"Montserrat", sans-serif', 
       label: 'Montserrat',
       italicSupport: true
     },
     { 
-      value: '"Great Vibes", cursive', 
-      label: 'Great Vibes',
+      value: '"Pinyon Script", cursive', 
+      label: 'Pinyon Script',
       italicSupport: true
     },
     { 
-      value: '"Dancing Script", cursive', 
-      label: 'Dancing Script',
+      value: '"Prata", serif', 
+      label: 'Prata',
       italicSupport: true
     },
     { 
-      value: '"Cormorant Garamond", serif', 
-      label: 'Cormorant Garamond',
-      italicSupport: true
-    },
-    { 
-      value: '"Lato", sans-serif', 
-      label: 'Lato',
-      italicSupport: true
-    },
-    { 
-      value: '"Merriweather", serif', 
-      label: 'Merriweather',
-      italicSupport: true
-    },
-    { 
-      value: '"Poppins", sans-serif', 
-      label: 'Poppins',
-      italicSupport: true
-    },
-    { 
-      value: '"Crimson Text", serif', 
-      label: 'Crimson Text',
-      italicSupport: true
-    },
-    { 
-      value: '"Libre Baskerville", serif', 
-      label: 'Libre Baskerville',
+      value: '"Underland", cursive', 
+      label: 'Underland',
       italicSupport: true
     }
   ];
@@ -162,12 +202,12 @@ function FontFamilyEditor({ label, value, onChange }) {
   const getCurrentFontLabel = () => {
     const allFonts = [...koreanFonts, ...weddingFonts, ...englishFonts];
     const currentFont = allFonts.find(font => font.value === value);
-    return currentFont ? currentFont.label : 'Noto Sans KR';
+    return currentFont ? currentFont.label : 'Playfair Display';
   };
 
   // CSS 스타일 주입으로 폰트 강제 적용
   useEffect(() => {
-    const currentFontValue = value || koreanFonts[0].value;
+    const currentFontValue = value || '"Playfair Display", serif';
     
     // 기존 스타일 제거
     const existingStyle = document.getElementById(uniqueId);
