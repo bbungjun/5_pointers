@@ -186,7 +186,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
             {row.map((component) => {
               const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
               const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
-              const finalWidth = Math.min(originalWidth, canvasWidth - 40);
+              const finalWidth = Math.min(originalWidth, canvasWidth);
               
               return (
                 <div
@@ -217,7 +217,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
     transform: `scale(${isMobileView ? 1 : scale})`,
     overflow: isMobileView ? 'auto' : 'visible',
     position: 'relative',
-    margin: 0,
+    margin: "0 auto",
     padding: 0,
     boxSizing: 'border-box',
   };
