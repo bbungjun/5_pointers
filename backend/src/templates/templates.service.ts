@@ -19,6 +19,7 @@ export class TemplatesService {
   // 공개 템플릿 목록 조회
   async getPublicTemplates(category?: string) {
     try {
+      console.log(`[Templates] 템플릿 조회 시작 - category: ${category}`);
       
       const query = this.templatesRepository
         .createQueryBuilder('template')
@@ -31,10 +32,16 @@ export class TemplatesService {
       }
 
       const templates = await query.getMany();
+      console.log(`[Templates] 템플릿 ${templates.length}개 조회 성공`);
       
       return templates;
     } catch (error) {
-      console.error('템플릿 조회 실패:', error);
+      console.error('[Templates] 템플릿 조회 실패:', {
+        error: error.message,
+        stack: error.stack,
+        category,
+        timestamp: new Date().toISOString()
+      });
       throw error;
     }
   }
@@ -99,6 +106,7 @@ export class TemplatesService {
     canvasSettings?: any,
   ) {
     try {
+      console.log(`[Templates] 컴포넌트로 템플릿 생성 시작 - authorId: ${authorId}, name: ${name}, category: ${category}`);
 
       // 작성자 조회
       const author = await this.usersRepository.findOne({
@@ -106,10 +114,14 @@ export class TemplatesService {
       });
 
       if (!author) {
-        console.error('사용자를 찾을 수 없습니다:', authorId);
+        console.error('[Templates] 사용자를 찾을 수 없습니다:', {
+          authorId,
+          timestamp: new Date().toISOString()
+        });
         throw new NotFoundException('사용자를 찾을 수 없습니다.');
       }
 
+      console.log(`[Templates] 사용자 조회 성공 - userId: ${author.id}, email: ${author.email}`);
 
       // 컴포넌트 배열로 템플릿 생성
       const template = this.templatesRepository.create({
@@ -125,11 +137,22 @@ export class TemplatesService {
         authorId,
       });
 
+      console.log(`[Templates] 템플릿 엔티티 생성 완료 - 컴포넌트 수: ${components?.length || 0}`);
+
       const savedTemplate = await this.templatesRepository.save(template);
+      console.log(`[Templates] 템플릿 저장 성공 - templateId: ${savedTemplate.id}`);
       
       return savedTemplate;
     } catch (error) {
-      console.error('템플릿 생성 실패:', error);
+      console.error('[Templates] 템플릿 생성 실패:', {
+        error: error.message,
+        stack: error.stack,
+        authorId,
+        name,
+        category,
+        componentsCount: components?.length || 0,
+        timestamp: new Date().toISOString()
+      });
       throw error;
     }
   }
