@@ -26,8 +26,8 @@ import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
 import LinkCopyRenderer from './ComponentRenderers/LinkCopyRenderer';
 
 // 컴포넌트 렌더링 헬퍼
-const ComponentRenderer = ({ component, editingViewport, setModalOpen }) => {
-  const props = { comp: component, mode: 'preview', isEditor: false, editingViewport, setModalOpen };
+const ComponentRenderer = ({ component, editingViewport }) => {
+  const props = { comp: component, mode: 'preview', isEditor: false, editingViewport };
   
   switch (component.type) {
     case 'button':
@@ -128,9 +128,6 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
   const [scale, setScale] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const containerRef = useRef(null);
-  
-  // 캔버스 크기를 뷰포트에 맞게 설정
-  // const actualCanvasWidth = 375;
   const [actualCanvasWidth, setActualCanvasWidth] = useState(375);
   const canvasWidth = forcedViewport === 'mobile' ? actualCanvasWidth : 1920;
   const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
@@ -191,7 +188,6 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
             {row.map((component) => {
               const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
               const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
-<<<<<<< HEAD
               const finalWidth = Math.min(originalWidth, canvasWidth - 40);
 
               // bankAccount는 모바일 preview에서도 버튼만 보이도록 강제
@@ -210,10 +206,6 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
                 );
               }
 
-=======
-              const finalWidth = canvasWidth;
-              
->>>>>>> 39cf494d6759fc33d4b15690da5e2b5e17e97c8d
               return (
                 <div
                   key={component.id}
@@ -243,7 +235,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
     transform: isModalOpen ? 'none' : `scale(${isMobileView ? 1 : scale})`,
     overflow: isMobileView ? 'auto' : 'visible',
     position: 'relative',
-    margin: "0 auto",
+    margin: 0,
     padding: 0,
     boxSizing: 'border-box',
   };

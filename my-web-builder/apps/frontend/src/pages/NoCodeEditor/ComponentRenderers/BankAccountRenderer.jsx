@@ -210,7 +210,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
         </h3>
       )}
 
-      <div className="mb-4">
+      <div style={{ marginBottom: '16px' }}>
         <button
           style={{
             width: '100%',
@@ -251,7 +251,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
         </button>
       </div>
 
-      <div className="mb-4">
+      <div style={{ marginBottom: '16px' }}>
         <button
           style={{
             width: '100%',
