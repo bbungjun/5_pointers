@@ -206,15 +206,6 @@ function CanvasComponent({
           />
         );
 
-      case 'text':
-        return (
-          <TextRenderer
-            component={componentWithFinalStyles}
-            isEditor={true}
-            onUpdate={onUpdate}
-          />
-        );
-
       case 'link':
         return (
           <LinkRenderer
