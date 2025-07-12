@@ -20,6 +20,7 @@ export { default as WeddingContactThumbnail } from './WeddingContactThumbnail';
 export { default as WeddingInviteThumbnail } from './WeddingInviteThumbnail';
 export { default as PageThumbnail } from './PageThumbnail';
 export { default as PageButtonThumbnail } from './PageButtonThumbnail';
+export { default as LinkCopyThumbnail } from './LinkCopyThumbnail';
 
 // 개별 import
 import AttendThumbnail from './AttendThumbnail';
@@ -43,6 +44,7 @@ import WeddingContactThumbnail from './WeddingContactThumbnail';
 import WeddingInviteThumbnail from './WeddingInviteThumbnail';
 import PageThumbnail from './PageThumbnail';
 import PageButtonThumbnail from './PageButtonThumbnail';
+import LinkCopyThumbnail from './LinkCopyThumbnail';
 
 // ThumbnailComponents 객체 export (ComponentCard.jsx에서 사용)
 export const ThumbnailComponents = {
@@ -67,4 +69,5 @@ export const ThumbnailComponents = {
   weddingInvite: WeddingInviteThumbnail,
   page: PageThumbnail,
   pageButton: PageButtonThumbnail, 
+  linkcopy: LinkCopyThumbnail,
 };

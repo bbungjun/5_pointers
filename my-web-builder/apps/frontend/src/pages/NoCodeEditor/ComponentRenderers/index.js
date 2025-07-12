@@ -18,6 +18,7 @@ import MusicRenderer from './MusicRenderer';
 import KakaoTalkShareRenderer from './KakaoTalkShareRenderer';
 import PageRenderer from './PageRenderer';
 import PageButtonRenderer from './PageButtonRenderer';
+import LinkCopyRenderer from './LinkCopyRenderer'; 
 
 // 컴포넌트 렌더러 객체 생성
 export const ComponentRenderers = {
@@ -41,6 +42,7 @@ export const ComponentRenderers = {
   'kakaotalk-share': KakaoTalkShareRenderer,
   page: PageRenderer,
   pageButton: PageButtonRenderer,
+  linkcopy: LinkCopyRenderer,
 };
 
 // 개별 export도 유지
@@ -63,3 +65,4 @@ export { default as MusicRenderer } from './MusicRenderer';
 export { default as KakaoTalkShareRenderer } from './KakaoTalkShareRenderer';
 export { default as PageRenderer } from './PageRenderer';
 export { default as PageButtonRenderer } from './PageButtonRenderer';
+export { default as LinkCopyRenderer } from './LinkCopyRenderer';

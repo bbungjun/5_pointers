@@ -23,6 +23,7 @@ import MusicRenderer from './ComponentRenderers/MusicRenderer';
 import PageRenderer from './ComponentRenderers/PageRenderer';
 import KakaoTalkShareRenderer from './ComponentRenderers/KakaoTalkShareRenderer';
 import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
+import LinkCopyRenderer from './ComponentRenderers/LinkCopyRenderer';
 
 // 컴포넌트 렌더링 헬퍼
 const ComponentRenderer = ({ component, editingViewport }) => {
@@ -68,6 +69,8 @@ const ComponentRenderer = ({ component, editingViewport }) => {
       return <PageRenderer component={component} mode="live" isEditor={false} />;
     case 'pageButton':
       return <PageButtonRenderer {...props} isPreview={true} />;
+    case 'linkcopy': // 추가
+      return <LinkCopyRenderer {...props} />;
     default:
       return (
         <div
@@ -123,7 +126,7 @@ const calculateActualDimensions = (components) => {
 const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewport = 'desktop' }) => {
   const [scale, setScale] = useState(1);
   const containerRef = useRef(null);
-  
+
   // 캔버스 에디터와 동일한 고정 크기 사용
   const canvasWidth = forcedViewport === 'mobile' ? 375 : 1920;
   const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
@@ -175,7 +178,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
               const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
               const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
               const finalWidth = originalWidth > canvasWidth ? canvasWidth - 20 : originalWidth;
-              
+
               return (
                 <div
                   key={component.id}
