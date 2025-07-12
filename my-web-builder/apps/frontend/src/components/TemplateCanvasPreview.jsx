@@ -1,6 +1,22 @@
 import React from 'react';
 import { ComponentRenderers } from '../pages/NoCodeEditor/ComponentRenderers/index.js';
 
+// type 변환 함수 추가
+function toKebabCase(str) {
+  // 특수 케이스 처리
+  if (str === 'dday') return 'd-day';
+  if (str === 'slideGallery') return 'slide-gallery';
+  if (str === 'weddingContent') return 'wedding-content';
+  if (str === 'weddingContact') return 'wedding-contact';
+  if (str === 'gridGallery') return 'grid-gallery';
+  if (str === 'bankAccount') return 'bank-account';
+  if (str === 'mapInfo') return 'map-info';
+  if (str === 'weddingInvite') return 'wedding-invite';
+  if (str === 'kakaotalkShare') return 'kakaotalk-share';
+  if (str === 'musicPlayer') return 'music-player';
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
 const TemplateCanvasPreview = ({ template, className = '' }) => {
   if (!template || !template.content) {
     return (
@@ -147,9 +163,17 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                     }}
                   >
                     {components.map((comp, index) => {
-                      const RendererComponent = ComponentRenderers[comp.type];
+                      console.log('렌더링 시도:', comp.type, comp);
+                      // 타입 변환 적용
+                      const rendererKey = ComponentRenderers[comp.type]
+                        ? comp.type
+                        : ComponentRenderers[toKebabCase(comp.type)]
+                          ? toKebabCase(comp.type)
+                          : comp.type;
+                      const RendererComponent = ComponentRenderers[rendererKey];
                       
                       if (!RendererComponent) {
+                        console.warn('렌더러를 찾을 수 없음:', comp.type);
                         return (
                           <div
                             key={comp.id || index}
@@ -166,35 +190,53 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                         );
                       }
 
-                      return (
-                        <div
-                          key={comp.id || index}
-                          className="absolute"
-                          style={{
-                            left: (comp.x || 0) - bounds.minX,
-                            top: (comp.y || 0) - bounds.minY,
-                            width: comp.width || 100,
-                            height: comp.height || 50,
-                            pointerEvents: 'none',
-                          }}
-                        >
-                          <div className="w-full h-full overflow-hidden">
-                            <div className="w-full h-full">
-                              <RendererComponent
-                                comp={comp}
-                                isPreview={true}
-                                isEditor={false}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
-                                  ...comp.props?.style,
-                                }}
-                              />
+                      try {
+                        return (
+                          <div
+                            key={comp.id || index}
+                            className="absolute"
+                            style={{
+                              left: (comp.x || 0) - bounds.minX,
+                              top: (comp.y || 0) - bounds.minY,
+                              width: comp.width || 100,
+                              height: comp.height || 50,
+                              pointerEvents: 'none',
+                            }}
+                          >
+                            <div className="w-full h-full overflow-hidden">
+                              <div className="w-full h-full">
+                                <RendererComponent
+                                  comp={comp}
+                                  isPreview={true}
+                                  isEditor={false}
+                                  style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
+                                    ...comp.props?.style,
+                                  }}
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
+                        );
+                      } catch (error) {
+                        console.error('컴포넌트 렌더링 에러:', comp.type, error);
+                        return (
+                          <div
+                            key={comp.id || index}
+                            className="absolute bg-red-100 border border-red-300 rounded flex items-center justify-center"
+                            style={{
+                              left: (comp.x || 0) - bounds.minX,
+                              top: (comp.y || 0) - bounds.minY,
+                              width: comp.width || 100,
+                              height: comp.height || 50,
+                            }}
+                          >
+                            <span className="text-xs text-red-500">에러: {comp.type}</span>
+                          </div>
+                        );
+                      }
                     })}
                   </div>
                 </div>
@@ -230,9 +272,11 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
             }}
           >
             {components.map((comp, index) => {
+              console.log('데스크톱 렌더링 시도:', comp.type, comp);
               const RendererComponent = ComponentRenderers[comp.type];
               
               if (!RendererComponent) {
+                console.warn('데스크톱 렌더러를 찾을 수 없음:', comp.type);
                 return (
                   <div
                     key={comp.id || index}
@@ -249,35 +293,53 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                 );
               }
 
-              return (
-                <div
-                  key={comp.id || index}
-                  className="absolute"
-                  style={{
-                    left: (comp.x || 0) - bounds.minX,
-                    top: (comp.y || 0) - bounds.minY,
-                    width: comp.width || 100,
-                    height: comp.height || 50,
-                    pointerEvents: 'none',
-                  }}
-                >
-                  <div className="w-full h-full overflow-hidden">
-                    <div className="w-full h-full">
-                      <RendererComponent
-                        comp={comp}
-                        isPreview={true}
-                        isEditor={false}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
-                          ...comp.props?.style,
-                        }}
-                      />
+              try {
+                return (
+                  <div
+                    key={comp.id || index}
+                    className="absolute"
+                    style={{
+                      left: (comp.x || 0) - bounds.minX,
+                      top: (comp.y || 0) - bounds.minY,
+                      width: comp.width || 100,
+                      height: comp.height || 50,
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    <div className="w-full h-full overflow-hidden">
+                      <div className="w-full h-full">
+                        <RendererComponent
+                          comp={comp}
+                          isPreview={true}
+                          isEditor={false}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
+                            ...comp.props?.style,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
+                );
+              } catch (error) {
+                console.error('데스크톱 컴포넌트 렌더링 에러:', comp.type, error);
+                return (
+                  <div
+                    key={comp.id || index}
+                    className="absolute bg-red-100 border border-red-300 rounded flex items-center justify-center"
+                    style={{
+                      left: (comp.x || 0) - bounds.minX,
+                      top: (comp.y || 0) - bounds.minY,
+                      width: comp.width || 100,
+                      height: comp.height || 50,
+                    }}
+                  >
+                    <span className="text-xs text-red-500">에러: {comp.type}</span>
+                  </div>
+                );
+              }
             })}
           </div>
         </div>
