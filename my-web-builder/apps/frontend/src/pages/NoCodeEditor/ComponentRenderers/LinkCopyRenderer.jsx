@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const LinkCopyRenderer = ({ component, isEditor, onUpdate }) => {
+const LinkCopyRenderer = ({ component, isEditor = false, mode = 'editor', onUpdate }) => {
   // component.props 구조 분해
   const {
     icon = '/icons/linkcopy.png',
@@ -15,7 +15,7 @@ const LinkCopyRenderer = ({ component, isEditor, onUpdate }) => {
   // 클릭 동작 분기
   const handleClick = (e) => {
     e.stopPropagation();
-    if (isEditor) {
+    if (mode === 'editor') {
       // 👉 에디터에서는 안내만
       alert('배포된 페이지에서만 링크 복사가 가능합니다.');
     } else {

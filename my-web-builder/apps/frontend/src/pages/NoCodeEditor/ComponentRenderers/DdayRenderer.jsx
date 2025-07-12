@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function DdayRenderer({ comp, isEditor, onPropsChange }) {
+function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }) {
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';

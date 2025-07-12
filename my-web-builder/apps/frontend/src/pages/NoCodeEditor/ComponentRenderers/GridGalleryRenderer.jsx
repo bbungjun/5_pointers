@@ -17,7 +17,7 @@
 
 import React, { useState, useEffect } from "react";
 
-function GridGalleryRenderer({ comp, isEditor = false, onUpdate }) {
+function GridGalleryRenderer({ comp, isEditor = false, mode = 'editor', onUpdate }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageSize, setImageSize] = useState(0);

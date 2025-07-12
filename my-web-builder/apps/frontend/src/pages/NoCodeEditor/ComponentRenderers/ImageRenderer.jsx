@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function ImageRenderer({ comp, component, isEditor = false, isPreview = false, onUpdate }) {
+function ImageRenderer({ comp, component, isEditor = false, mode = 'editor', isPreview = false, onUpdate }) {
   // comp 또는 component 중 하나를 사용 (하위 호환성)
   const actualComp = comp || component;
   const [imageError, setImageError] = useState(false);
