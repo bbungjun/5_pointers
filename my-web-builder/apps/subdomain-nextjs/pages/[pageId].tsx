@@ -68,41 +68,6 @@ const getRendererByType = (type: string) => {
   return renderers[type] || null;
 };
 
-const LoadingSpinner = () => (
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    color: 'white'
-  }}>
-    <div style={{
-      textAlign: 'center',
-      padding: '40px'
-    }}>
-      <div style={{
-        width: '50px',
-        height: '50px',
-        border: '4px solid rgba(255,255,255,0.3)',
-        borderTop: '4px solid white',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite',
-        margin: '0 auto 20px'
-      }} />
-      <div style={{ fontSize: '18px', fontWeight: '600' }}>
-        페이지를 불러오는 중...
-      </div>
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
-  </div>
-);
-
 const DynamicPageRenderer = ({
   components,
   pageId,
@@ -130,10 +95,25 @@ const DynamicPageRenderer = ({
   }, []);
 
   if (!isMounted) {
-    return <LoadingSpinner />;
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white'
+      }}>
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <div style={{ fontSize: '18px', fontWeight: '600' }}>
+            페이지를 불러오는 중...
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  // 모바일에서 행 기반 레이아웃 사용 (미리보기와 동일한 로직)
+  // 모바일에서 행 기반 레이아웃 사용
   const groupComponentsIntoRows = (components: ComponentData[]) => {
     if (!components || components.length === 0) return [];
 
@@ -166,7 +146,9 @@ const DynamicPageRenderer = ({
       }
     }
     
-    return rows;
+    return rows.map(row => 
+      [...row].sort((a, b) => (a.x || 0) - (b.x || 0))
+    );
   };
 
   const getComponentDefaultSize = (componentType: string) => {
@@ -193,48 +175,6 @@ const DynamicPageRenderer = ({
         <meta name="description" content={`${subdomain || pageId}에서 만든 웹사이트입니다.`} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-        
-        <style jsx global>{`
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          
-          html, body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            width: 100%;
-            overflow-x: auto;
-          }
-          
-          body {
-            line-height: 1.6;
-            color: #333;
-          }
-          
-          @media (max-width: 768px) {
-            .page-container {
-              width: 100vw !important;
-              min-width: 100vw !important;
-              transform-origin: top left;
-            }
-            
-            .component-container {
-              max-width: calc(100vw - 20px);
-            }
-          }
-          
-          .component-container {
-            transition: all 0.2s ease;
-          }
-          
-          .component-container:hover {
-            z-index: 10;
-          }
-        `}</style>
       </Head>
       
       <div
@@ -248,21 +188,9 @@ const DynamicPageRenderer = ({
           width: '100%',
           minHeight: '100vh',
           background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-          overflowX: 'hidden'
+          overflowX: isMobileView ? 'hidden' : 'auto'
         }}
       >
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)`,
-          backgroundSize: '20px 20px',
-          pointerEvents: 'none',
-          zIndex: 0
-        }} />
-        
         <div style={{
           position: 'relative',
           zIndex: 1,
@@ -278,7 +206,8 @@ const DynamicPageRenderer = ({
                 <div key={rowIndex} style={{
                   display: 'flex',
                   justifyContent: 'center',
-                  flexWrap: 'wrap'
+                  flexWrap: 'wrap',
+                  alignItems: 'flex-start'
                 }}>
                   {row.map((comp) => {
                     const RendererComponent = getRendererByType(comp.type);
@@ -291,6 +220,8 @@ const DynamicPageRenderer = ({
                     return (
                       <div key={comp.id} style={{
                         width: `min(${originalWidth}px, 90vw)`,
+                        height: `${originalHeight}px`,
+                        marginBottom: '16px'
                       }}>
                         <RendererComponent
                           {...comp.props}
@@ -435,9 +366,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   try {
     const host = req.headers.host || '';
-    console.log('🌐 Host header:', host);
-    console.log('📄 PageId from params:', pageId);
-
     let subdomain = pageId as string;
     
     if (host.includes('.localhost')) {
@@ -449,11 +377,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       }
     }
 
-    console.log('🎯 Extracted subdomain:', subdomain);
-
     // 테스트용 mock 데이터
     if (subdomain === 'test123' || subdomain === 'demo' || subdomain === 'test') {
-      console.log('🧪 Using mock data for testing');
       const mockPageData = {
         pageId: subdomain,
         components: [
@@ -468,19 +393,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
               text: '테스트 버튼',
               bg: '#3B4EFF',
               color: '#fff'
-            }
-          },
-          {
-            id: 'test-text-1',
-            type: 'text',
-            x: 250,
-            y: 50,
-            width: 200,
-            height: 50,
-            props: {
-              text: '테스트 텍스트',
-              fontSize: 16,
-              color: '#333'
             }
           }
         ]
@@ -504,66 +416,26 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       headers['X-Forwarded-For'] = req.headers['x-forwarded-for'] as string;
     }
 
-    console.log('🚀 API 요청 시작:', `${API_BASE_URL}/generator/subdomain/${subdomain}`);
-
     const res = await fetch(`${API_BASE_URL}/generator/subdomain/${subdomain}`, {
       method: 'GET',
       headers,
       signal: AbortSignal.timeout(10000),
     });
 
-    console.log('📡 API response status:', res.status);
-
     if (!res.ok) {
-      const errorText = await res.text().catch(() => 'Unknown error');
-      console.error('❌ API 응답 에러:', {
-        status: res.status,
-        statusText: res.statusText,
-        body: errorText
-      });
-
-      if (res.status === 404) {
-        return {
-          props: {
-            pageData: null,
-            pageId: subdomain,
-            subdomain,
-            error: 'PAGE_NOT_FOUND'
-          },
-        };
-      }
-
       return {
         props: {
           pageData: null,
           pageId: subdomain,
           subdomain,
-          error: 'SERVER_ERROR'
+          error: 'PAGE_NOT_FOUND'
         },
       };
     }
 
     const pageData = await res.json();
-    console.log('✅ Page data received:', {
-      pageId: pageData.pageId,
-      componentsCount: pageData.components?.length || 0,
-      hasComponents: !!pageData.components
-    });
-
-    if (!pageData || typeof pageData !== 'object') {
-      console.error('❌ Invalid page data format:', pageData);
-      return {
-        props: {
-          pageData: null,
-          pageId: subdomain,
-          subdomain,
-          error: 'INVALID_DATA'
-        },
-      };
-    }
 
     if (!Array.isArray(pageData.components)) {
-      console.warn('⚠️ Components is not an array, initializing as empty array');
       pageData.components = [];
     }
 
@@ -578,11 +450,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     };
   } catch (error) {
-    console.error('💥 Failed to fetch page data:', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      subdomain: pageId
-    });
-
     return {
       props: {
         pageData: null,

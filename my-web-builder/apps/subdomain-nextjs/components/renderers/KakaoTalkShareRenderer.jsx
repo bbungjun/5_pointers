@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-export default function KakaoTalkShareRenderer({ comp, isEditor }) {
+export default function KakaoTalkShareRenderer({ comp, isEditor = false, mode = 'live' }) {
   const { title, description, imageUrl, buttonTitle } = comp.props;
   const isInitialized = useRef(false);
 

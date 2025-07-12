@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function TextRenderer({ comp, component, isEditor = false, isPreview = false }) {
+function TextRenderer({ comp, component, mode = 'editor', isPreview = false }) {
   // comp 또는 component 중 하나를 사용 (하위 호환성)
   const actualComp = comp || component;
   const [editing, setEditing] = useState(false);
@@ -15,7 +15,7 @@ function TextRenderer({ comp, component, isEditor = false, isPreview = false }) 
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    if (isEditor && !isPreview) {
+    if (mode === 'editor' && !isPreview) {
       setEditing(true);
       setEditValue(actualComp?.props?.text || '');
     }
@@ -37,7 +37,7 @@ function TextRenderer({ comp, component, isEditor = false, isPreview = false }) 
     }
   };
 
-  if (editing && isEditor && !isPreview) {
+  if (editing && mode === 'editor' && !isPreview) {
     return (
       <input
         ref={inputRef}
@@ -53,7 +53,7 @@ function TextRenderer({ comp, component, isEditor = false, isPreview = false }) 
 
   return (
     <div 
-      className={`${isEditor ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center transition-all duration-200 hover:opacity-80 ${
+      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center transition-all duration-200 hover:opacity-80 ${
         actualComp?.props?.bold ? 'font-bold' : 'font-normal'
       } ${
         actualComp?.props?.italic ? 'italic' : 'not-italic'

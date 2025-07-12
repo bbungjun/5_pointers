@@ -534,6 +534,8 @@ function NoCodeEditor({ pageId }) {
         pageId={pageId}
         components={components}
         canvasHeight={canvasHeight}
+        editingViewport={interaction.viewport}
+        templateCategory={templateCategory}
       />
 
       <TemplateModal

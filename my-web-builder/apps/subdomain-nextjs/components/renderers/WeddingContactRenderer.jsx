@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 // SVG 아이콘 (더 심플하게)
 const PhoneIcon = (
@@ -34,7 +34,22 @@ function PersonRow({ name, phone1, phone2, phone3, role, deceased }) {
   );
 }
 
-function WeddingContactRenderer({ comp }) {
+function WeddingContactRenderer({ comp, mode = 'live', width, height }) {
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
+  
   const p = comp.props;
   return (
     <div style={{
@@ -42,16 +57,24 @@ function WeddingContactRenderer({ comp }) {
       height: '100%',
       background: '#fff',
       border: '1px solid #ddd',
-      borderRadius: '12px',
-      padding: '20px',
       color: '#333',
       fontFamily: 'inherit',
       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-      minWidth: '250px',
-      minHeight: '200px',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      boxSizing: 'border-box',
+      ...(isLiveMode ? {
+        borderRadius: `clamp(6px, 2vw, 12px)`,
+        padding: `clamp(12px, 4vw, 20px)`,
+        minWidth: `clamp(150px, 40vw, 250px)`,
+        minHeight: `clamp(120px, 35vw, 200px)`
+      } : {
+        borderRadius: '12px',
+        padding: '20px',
+        minWidth: '250px',
+        minHeight: '200px'
+      })
     }}>
       {/* 상단 신랑/신부 */}
       <div style={{ display: 'flex', marginBottom: 24 }}>

@@ -23,10 +23,11 @@ import MusicRenderer from './ComponentRenderers/MusicRenderer';
 import PageRenderer from './ComponentRenderers/PageRenderer';
 import KakaoTalkShareRenderer from './ComponentRenderers/KakaoTalkShareRenderer';
 import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
+import LinkCopyRenderer from './ComponentRenderers/LinkCopyRenderer';
 
 // 컴포넌트 렌더링 헬퍼
 const ComponentRenderer = ({ component, editingViewport }) => {
-  const props = { comp: component, mode: 'preview', isEditor: false, editingViewport };
+  const props = { comp: component, mode: 'preview', editingViewport };
   switch (component.type) {
     case 'button':
       return <ButtonRenderer {...props} />;
@@ -65,9 +66,11 @@ const ComponentRenderer = ({ component, editingViewport }) => {
     case 'kakaotalkShare':
       return <KakaoTalkShareRenderer {...props} />;
     case 'page':
-      return <PageRenderer component={component} mode="preview" isEditor={false} />;
+      return <PageRenderer component={component} mode="preview" />;
     case 'pageButton':
       return <PageButtonRenderer {...props} isPreview={true} />;
+    case 'linkcopy': // 추가
+      return <LinkCopyRenderer {...props} />;
     default:
       return (
         <div
@@ -125,6 +128,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
   const containerRef = useRef(null);
   
   // 캔버스 크기를 뷰포트에 맞게 설정
+  // const actualCanvasWidth = 375;
   const [actualCanvasWidth, setActualCanvasWidth] = useState(375);
   const canvasWidth = forcedViewport === 'mobile' ? actualCanvasWidth : 1920;
   const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
@@ -159,7 +163,8 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
     };
   }, [isMobileView, canvasWidth, canvasHeight]);
 
-  if (forcedViewport === 'mobile' && editingViewport !== 'mobile') {
+  // 데스크톱 편집 기준 → 모바일 미리보기: 재배치 적용
+  if (forcedViewport === 'mobile' && editingViewport === 'desktop') {
     const rows = groupComponentsIntoRows(components);
 
     return (
@@ -167,39 +172,57 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
         className="page-container"
         style={{
           width: `${canvasWidth}px`,
-          minHeight: `${canvasHeight}px`,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '16px',
-          padding: '16px 0'
+          height: `${canvasHeight}px`,
+          position: 'relative',
+          background: '#ffffff',
+          overflowX: 'hidden'
         }}
       >
-        {rows.map((row, rowIndex) => (
-          <div key={rowIndex} className="row-wrapper" style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            gap: '12px',
-            flexWrap: 'wrap'
-          }}>
-            {row.map((component) => {
-              const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
-              const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
-              const finalWidth = Math.min(originalWidth, canvasWidth - 40);
-              
-              return (
-                <div
-                  key={component.id}
-                  className="component-wrapper"
-                  style={{
-                    width: `${finalWidth}px`,
-                    height: `${originalHeight}px`
-                  }}
-                >
-                  <ComponentRenderer component={component} editingViewport={editingViewport} />
-                </div>
-              );
-            })}
+        {components.map((component) => (
+          <div
+            key={component.id}
+            className="mobile-absolute-wrapper"
+            style={{
+              position: 'absolute',
+              left: component.x || 0,
+              top: component.y || 0,
+              width: component.width || getComponentDimensions(component.type).defaultWidth,
+              height: component.height || getComponentDimensions(component.type).defaultHeight,
+            }}
+          >
+            <ComponentRenderer component={component} editingViewport={editingViewport} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  // 모바일 편집 기준 → 모바일 미리보기: 그대로 표시 (절대 위치)
+  if (forcedViewport === 'mobile' && editingViewport === 'mobile') {
+    return (
+      <div
+        className="page-container"
+        style={{
+          width: `${canvasWidth}px`,
+          height: `${canvasHeight}px`,
+          position: 'relative',
+          background: '#ffffff',
+          overflowX: 'hidden'
+        }}
+      >
+        {components.map((component) => (
+          <div
+            key={component.id}
+            className="mobile-absolute-wrapper"
+            style={{
+              position: 'absolute',
+              left: component.x || 0,
+              top: component.y || 0,
+              width: component.width || getComponentDimensions(component.type).defaultWidth,
+              height: component.height || getComponentDimensions(component.type).defaultHeight,
+            }}
+          >
+            <ComponentRenderer component={component} editingViewport={editingViewport} />
           </div>
         ))}
       </div>
@@ -216,7 +239,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
     transform: `scale(${isMobileView ? 1 : scale})`,
     overflow: isMobileView ? 'auto' : 'visible',
     position: 'relative',
-    margin: 0,
+    margin: "0 auto",
     padding: 0,
     boxSizing: 'border-box',
   };

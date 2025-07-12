@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Text, Link } from '@5pointers/shared-components';
 
 // 기존 ButtonRenderer와 호환되는 래퍼
-export const ButtonRenderer = ({ comp, isEditor = false, onUpdate }) => {
+export const ButtonRenderer = ({ comp, mode = 'editor', onUpdate }) => {
   return (
     <Button
       x={comp.x}
@@ -12,14 +12,13 @@ export const ButtonRenderer = ({ comp, isEditor = false, onUpdate }) => {
       color={comp.props.color}
       fontSize={comp.props.fontSize}
       fontFamily={comp.props.fontFamily}
-      isEditor={isEditor}
       onUpdate={onUpdate}
     />
   );
 };
 
 // 기존 TextRenderer와 호환되는 래퍼
-export const TextRenderer = ({ comp, isEditor = false, onUpdate }) => {
+export const TextRenderer = ({ comp, mode = 'editor', onUpdate }) => {
   return (
     <Text
       x={comp.x}
@@ -28,14 +27,13 @@ export const TextRenderer = ({ comp, isEditor = false, onUpdate }) => {
       color={comp.props.color}
       fontSize={comp.props.fontSize}
       fontFamily={comp.props.fontFamily}
-      isEditor={isEditor}
       onUpdate={onUpdate}
     />
   );
 };
 
 // 기존 LinkRenderer와 호환되는 래퍼
-export const LinkRenderer = ({ comp, isEditor = false, onUpdate }) => {
+export const LinkRenderer = ({ comp, mode = 'editor', onUpdate }) => {
   return (
     <Link
       x={comp.x}
@@ -45,14 +43,13 @@ export const LinkRenderer = ({ comp, isEditor = false, onUpdate }) => {
       color={comp.props.color}
       fontSize={comp.props.fontSize}
       fontFamily={comp.props.fontFamily}
-      isEditor={isEditor}
       onUpdate={onUpdate}
     />
   );
 };
 
 // AttendRenderer도 Button 컴포넌트 사용
-export const AttendRenderer = ({ comp, isEditor = false, onUpdate }) => {
+export const AttendRenderer = ({ comp, mode = 'editor', onUpdate }) => {
   return (
     <Button
       x={comp.x}
@@ -62,7 +59,6 @@ export const AttendRenderer = ({ comp, isEditor = false, onUpdate }) => {
       color={comp.props.color}
       fontSize={comp.props.fontSize}
       fontFamily={comp.props.fontFamily}
-      isEditor={isEditor}
       onUpdate={onUpdate}
     />
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }) => {
+const PageButtonRenderer = ({ component, comp, mode = 'editor', isPreview = false, onUpdate }) => {
   // component 또는 comp 중 하나를 사용 (하위 호환성)
   const actualComp = comp || component;
   const {
@@ -26,7 +26,7 @@ const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUp
     if (isPreview) return; // 미리보기에서는 클릭 비활성화
     if (!linkedPageId) return;
     
-    if (isEditor) {
+    if (mode === 'editor') {
       if (e.ctrlKey || e.metaKey) {
         e.stopPropagation();
         navigateToLinkedPage();
@@ -37,9 +37,9 @@ const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUp
   };
 
   const navigateToLinkedPage = () => {
-    if (isEditor && linkedPageId) {
+    if (mode === 'editor' && linkedPageId) {
       window.location.href = `/editor/${linkedPageId}`;
-    } else if (!isEditor && deployedUrl) {
+    } else if (mode !== 'editor' && deployedUrl) {
       window.location.href = deployedUrl;
     }
   };
@@ -69,7 +69,7 @@ const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUp
       }}
       onClick={handleClick}
       title={
-        isEditor
+        mode === 'editor'
           ? linkedPageId
             ? `${buttonText} (${navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'}+클릭으로 이동)`
             : '페이지가 연결되지 않음'
@@ -104,7 +104,7 @@ const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUp
       >
         {buttonText}
       </span>
-      {isEditor && (
+      {mode === 'editor' && (
         <span style={{
           position: 'absolute',
           top: 6,
@@ -118,7 +118,7 @@ const PageButtonRenderer = ({ component, comp, isEditor, isPreview = false, onUp
           {navigator.platform.includes('Mac') ? '⌘+클릭' : 'Ctrl+클릭'}
         </span>
       )}
-      {isEditor && (
+      {mode === 'editor' && (
         <span style={{
           position: 'absolute',
           bottom: 6,

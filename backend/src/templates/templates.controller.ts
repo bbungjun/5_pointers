@@ -22,7 +22,13 @@ export class TemplatesController {
     @Query('category') category?: string,
     @Query('editingMode') editingMode?: string,
   ) {
-    return this.templatesService.getPublicTemplates(category, editingMode);
+    try {
+      console.log('[Templates Controller] 템플릿 목록 조회 요청:', { category, editingMode });
+      return await this.templatesService.getPublicTemplates(category, editingMode);
+    } catch (error) {
+      console.error('[Templates Controller] 템플릿 조회 실패:', error);
+      throw error;
+    }
   }
 
   // 페이지를 템플릿으로 저장 (관리자만)
@@ -67,6 +73,16 @@ export class TemplatesController {
       canvasSettings?: any;
     },
   ) {
+    console.log('[Templates Controller] 요청 사용자:', {
+      user: req.user,
+      userId: req.user?.id,
+      headers: req.headers.authorization
+    });
+
+    if (!req.user || !req.user.id) {
+      throw new Error('인증된 사용자 정보를 찾을 수 없습니다.');
+    }
+
     return this.templatesService.createTemplateFromComponents(
       body.components,
       body.name,

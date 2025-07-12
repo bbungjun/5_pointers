@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../../../config';
 
-function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId }) {
+function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }) {
   const { title, placeholder, backgroundColor } = comp.props;
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
@@ -14,7 +14,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
 
   // 댓글 목록 조회
   const fetchComments = async () => {
-    if (isEditor) return; // 에디터 모드에서는 API 호출 안함
+    if (mode === 'editor') return; // 에디터 모드에서는 API 호출 안함
 
     const actualPageId = pageId || comp.pageId;
     const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
@@ -131,7 +131,7 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
 
   useEffect(() => {
     fetchComments();
-  }, [comp.id, comp.pageId, isEditor]);
+  }, [comp.id, comp.pageId, mode]);
 
   // viewport에 따른 반응형 스타일 계산
   const getResponsiveStyles = () => {
@@ -158,12 +158,9 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
       style={{
         width: '100%',
         height: '100%',
-        padding: styles.containerPadding,
         borderRadius: 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
-        minWidth: styles.minWidth,
-        minHeight: styles.minHeight,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'auto',
@@ -260,33 +257,33 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
         />
         <button
           type="submit"
-          disabled={isEditor}
+          disabled={mode === 'editor'}
           style={{
             marginTop: viewport === 'mobile' ? '8px' : '12px',
             padding: styles.buttonPadding,
             borderRadius: '6px',
             fontSize: styles.inputFontSize,
             border: 'none',
-            cursor: isEditor ? 'not-allowed' : 'pointer',
-            backgroundColor: isEditor ? '#d1d5db' : '#2563eb',
-            color: isEditor ? '#6b7280' : '#ffffff',
+            cursor: mode === 'editor' ? 'not-allowed' : 'pointer',
+            backgroundColor: mode === 'editor' ? '#d1d5db' : '#2563eb',
+            color: mode === 'editor' ? '#6b7280' : '#ffffff',
             transition: 'background-color 0.2s',
             whiteSpace: 'pre-wrap', // ✅
           }}
           onMouseOver={(e) => {
-            if (!isEditor) e.target.style.backgroundColor = '#1d4ed8';
+            if (mode !== 'editor') e.target.style.backgroundColor = '#1d4ed8';
           }}
           onMouseOut={(e) => {
-            if (!isEditor) e.target.style.backgroundColor = '#2563eb';
+            if (mode !== 'editor') e.target.style.backgroundColor = '#2563eb';
           }}
         >
-          {isEditor ? '배포 후 사용 가능' : '댓글 작성'}
+          {mode === 'editor' ? '배포 후 사용 가능' : '댓글 작성'}
         </button>
       </form>
 
       {/* 댓글 목록 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {isEditor ? (
+        {mode === 'editor' ? (
           <>
             <div
               style={{

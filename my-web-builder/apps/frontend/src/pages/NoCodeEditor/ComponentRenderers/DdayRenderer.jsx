@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function DdayRenderer({ comp, isEditor, onPropsChange }) {
+function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }) {
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
@@ -127,7 +127,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: '10px',     // 원래 크기로 되돌림
+      // padding: '10px',     // 패딩삭제
       borderRadius: 0,
       position: 'relative',
       overflow: 'hidden'

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function WeddingInviteRenderer({ comp }) {
+export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
     const {
         containerWidth = comp.width || 450,
         containerHeight = comp.height || 400,
@@ -47,7 +47,6 @@ export default function WeddingInviteRenderer({ comp }) {
                 height: '100%',
                 minWidth: 200,
                 minHeight: 120,
-                boxSizing: 'border-box',
                 overflow: 'auto',
                 display: 'flex',
                 flexDirection: 'column',
