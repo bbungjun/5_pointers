@@ -114,7 +114,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
     finalScale = Math.max(scaleX, scaleY, 0.4);
   } else {
     // 데스크톱: 적절한 비율 유지하면서 크게 보이도록
-    finalScale = Math.min(scaleX, scaleY, 1.2);
+    finalScale = Math.min(scaleX, scaleY, 0.8);
   }
 
   return (

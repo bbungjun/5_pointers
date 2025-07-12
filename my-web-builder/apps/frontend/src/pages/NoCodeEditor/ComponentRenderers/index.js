@@ -19,7 +19,6 @@ import MusicRenderer from './MusicRenderer';
 import KakaoTalkShareRenderer from './KakaoTalkShareRenderer';
 import PageRenderer from './PageRenderer';
 import PageButtonRenderer from './PageButtonRenderer';
-import WeddingContentRenderer from './WeddingContentRenderer';
 
 // 컴포넌트 렌더러 객체 생성
 export const ComponentRenderers = {
@@ -51,8 +50,6 @@ export const ComponentRenderers = {
   weddingContact: WeddingContactRenderer,
   'wedding-invite': WeddingInviteRenderer,
   weddingInvite: WeddingInviteRenderer,
-  'wedding-content': WeddingContentRenderer,
-  weddingContent: WeddingContentRenderer,
   
   // 갤러리
   'grid-gallery': GridGalleryRenderer,
@@ -94,4 +91,3 @@ export { default as MusicRenderer } from './MusicRenderer';
 export { default as KakaoTalkShareRenderer } from './KakaoTalkShareRenderer';
 export { default as PageRenderer } from './PageRenderer';
 export { default as PageButtonRenderer } from './PageButtonRenderer';
-export { default as WeddingContentRenderer } from './WeddingContentRenderer';
