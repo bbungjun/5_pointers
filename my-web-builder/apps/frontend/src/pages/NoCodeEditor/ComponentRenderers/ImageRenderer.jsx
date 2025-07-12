@@ -10,6 +10,8 @@ function ImageRenderer({ comp, component, isEditor = false, isPreview = false, o
   const animationRef = useRef(null);
   const [particles, setParticles] = useState([]);
   const animationFrameRef = useRef(null);
+
+  const borderRadius = actualComp?.props?.borderRadius ?? 0; 
   
   // 동적 애니메이션 효과 초기화
   useEffect(() => {
@@ -162,7 +164,7 @@ function ImageRenderer({ comp, component, isEditor = false, isPreview = false, o
   const containerStyle = {
     width: '100%',
     height: '100%',
-    borderRadius: '0px',
+    borderRadius: `${borderRadius}px`,
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
@@ -252,7 +254,8 @@ function ImageRenderer({ comp, component, isEditor = false, isPreview = false, o
           height: '100%',
           objectFit: actualComp?.props?.objectFit || 'cover',
           display: imageError ? 'none' : 'block',
-          transition: 'all 0.3s ease'
+          transition: 'all 0.3s ease',
+          borderRadius: `${borderRadius}px`
         }}
       />
       
