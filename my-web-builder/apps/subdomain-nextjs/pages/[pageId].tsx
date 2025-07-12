@@ -165,8 +165,8 @@ const DynamicPageRenderer = ({
     return defaultSizes[componentType] || defaultSizes.default;
   };
 
-  const rows = groupComponentsIntoRows(components);
-  const sortedComponents = null; // 더 이상 사용하지 않음
+  const rows = isMobileView ? groupComponentsIntoRows(components) : null;
+  const sortedComponents = !isMobileView ? [...components].sort((a, b) => (a.y || 0) - (b.y || 0)) : null;
 
   return (
     <>
@@ -201,40 +201,71 @@ const DynamicPageRenderer = ({
           alignItems: isMobileView ? 'center' : 'unset',
         }}>
           {components && components.length > 0 ? (
-            rows?.map((row, rowIndex) => (
-              <div key={rowIndex} style={{
-                display: 'flex',
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-                alignItems: 'flex-start',
-                gap: isMobileView ? '8px' : '16px',
-                marginBottom: isMobileView ? '16px' : '24px'
-              }}>
-                {row.map((comp) => {
-                  const RendererComponent = getRendererByType(comp.type);
-                  if (!RendererComponent) return null;
-                  
-                  const defaultSize = getComponentDefaultSize(comp.type);
-                  const originalWidth = comp.width || defaultSize.width;
-                  const originalHeight = comp.height || defaultSize.height;
-                  
-                  return (
-                    <div key={comp.id} style={{
-                      width: isMobileView ? `min(${originalWidth}px, 90vw)` : `${originalWidth}px`,
+            isMobileView ? (
+              rows?.map((row, rowIndex) => (
+                <div key={rowIndex} style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                  alignItems: 'flex-start'
+                }}>
+                  {row.map((comp) => {
+                    const RendererComponent = getRendererByType(comp.type);
+                    if (!RendererComponent) return null;
+                    
+                    const defaultSize = getComponentDefaultSize(comp.type);
+                    const originalWidth = comp.width || defaultSize.width;
+                    const originalHeight = comp.height || defaultSize.height;
+                    
+                    return (
+                      <div key={comp.id} style={{
+                        width: `min(${originalWidth}px, 90vw)`,
+                        height: `${originalHeight}px`,
+                        marginBottom: '16px'
+                      }}>
+                        <RendererComponent
+                          {...comp.props}
+                          comp={{ ...comp, width: originalWidth, height: originalHeight }}
+                          mode="live"
+                          isEditor={false}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              ))
+            ) : (
+              sortedComponents?.map((comp) => {
+                const RendererComponent = getRendererByType(comp.type);
+                if (!RendererComponent) return null;
+
+                const defaultSize = getComponentDefaultSize(comp.type);
+                const originalWidth = comp.width || defaultSize.width;
+                const originalHeight = comp.height || defaultSize.height;
+
+                return (
+                  <div
+                    key={comp.id}
+                    className="component-container"
+                    style={{
+                      position: 'absolute',
+                      left: comp.x || 0,
+                      top: comp.y || 0,
+                      width: `${originalWidth}px`,
                       height: `${originalHeight}px`,
-                      maxWidth: isMobileView ? '90vw' : 'none'
-                    }}>
-                      <RendererComponent
-                        {...comp.props}
-                        comp={{ ...comp, width: originalWidth, height: originalHeight }}
-                        mode="live"
-                        isEditor={false}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            ))
+                      zIndex: 2
+                    }}
+                  >
+                    <RendererComponent
+                      {...comp.props}
+                      comp={{ ...comp, width: originalWidth, height: originalHeight }}
+                      mode="live"
+                      isEditor={false}
+                    />
+                  </div>
+                );
+              })
+            )
           ) : (
             <div style={{
               display: 'flex',
