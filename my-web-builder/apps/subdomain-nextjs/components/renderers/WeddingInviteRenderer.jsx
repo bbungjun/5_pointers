@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function WeddingInviteRenderer({ comp, mode = 'preview', width, height }) {
+export default function WeddingInviteRenderer({ comp, mode = 'live', width, height }) {
     const [isLiveMode, setIsLiveMode] = useState(false);
     
     useEffect(() => {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-function CalendarRenderer({ comp, imode = 'editor' }) {
+function CalendarRenderer({ comp, mode = 'editor' }) {
   const { weddingDate, title, highlightColor } = comp.props;
   
   // 날짜 파싱
