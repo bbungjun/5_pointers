@@ -96,8 +96,8 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
       };
     } else {
       return {
-        width: 400,  // 데스크톱 비율 (16:9) 확대
-        height: 300,
+        width: 240,  // 데스크톱 비율 (16:9) 확대
+        height: 180,
         aspectRatio: '16/9'
       };
     }
@@ -113,9 +113,21 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
     // 모바일: 화면 너비를 꽉 채우도록 스케일 조정
     finalScale = Math.max(scaleX, scaleY, 0.4);
   } else {
-    // 데스크톱: 적절한 비율 유지하면서 크게 보이도록
-    finalScale = Math.min(scaleX, scaleY, 0.8);
+    // 데스크톱: 전체 내용이 모두 보이도록 스케일 조정
+    finalScale = Math.min(scaleX, scaleY, 0.9);
   }
+  
+  // 디버깅을 위한 로그
+  console.log('스케일링 정보:', {
+    editingMode,
+    contentWidth,
+    contentHeight,
+    previewWidth: previewDimensions.width,
+    previewHeight: previewDimensions.height,
+    scaleX,
+    scaleY,
+    finalScale
+  });
 
   return (
     <div className={`relative bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
@@ -264,7 +276,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
       ) : (
         // 데스크톱 미리보기 (기존)
         <div 
-          className="relative bg-gray-50 w-full aspect-[16/9]"
+          className="relative bg-gray-50 w-full aspect-[16/9] overflow-hidden"
           style={{
             minHeight: '200px',
           }}
@@ -282,7 +294,13 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
           >
             {components.map((comp, index) => {
               console.log('데스크톱 렌더링 시도:', comp.type, comp);
-              const RendererComponent = ComponentRenderers[comp.type];
+              // 타입 변환 적용
+              const rendererKey = ComponentRenderers[comp.type]
+                ? comp.type
+                : ComponentRenderers[toKebabCase(comp.type)]
+                  ? toKebabCase(comp.type)
+                  : comp.type;
+              const RendererComponent = ComponentRenderers[rendererKey];
               
               if (!RendererComponent) {
                 console.warn('데스크톱 렌더러를 찾을 수 없음:', comp.type);
