@@ -1,6 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function BankAccountRenderer({ comp, isEditor = false }) {
+function BankAccountRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
   const { title, groomSide, brideSide, backgroundColor } = comp.props;
   const [groomOpen, setGroomOpen] = useState(false);
   const [brideOpen, setBrideOpen] = useState(false);
@@ -48,14 +62,22 @@ function BankAccountRenderer({ comp, isEditor = false }) {
     <div style={{
       width: '100%',
       height: '100%',
-      padding: '24px',
-      borderRadius: '8px',
       border: '1px solid #e5e7eb',
       backgroundColor,
-      minWidth: '250px',
-      minHeight: '150px',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+      ...(isLiveMode ? {
+        padding: `clamp(12px, 4vw, 24px)`,
+        borderRadius: `clamp(4px, 1.5vw, 8px)`,
+        minWidth: `clamp(150px, 40vw, 250px)`,
+        minHeight: `clamp(90px, 25vw, 150px)`
+      } : {
+        padding: '24px',
+        borderRadius: '8px',
+        minWidth: '250px',
+        minHeight: '150px'
+      })
     }}>
       {title && (
         <h3
