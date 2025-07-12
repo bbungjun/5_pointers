@@ -339,7 +339,7 @@ function DashboardPage({ user, onLogout }) {
         console.log('새 페이지 생성:', newPage);
         // 템플릿의 편집 기준에 따라 뷰포트 설정
         const viewport = template.editingMode === 'mobile' ? 'mobile' : 'desktop';
-        const url = `/editor/${newPage.id}?viewport=${viewport}`;
+        const url = `/editor/${newPage.id}?viewport=${viewport}&fromTemplate=true`;
         console.log('네비게이션 URL:', url, 'template.editingMode:', template.editingMode);
         navigate(url);
       } else {
