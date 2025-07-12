@@ -1,22 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../../config';
+import { useResponsive } from '../../hooks/useResponsive';
 
-function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
-  
-  useEffect(() => {
-    if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
-      
-      const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
-      };
-      
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [mode]);
+function CommentRenderer({ comp, mode = 'live', pageId }) {
   const { title, placeholder, backgroundColor } = comp.props;
+  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width, comp.height);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
     author: '',
@@ -28,10 +15,8 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
 
   // 댓글 목록 조회
   const fetchComments = async () => {
-    if (isEditor) return; // 에디터 모드에서는 API 호출 안함
-
     const actualPageId = pageId || comp.pageId;
-    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
+    const actualApiBaseUrl = typeof window !== 'undefined' ? window.API_BASE_URL : null;
     
     if (!actualPageId || !actualApiBaseUrl) {
       return;
@@ -41,17 +26,13 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
       const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
       
       const response = await fetch(apiUrl);
-      console.log('🚀 CommentRenderer - API 응답 상태:', response.status);
       
       if (response.ok) {
         const data = await response.json();
-        console.log('🚀 CommentRenderer - API 응답 데이터:', data);
         setComments(data);
-      } else {
-        console.error('❌ CommentRenderer - API 응답 오류:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('❌ CommentRenderer - 댓글 조회 실패:', error);
+      console.error('댓글 조회 실패:', error);
     }
   };
 
@@ -64,27 +45,15 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
     }
 
     const actualPageId = pageId || comp.pageId;
-    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
-    
-    console.log('🚀 CommentRenderer - handleSubmitComment 호출');
-    console.log('🚀 CommentRenderer - actualPageId:', actualPageId);
-    console.log('🚀 CommentRenderer - actualApiBaseUrl:', actualApiBaseUrl);
-    console.log('🚀 CommentRenderer - comp.id:', comp.id);
-    console.log('🚀 CommentRenderer - newComment:', newComment);
+    const actualApiBaseUrl = typeof window !== 'undefined' ? window.API_BASE_URL : null;
     
     if (!actualPageId || !actualApiBaseUrl) {
-      console.error('❌ CommentRenderer - pageId 또는 API_BASE_URL이 없습니다', {
-        actualPageId,
-        actualApiBaseUrl,
-        comp: comp
-      });
       alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
       return;
     }
 
     try {
       const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
-      console.log('🚀 CommentRenderer - POST API 호출 URL:', apiUrl);
       
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -93,22 +62,13 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
       });
 
       if (response.ok) {
-        const result = await response.json();
-        
         setNewComment({ author: '', content: '', password: '' });
-        await fetchComments(); // 댓글 목록 새로고침
+        await fetchComments();
         alert('댓글이 성공적으로 등록되었습니다.');
       } else {
-        const errorText = await response.text();
-        console.error('API 응답 에러:', {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText
-        });
         alert(`댓글 등록에 실패했습니다. (${response.status}: ${response.statusText})`);
       }
     } catch (error) {
-      console.error('댓글 등록 실패:', error);
       alert(`댓글 등록에 실패했습니다. 네트워크 오류: ${error.message}`);
     }
   };
@@ -120,9 +80,11 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
       return;
     }
 
+    const actualApiBaseUrl = typeof window !== 'undefined' ? window.API_BASE_URL : null;
+
     try {
       const response = await fetch(
-        `${API_BASE_URL}/users/pages/${comp.pageId}/comments/${comp.id}/${showDeleteModal}`,
+        `${actualApiBaseUrl}/users/pages/${comp.pageId}/comments/${comp.id}/${showDeleteModal}`,
         {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
@@ -133,74 +95,57 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
       if (response.ok) {
         setShowDeleteModal(null);
         setDeletePassword('');
-        fetchComments(); // 댓글 목록 새로고침
+        fetchComments();
       } else {
         alert('비밀번호가 일치하지 않습니다.');
       }
     } catch (error) {
-      console.error('댓글 삭제 실패:', error);
       alert('댓글 삭제에 실패했습니다.');
     }
   };
 
   useEffect(() => {
     fetchComments();
-  }, [comp.id, comp.pageId, isEditor]);
+  }, [comp.id, comp.pageId, mode]);
 
-  // viewport에 따른 반응형 스타일 계산
-  const getResponsiveStyles = () => {
-    const isMobile = viewport === 'mobile';
-
-    return {
-      containerPadding: isMobile ? '16px' : '24px',
-      titleFontSize: isMobile ? '16px' : '18px',
-      inputPadding: isMobile ? '6px 10px' : '8px 12px',
-      inputFontSize: isMobile ? '13px' : '14px',
-      buttonPadding: isMobile ? '6px 12px' : '8px 16px',
-      commentPadding: isMobile ? '12px' : '16px',
-      minWidth: isMobile ? '200px' : '250px',
-      minHeight: isMobile ? '120px' : '150px',
-      gridColumns: isMobile ? '1fr' : '1fr 1fr',
-      textareaHeight: isMobile ? '60px' : '80px',
-    };
-  };
-
-  const styles = getResponsiveStyles();
+  // 폰트 관련 속성들
+  const fontFamily = comp.props?.fontFamily || 'Playfair Display, serif';
+  const textAlign = comp.props?.textAlign || 'left';
+  const lineHeight = comp.props?.lineHeight || 1.2;
+  const letterSpacing = comp.props?.letterSpacing || 0;
+  const fontWeight = comp.props?.fontWeight ? 'bold' : 'normal';
+  const textDecoration = comp.props?.textDecoration ? 'underline' : 'none';
+  const isItalic = comp.props?.fontStyle;
+  const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
 
   return (
     <div
       style={{
-        borderRadius: '8px',
+        width: isLiveMode ? responsiveWidth : '100%',
+        height: isLiveMode ? responsiveHeight : '100%',
+        borderRadius: 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'auto',
-        fontFamily:
-          'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        ...(isLiveMode ? {
-          width: '100%',
-          maxWidth: `${width}px`,
-          aspectRatio: `${width} / ${height}`,
-          padding: `clamp(12px, 3vw, 24px)`,
-          minWidth: `clamp(150px, 30vw, 250px)`,
-          minHeight: `clamp(90px, 25vw, 150px)`
-        } : {
-          width: '100%',
-          height: '100%',
-          padding: styles.containerPadding,
-          minWidth: styles.minWidth,
-          minHeight: styles.minHeight
-        })
+        fontFamily: fontFamily,
+        padding: isLiveMode ? 'clamp(12px, 3vw, 24px)' : '24px',
       }}
     >
       <h3
         style={{
-          fontSize: isLiveMode ? `clamp(${Math.max(12, 18 * 0.7)}px, ${(18 / 375) * 100}vw, 18px)` : styles.titleFontSize,
-          fontWeight: '600',
-          marginBottom: isLiveMode ? `clamp(10px, 2.5vw, 16px)` : '16px',
-          color: '#1f2937',
-          whiteSpace: 'pre-wrap'
+          fontSize: isLiveMode ? 'clamp(16px, 4vw, 18px)' : '18px',
+          fontWeight: fontWeight === 'bold' ? 'bold' : '600',
+          marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+          color: comp.props?.color || '#1f2937',
+          whiteSpace: 'pre-wrap',
+          fontFamily: fontFamily,
+          textAlign: textAlign,
+          lineHeight: lineHeight,
+          letterSpacing: letterSpacing + 'px',
+          textDecoration: textDecoration,
+          transform: italicTransform,
         }}
       >
         {title || '축하 메세지를 남겨주세요'}
@@ -210,18 +155,18 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
       <form
         onSubmit={handleSubmitComment}
         style={{
-          marginBottom: isLiveMode ? `clamp(12px, 3vw, 24px)` : (viewport === 'mobile' ? '16px' : '24px'),
-          padding: isLiveMode ? `clamp(8px, 2vw, 16px)` : styles.commentPadding,
+          marginBottom: isLiveMode ? 'clamp(16px, 4vw, 24px)' : '24px',
+          padding: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
           backgroundColor: '#f9fafb',
-          borderRadius: '8px',
+          borderRadius: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
         }}
       >
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: styles.gridColumns,
-            gap: viewport === 'mobile' ? '8px' : '12px',
-            marginBottom: viewport === 'mobile' ? '8px' : '12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: isLiveMode ? 'clamp(8px, 2vw, 12px)' : '12px',
+            marginBottom: isLiveMode ? 'clamp(8px, 2vw, 12px)' : '12px',
           }}
         >
           <input
@@ -232,14 +177,12 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
               setNewComment({ ...newComment, author: e.target.value })
             }
             style={{
-              padding: isLiveMode ? `clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px)` : styles.inputPadding,
+              padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
               border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: isLiveMode ? `clamp(${Math.max(10, 14 * 0.7)}px, ${(14 / 375) * 100}vw, 14px)` : styles.inputFontSize,
+              borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
+              fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
               outline: 'none',
             }}
-            onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
-            onBlur={(e) => (e.target.style.borderColor = '#d1d5db')}
           />
           <input
             type="password"
@@ -249,14 +192,12 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
               setNewComment({ ...newComment, password: e.target.value })
             }
             style={{
-              padding: isLiveMode ? `clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px)` : styles.inputPadding,
+              padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
               border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: isLiveMode ? `clamp(${Math.max(10, 14 * 0.7)}px, ${(14 / 375) * 100}vw, 14px)` : styles.inputFontSize,
+              borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
+              fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
               outline: 'none',
             }}
-            onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
-            onBlur={(e) => (e.target.style.borderColor = '#d1d5db')}
           />
         </div>
         <textarea
@@ -267,171 +208,45 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
           }
           style={{
             width: '100%',
-            padding: isLiveMode ? `clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px)` : styles.inputPadding,
+            padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
             border: '1px solid #d1d5db',
-            borderRadius: '6px',
-            fontSize: isLiveMode ? `clamp(${Math.max(10, 14 * 0.7)}px, ${(14 / 375) * 100}vw, 14px)` : styles.inputFontSize,
+            borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
+            fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
             outline: 'none',
             resize: 'none',
-            minHeight: isLiveMode ? `clamp(40px, 10vw, 80px)` : styles.textareaHeight,
+            minHeight: isLiveMode ? 'clamp(50px, 12vw, 80px)' : '80px',
             whiteSpace: 'pre-wrap',
+            boxSizing: 'border-box'
           }}
-          onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
-          onBlur={(e) => (e.target.style.borderColor = '#d1d5db')}
           rows="3"
         />
         <button
           type="submit"
-          disabled={isEditor}
           style={{
-            marginTop: viewport === 'mobile' ? '8px' : '12px',
-            padding: styles.buttonPadding,
-            borderRadius: '6px',
-            fontSize: styles.inputFontSize,
+            marginTop: isLiveMode ? 'clamp(8px, 2vw, 12px)' : '12px',
+            padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
+            borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
+            fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
             border: 'none',
-            cursor: isEditor ? 'not-allowed' : 'pointer',
-            backgroundColor: isEditor ? '#d1d5db' : '#2563eb',
-            color: isEditor ? '#6b7280' : '#ffffff',
+            cursor: 'pointer',
+            backgroundColor: '#2563eb',
+            color: '#ffffff',
             transition: 'background-color 0.2s',
-            whiteSpace: 'pre-wrap', // ✅
-          }}
-          onMouseOver={(e) => {
-            if (!isEditor) e.target.style.backgroundColor = '#1d4ed8';
-          }}
-          onMouseOut={(e) => {
-            if (!isEditor) e.target.style.backgroundColor = '#2563eb';
+            whiteSpace: 'pre-wrap',
           }}
         >
-          {isEditor ? '배포 후 사용 가능' : '댓글 작성'}
+          댓글 작성
         </button>
       </form>
 
       {/* 댓글 목록 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {isEditor ? (
-          <>
-            <div
-              style={{
-                position: 'relative',
-                padding: styles.commentPadding,
-                backgroundColor: '#ffffff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-              }}
-            >
-              <button
-                disabled={true}
-                style={{
-                  position: 'absolute',
-                  top: '8px',
-                  right: '8px',
-                  width: '24px',
-                  height: '24px',
-                  color: '#d1d5db',
-                  cursor: 'not-allowed',
-                  border: 'none',
-                  background: 'none',
-                  fontSize: '16px',
-                }}
-              >
-                ×
-              </button>
-              <div style={{ paddingRight: '32px' }}>
-                <div
-                  style={{
-                    fontWeight: '500',
-                    color: '#1f2937',
-                    marginBottom: '4px',
-                  }}
-                >
-                  샘플 사용자
-                </div>
-                <div
-                  style={{
-                    color: '#4b5563',
-                    fontSize: '14px',
-                    lineHeight: '1.5',
-                    whiteSpace: 'pre-wrap', // ✅
-                  }}
-                >
-                  이곳에 댓글이 표시됩니다. 배포 후에 실제 댓글을 작성할 수
-                  있습니다.
-                </div>
-                <div
-                  style={{
-                    fontSize: '12px',
-                    color: '#9ca3af',
-                    marginTop: '8px',
-                  }}
-                >
-                  {new Date().toLocaleDateString()}
-                </div>
-              </div>
-            </div>
-            <div
-              style={{
-                position: 'relative',
-                padding: styles.commentPadding,
-                backgroundColor: '#ffffff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-              }}
-            >
-              <button
-                disabled={true}
-                style={{
-                  position: 'absolute',
-                  top: '8px',
-                  right: '8px',
-                  width: '24px',
-                  height: '24px',
-                  color: '#d1d5db',
-                  cursor: 'not-allowed',
-                  border: 'none',
-                  background: 'none',
-                  fontSize: '16px',
-                }}
-              >
-                ×
-              </button>
-              <div style={{ paddingRight: '32px' }}>
-                <div
-                  style={{
-                    fontWeight: '500',
-                    color: '#1f2937',
-                    marginBottom: '4px',
-                  }}
-                >
-                  또 다른 사용자
-                </div>
-                <div
-                  style={{
-                    color: '#4b5563',
-                    fontSize: '14px',
-                    lineHeight: '1.5',
-                    whiteSpace: 'pre-wrap', // ✅
-                  }}
-                >
-                  댓글 예시입니다.
-                </div>
-                <div
-                  style={{
-                    fontSize: '12px',
-                    color: '#9ca3af',
-                    marginTop: '8px',
-                  }}
-                >
-                  {new Date().toLocaleDateString()}
-                </div>
-              </div>
-            </div>
-          </>
-        ) : comments.length === 0 ? (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: isLiveMode ? 'clamp(8px, 2vw, 12px)' : '12px' }}>
+        {comments.length === 0 ? (
           <div
             style={{
               textAlign: 'center',
               color: '#6b7280',
-              padding: '32px 0',
+              padding: isLiveMode ? 'clamp(24px, 6vw, 32px) 0' : '32px 0',
             }}
           >
             첫 번째 댓글을 남겨보세요!
@@ -442,57 +257,65 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
               key={comment.id}
               style={{
                 position: 'relative',
-                padding: styles.commentPadding,
+                padding: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
                 backgroundColor: '#ffffff',
                 border: '1px solid #e5e7eb',
-                borderRadius: '6px',
+                borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
               }}
             >
               <button
                 onClick={() => setShowDeleteModal(comment.id)}
                 style={{
                   position: 'absolute',
-                  top: '8px',
-                  right: '8px',
-                  width: '24px',
-                  height: '24px',
+                  top: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+                  right: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+                  width: isLiveMode ? 'clamp(20px, 5vw, 24px)' : '24px',
+                  height: isLiveMode ? 'clamp(20px, 5vw, 24px)' : '24px',
                   color: '#9ca3af',
                   cursor: 'pointer',
                   border: 'none',
                   background: 'none',
-                  fontSize: '16px',
+                  fontSize: isLiveMode ? 'clamp(14px, 3.5vw, 16px)' : '16px',
                   transition: 'color 0.2s',
                 }}
-                onMouseOver={(e) => (e.target.style.color = '#ef4444')}
-                onMouseOut={(e) => (e.target.style.color = '#9ca3af')}
               >
                 ×
               </button>
-              <div style={{ paddingRight: '32px' }}>
+              <div style={{ paddingRight: isLiveMode ? 'clamp(24px, 6vw, 32px)' : '32px' }}>
                 <div
                   style={{
-                    fontWeight: '500',
-                    color: '#1f2937',
+                    fontWeight: fontWeight === 'bold' ? 'bold' : '500',
+                    color: comp.props?.color || '#1f2937',
                     marginBottom: '4px',
+                    fontFamily: fontFamily,
+                    textAlign: textAlign,
+                    letterSpacing: letterSpacing + 'px',
+                    textDecoration: textDecoration,
+                    transform: italicTransform,
                   }}
                 >
                   {comment.author}
                 </div>
                 <div
                   style={{
-                    color: '#4b5563',
-                    fontSize: '14px',
-                    lineHeight: '1.5',
-                    whiteSpace: 'pre-wrap', // ✅
+                    color: comp.props?.color || '#4b5563',
+                    fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+                    lineHeight: lineHeight,
+                    whiteSpace: 'pre-wrap',
+                    fontFamily: fontFamily,
+                    textAlign: textAlign,
+                    letterSpacing: letterSpacing + 'px',
+                    textDecoration: textDecoration,
+                    transform: italicTransform,
                   }}
                 >
                   {comment.content}
                 </div>
                 <div
                   style={{
-                    fontSize: '12px',
+                    fontSize: isLiveMode ? 'clamp(10px, 2.5vw, 12px)' : '12px',
                     color: '#9ca3af',
-                    marginTop: '8px',
+                    marginTop: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
                   }}
                 >
                   {new Date(comment.createdAt).toLocaleDateString()}
@@ -522,17 +345,17 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
           <div
             style={{
               backgroundColor: '#ffffff',
-              padding: styles.containerPadding,
-              borderRadius: '8px',
-              width: viewport === 'mobile' ? '280px' : '320px',
+              padding: isLiveMode ? 'clamp(16px, 4vw, 24px)' : '24px',
+              borderRadius: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+              width: isLiveMode ? 'clamp(250px, 70vw, 320px)' : '320px',
             }}
           >
             <h3
               style={{
-                fontSize: '18px',
+                fontSize: isLiveMode ? 'clamp(16px, 4vw, 18px)' : '18px',
                 fontWeight: '600',
-                marginBottom: '16px',
-                whiteSpace: 'pre-wrap', // ✅
+                marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+                whiteSpace: 'pre-wrap',
               }}
             >
               댓글 삭제
@@ -540,8 +363,8 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
             <p
               style={{
                 color: '#4b5563',
-                marginBottom: '16px',
-                whiteSpace: 'pre-wrap', // ✅
+                marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+                whiteSpace: 'pre-wrap',
               }}
             >
               댓글 작성 시 입력한 비밀번호를 입력해주세요.
@@ -553,41 +376,36 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
               onChange={(e) => setDeletePassword(e.target.value)}
               style={{
                 width: '100%',
-                padding: styles.inputPadding,
+                padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
                 border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                marginBottom: viewport === 'mobile' ? '12px' : '16px',
+                borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
+                marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
                 outline: 'none',
-                fontSize: styles.inputFontSize,
+                fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+                boxSizing: 'border-box'
               }}
-              onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
-              onBlur={(e) => (e.target.style.borderColor = '#d1d5db')}
               onKeyPress={(e) => e.key === 'Enter' && handleDeleteComment()}
             />
             <div
               style={{
                 display: 'flex',
-                gap: '8px',
+                gap: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
               }}
             >
               <button
                 onClick={handleDeleteComment}
                 style={{
                   flex: 1,
-                  padding: styles.buttonPadding,
+                  padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
                   backgroundColor: '#dc2626',
                   color: '#ffffff',
-                  borderRadius: '6px',
+                  borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',
-                  fontSize: styles.inputFontSize,
-                  whiteSpace: 'pre-wrap', // ✅
+                  fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+                  whiteSpace: 'pre-wrap',
                 }}
-                onMouseOver={(e) =>
-                  (e.target.style.backgroundColor = '#b91c1c')
-                }
-                onMouseOut={(e) => (e.target.style.backgroundColor = '#dc2626')}
               >
                 삭제
               </button>
@@ -598,20 +416,16 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId,
                 }}
                 style={{
                   flex: 1,
-                  padding: styles.buttonPadding,
+                  padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
                   backgroundColor: '#d1d5db',
                   color: '#374151',
-                  borderRadius: '6px',
+                  borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',
-                  fontSize: styles.inputFontSize,
-                  whiteSpace: 'pre-wrap', // ✅
+                  fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+                  whiteSpace: 'pre-wrap',
                 }}
-                onMouseOver={(e) =>
-                  (e.target.style.backgroundColor = '#9ca3af')
-                }
-                onMouseOut={(e) => (e.target.style.backgroundColor = '#d1d5db')}
               >
                 취소
               </button>

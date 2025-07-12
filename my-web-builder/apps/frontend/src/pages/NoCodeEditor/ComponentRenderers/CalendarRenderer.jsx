@@ -38,8 +38,8 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
   
   return (
     <div style={{
-      width: comp.width || 350,
-      height: comp.height || 400,
+      width: '100%',
+      height: '100%',
       backgroundColor: 'white',
       borderRadius: 0,
       boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
@@ -108,20 +108,30 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
             return (
               <div
                 key={`${weekIndex}-${dayIndex}`}
-                className={`
-                  h-10 w-10 flex items-center justify-center text-sm rounded-lg cursor-pointer
-                  ${!isCurrentMonth ? 'text-gray-300' : 'text-gray-700'}
-                  ${isToday ? 'bg-blue-100 text-blue-600 font-semibold' : ''}
-                  ${isWeddingDay ? 'font-bold text-white shadow-lg' : ''}
-                  ${isCurrentMonth && !isWeddingDay && !isToday ? 'hover:bg-gray-100' : ''}
-                `}
                 style={{
-                  backgroundColor: isWeddingDay ? highlightColor : undefined
+                  height: '40px',
+                  width: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  color: !isCurrentMonth ? '#d1d5db' : '#374151',
+                  backgroundColor: isWeddingDay ? highlightColor : 
+                                 isToday ? '#dbeafe' : 'transparent',
+                  fontWeight: isWeddingDay || isToday ? 'bold' : 'normal',
+                  position: 'relative'
                 }}
               >
                 {date.getDate()}
                 {isWeddingDay && (
-                  <div className="absolute mt-8 text-xs text-center">
+                  <div style={{
+                    position: 'absolute',
+                    marginTop: '32px',
+                    fontSize: '12px',
+                    textAlign: 'center'
+                  }}>
                     💒
                   </div>
                 )}
@@ -132,9 +142,9 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
       </div>
       
       {/* 웨딩 날짜 표시 */}
-      <div className="mt-4 text-center">
-        <div className="text-sm text-gray-600">
-          Wedding Date: <span className="font-semibold" style={{ color: highlightColor }}>
+      <div style={{ marginTop: '16px', textAlign: 'center' }}>
+        <div style={{ fontSize: '14px', color: '#6b7280' }}>
+          Wedding Date: <span style={{ fontWeight: '600', color: highlightColor }}>
             {targetDate.toLocaleDateString('en-US')}
           </span>
         </div>
