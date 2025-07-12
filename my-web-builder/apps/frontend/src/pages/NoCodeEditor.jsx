@@ -37,7 +37,8 @@ function NoCodeEditor({ pageId }) {
   // URL 파라미터에서 초기 뷰포트 설정 읽기
   const initialViewport = searchParams.get('viewport') || 'desktop';
   
-  // URL 파라미터에서 템플릿 카테고리 확인
+  // URL 파라미터에서 템플릿 정보 확인
+  const isFromTemplate = searchParams.get('fromTemplate') === 'true';
   const templateCategory = searchParams.get('template') ? 
     (() => {
       try {
@@ -170,6 +171,32 @@ function NoCodeEditor({ pageId }) {
       console.error('협업 연결 오류:', connectionError);
     }
   }, [connectionError]);
+
+  // 협업 시스템에서 캔버스 설정 동기화
+  useEffect(() => {
+    if (!collaboration.ydoc) return;
+
+    const yCanvasSettings = collaboration.ydoc.getMap('canvasSettings');
+    if (!yCanvasSettings) return;
+
+    const handleCanvasSettingsChange = () => {
+      const settings = yCanvasSettings.toJSON();
+      if (settings.canvasHeight && settings.canvasHeight !== canvasHeight) {
+        console.log('협업을 통해 캔버스 높이 동기화:', settings.canvasHeight);
+        setCanvasHeight(settings.canvasHeight);
+      }
+    };
+
+    // 초기 설정 로드
+    handleCanvasSettingsChange();
+
+    // 설정 변화 감지
+    yCanvasSettings.observe(handleCanvasSettingsChange);
+
+    return () => {
+      yCanvasSettings.unobserve(handleCanvasSettingsChange);
+    };
+  }, [collaboration.ydoc, canvasHeight, setCanvasHeight]);
 
   // 키보드 단축키 처리 (Delete, Ctrl+C, Ctrl+V)
   useEffect(() => {
@@ -397,6 +424,7 @@ function NoCodeEditor({ pageId }) {
         connectionError={connectionError}
         isAdmin={isAdmin}
         templateCategory={templateCategory}
+        isFromTemplate={isFromTemplate}
       />
 
       {/* 저장 상태 표시 */}
