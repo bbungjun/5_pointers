@@ -126,6 +126,9 @@ const calculateActualDimensions = (components) => {
 const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewport = 'desktop' }) => {
   const [scale, setScale] = useState(1);
   const containerRef = useRef(null);
+  
+  // 캔버스 크기를 뷰포트에 맞게 설정
+  // const actualCanvasWidth = 375;
   const [actualCanvasWidth, setActualCanvasWidth] = useState(375);
   const canvasWidth = forcedViewport === 'mobile' ? actualCanvasWidth : 1920;
   const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
@@ -236,7 +239,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
     transform: `scale(${isMobileView ? 1 : scale})`,
     overflow: isMobileView ? 'auto' : 'visible',
     position: 'relative',
-    margin: 0,
+    margin: "0 auto",
     padding: 0,
     boxSizing: 'border-box',
   };

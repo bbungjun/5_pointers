@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function LinkRenderer({ comp, isEditor = false }) {
+function LinkRenderer({ comp, mode = 'editor' }) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props.text);
   const inputRef = useRef();
@@ -13,7 +13,7 @@ function LinkRenderer({ comp, isEditor = false }) {
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    if (mode == 'editor') {
+    if (mode === 'editor') {
       setEditing(true);
       setEditValue(comp.props.text);
     }
@@ -53,7 +53,7 @@ function LinkRenderer({ comp, isEditor = false }) {
     }
   };
 
-  if (editing && mode == 'editor') {
+  if (editing && mode === 'editor') {
     return (
       <input
         ref={inputRef}
@@ -69,7 +69,7 @@ function LinkRenderer({ comp, isEditor = false }) {
 
   return (
     <div 
-      className={`${mode == 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
+      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
       style={{
         color: comp.props.color || '#D8BFD8', 
         fontSize: comp.props.fontSize || '16px',

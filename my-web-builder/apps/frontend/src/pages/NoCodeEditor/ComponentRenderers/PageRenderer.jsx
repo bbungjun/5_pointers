@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PageRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }) => {
+const PageRenderer = ({ component, comp, mode = 'editor', onUpdate }) => {
   // component 또는 comp 중 하나를 사용 (하위 호환성)
   const actualComp = comp || component;
   const {
@@ -20,9 +20,9 @@ const PageRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }
   } = actualComp?.props || {};
 
   const handleClick = (e) => {
-    if (mode == 'preview') return; // 미리보기에서는 클릭 비활성화
+    if (mode === 'preview') return; // 미리보기에서는 클릭 비활성화
     
-    if (mode == 'editor') {
+    if (mode === 'editor') {
       if (e.ctrlKey || e.metaKey) {
         e.stopPropagation();
         navigateToLinkedPage();
@@ -33,9 +33,9 @@ const PageRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }
   };
 
   const navigateToLinkedPage = () => {
-    if (mode == 'editor' && linkedPageId) {
+    if (mode === 'editor' && linkedPageId) {
       window.location.href = `/editor/${linkedPageId}`;
-    } else if (!mode == 'editor' && deployedUrl) {
+    } else if (mode !== 'editor' && deployedUrl) {
       window.location.href = deployedUrl;
     }
   };
@@ -70,7 +70,7 @@ const PageRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }
   };
 
   return React.createElement('div', {
-    className: `page-component ${isEditor ? 'editor-mode' : 'deploy-mode'}`,
+    className: `page-component ${mode === 'editor' ? 'editor-mode' : 'deploy-mode'}`,
     style: {
       width: '100%',
       height: '100%',
@@ -85,7 +85,7 @@ const PageRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }
       position: 'relative'
     },
     onClick: handleClick,
-    title: mode == 'editor' 
+    title: mode === 'editor' 
       ? `${pageName} (${navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'}+클릭으로 페이지 이동)` 
       : `${pageName}으로 이동`
   }, [
@@ -125,7 +125,7 @@ const PageRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }
         }
       }, description)
     ]),
-    isEditor && React.createElement('div', {
+    mode === 'editor' && React.createElement('div', {
       style: {
         position: 'absolute',
         top: '4px',
