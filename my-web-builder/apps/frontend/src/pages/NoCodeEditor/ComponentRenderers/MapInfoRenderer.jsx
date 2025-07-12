@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function MapInfoRenderer({ comp }) {
+export default function MapInfoRenderer({ comp, mode = 'editor' }) {
   const {
     containerWidth = comp.width || 300,
     containerHeight = comp.height || 275,

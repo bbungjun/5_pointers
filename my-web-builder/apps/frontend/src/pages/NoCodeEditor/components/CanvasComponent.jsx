@@ -199,7 +199,7 @@ function CanvasComponent({
         return (
           <TextRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             isPreview={false}
             isSelected={selected}
             onUpdate={onUpdate}

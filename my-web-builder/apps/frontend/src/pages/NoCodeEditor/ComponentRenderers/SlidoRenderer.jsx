@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../../config';
 
-function SlidoRenderer({ comp, isEditor = false, pageId }) {
+function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
   const { question, placeholder, backgroundColor } = comp.props;
   const [opinions, setOpinions] = useState([]);
   const [newOpinion, setNewOpinion] = useState('');
@@ -201,7 +201,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
 
   // 의견 목록 조회
   const fetchOpinions = async () => {
-    if (isEditor) return; // 에디터 모드에서는 API 호출 안함
+    if (mode === 'editor') return; // 에디터 모드에서는 API 호출 안함
     
     const actualPageId = pageId || comp.pageId;
     const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
@@ -309,7 +309,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
   useEffect(() => {
     const actualPageId = pageId || comp.pageId;
     
-    if (!isEditor && actualPageId) {
+    if (mode !== 'editor' && actualPageId) {
       fetchOpinions(); // 초기 로드
       intervalRef.current = setInterval(fetchOpinions, 5000); // 5초마다 업데이트 (팝업 없이)
     }
@@ -319,7 +319,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [comp.id, pageId, comp.pageId, isEditor]);
+  }, [comp.id, pageId, comp.pageId, mode]);
 
   // 애니메이션 스타일
   const getOpinionStyle = (opinion) => {
@@ -376,7 +376,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
         height: '100%',
         padding: '20px',
         borderRadius: 0,
-        border: isEditor ? '2px dashed #3b82f6' : '2px solid #e5e7eb',
+        border: mode === 'editor' ? '2px dashed #3b82f6' : '2px solid #e5e7eb',
         backgroundColor: backgroundColor || '#ffffff',
         display: 'flex',
         flexDirection: 'column',
@@ -495,7 +495,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
       </div>
 
       {/* 의견 입력 폼 */}
-      {!isEditor && (
+      {mode !== 'editor' && (
         <form onSubmit={handleSubmitOpinion} style={{
           marginBottom: '24px',
           display: 'flex',
@@ -574,7 +574,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
       )}
 
       {/* 에디터 모드용 입력 폼 미리보기 */}
-      {isEditor && (
+      {mode === 'editor' && (
         <div style={{
           marginBottom: '24px',
           display: 'flex',
@@ -618,7 +618,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
         width: '100%',
         backgroundColor: 'rgba(248, 250, 252, 0.5)'
       }}>
-        {isEditor ? (
+        {mode === 'editor' ? (
           // 에디터 모드에서 샘플 의견들 (전체 공간 활용)
           <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '200px' }}>
             <div style={{

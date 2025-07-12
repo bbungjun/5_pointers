@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PageButtonRenderer = ({ component, comp, isEditor, onUpdate }) => {
+const PageButtonRenderer = ({ component, comp, isEditor = false, mode = 'live', onUpdate }) => {
   // 디버깅을 위한 로그 추가
   console.log('🔍 PageButtonRenderer props:', { component, comp, isEditor });
   

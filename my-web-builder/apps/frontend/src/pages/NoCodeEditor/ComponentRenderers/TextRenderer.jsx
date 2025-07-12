@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+
 // 사용 가능한 폰트 목록
 const AVAILABLE_FONTS = [
   'Playfair Display',
@@ -22,7 +23,8 @@ const AVAILABLE_FONTS = [
   'Underland'
 ];
 
-function TextRenderer({ comp, component, isEditor = false, isPreview = false, isSelected = false, onUpdate }) {
+function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isSelected = false, onUpdate }) {
+
   // comp 또는 component 중 하나를 사용 (하위 호환성)
   const actualComp = comp || component;
   const [editing, setEditing] = useState(false);
@@ -44,7 +46,7 @@ function TextRenderer({ comp, component, isEditor = false, isPreview = false, is
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    if (isEditor && !isPreview) {
+    if (mode === 'editor' && !isPreview) {
       setEditing(true);
       setEditValue(actualComp?.props?.text || '');
     }
@@ -52,7 +54,7 @@ function TextRenderer({ comp, component, isEditor = false, isPreview = false, is
 
   const handleClick = (e) => {
     e.stopPropagation();
-    if (isEditor && !isPreview && isSelected && !editing) {
+    if (mode === 'editor' && !isPreview && isSelected && !editing) {
       setEditing(true);
       setEditValue(actualComp?.props?.text || '');
     }
@@ -100,7 +102,8 @@ function TextRenderer({ comp, component, isEditor = false, isPreview = false, is
   const isItalic = actualComp?.props?.fontStyle;
   const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
 
-  if (editing && isEditor && !isPreview) {
+  if (editing && mode === 'editor'  && !isPreview) {
+
     return (
       <input
         ref={inputRef}
@@ -126,7 +129,7 @@ function TextRenderer({ comp, component, isEditor = false, isPreview = false, is
   return (
     <div 
       ref={textRef}
-      className={`${isEditor ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center transition-all duration-200 ${isSelected && isEditor ? 'hover:bg-blue-50 cursor-text' : 'hover:opacity-80'}`}
+      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center transition-all duration-200 ${isSelected && mode === 'editor' ? 'hover:bg-blue-50 cursor-text' : 'hover:opacity-80'}`}
       style={{
         color: actualComp?.props?.color, 
         fontSize: actualComp?.props?.fontSize,
@@ -138,7 +141,7 @@ function TextRenderer({ comp, component, isEditor = false, isPreview = false, is
         textDecoration: textDecoration,
         justifyContent: textAlign === 'left' ? 'flex-start' : 
                        textAlign === 'right' ? 'flex-end' : 'center',
-        border: isSelected && isEditor ? '1px dashed #3b82f6' : 'none',
+        border: isSelected && mode === 'editor' ? '1px dashed #3b82f6' : 'none',
         borderRadius: '4px'
       }}
       onDoubleClick={handleDoubleClick}
