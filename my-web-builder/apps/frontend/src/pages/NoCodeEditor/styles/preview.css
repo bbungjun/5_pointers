@@ -76,7 +76,8 @@
 }
 
 .component-wrapper {
-  max-width: 90%;
+  width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
   margin-bottom: 10px;
 }

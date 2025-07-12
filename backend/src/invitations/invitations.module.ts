@@ -5,11 +5,10 @@ import { InvitationsService } from './invitations.service';
 import { PageMembers } from '../users/entities/page_members.entity';
 import { Pages } from '../users/entities/pages.entity';
 import { Users } from '../users/entities/users.entity';
-import { EmailModule } from '../email/email.module';
 import { InvitationsGateway } from './invitations.gateway';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PageMembers, Pages, Users]), EmailModule],
+  imports: [TypeOrmModule.forFeature([PageMembers, Pages, Users])],
   controllers: [InvitationsController],
   providers: [InvitationsService, InvitationsGateway],
   exports: [InvitationsService],

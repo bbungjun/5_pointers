@@ -47,20 +47,10 @@ function InviteModal({ isOpen, onClose, pageId }) {
 
       if (response.ok) {
         if (data.success) {
-          // 이메일 발송 성공
-          setMessage('초대 이메일을 성공적으로 보냈습니다! 🎉');
-          setMessageType('success');
-          setEmail('');
-          // 3초 후 모달 닫기
-          setTimeout(() => {
-            onClose();
-            setMessage('');
-          }, 3000);
-        } else {
-          // 이메일 발송 실패했지만 링크는 생성됨
+          // 초대 링크 생성 성공
           setMessage(
             <div>
-              <p>{data.message}</p>
+              <p>초대 링크를 성공적으로 생성했습니다! 🎉</p>
               <p style={{ 
                 marginTop: '10px', 
                 padding: '10px', 
@@ -72,16 +62,33 @@ function InviteModal({ isOpen, onClose, pageId }) {
               }}>
                 초대 링크: {data.inviteUrl}
               </p>
+              <p style={{ 
+                marginTop: '8px', 
+                fontSize: '13px', 
+                color: '#6b7280' 
+              }}>
+                이 링크를 복사하여 초대할 사용자에게 공유하세요.
+              </p>
             </div>
           );
+          setMessageType('success');
+          setEmail('');
+          // 5초 후 모달 닫기 (링크 복사 시간 고려)
+          setTimeout(() => {
+            onClose();
+            setMessage('');
+          }, 5000);
+        } else {
+          // 초대 링크 생성 실패
+          setMessage(data.message || '초대 링크 생성에 실패했습니다.');
           setMessageType('error');
         }
       } else {
-        setMessage(data.message || '초대 발송에 실패했습니다.');
+        setMessage(data.message || '초대 링크 생성에 실패했습니다.');
         setMessageType('error');
       }
     } catch (error) {
-      console.error('초대 발송 오류:', error);
+      console.error('초대 링크 생성 오류:', error);
       setMessage('네트워크 오류가 발생했습니다.');
       setMessageType('error');
     } finally {
@@ -167,7 +174,7 @@ function InviteModal({ isOpen, onClose, pageId }) {
           lineHeight: 1.5
         }}>
           이메일 주소를 입력하여 다른 사용자를 이 페이지에 초대하세요.<br/>
-          초대받은 사용자는 이메일로 초대 링크를 받게 됩니다.
+          초대받은 사용자는 실시간 알림을 받고 초대 링크를 통해 참여할 수 있습니다.
         </p>
 
         {/* 이메일 입력 폼 */}
@@ -208,7 +215,7 @@ function InviteModal({ isOpen, onClose, pageId }) {
               transition: 'background 0.2s'
             }}
           >
-            {loading ? '초대 중...' : '초대 보내기'}
+            {loading ? '링크 생성 중...' : '초대 링크 생성'}
           </button>
         </form>
 
