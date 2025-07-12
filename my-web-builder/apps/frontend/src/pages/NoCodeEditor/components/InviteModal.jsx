@@ -32,6 +32,12 @@ function InviteModal({ isOpen, onClose, pageId }) {
 
     try {
       const token = localStorage.getItem('token');
+      
+      // 현재 URL에서 viewport와 fromTemplate 파라미터 가져오기
+      const urlParams = new URLSearchParams(window.location.search);
+      const viewport = urlParams.get('viewport');
+      const fromTemplate = urlParams.get('fromTemplate');
+      
       const response = await fetch(`${API_BASE_URL}/pages/${pageId}/invitations`, {
         method: 'POST',
         headers: {
@@ -39,7 +45,9 @@ function InviteModal({ isOpen, onClose, pageId }) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          email: email.trim()
+          email: email.trim(),
+          viewport: viewport,
+          fromTemplate: fromTemplate
         })
       });
 

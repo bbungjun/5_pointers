@@ -120,14 +120,6 @@ export function useYjsCollaboration(roomId, userInfo) {
       console.log('🔄 Y.js 동기화 상태:', isSynced ? '✅ 완료' : '⏳ 진행중');
     });
 
-    // 원격 업데이트 감지
-    ydoc.on('update', (update, origin) => {
-      // 원격 업데이트가 있을 때만 로그 출력
-      if (origin !== ydoc.clientID) {
-        console.log('📥 원격 업데이트 수신:', { origin, updateSize: update.length });
-      }
-    });
-
     // 참조 저장
     ydocRef.current = ydoc;
     providerRef.current = provider;

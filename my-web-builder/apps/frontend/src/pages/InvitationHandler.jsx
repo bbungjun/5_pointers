@@ -90,8 +90,47 @@ function InvitationHandler() {
       const data = await response.json();
       console.log('초대 수락 성공:', data);
       
-      // 에디터 페이지로 이동
-      navigate(`/editor/${data.pageId}`);
+      // 저장된 URL 파라미터 가져오기 (로그인 후 리디렉션된 경우)
+      const savedParams = localStorage.getItem('invitationParams');
+      let viewport = null;
+      let fromTemplate = null;
+      
+      console.log('InvitationHandler: 저장된 파라미터 확인:', savedParams);
+      
+      if (savedParams) {
+        try {
+          const params = JSON.parse(savedParams);
+          viewport = params.viewport;
+          fromTemplate = params.fromTemplate;
+          localStorage.removeItem('invitationParams'); // 사용 후 삭제
+          console.log('InvitationHandler: 저장된 파라미터 사용:', { viewport, fromTemplate });
+        } catch (e) {
+          console.error('저장된 파라미터 파싱 오류:', e);
+        }
+      } else {
+        // 현재 URL에서 직접 파라미터 추출
+        console.log('InvitationHandler: 현재 전체 URL:', window.location.href);
+        console.log('InvitationHandler: 현재 search:', window.location.search);
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        viewport = urlParams.get('viewport');
+        fromTemplate = urlParams.get('fromTemplate');
+        console.log('InvitationHandler: 현재 URL에서 파라미터 추출:', { viewport, fromTemplate });
+      }
+      
+      // URL 파라미터 구성
+      const params = new URLSearchParams();
+      if (viewport) params.append('viewport', viewport);
+      if (fromTemplate) params.append('fromTemplate', fromTemplate);
+      
+      const queryString = params.toString();
+      const targetUrl = queryString ? `/editor/${data.pageId}?${queryString}` : `/editor/${data.pageId}`;
+      
+      console.log('에디터로 이동:', targetUrl);
+      console.log('파라미터:', { viewport, fromTemplate });
+      
+      // 에디터 페이지로 이동 (파라미터 포함)
+      navigate(targetUrl);
       
     } catch (error) {
       console.error('초대 수락 실패:', error);
@@ -124,6 +163,22 @@ function InvitationHandler() {
           // 현재 전체 URL을 저장 (쿼리 파라미터 포함)
           const currentUrl = window.location.href;
           localStorage.setItem('redirectUrl', currentUrl);
+          
+          // URL 파라미터도 별도로 저장
+          console.log('InvitationHandler: 로그인 필요 - 현재 전체 URL:', window.location.href);
+          console.log('InvitationHandler: 로그인 필요 - 현재 search:', window.location.search);
+          
+          const urlParams = new URLSearchParams(window.location.search);
+          const viewport = urlParams.get('viewport');
+          const fromTemplate = urlParams.get('fromTemplate');
+          
+          console.log('InvitationHandler: 로그인 필요 - 파라미터 추출:', { viewport, fromTemplate });
+          
+          if (viewport || fromTemplate) {
+            const params = { viewport, fromTemplate };
+            localStorage.setItem('invitationParams', JSON.stringify(params));
+            console.log('InvitationHandler: URL 파라미터 저장:', params);
+          }
           
           // 로그인 페이지로 이동
           navigate('/login');
