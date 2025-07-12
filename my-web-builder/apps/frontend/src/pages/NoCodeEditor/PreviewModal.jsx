@@ -99,6 +99,16 @@ const PreviewModal = ({
     const iframeDocument = iframe.contentDocument;
     if (!iframeDocument) return;
 
+    // 기존 root 정리
+    if (rootRef.current) {
+      try {
+        rootRef.current.unmount();
+        rootRef.current = null;
+      } catch (error) {
+        console.warn('Failed to unmount existing root:', error);
+      }
+    }
+
     iframeDocument.open();
     iframeDocument.write(`
       <!DOCTYPE html>
@@ -115,10 +125,10 @@ const PreviewModal = ({
     iframeDocument.close();
 
     const rootElement = iframeDocument.getElementById("preview-root");
-    if (rootElement && !rootRef.current) {
+    if (rootElement) {
       rootRef.current = createRoot(rootElement);
     }
-  }, [isOpen]);
+  }, [isOpen, viewMode]);
 
   // 컴포넌트 렌더링
   useEffect(() => {
