@@ -835,34 +835,6 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
         )}
       </div>
 
-      {/* 실시간 표시기 */}
-      {!isEditor && (
-        <div style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          fontSize: '11px',
-          color: '#6b7280',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          padding: '6px 12px',
-          borderRadius: '20px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          backdropFilter: 'blur(10px)'
-        }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            backgroundColor: '#10b981',
-            animation: 'pulse 2s infinite'
-          }} />
-          <span style={{ fontWeight: '600' }}>LIVE</span>
-        </div>
-      )}
-
       {/* 중앙 팝업 */}
       {centerPopup && (
         <div style={{

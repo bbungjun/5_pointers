@@ -37,7 +37,7 @@ if (typeof window !== 'undefined') {
   console.log('🔧 Next.js 서버 - NODE_ENV:', process.env.NODE_ENV);
 }
 
-// 컴포넌트 타입별 렌더러 매핑 함수 (프론트엔드 PreviewRenderer와 완전히 일치)
+// 컴포넌트 타입별 렌더러 매핑 함수
 const getRendererByType = (type: string) => {
   const renderers: { [key: string]: React.ComponentType<any> } = {
     'button': ButtonRenderer,
@@ -56,11 +56,9 @@ const getRendererByType = (type: string) => {
     'slido': SlidoRenderer,
     'weddingInvite': WeddingInviteRenderer,
     'map': MapView,
-    // 프론트엔드 PreviewRenderer와 정확히 동일한 타입명 사용
-    'musicPlayer': MusicRenderer,  // ✅ 프론트엔드와 일치
-    'kakaotalkShare': KakaoTalkShareRenderer,  // ✅ 프론트엔드와 일치  
-    'page': PageRenderer,  // ✅ 프론트엔드와 일치
-    // 백워드 호환성을 위한 추가 매핑
+    'musicPlayer': MusicRenderer,
+    'kakaotalkShare': KakaoTalkShareRenderer,
+    'page': PageRenderer,
     'music': MusicRenderer,
     'kakaoTalkShare': KakaoTalkShareRenderer,
     'pageButton': PageButtonRenderer,
@@ -116,7 +114,6 @@ const DynamicPageRenderer = ({
 }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
-  const [canvasWidth, setCanvasWidth] = useState(375);
 
   useEffect(() => {
     setIsMounted(true);
@@ -124,9 +121,6 @@ const DynamicPageRenderer = ({
     const checkViewport = () => {
       const isMobile = window.innerWidth <= 768;
       setIsMobileView(isMobile);
-      if (isMobile) {
-        setCanvasWidth(window.innerWidth - 40); // 여백 40px
-      }
     };
 
     checkViewport();
@@ -139,7 +133,48 @@ const DynamicPageRenderer = ({
     return <LoadingSpinner />;
   }
 
-  const sortedComponents = [...components].sort((a, b) => (a.y || 0) - (b.y || 0));
+  // 모바일에서 행 기반 레이아웃 사용
+  const groupComponentsIntoRows = (components: ComponentData[]) => {
+    const rows: ComponentData[][] = [];
+    const sortedComponents = [...components].sort((a, b) => (a.y || 0) - (b.y || 0));
+    
+    sortedComponents.forEach(component => {
+      const componentY = component.y || 0;
+      let addedToRow = false;
+      
+      for (let row of rows) {
+        const rowY = row[0].y || 0;
+        if (Math.abs(componentY - rowY) < 30) { // 30px 이내면 같은 행
+          row.push(component);
+          addedToRow = true;
+          break;
+        }
+      }
+      
+      if (!addedToRow) {
+        rows.push([component]);
+      }
+    });
+    
+    return rows;
+  };
+
+  const getComponentDefaultSize = (componentType: string) => {
+    const defaultSizes: { [key: string]: { width: number; height: number } } = {
+      slido: { width: 400, height: 300 },
+      button: { width: 150, height: 50 },
+      text: { width: 200, height: 50 },
+      image: { width: 200, height: 150 },
+      map: { width: 400, height: 300 },
+      attend: { width: 300, height: 200 },
+      dday: { width: 250, height: 100 },
+      default: { width: 200, height: 100 }
+    };
+    return defaultSizes[componentType] || defaultSizes.default;
+  };
+
+  const rows = isMobileView ? groupComponentsIntoRows(components) : null;
+  const sortedComponents = !isMobileView ? [...components].sort((a, b) => (a.y || 0) - (b.y || 0)) : null;
 
   return (
     <>
@@ -149,16 +184,6 @@ const DynamicPageRenderer = ({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
         
-        {/* 모바일 최적화 */}
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        
-        {/* 소셜 미디어 메타 태그 */}
-        <meta property="og:title" content={`${subdomain || pageId} - My Web Builder`} />
-        <meta property="og:description" content={`${subdomain || pageId}에서 만든 웹사이트입니다.`} />
-        <meta property="og:type" content="website" />
-        
-        {/* 글로벌 스타일 */}
         <style jsx global>{`
           * {
             margin: 0;
@@ -180,7 +205,6 @@ const DynamicPageRenderer = ({
             color: #333;
           }
           
-          /* 모바일 반응형 처리 */
           @media (max-width: 768px) {
             .page-container {
               width: 100vw !important;
@@ -191,35 +215,14 @@ const DynamicPageRenderer = ({
             .component-container {
               max-width: calc(100vw - 20px);
             }
-            
-            /* CSS 반응형 제거 - ButtonRenderer 내부 로직에 위임 */
           }
           
-          /* 컴포넌트 호버 효과 */
           .component-container {
             transition: all 0.2s ease;
           }
           
           .component-container:hover {
             z-index: 10;
-          }
-          
-          /* 스크롤바 스타일링 */
-          ::-webkit-scrollbar {
-            width: 8px;
-          }
-          
-          ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-          }
-          
-          ::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
-          }
-          
-          ::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
           }
         `}</style>
       </Head>
@@ -238,7 +241,6 @@ const DynamicPageRenderer = ({
           overflowX: 'hidden'
         }}
       >
-        {/* 배경 패턴 */}
         <div style={{
           position: 'fixed',
           top: 0,
@@ -251,7 +253,6 @@ const DynamicPageRenderer = ({
           zIndex: 0
         }} />
         
-        {/* 메인 컨텐츠 */}
         <div style={{
           position: 'relative',
           zIndex: 1,
@@ -259,114 +260,48 @@ const DynamicPageRenderer = ({
           width: '100%',
           display: isMobileView ? 'flex' : 'block',
           flexDirection: isMobileView ? 'column' : 'unset',
-          alignItems: isMobileView ? 'center' : 'unset'
+          alignItems: isMobileView ? 'center' : 'unset',
         }}>
           {components && components.length > 0 ? (
-            sortedComponents.map((comp) => {
-              try {
-                console.log('🎯 Rendering component:', comp.type, 'with data:', comp);
-                const RendererComponent = getRendererByType(comp.type);
-
-                if (!RendererComponent) {
-                  return (
-                    <div
-                      key={comp.id}
-                      className="component-container"
-                      style={{
-                        position: 'absolute',
-                        left: comp.x || 0,
-                        top: comp.y || 0,
-                        padding: '16px 20px',
-                        background: 'rgba(248, 249, 250, 0.95)',
-                        border: '2px dashed #dee2e6',
-                        borderRadius: '12px',
-                        fontSize: '14px',
-                        color: '#6c757d',
-                        fontWeight: '500',
-                        backdropFilter: 'blur(10px)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '16px' }}>🔧</span>
-                        <span>
-                          {comp.props?.text || `${comp.type} 컴포넌트`}
-                        </span>
+            isMobileView ? (
+              rows?.map((row, rowIndex) => (
+                <div key={rowIndex} style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  flexWrap: 'wrap'
+                }}>
+                  {row.map((comp) => {
+                    const RendererComponent = getRendererByType(comp.type);
+                    if (!RendererComponent) return null;
+                    
+                    const defaultSize = getComponentDefaultSize(comp.type);
+                    const originalWidth = comp.width || defaultSize.width;
+                    const originalHeight = comp.height || defaultSize.height;
+                    
+                    return (
+                      <div key={comp.id} style={{
+                        width: `min(${originalWidth}px, 90vw)`,
+                      }}>
+                        <RendererComponent
+                          {...comp.props}
+                          comp={{ ...comp, width: originalWidth, height: originalHeight }}
+                          mode="live"
+                          isEditor={false}
+                        />
                       </div>
-                    </div>
-                  );
-                }
-
-                // 컴포넌트별 기본 크기 설정
-                const getComponentDefaultSize = (componentType: string) => {
-                  const defaultSizes: { [key: string]: { width: number; height: number } } = {
-                    slido: { width: 400, height: 300 },
-                    button: { width: 150, height: 50 },
-                    text: { width: 200, height: 50 },
-                    image: { width: 200, height: 150 },
-                    map: { width: 400, height: 300 },
-                    attend: { width: 300, height: 200 },
-                    dday: { width: 250, height: 100 },
-                    default: { width: 200, height: 100 }
-                  };
-                  return defaultSizes[componentType] || defaultSizes.default;
-                };
+                    );
+                  })}
+                </div>
+              ))
+            ) : (
+              sortedComponents?.map((comp) => {
+                const RendererComponent = getRendererByType(comp.type);
+                if (!RendererComponent) return null;
 
                 const defaultSize = getComponentDefaultSize(comp.type);
                 const originalWidth = comp.width || defaultSize.width;
                 const originalHeight = comp.height || defaultSize.height;
 
-                const wrapperStyle = isMobileView ? {
-                  position: 'relative',
-                  width: `min(${originalWidth}px, 90vw)`,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                } : {
-                  position: 'absolute',
-                  left: comp.x || 0,
-                  top: comp.y || 0,
-                  width: `${originalWidth}px`,
-                  height: `${originalHeight}px`,
-                  zIndex: 2
-                };
-
-                return (
-                  <div
-                    key={comp.id}
-                    className="component-container"
-                    style={wrapperStyle}
-                  >
-                    {(() => {
-                      console.log('🚀 About to render component:', comp.type);
-                      console.log('🚀 Component data:', comp);
-                      console.log('🚀 Component props:', comp.props);
-                      const componentData = {
-                        ...comp,
-                        pageId: pageId,
-                        width: originalWidth,
-                        height: originalHeight
-                      };
-                      
-                      return (
-                        <RendererComponent
-                          {...comp.props}
-                          component={componentData}
-                          comp={{ ...comp, width: originalWidth, height: originalHeight }}
-                          mode="live"
-                          isEditor={false}
-                          onUpdate={() => {}}
-                          onPropsChange={() => {}}
-                          pageId={pageId}
-                          width={originalWidth}
-                          height={originalHeight}
-                        />
-                      );
-                    })()}
-                  </div>
-                );
-              } catch (error) {
-                console.error('Error rendering component:', comp.type, error);
                 return (
                   <div
                     key={comp.id}
@@ -375,27 +310,21 @@ const DynamicPageRenderer = ({
                       position: 'absolute',
                       left: comp.x || 0,
                       top: comp.y || 0,
-                      padding: '16px 20px',
-                      background: 'rgba(255, 230, 230, 0.95)',
-                      border: '2px solid #ff6b6b',
-                      borderRadius: '12px',
-                      fontSize: '14px',
-                      color: '#c92a2a',
-                      fontWeight: '600',
-                      backdropFilter: 'blur(10px)',
-                      boxShadow: '0 4px 12px rgba(255, 107, 107, 0.2)'
+                      width: `${originalWidth}px`,
+                      height: `${originalHeight}px`,
+                      zIndex: 2
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '16px' }}>⚠️</span>
-                      <span>
-                        렌더링 오류: {comp.type}
-                      </span>
-                    </div>
+                    <RendererComponent
+                      {...comp.props}
+                      comp={{ ...comp, width: originalWidth, height: originalHeight }}
+                      mode="live"
+                      isEditor={false}
+                    />
                   </div>
                 );
-              }
-            })
+              })
+            )
           ) : (
             <div style={{
               display: 'flex',
@@ -409,9 +338,7 @@ const DynamicPageRenderer = ({
                 background: 'rgba(255, 255, 255, 0.95)',
                 padding: '60px 40px',
                 borderRadius: '20px',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
+                boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
               }}>
                 <div style={{ fontSize: '64px', marginBottom: '20px' }}>🎨</div>
                 <h2 style={{
@@ -458,85 +385,29 @@ interface PageProps {
 }
 
 const ErrorPage = ({ message, subdomain }: { message: string; subdomain?: string }) => (
-  <>
-    <Head>
-      <title>페이지를 찾을 수 없습니다 - My Web Builder</title>
-      <meta name="description" content="요청하신 페이지를 찾을 수 없습니다." />
-    </Head>
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: 'white'
+  }}>
     <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      color: 'white',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      textAlign: 'center',
+      padding: '60px 40px',
+      background: 'rgba(255, 255, 255, 0.1)',
+      borderRadius: '20px'
     }}>
-      <div style={{
-        textAlign: 'center',
-        padding: '60px 40px',
-        background: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: '20px',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-        maxWidth: '500px',
-        margin: '40px'
-      }}>
-        <div style={{ fontSize: '72px', marginBottom: '24px' }}>🔍</div>
-        <h1 style={{
-          fontSize: '28px',
-          fontWeight: '700',
-          marginBottom: '16px',
-          lineHeight: '1.3'
-        }}>
-          페이지를 찾을 수 없습니다
-        </h1>
-        {subdomain && (
-          <p style={{
-            fontSize: '16px',
-            marginBottom: '16px',
-            opacity: 0.9,
-            background: 'rgba(255, 255, 255, 0.1)',
-            padding: '8px 16px',
-            borderRadius: '12px',
-            fontFamily: 'monospace'
-          }}>
-            {subdomain}
-          </p>
-        )}
-        <p style={{
-          fontSize: '16px',
-          lineHeight: '1.6',
-          opacity: 0.8,
-          marginBottom: '32px'
-        }}>
-          {message}
-        </p>
-        <div style={{
-          padding: '16px',
-          background: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: '12px',
-          fontSize: '14px',
-          lineHeight: '1.5',
-          opacity: 0.7
-        }}>
-          💡 페이지가 배포되지 않았거나 삭제되었을 수 있습니다.<br />
-          에디터에서 페이지를 다시 배포해보세요.
-        </div>
-      </div>
+      <h1>페이지를 찾을 수 없습니다</h1>
+      <p>{message}</p>
     </div>
-  </>
+  </div>
 );
 
 const RenderedPage = ({ pageData, pageId, subdomain }: PageProps & { subdomain?: string }) => {
   if (!pageData) {
-    return (
-      <ErrorPage 
-        message="요청하신 페이지가 존재하지 않습니다." 
-        subdomain={subdomain}
-      />
-    );
+    return <ErrorPage message="요청하신 페이지가 존재하지 않습니다." subdomain={subdomain} />;
   }
 
   return (
@@ -553,106 +424,53 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { req } = context;
 
   try {
-    // 호스트 헤더에서 서브도메인 추출
     const host = req.headers.host || '';
     console.log('🌐 Host header:', host);
     console.log('📄 PageId from params:', pageId);
 
-    // subdomain 추출 로직 개선
     let subdomain = pageId as string;
     
-    // localhost 또는 배포 환경에서의 서브도메인 처리
     if (host.includes('.localhost')) {
-      // 개발 환경: mysite.localhost:3001 -> mysite
       subdomain = host.split('.')[0];
     } else if (host.includes('.')) {
-      // 프로덕션 환경에서 서브도메인 처리가 필요한 경우
       const parts = host.split('.');
       if (parts.length > 2) {
         subdomain = parts[0];
       }
     }
-    // 그 외의 경우 pageId를 subdomain으로 사용
 
     console.log('🎯 Extracted subdomain:', subdomain);
 
-    // 테스트용 mock 데이터 (test123 등 특정 subdomain에 대해)
+    // 테스트용 mock 데이터
     if (subdomain === 'test123' || subdomain === 'demo' || subdomain === 'test') {
       console.log('🧪 Using mock data for testing');
       const mockPageData = {
         pageId: subdomain,
         components: [
           {
-            id: 'test-music-1',
-            type: 'musicPlayer',
+            id: 'test-button-1',
+            type: 'button',
             x: 50,
             y: 50,
-            width: 300,
-            height: 100,
+            width: 150,
+            height: 50,
             props: {
-              title: '테스트 음악',
-              artist: '테스트 아티스트',
-              audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-              autoPlay: false
+              text: '테스트 버튼',
+              bg: '#3B4EFF',
+              color: '#fff'
             }
           },
           {
-            id: 'test-kakao-1',
-            type: 'kakaotalkShare',
-            x: 400,
+            id: 'test-text-1',
+            type: 'text',
+            x: 250,
             y: 50,
             width: 200,
-            height: 80,
+            height: 50,
             props: {
-              title: '테스트 카카오톡 공유',
-              description: '테스트 설명',
-              imageUrl: 'https://via.placeholder.com/300x200',
-              linkUrl: 'https://test.com'
-            }
-          },
-          {
-            id: 'test-page-1',
-            type: 'page',
-            x: 50,
-            y: 200,
-            width: 250,
-            height: 150,
-            props: {
-              pageName: '테스트 페이지',
-              description: '페이지 설명',
-              backgroundColor: '#ffffff',
-              textColor: '#333333',
-              linkedPageId: 'test-linked-page',
-              deployedUrl: 'https://example.com'
-            }
-          },
-          {
-            id: 'test-pagebutton-1',
-            type: 'pageButton',
-            x: 350,
-            y: 200,
-            width: 200,
-            height: 60,
-            props: {
-              buttonText: '페이지 이동',
-              backgroundColor: '#007bff',
-              textColor: '#ffffff',
-              linkedPageId: 'test-target-page',
-              deployedUrl: 'https://target.com'
-            }
-          },
-          {
-            id: 'test-map-1',
-            type: 'map',
-            x: 50,
-            y: 400,
-            width: 400,
-            height: 300,
-            props: {
-              latitude: 37.5665,
-              longitude: 126.9780,
-              zoom: 15,
-              title: '서울 시청'
+              text: '테스트 텍스트',
+              fontSize: 16,
+              color: '#333'
             }
           }
         ]
@@ -667,29 +485,24 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
-    // API 요청 헤더 설정
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       'User-Agent': 'SubdomainNextJS/1.0',
     };
 
-    // 호스트 정보 전달 (디버깅용)
     if (req.headers['x-forwarded-for']) {
       headers['X-Forwarded-For'] = req.headers['x-forwarded-for'] as string;
     }
 
     console.log('🚀 API 요청 시작:', `${API_BASE_URL}/generator/subdomain/${subdomain}`);
 
-    // 서버에서 백엔드 API 호출 (subdomain으로 조회)
     const res = await fetch(`${API_BASE_URL}/generator/subdomain/${subdomain}`, {
       method: 'GET',
       headers,
-      // 타임아웃 설정 (10초)
       signal: AbortSignal.timeout(10000),
     });
 
     console.log('📡 API response status:', res.status);
-    console.log('📡 API response headers:', Object.fromEntries(res.headers.entries()));
 
     if (!res.ok) {
       const errorText = await res.text().catch(() => 'Unknown error');
@@ -699,7 +512,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         body: errorText
       });
 
-      // 404 에러인 경우 커스텀 에러 페이지 반환
       if (res.status === 404) {
         return {
           props: {
@@ -711,7 +523,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         };
       }
 
-      // 기타 서버 에러
       return {
         props: {
           pageData: null,
@@ -726,24 +537,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     console.log('✅ Page data received:', {
       pageId: pageData.pageId,
       componentsCount: pageData.components?.length || 0,
-      hasComponents: !!pageData.components,
-      fullPageData: pageData,
-      componentsData: pageData.components
+      hasComponents: !!pageData.components
     });
 
-    // 컴포넌트 데이터 상세 로깅
-    if (pageData.components && Array.isArray(pageData.components)) {
-      pageData.components.forEach((comp: any, index: number) => {
-        console.log(`🔍 Component ${index}:`, {
-          type: comp.type,
-          id: comp.id,
-          props: comp.props,
-          fullComponent: comp
-        });
-      });
-    }
-
-    // 데이터 검증
     if (!pageData || typeof pageData !== 'object') {
       console.error('❌ Invalid page data format:', pageData);
       return {
@@ -756,7 +552,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
-    // 컴포넌트 배열이 없는 경우 빈 배열로 초기화
     if (!Array.isArray(pageData.components)) {
       console.warn('⚠️ Components is not an array, initializing as empty array');
       pageData.components = [];
@@ -775,11 +570,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   } catch (error) {
     console.error('💥 Failed to fetch page data:', {
       error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
       subdomain: pageId
     });
 
-    // 네트워크 에러나 타임아웃의 경우
     return {
       props: {
         pageData: null,

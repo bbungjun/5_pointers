@@ -135,7 +135,7 @@ function ButtonRenderer({ comp, isEditor = false, mode = 'live', width, height }
           width: '100%',
           maxWidth: `${width}px`,
           aspectRatio: `${width} / ${height}`,
-          fontSize: 'clamp(12px, 4vw, 18px)',
+          fontSize: `clamp(${Math.max(10, (comp.props?.fontSize || 18) * 0.7)}px, ${((comp.props?.fontSize || 18) / 375) * 100}vw, ${comp.props?.fontSize || 18}px)`,
           padding: 'clamp(4px, 1.5vw, 8px) clamp(6px, 2.5vw, 12px)',
           borderRadius: 'clamp(3px, 1vw, 6px)'
         } : {

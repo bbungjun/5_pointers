@@ -1,8 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function ImageRenderer({ comp, isEditor = false, onUpdate }) {
+function ImageRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width, height }) {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
 
   const handleImageLoad = () => {
     setIsLoading(false);
@@ -19,8 +33,6 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
   const finalHeight = comp.height || comp.props?.height || 150;
 
   const containerStyle = {
-    width: finalWidth + 'px',
-    height: finalHeight + 'px',
     borderRadius: (comp.props?.borderRadius || 0) + 'px',
     overflow: 'hidden',
     position: 'relative',
@@ -28,7 +40,15 @@ function ImageRenderer({ comp, isEditor = false, onUpdate }) {
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f9fafb',
-    border: isEditor ? '1px solid #e5e7eb' : 'none'
+    border: isEditor ? '1px solid #e5e7eb' : 'none',
+    ...(isLiveMode ? {
+      width: '100%',
+      maxWidth: `${width}px`,
+      aspectRatio: `${width} / ${height}`
+    } : {
+      width: finalWidth + 'px',
+      height: finalHeight + 'px'
+    })
   };
 
   // 이미지가 없는 경우 플레이스홀더

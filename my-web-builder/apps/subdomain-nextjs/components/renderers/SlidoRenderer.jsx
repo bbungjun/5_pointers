@@ -1,7 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../config';
 
-function SlidoRenderer({ comp, isEditor = false, pageId }) {
+function SlidoRenderer({ comp, isEditor = false, pageId, mode = 'live', width, height }) {
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
   const { question, placeholder, backgroundColor } = comp.props;
   const [opinions, setOpinions] = useState([]);
   const [newOpinion, setNewOpinion] = useState('');
@@ -372,9 +386,6 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
     <div 
       ref={containerRef}
       style={{
-        width: '100%',
-        height: '100%',
-        padding: '20px',
         borderRadius: '16px',
         border: isEditor ? '2px dashed #3b82f6' : '2px solid #e5e7eb',
         backgroundColor: backgroundColor || '#ffffff',
@@ -385,7 +396,17 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
         overflow: 'hidden',
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         transition: 'all 0.2s ease',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        ...(isLiveMode ? {
+          width: '100%',
+          maxWidth: `${width}px`,
+          aspectRatio: `${width} / ${height}`,
+          padding: `clamp(12px, 3vw, 20px)`
+        } : {
+          width: '100%',
+          height: '100%',
+          padding: '20px'
+        })
       }}
     >
       {/* CSS 애니메이션 정의 */}
@@ -480,9 +501,9 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
 
       {/* 질문 제목 */}
       <div style={{
-        fontSize: '20px',
+        fontSize: isLiveMode ? `clamp(${Math.max(14, 20 * 0.7)}px, ${(20 / 375) * 100}vw, 20px)` : '20px',
         fontWeight: '700',
-        marginBottom: '20px',
+        marginBottom: isLiveMode ? `clamp(12px, 3vw, 20px)` : '20px',
         color: '#1f2937',
         textAlign: 'center',
         whiteSpace: 'pre-wrap',
@@ -497,9 +518,9 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
       {/* 의견 입력 폼 */}
       {!isEditor && (
         <form onSubmit={handleSubmitOpinion} style={{
-          marginBottom: '24px',
+          marginBottom: isLiveMode ? `clamp(16px, 4vw, 24px)` : '24px',
           display: 'flex',
-          gap: '12px',
+          gap: isLiveMode ? `clamp(8px, 2vw, 12px)` : '12px',
           alignItems: 'center'
         }}>
           <div style={{
@@ -835,33 +856,6 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
         )}
       </div>
 
-      {/* 실시간 표시기 */}
-      {!isEditor && (
-        <div style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          fontSize: '11px',
-          color: '#6b7280',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          padding: '6px 12px',
-          borderRadius: '20px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          backdropFilter: 'blur(10px)'
-        }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            backgroundColor: '#10b981',
-            animation: 'pulse 2s infinite'
-          }} />
-          <span style={{ fontWeight: '600' }}>LIVE</span>
-        </div>
-      )}
 
       {/* 중앙 팝업 */}
       {centerPopup && (

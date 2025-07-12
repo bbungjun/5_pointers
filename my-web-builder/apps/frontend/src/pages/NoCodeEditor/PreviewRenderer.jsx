@@ -26,7 +26,7 @@ import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
 
 // 컴포넌트 렌더링 헬퍼
 const ComponentRenderer = ({ component, editingViewport }) => {
-  const props = { comp: component, mode: 'live', isEditor: false, editingViewport };
+  const props = { comp: component, mode: 'preview', isEditor: false, editingViewport };
   switch (component.type) {
     case 'button':
       return <ButtonRenderer {...props} />;
@@ -37,7 +37,7 @@ const ComponentRenderer = ({ component, editingViewport }) => {
     case 'attend':
       return <AttendRenderer {...props} />;
     case 'map':
-      return <MapView {...(component.props || {})} comp={component} mode="live" />;
+      return <MapView {...(component.props || {})} comp={component} mode="preview" />;
     case 'dday':
       return <DdayRenderer {...props} />;
     case 'weddingContact':
@@ -65,7 +65,7 @@ const ComponentRenderer = ({ component, editingViewport }) => {
     case 'kakaotalkShare':
       return <KakaoTalkShareRenderer {...props} />;
     case 'page':
-      return <PageRenderer component={component} mode="live" isEditor={false} />;
+      return <PageRenderer component={component} mode="preview" isEditor={false} />;
     case 'pageButton':
       return <PageButtonRenderer {...props} isPreview={true} />;
     default:
@@ -167,22 +167,31 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
         className="page-container"
         style={{
           width: `${canvasWidth}px`,
-          height: `${canvasHeight}px`,
+          minHeight: `${canvasHeight}px`,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px',
+          padding: '16px 0'
         }}
       >
         {rows.map((row, rowIndex) => (
-          <div key={rowIndex} className="row-wrapper" style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+          <div key={rowIndex} className="row-wrapper" style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: '12px',
+            flexWrap: 'wrap'
+          }}>
             {row.map((component) => {
               const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
               const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
-              const finalWidth = originalWidth > canvasWidth ? canvasWidth - 20 : originalWidth;
+              const finalWidth = Math.min(originalWidth, canvasWidth - 40);
               
               return (
                 <div
                   key={component.id}
                   className="component-wrapper"
                   style={{
-                    order: Math.floor((component.x || 0) / 10),
                     width: `${finalWidth}px`,
                     height: `${originalHeight}px`
                   }}
