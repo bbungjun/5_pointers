@@ -133,28 +133,38 @@ const DynamicPageRenderer = ({
     return <LoadingSpinner />;
   }
 
-  // 모바일에서 행 기반 레이아웃 사용
+  // 모바일에서 행 기반 레이아웃 사용 (미리보기와 동일한 로직)
   const groupComponentsIntoRows = (components: ComponentData[]) => {
-    const rows: ComponentData[][] = [];
+    if (!components || components.length === 0) return [];
+
     const sortedComponents = [...components].sort((a, b) => (a.y || 0) - (b.y || 0));
+    const rows: ComponentData[][] = [];
     
-    sortedComponents.forEach(component => {
-      const componentY = component.y || 0;
-      let addedToRow = false;
+    for (const component of sortedComponents) {
+      const compTop = component.y || 0;
+      const compBottom = compTop + (component.height || getComponentDefaultSize(component.type).height);
       
-      for (let row of rows) {
-        const rowY = row[0].y || 0;
-        if (Math.abs(componentY - rowY) < 30) { // 30px 이내면 같은 행
-          row.push(component);
-          addedToRow = true;
+      let targetRow = null;
+      
+      for (const row of rows) {
+        const hasOverlap = row.some(existingComp => {
+          const existingTop = existingComp.y || 0;
+          const existingBottom = existingTop + (existingComp.height || getComponentDefaultSize(existingComp.type).height);
+          return Math.max(compTop, existingTop) < Math.min(compBottom, existingBottom);
+        });
+        
+        if (hasOverlap) {
+          targetRow = row;
           break;
         }
       }
       
-      if (!addedToRow) {
+      if (targetRow) {
+        targetRow.push(component);
+      } else {
         rows.push([component]);
       }
-    });
+    }
     
     return rows;
   };
