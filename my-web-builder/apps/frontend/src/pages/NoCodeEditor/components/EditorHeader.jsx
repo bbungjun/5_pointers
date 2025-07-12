@@ -109,11 +109,6 @@ n          {/* 페이지 네비게이션 */}
               {templateCategory !== 'wedding' && <option value="desktop">💻 데스크탑</option>}
               <option value="mobile">📱 모바일</option>
             </select>
-            {isFromTemplate && (
-              <span className="text-xs text-gray-500 ml-2">
-                템플릿 모드
-              </span>
-            )}
           </div>
         </div>
       </div>

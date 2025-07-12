@@ -10,7 +10,6 @@ import { PageMembers } from '../users/entities/page_members.entity';
 import { Pages } from '../users/entities/pages.entity';
 import { Users } from '../users/entities/users.entity';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
-import { EmailService } from '../email/email.service';
 import * as crypto from 'crypto';
 import { InvitationsGateway } from './invitations.gateway';
 
@@ -23,7 +22,6 @@ export class InvitationsService {
     private pagesRepository: Repository<Pages>,
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
-    private emailService: EmailService,
     private invitationsGateway: InvitationsGateway,
   ) {}
 
@@ -37,42 +35,7 @@ export class InvitationsService {
   /**
    * 초대 이메일 발송 (AWS SES 사용)
    */
-  private async sendInvitationEmail(
-    email: string,
-    invitationToken: string,
-    pageName: string,
-    inviterName: string,
-  ) {
-    try {
-      // AWS SES를 통한 실제 이메일 발송
-      await this.emailService.sendInvitationEmail(
-        email,
-        invitationToken,
-        pageName,
-        inviterName,
-      );
 
-    } catch (error) {
-
-      // 개발 모드에서는 콘솔에 백업 메시지 출력
-      if (process.env.NODE_ENV === 'development') {
-        const inviteUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/invite/${invitationToken}`;
-        console.log(`
-          📧 [개발 모드] 초대 이메일 내용
-          수신자: ${email}
-          제목: ${inviterName}님이 '${pageName}' 페이지에 당신을 초대했습니다.
-          내용: 다음 링크를 클릭하여 협업에 참여하세요: ${inviteUrl}
-          만료시간: 7일
-        `);
-      }
-
-      // 이메일 발송 실패 시에도 초대 레코드는 생성되도록 함
-      // 사용자가 직접 링크를 사용할 수 있도록
-      throw new Error(
-        `이메일 발송에 실패했지만 초대 링크가 생성되었습니다: ${error.message}`,
-      );
-    }
-  }
 
   /**
    * 페이지에 사용자 초대
@@ -152,32 +115,15 @@ export class InvitationsService {
       });
     }
 
-    // 초대 이메일 발송
-    try {
-      await this.sendInvitationEmail(
-        email,
-        invitationToken,
-        page.title,
-        inviter.nickname,
-      );
+    // 초대 링크 생성 (이메일 발송 없이)
+    const inviteUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/invite/${invitationToken}`;
 
-      return {
-        message: '초대 이메일을 성공적으로 발송했습니다.',
-        invitationToken,
-        success: true,
-      };
-    } catch (error) {
-      // 이메일 발송 실패해도 초대 링크는 생성됨
-
-      return {
-        message:
-          '초대 링크를 생성했지만 이메일 발송에 실패했습니다. 링크를 직접 공유해주세요.',
-        invitationToken,
-        success: false,
-        inviteUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/invite/${invitationToken}`,
-        error: error.message,
-      };
-    }
+    return {
+      message: '초대 링크를 성공적으로 생성했습니다.',
+      invitationToken,
+      success: true,
+      inviteUrl,
+    };
   }
 
   /**
