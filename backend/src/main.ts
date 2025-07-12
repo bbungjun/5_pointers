@@ -37,6 +37,8 @@ async function bootstrap() {
         'http://127.0.0.1:5173',
       ].flat().filter(Boolean);
       
+
+
       const subdomainPatterns = [
         /^https?:\/\/[^.]+\.ddukddak\.org$/,
         /^https?:\/\/[^.]+\.localhost:\d+$/
