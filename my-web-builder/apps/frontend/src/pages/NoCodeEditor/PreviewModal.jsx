@@ -327,6 +327,8 @@ const PreviewModal = ({
         display: flex;
         align-items: center;
         justify-content: center;
+        transform: scale(0.8);
+        transform-origin: top center; /* 위쪽 중앙 기준으로 축소 */
       }
 
       .iphone-frame {
@@ -397,6 +399,7 @@ const PreviewModal = ({
         
         .iphone-wrapper {
           transform: scale(0.8);
+          transform-origin: top center;
         }
       }
 
