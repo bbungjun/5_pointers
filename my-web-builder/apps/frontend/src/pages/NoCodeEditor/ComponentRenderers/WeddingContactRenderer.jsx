@@ -44,7 +44,6 @@ function WeddingContactRenderer({ comp, mode = 'editor', isEditor = false }) {
       border: '1px solid #BDB5A6',
       borderRadius: 0,
       color: '#4A4A4A',
-      boxSizing: 'border-box',
       fontFamily: 'Montserrat, sans-serif',
       boxShadow: '0 8px 32px rgba(189, 181, 166, 0.15)',
       minWidth: '250px',
