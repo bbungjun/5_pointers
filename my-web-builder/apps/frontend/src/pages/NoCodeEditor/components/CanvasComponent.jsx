@@ -639,7 +639,8 @@ function CanvasComponent({
       onMouseDown={handleDragStart}
       onClick={(e) => {
         e.stopPropagation();
-        onSelect(comp.id, e);
+        const isCtrlPressed = e.ctrlKey || e.metaKey;
+        onSelect(comp.id, isCtrlPressed);
       }}
     >
       {renderContent()}

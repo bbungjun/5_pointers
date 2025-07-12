@@ -25,7 +25,7 @@ export function getComponentDimensions(type) {
   return dimensions[type] || { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 };
 }
 
-// 컴포넌트를 행으로 그룹핑 (수직 겹침 기준, x 좌표 정렬 안함)
+// 컴포넌트를 행으로 그룹핑 (수직 겹침 기준, x 좌표로 정렬)
 export function groupComponentsIntoRows(components) {
   if (!components || components.length === 0) return [];
 
@@ -58,7 +58,10 @@ export function groupComponentsIntoRows(components) {
     }
   }
   
-  return rows;
+  // 각 행의 컴포넌트들을 X좌표 기준으로 정렬
+  return rows.map(row => 
+    [...row].sort((a, b) => (a.x || 0) - (b.x || 0))
+  );
 }
 
 // Page 컴포넌트를 위한 새 페이지 생성

@@ -15,6 +15,9 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
     );
   }
 
+  // 편집 기준 확인 (기본값: desktop)
+  const editingMode = template.editingMode || 'desktop';
+
   // 템플릿 content는 배열이거나 객체일 수 있음
   let components = [];
   if (Array.isArray(template.content)) {
@@ -67,89 +70,216 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   const contentWidth = bounds.maxX - bounds.minX;
   const contentHeight = bounds.maxY - bounds.minY;
   
-  // 스케일 조정 (미리보기 영역에 맞게) - 16:9 비율 기준
-  const previewWidth = 300;
-  const previewHeight = 200;
-  const scaleX = previewWidth / contentWidth;
-  const scaleY = previewHeight / contentHeight;
-  const finalScale = Math.min(scaleX, scaleY, 0.25); // 최대 0.25 스케일
+  // 편집 기준에 따른 미리보기 크기 설정
+  const getPreviewDimensions = () => {
+    if (editingMode === 'mobile') {
+      return {
+        width: 200,  // 모바일 화면 영역 크기
+        height: 400, // 더 길게 만든 높이
+        aspectRatio: '1/2'
+      };
+    } else {
+      return {
+        width: 300,  // 데스크톱 비율 (16:9)
+        height: 200,
+        aspectRatio: '16/9'
+      };
+    }
+  };
+
+  const previewDimensions = getPreviewDimensions();
+  const scaleX = previewDimensions.width / contentWidth;
+  const scaleY = previewDimensions.height / contentHeight;
+  const finalScale = Math.min(scaleX, scaleY, 0.65); // 최대 0.25 스케일
 
   return (
     <div className={`relative bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
-      <div 
-        className="relative bg-gray-50 w-full h-full"
-        style={{
-          minHeight: '200px',
-        }}
-      >
-        {/* 캔버스 배경 */}
-        <div className="absolute inset-0 bg-white" />
-        
-        {/* 컴포넌트들 렌더링 */}
+      {/* 디바이스 타입 표시 */}
+      <div className="absolute top-2 left-2 z-10">
+        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+          editingMode === 'mobile' 
+            ? 'bg-blue-100 text-blue-800' 
+            : 'bg-green-100 text-green-800'
+        }`}>
+          {editingMode === 'mobile' ? (
+            <>
+              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z" clipRule="evenodd" />
+              </svg>
+              모바일
+            </>
+          ) : (
+            <>
+              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
+              </svg>
+              데스크톱
+            </>
+          )}
+        </div>
+      </div>
+
+      {editingMode === 'mobile' ? (
+        // 모바일 휴대폰 프레임 (단순화된 버전)
+        <div className="flex items-center justify-center h-full">
+          <div className="relative">
+            {/* 휴대폰 외곽 프레임 */}
+            <div className="relative bg-gradient-to-b from-gray-800 to-gray-900 rounded-[1.5rem] p-1">
+              {/* 상단 노치 (단순화) */}
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-3 bg-gray-900 rounded-b-lg z-20"></div>
+              
+              {/* 스크린 영역 (세로로 길게) */}
+              <div 
+                className="relative bg-white rounded-[1.25rem] overflow-hidden border border-gray-600"
+                style={{
+                  width: '180px',
+                  height: '360px', // 더 길게 만듦
+                }}
+              >
+                {/* 컨텐츠 영역 */}
+                <div className="absolute inset-0 bg-gray-50 overflow-hidden">
+                  {/* 컴포넌트들 렌더링 */}
+                  <div 
+                    className="absolute inset-0"
+                    style={{
+                      transform: `scale(${finalScale})`,
+                      transformOrigin: 'top left',
+                    }}
+                  >
+                    {components.map((comp, index) => {
+                      const RendererComponent = ComponentRenderers[comp.type];
+                      
+                      if (!RendererComponent) {
+                        return (
+                          <div
+                            key={comp.id || index}
+                            className="absolute bg-gray-200 border border-gray-300 rounded flex items-center justify-center"
+                            style={{
+                              left: (comp.x || 0) - bounds.minX,
+                              top: (comp.y || 0) - bounds.minY,
+                              width: comp.width || 100,
+                              height: comp.height || 50,
+                            }}
+                          >
+                            <span className="text-xs text-gray-500">{comp.type}</span>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={comp.id || index}
+                          className="absolute"
+                          style={{
+                            left: (comp.x || 0) - bounds.minX,
+                            top: (comp.y || 0) - bounds.minY,
+                            width: comp.width || 100,
+                            height: comp.height || 50,
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          <div className="w-full h-full overflow-hidden">
+                            <div className="w-full h-full">
+                              <RendererComponent
+                                comp={comp}
+                                isPreview={true}
+                                isEditor={false}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
+                                  ...comp.props?.style,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+              
+              {/* 홈 인디케이터 (하단) */}
+              <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gray-600 rounded-full"></div>
+              
+              {/* 사이드 버튼들 (단순화) */}
+              <div className="absolute left-0 top-12 w-0.5 h-4 bg-gray-700 rounded-r-full"></div>
+              <div className="absolute left-0 top-20 w-0.5 h-8 bg-gray-700 rounded-r-full"></div>
+              <div className="absolute right-0 top-16 w-0.5 h-8 bg-gray-700 rounded-l-full"></div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        // 데스크톱 미리보기 (기존)
         <div 
-          className="absolute inset-0"
+          className="relative bg-gray-50 w-full aspect-[16/9]"
           style={{
-            transform: `scale(${finalScale})`,
-            transformOrigin: 'top left',
+            minHeight: '200px',
           }}
         >
-          {components.map((comp, index) => {
-            const RendererComponent = ComponentRenderers[comp.type];
-            
-            if (!RendererComponent) {
+          {/* 캔버스 배경 */}
+          <div className="absolute inset-0 bg-white" />
+          
+          {/* 컴포넌트들 렌더링 */}
+          <div 
+            className="absolute inset-0"
+            style={{
+              transform: `scale(${finalScale})`,
+              transformOrigin: 'top left',
+            }}
+          >
+            {components.map((comp, index) => {
+              const RendererComponent = ComponentRenderers[comp.type];
+              
+              if (!RendererComponent) {
+                return (
+                  <div
+                    key={comp.id || index}
+                    className="absolute bg-gray-200 border border-gray-300 rounded flex items-center justify-center"
+                    style={{
+                      left: (comp.x || 0) - bounds.minX,
+                      top: (comp.y || 0) - bounds.minY,
+                      width: comp.width || 100,
+                      height: comp.height || 50,
+                    }}
+                  >
+                    <span className="text-xs text-gray-500">{comp.type}</span>
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={comp.id || index}
-                  className="absolute bg-gray-200 border border-gray-300 rounded flex items-center justify-center"
+                  className="absolute"
                   style={{
                     left: (comp.x || 0) - bounds.minX,
                     top: (comp.y || 0) - bounds.minY,
                     width: comp.width || 100,
                     height: comp.height || 50,
+                    pointerEvents: 'none',
                   }}
                 >
-                  <span className="text-xs text-gray-500">{comp.type}</span>
-                </div>
-              );
-            }
-
-            return (
-              <div
-                key={comp.id || index}
-                className="absolute"
-                style={{
-                  left: (comp.x || 0) - bounds.minX,
-                  top: (comp.y || 0) - bounds.minY,
-                  width: comp.width || 100,
-                  height: comp.height || 50,
-                  pointerEvents: 'none', // 미리보기에서는 상호작용 비활성화
-                }}
-              >
-                <div className="w-full h-full overflow-hidden">
-                  <div className="w-full h-full">
-                    <RendererComponent
-                      comp={comp}
-                      isPreview={true}
-                      isEditor={false}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
-                        ...comp.props?.style,
-                      }}
-                    />
+                  <div className="w-full h-full overflow-hidden">
+                    <div className="w-full h-full">
+                      <RendererComponent
+                        comp={comp}
+                        isPreview={true}
+                        isEditor={false}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
+                          ...comp.props?.style,
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-      
-      {/* 컴포넌트 개수 표시 */}
-      {components.length > 0 && (
-        <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-          {components.length}개 컴포넌트
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

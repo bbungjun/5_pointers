@@ -1,6 +1,32 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function ButtonRenderer({ comp, isEditor = false }) {
+// 유틸리티 함수
+const MOBILE_BASE_WIDTH = 375;
+const pxToVw = (px, minPx, maxPx) => {
+  if (typeof px !== 'number') return px;
+  const vw = (px / MOBILE_BASE_WIDTH) * 100;
+  if (minPx !== undefined && maxPx !== undefined) {
+    return `clamp(${minPx}px, ${vw.toFixed(4)}vw, ${maxPx}px)`;
+  }
+  return `${vw.toFixed(4)}vw`;
+};
+
+function ButtonRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
+  // SSR 안전한 모바일 감지
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props?.text || '');
   const inputRef = useRef();
@@ -85,19 +111,15 @@ function ButtonRenderer({ comp, isEditor = false }) {
     <div 
       ref={buttonRef}
       style={{
-        width: '100%', 
-        height: '100%',
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: textAlign === 'left' ? 'flex-start' : 
                        textAlign === 'right' ? 'flex-end' : 'center',
         background: comp.props?.bg || '#3B4EFF', 
         color: comp.props?.color || '#fff',
-        fontSize: (comp.props?.fontSize || 18) + 'px', 
         fontFamily: fontStyle,
         fontWeight: fontWeight,
         textDecoration: textDecoration,
-        borderRadius: 6, 
         cursor: 'pointer',
         border: 'none',
         outline: 'none',
@@ -105,11 +127,24 @@ function ButtonRenderer({ comp, isEditor = false }) {
         textTransform: 'none',
         lineHeight: lineHeight,
         letterSpacing: letterSpacing + 'px',
-        padding: '8px 12px',
         boxSizing: 'border-box',
         textAlign: textAlign,
         overflow: 'visible',
-        position: 'relative'
+        position: 'relative',
+        ...(isLiveMode ? {
+          width: '100%',
+          maxWidth: `${width}px`,
+          aspectRatio: `${width} / ${height}`,
+          fontSize: `clamp(${Math.max(10, (comp.props?.fontSize || 18) * 0.7)}px, ${((comp.props?.fontSize || 18) / 375) * 100}vw, ${comp.props?.fontSize || 18}px)`,
+          padding: 'clamp(4px, 1.5vw, 8px) clamp(6px, 2.5vw, 12px)',
+          borderRadius: 'clamp(3px, 1vw, 6px)'
+        } : {
+          width: width + 'px',
+          height: height + 'px',
+          fontSize: (comp.props?.fontSize || 18) + 'px',
+          padding: '8px 12px',
+          borderRadius: 6
+        })
       }}
       onDoubleClick={handleDoubleClick}
     >

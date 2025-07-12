@@ -18,8 +18,11 @@ export class TemplatesController {
 
   // 템플릿 목록 조회 (공개 템플릿만)
   @Get()
-  async getTemplates(@Query('category') category?: string) {
-    return this.templatesService.getPublicTemplates(category);
+  async getTemplates(
+    @Query('category') category?: string,
+    @Query('editingMode') editingMode?: string,
+  ) {
+    return this.templatesService.getPublicTemplates(category, editingMode);
   }
 
   // 페이지를 템플릿으로 저장 (관리자만)
@@ -32,6 +35,7 @@ export class TemplatesController {
       pageId: string;
       name: string;
       category: string;
+      editingMode?: 'desktop' | 'mobile';
       tags?: string[];
       thumbnail_url?: string;
     },
@@ -41,6 +45,7 @@ export class TemplatesController {
       body.name,
       body.category,
       req.user.id,
+      body.editingMode || 'desktop',
       body.tags,
       body.thumbnail_url,
     );
@@ -56,6 +61,7 @@ export class TemplatesController {
       components: any[];
       name: string;
       category: string;
+      editingMode?: 'desktop' | 'mobile';
       tags?: string[];
       thumbnail_url?: string;
       canvasSettings?: any;
@@ -66,6 +72,7 @@ export class TemplatesController {
       body.name,
       body.category,
       req.user.id,
+      body.editingMode || 'desktop',
       body.tags,
       body.thumbnail_url,
       body.canvasSettings,

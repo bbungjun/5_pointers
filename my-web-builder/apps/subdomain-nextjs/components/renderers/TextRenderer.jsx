@@ -1,6 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function TextRenderer({ comp, isEditor = false }) {
+function TextRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props?.text || '');
   const inputRef = useRef();
@@ -59,8 +73,13 @@ function TextRenderer({ comp, isEditor = false }) {
         comp.props?.underline ? 'underline' : 'no-underline'
       }`}
       style={{
-        color: comp.props?.color, 
-        fontSize: comp.props?.fontSize
+        color: comp.props?.color,
+        ...(isLiveMode ? {
+          width: '100%',
+          fontSize: `clamp(${Math.max(10, (comp.props?.fontSize || 16) * 0.7)}px, ${((comp.props?.fontSize || 16) / 375) * 100}vw, ${comp.props?.fontSize || 16}px)`
+        } : {
+          fontSize: comp.props?.fontSize
+        })
       }}
       onDoubleClick={handleDoubleClick}
     >

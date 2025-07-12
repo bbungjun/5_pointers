@@ -17,7 +17,7 @@ export class TemplatesService {
   ) {}
 
   // 공개 템플릿 목록 조회
-  async getPublicTemplates(category?: string) {
+  async getPublicTemplates(category?: string, editingMode?: string) {
     try {
       console.log(`[Templates] 템플릿 조회 시작 - category: ${category}`);
       
@@ -29,6 +29,10 @@ export class TemplatesService {
 
       if (category && category !== 'all') {
         query.andWhere('template.category = :category', { category });
+      }
+
+      if (editingMode && editingMode !== 'all') {
+        query.andWhere('template.editingMode = :editingMode', { editingMode });
       }
 
       const templates = await query.getMany();
@@ -52,6 +56,7 @@ export class TemplatesService {
     name: string,
     category: string,
     authorId: number,
+    editingMode: 'desktop' | 'mobile' = 'desktop',
     tags?: string[],
     thumbnail_url?: string,
   ) {
@@ -88,6 +93,7 @@ export class TemplatesService {
       thumbnail_url,
       content: sourcePage.content || [], // 페이지의 컴포넌트 배열
       tags: tags || [],
+      editingMode,
       author,
       authorId,
     });
@@ -101,6 +107,7 @@ export class TemplatesService {
     name: string,
     category: string,
     authorId: number,
+    editingMode: 'desktop' | 'mobile' = 'desktop',
     tags?: string[],
     thumbnail_url?: string,
     canvasSettings?: any,
@@ -133,6 +140,7 @@ export class TemplatesService {
           canvasSettings: canvasSettings || { canvasHeight: 1080 }
         },
         tags: tags || [],
+        editingMode,
         author,
         authorId,
       });
