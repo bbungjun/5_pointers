@@ -4,8 +4,28 @@ import PreviewRenderer from './PreviewRenderer';
 
 // 최소화된 CSS
 const PREVIEW_CSS = `
-  body { margin: 0; padding: 0; }
+  body { margin: 0; padding: 0; width: 100%; overflow-x: auto; }
   #preview-root { width: 100%; height: 100%; }
+  
+  /* 모바일 반응형 처리 */
+  @media (max-width: 768px) {
+    .page-container {
+      width: 100vw !important;
+      min-width: 100vw !important;
+      transform-origin: top left;
+    }
+    
+    .component-container, .desktop-absolute-wrapper {
+      max-width: calc(100vw - 20px);
+    }
+    
+    /* 버튼 컴포넌트 기본 스타일 (유동적 크기 조절을 위해 !important 제거) */
+    .component-container button,
+    .desktop-absolute-wrapper button {
+      min-font-size: 12px;
+      max-font-size: 18px;
+    }
+  }
 `;
 
 const PreviewModal = ({ isOpen, onClose, components, editingViewport = 'desktop', templateCategory }) => {

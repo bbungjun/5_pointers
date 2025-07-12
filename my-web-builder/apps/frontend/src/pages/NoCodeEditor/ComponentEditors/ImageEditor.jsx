@@ -127,7 +127,7 @@ function ImageEditor({ selectedComp, onUpdate }) {
         options={[
           { value: 'none', label: '없음' },
           { value: 'falling-snow', label: '눈내리기 ❄️' },
-          { value: 'falling-petals', label: '꽃잃 떨어지기 🌸' },
+          { value: 'falling-petals', label: '꽃잎 떨어지기 🌸' },
           { value: 'floating-hearts', label: '떠다니는 하트 ❤️' },
           { value: 'sparkle-stars', label: '반짝이는 별 ✨' },
           { value: 'golden-particles', label: '골든 파티클 ✨' },

@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 
-function DdayRenderer({ comp, isEditor, onPropsChange }) {
+function DdayRenderer({ comp, isEditor, onPropsChange, mode = 'live', width, height }) {
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
@@ -51,10 +65,10 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     };
   }, [targetDate]);
 
-  // 원래 크기로 되돌린 물방울 스타일
+  // 동적 물방울 스타일
   const bubbleStyle = {
-    width: '60px',
-    height: '60px',
+    width: isLiveMode ? `clamp(40px, 12vw, 60px)` : '60px',
+    height: isLiveMode ? `clamp(40px, 12vw, 60px)` : '60px',
     borderRadius: '50%',
     background: 'radial-gradient(circle at 25% 25%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.1) 70%, rgba(255,255,255,0.05) 100%)',
     boxShadow: `
@@ -69,25 +83,25 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    margin: '5px',
+    margin: isLiveMode ? `clamp(2px, 1vw, 5px)` : '5px',
     overflow: 'hidden'
   };
 
-  // 원래 크기로 되돌린 하이라이트
+  // 동적 하이라이트
   const bubbleHighlight = {
     position: 'absolute',
     top: '18%',
     left: '28%',
-    width: '18px',
-    height: '18px',
+    width: isLiveMode ? `clamp(12px, 3vw, 18px)` : '18px',
+    height: isLiveMode ? `clamp(12px, 3vw, 18px)` : '18px',
     borderRadius: '50%',
     background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 70%, transparent 100%)',
     filter: 'blur(1.5px)'
   };
 
-  // 숫자 크기만 키움
+  // 숫자 스타일 - 동적 크기 조절
   const numberStyle = {
-    fontSize: '20px',  // 18px → 20px
+    fontSize: isLiveMode ? `clamp(${Math.max(12, 20 * 0.7)}px, ${(20 / 375) * 100}vw, 20px)` : '20px',
     fontWeight: '700',
     lineHeight: '1',
     color: '#ffffff',
@@ -95,9 +109,9 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     position: 'relative'
   };
 
-  // 라벨 크기만 키움
+  // 라벨 스타일 - 동적 크기 조절
   const labelStyle = {
-    fontSize: '11px',  // 10px → 11px
+    fontSize: isLiveMode ? `clamp(${Math.max(8, 11 * 0.7)}px, ${(11 / 375) * 100}vw, 11px)` : '11px',
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
@@ -106,9 +120,9 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
     marginTop: '4px'
   };
 
-  // 콜론 크기만 키움
+  // 콜론 스타일 - 동적 크기 조절
   const colonStyle = {
-    fontSize: '26px',  // 24px → 26px
+    fontSize: isLiveMode ? `clamp(${Math.max(16, 26 * 0.7)}px, ${(26 / 375) * 100}vw, 26px)` : '26px',
     fontWeight: '700',
     color: '#ffffff',
     display: 'flex',
@@ -118,17 +132,25 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
 
   const getContainerStyle = () => {
     const baseStyle = {
-      width: '100%',
-      height: '100%',
-      minHeight: '120px',  // 원래 크기로 되돌림
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: '10px',     // 원래 크기로 되돌림
       borderRadius: '12px',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      ...(isLiveMode ? {
+        width: '100%',
+        maxWidth: `${width}px`,
+        aspectRatio: `${width} / ${height}`,
+        padding: `clamp(6px, 2vw, 10px)`,
+        minHeight: `clamp(80px, 20vw, 120px)`
+      } : {
+        width: '100%',
+        height: '100%',
+        minHeight: '120px',
+        padding: '10px'
+      })
     };
 
     if (backgroundImage) {
@@ -152,10 +174,10 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
       {/* 물방울과 단위를 세로로 배치한 블록들 + 콜론 */}
       <div style={{
         display: 'flex',
-        gap: '4px',          // 원래 크기로 되돌림
+        gap: isLiveMode ? `clamp(2px, 1vw, 4px)` : '4px',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: '10px'  // 원래 크기로 되돌림
+        marginBottom: isLiveMode ? `clamp(6px, 2vw, 10px)` : '10px'
       }}>
         {/* Days */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -213,12 +235,12 @@ function DdayRenderer({ comp, isEditor, onPropsChange }) {
 
       {/* 목표 날짜 표시 - 글자 크기만 키움 */}
       <div style={{
-        fontSize: '13px',    // 12px → 13px
+        fontSize: isLiveMode ? `clamp(${Math.max(9, 13 * 0.7)}px, ${(13 / 375) * 100}vw, 13px)` : '13px',
         fontWeight: '500',
         color: '#ffffff',
         textAlign: 'center',
         background: 'rgba(255,255,255,0.1)',
-        padding: '4px 10px',  // 원래 크기로 되돌림
+        padding: isLiveMode ? `clamp(2px, 1vw, 4px) clamp(6px, 2vw, 10px)` : '4px 10px',
         borderRadius: '12px',
         backdropFilter: 'blur(8px)'
       }}>
