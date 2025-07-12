@@ -171,7 +171,7 @@ export class UsersController {
 
     fs.writeFileSync(filePath, file.buffer);
 
-    return ;
+    return `/uploads/images/${year}/${month}/${day}/${filename}`;
   }
 
   @Post('pages/:pageId/deploy')

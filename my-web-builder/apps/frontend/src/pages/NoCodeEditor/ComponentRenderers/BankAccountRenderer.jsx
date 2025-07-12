@@ -62,7 +62,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate }) {
         width: '100%',
         //height:'100%',
         padding: '12px',
-        borderRadius: '8px',
+        borderRadius: 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
         minWidth: '250px',

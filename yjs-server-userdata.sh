@@ -181,7 +181,7 @@ cat > package.json << 'EOF'
     "ws": "^8.13.0"
   },
   "keywords": ["yjs", "websocket", "collaboration", "real-time"],
-  "author": "PageCube Team",
+  "author": "DdukDdak Team",
   "license": "MIT"
 }
 EOF

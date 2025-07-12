@@ -86,7 +86,7 @@ export class GeneratorService {
     // 5. 최종 배포 URL 생성 (프로덕션에서는 실제 서브도메인 사용)
     const isProduction = process.env.NODE_ENV === 'production';
     const url = isProduction
-      ? `http://${subdomain}.pagecube.net`
+      ? `http://${subdomain}.ddukddak.org`
       : `http://${subdomain}.localhost:3001`;
 
 
@@ -123,7 +123,7 @@ export class GeneratorService {
         {
           deployedUrl:
             process.env.NODE_ENV === 'production'
-              ? `http://${page.subdomain}.pagecube.net`
+              ? `http://${page.subdomain}.ddukddak.org`
               : `http://localhost:3001/${page.subdomain}`,
           deployedAt: page.updatedAt,
           subdomain: page.subdomain,
@@ -251,7 +251,7 @@ export class GeneratorService {
       </head>
       <body>
         ${componentHTML}
-        <div class="watermark">Powered by PageCube</div>
+        <div class="watermark">Powered by DdukDdak</div>
       </body>
       </html>
     `;

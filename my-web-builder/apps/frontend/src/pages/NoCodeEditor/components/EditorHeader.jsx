@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NotificationToggle from '../../../components/NotificationToggle';
-import pageCubeLogo from '../../../assets/page-cube-logo.png';
+import ddukddakLogo from '../../../assets/page-cube-logo.png';
 import { useDeploy } from '../ComponentLibrary/hooks/useDeploy';
 import DeployModal from './DeployModal';
 import PageNavigation from './PageNavigation';
@@ -70,12 +70,12 @@ function EditorHeader({
           onClick={handleLogoClick}
         >
           <img
-            src={pageCubeLogo}
-            alt="Page Cube"
+            src={ddukddakLogo}
+            alt="DdukDdak"
             className="w-10 h-10 object-contain"
           />
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent whitespace-nowrap">
-            PAGE CUBE
+            DDUKDDAK
           </h1>
         </div>
       </div>

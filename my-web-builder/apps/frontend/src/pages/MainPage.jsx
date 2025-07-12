@@ -8,7 +8,7 @@ import {
 } from '../config';
 import googleLoginImg from '../assets/web_light_sq_ctn@1x.png';
 import kakaoLoginImg from '../assets/kakao_login_medium_narrow.png';
-import pageCubeLogo from '../assets/page-cube-logo.png';
+import ddukddakLogo from '../assets/page-cube-logo.png';
 
 function MainPage({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -54,8 +54,8 @@ function MainPage({ onLogin }) {
           {/* 로고 영역 */}
           <div className="mb-6">
             <img
-              src={pageCubeLogo}
-              alt="Page Cube"
+              src={ddukddakLogo}
+              alt="DdukDdak"
               className="w-20 h-20 mx-auto mb-4 object-contain"
             />
           </div>

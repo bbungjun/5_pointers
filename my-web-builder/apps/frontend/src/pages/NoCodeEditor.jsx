@@ -35,30 +35,18 @@ function NoCodeEditor({ pageId }) {
   const effectiveRoomId = roomId || `room-${Date.now()}`;
   
   // URL 파라미터에서 초기 뷰포트 설정 읽기
-  const urlViewport = searchParams.get('viewport');
+  const initialViewport = searchParams.get('viewport') || 'desktop';
   
   // URL 파라미터에서 템플릿 카테고리 확인
-  const templateCategory = searchParams.get('category') || 
-    (searchParams.get('template') ? 
-      (() => {
-        try {
-          const templateData = JSON.parse(decodeURIComponent(searchParams.get('template')));
-          return templateData.category;
-        } catch {
-          return null;
-        }
-      })() : null);
-  
-  // 초기 뷰포트 결정: URL 파라미터 > 템플릿 카테고리 > 기본값
-  const initialViewport = urlViewport || (templateCategory === 'wedding' ? 'mobile' : 'desktop');
-  
-  console.log('테스트 - 초기 뷰포트 설정:', {
-    urlViewport,
-    templateCategory,
-    initialViewport,
-    allParams: Object.fromEntries(searchParams.entries()),
-    currentUrl: window.location.href
-  });
+  const templateCategory = searchParams.get('template') ? 
+    (() => {
+      try {
+        const templateData = JSON.parse(decodeURIComponent(searchParams.get('template')));
+        return templateData.category;
+      } catch {
+        return null;
+      }
+    })() : null;
   
   const canvasRef = useRef();
   const containerRef = useRef();
@@ -512,8 +500,6 @@ function NoCodeEditor({ pageId }) {
         pageId={pageId}
         components={components}
         canvasHeight={canvasHeight}
-        editingViewport={interaction.viewport}
-        templateCategory={templateCategory}
       />
 
       <TemplateModal

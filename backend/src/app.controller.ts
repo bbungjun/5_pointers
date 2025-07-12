@@ -62,13 +62,13 @@ export class AppController {
     const hostnameWithoutPort = host.split(':')[0];
     const parts = hostnameWithoutPort.split('.');
 
-    // pagecube.net 도메인 체크
+    // ddukddak.org 도메인 체크
     if (
       parts.length >= 3 &&
-      parts[parts.length - 2] === 'pagecube' &&
-      parts[parts.length - 1] === 'net'
+      parts[parts.length - 2] === 'ddukddak' &&
+      parts[parts.length - 1] === 'org'
     ) {
-      // test.pagecube.net -> test
+      // test.ddukddak.org -> test
       const subdomain = parts[0];
       // api 서브도메인은 제외 (API 전용)
       if (subdomain === 'api') return null;

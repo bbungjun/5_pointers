@@ -8,7 +8,37 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'https://ddukddak.org',
+        'https://www.ddukddak.org',
+        'https://pagecube.net',
+        'https://www.pagecube.net',
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'http://localhost:3001'
+      ];
+      
+      const subdomainPatterns = [
+        /^https?:\/\/[^.]+\.ddukddak\.org$/,
+        /^https?:\/\/[^.]+\.pagecube\.net$/,
+        /^https?:\/\/[^.]+\.localhost:\d+$/
+      ];
+      
+      if (!origin) {
+        return callback(null, true);
+      }
+      
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      if (subdomainPatterns.some(pattern => pattern.test(origin))) {
+        return callback(null, true);
+      }
+      
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   },
   namespace: '/invite',

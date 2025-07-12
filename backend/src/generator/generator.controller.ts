@@ -142,14 +142,14 @@ export class GeneratorController {
     try {
       const host = req.get('host') || req.get('x-forwarded-host') || '';
 
-      // 서브도메인 추출 (예: test.pagecube.net -> test)
+      // 서브도메인 추출 (예: test.ddukddak.org -> test)
       const subdomain = this.extractSubdomain(host);
 
       if (!subdomain) {
         return res.status(400).send(`
           <h1>잘못된 서브도메인</h1>
           <p>Host: ${host}</p>
-          <p>올바른 서브도메인 형식: yoursite.pagecube.net</p>
+          <p>올바른 서브도메인 형식: yoursite.ddukddak.org</p>
         `);
       }
 
@@ -189,13 +189,13 @@ export class GeneratorController {
     // CloudFront 또는 로컬 환경 처리
     const parts = host.split('.');
 
-    // pagecube.net 도메인 체크
+    // ddukddak.org 도메인 체크
     if (
       parts.length >= 3 &&
-      parts[parts.length - 2] === 'pagecube' &&
-      parts[parts.length - 1] === 'net'
+      parts[parts.length - 2] === 'ddukddak' &&
+      parts[parts.length - 1] === 'org'
     ) {
-      // test.pagecube.net -> test
+      // test.ddukddak.org -> test
       return parts[0];
     }
 

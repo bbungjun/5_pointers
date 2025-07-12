@@ -5,9 +5,9 @@
         "Aliases": {
             "Quantity": 3,
             "Items": [
-                "www.pagecube.net",
-                "pagecube.net",
-                "*.pagecube.net"
+                "www.ddukddak.org",
+                "ddukddak.org",
+                "*.ddukddak.org"
             ]
         },
         "DefaultRootObject": "index.html",

@@ -108,7 +108,7 @@ export class AuthService {
     // 환경에 따른 콜백 URL 설정
     const isProduction = process.env.NODE_ENV === 'production';
     const callbackUrl = isProduction
-      ? 'https://pagecube.net/social-callback?provider=google'
+      ? 'https://ddukddak.org/social-callback?provider=google'
       : 'http://localhost:5173/social-callback?provider=google';
 
     console.log('Google OAuth 설정 (백엔드):', {

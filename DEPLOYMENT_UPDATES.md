@@ -1,4 +1,4 @@
-# PageCube AWS Deployment Updates
+# DdukDdak AWS Deployment Updates
 
 ## Summary of Changes
 
@@ -9,7 +9,7 @@ Updated all deployment configurations to align with the current AWS architecture
 ### 1. `.github/workflows/subdomain-server.yml` (NEW)
 - **Purpose**: Automated deployment of subdomain server to EC2 instance
 - **Key Features**:
-  - Deploys to `PageCube-Subdomain-Simple` EC2 instance (IP: 3.35.141.231)
+  - Deploys to `DdukDdak-Subdomain-Simple` EC2 instance (IP: 3.35.141.231)
   - Uses AWS Systems Manager for deployment commands
   - Includes PM2 process management for production stability
   - Configures Nginx for subdomain routing
@@ -41,7 +41,7 @@ Updated all deployment configurations to align with the current AWS architecture
 
 ### 6. `get-instance-id.sh` (NEW)
 - **Purpose**: Dynamic EC2 instance ID retrieval
-- **Usage**: Finds `PageCube-Subdomain-Simple` instance ID for deployment scripts
+- **Usage**: Finds `DdukDdak-Subdomain-Simple` instance ID for deployment scripts
 
 ## AWS Architecture Alignment
 
@@ -49,7 +49,7 @@ Updated all deployment configurations to align with the current AWS architecture
 - **Frontend**: S3 bucket `jungle-frontend-5` with CloudFront distribution
 - **Backend**: Elastic Beanstalk application `jungle-backend-prod`
 - **Database**: Aurora MySQL cluster `jungle-db5`
-- **Subdomain Server**: EC2 instance `PageCube-Subdomain-Simple` (t3.micro)
+- **Subdomain Server**: EC2 instance `DdukDdak-Subdomain-Simple` (t3.micro)
 
 ### Updated Endpoints:
 - **Backend API**: `https://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com/api`
@@ -70,7 +70,7 @@ Updated all deployment configurations to align with the current AWS architecture
 
 ### 3. Subdomain Server Deployment (NEW)
 - Triggered on changes to subdomain-related files
-- Deploys to EC2 instance `PageCube-Subdomain-Simple`
+- Deploys to EC2 instance `DdukDdak-Subdomain-Simple`
 - Uses PM2 for process management
 - Configures Nginx for wildcard subdomain routing
 
@@ -116,7 +116,7 @@ Updated all deployment configurations to align with the current AWS architecture
 
 ## Next Steps
 
-1. **DNS Configuration**: Ensure wildcard DNS (*.pagecube.net) points to subdomain server IP
+1. **DNS Configuration**: Ensure wildcard DNS (*.ddukddak.org) points to subdomain server IP
 2. **SSL/TLS**: Consider adding SSL certificate for subdomain server
 3. **Monitoring**: Set up CloudWatch alarms for EC2 instance health
 4. **Auto-scaling**: Consider auto-scaling group for subdomain server if needed

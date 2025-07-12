@@ -7,12 +7,42 @@ import * as express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // 글로벌 API 접두사 설정 - pagecube.net 로그인 이슈 해결 (2025-07-07)
+  // 글로벌 API 접두사 설정 - ddukddak.org 로그인 이슈 해결 (2025-07-07)
   app.setGlobalPrefix('api');
 
-  // CORS 허용 설정
+  // CORS 허용 설정 - 서브도메인 지원
   app.enableCors({
-    origin: true,
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'https://ddukddak.org',
+        'https://www.ddukddak.org',
+        'https://pagecube.net',
+        'https://www.pagecube.net',
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'http://localhost:3001'
+      ];
+      
+      const subdomainPatterns = [
+        /^https?:\/\/[^.]+\.ddukddak\.org$/,
+        /^https?:\/\/[^.]+\.pagecube\.net$/,
+        /^https?:\/\/[^.]+\.localhost:\d+$/
+      ];
+      
+      if (!origin) {
+        return callback(null, true);
+      }
+      
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      if (subdomainPatterns.some(pattern => pattern.test(origin))) {
+        return callback(null, true);
+      }
+      
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   });
 

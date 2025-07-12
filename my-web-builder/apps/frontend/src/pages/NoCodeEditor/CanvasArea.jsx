@@ -679,6 +679,8 @@ const CanvasArea = forwardRef(
           overflowX: viewport === 'mobile' ? 'hidden' : 'auto',
           overflowY: 'auto',
           paddingTop: '20px',
+          display: viewport === 'mobile' ? 'flex' : 'block',
+          justifyContent: viewport === 'mobile' ? 'center' : 'initial',
         }}
         ref={ref}
         onMouseDown={handleContainerMouseDown}
@@ -698,7 +700,7 @@ const CanvasArea = forwardRef(
             height: `${containerHeight}px`, // 동적 높이 설정
             minWidth: '100%', // 최소 너비는 부모 컨테이너 크기
             display: 'flex',
-            justifyContent: 'flex-start', // 좌측 정렬로 변경
+            justifyContent: 'center', // 중앙 정렬로 변경
             alignItems: 'flex-start',
             // 뷰포트별 패딩 조정 (좌측은 컴포넌트 라이브러리 상태에 따라 동적 조정)
             padding:

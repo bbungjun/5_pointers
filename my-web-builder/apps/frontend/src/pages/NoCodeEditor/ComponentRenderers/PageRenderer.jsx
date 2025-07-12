@@ -76,7 +76,7 @@ const PageRenderer = ({ component, comp, isEditor, isPreview = false, onUpdate }
       height: '100%',
       backgroundColor,
       border: `${borderWidth} solid ${borderColor}`,
-      borderRadius: `${borderRadius}px`,
+      borderRadius: 0,
       cursor: 'pointer',
       display: 'flex',
       flexDirection: 'column',

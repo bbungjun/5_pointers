@@ -3,6 +3,7 @@ import {
   TextEditor, 
   NumberEditor, 
   ColorEditor, 
+  ColorPaletteEditor,
   FontFamilyEditor, 
   TextAlignEditor,
   LineHeightEditor,
@@ -109,8 +110,8 @@ function ButtonEditor({ selectedComp, onUpdate }) {
         label="글자 색상"
       />
 
-      <ColorEditor
-        value={selectedComp.props?.bg || '#3B4EFF'}
+      <ColorPaletteEditor
+        value={selectedComp.props?.bg || '#D8BFD8'}
         onChange={(value) => updateProperty('bg', value)}
         label="배경색"
       />
