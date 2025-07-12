@@ -17,7 +17,7 @@ export class TemplatesService {
   ) {}
 
   // 공개 템플릿 목록 조회
-  async getPublicTemplates(category?: string) {
+  async getPublicTemplates(category?: string, editingMode?: string) {
     try {
       
       const query = this.templatesRepository
@@ -28,6 +28,10 @@ export class TemplatesService {
 
       if (category && category !== 'all') {
         query.andWhere('template.category = :category', { category });
+      }
+
+      if (editingMode && editingMode !== 'all') {
+        query.andWhere('template.editingMode = :editingMode', { editingMode });
       }
 
       const templates = await query.getMany();
