@@ -166,8 +166,6 @@ function CommentRenderer({ comp, isEditor = false, viewport = 'desktop', pageId 
         overflow: 'auto',
         fontFamily:
           'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        boxSizing: 'border-box',
-        padding: '16px'
       }}
     >
       <h3
