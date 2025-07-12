@@ -23,6 +23,9 @@ import { Submissions } from './users/entities/submissions.entity';
     S3Module,
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env.production', '.env'],
+      ignoreEnvFile: false, // 프로덕션에서도 .env 파일 로드
+      expandVariables: true, // 환경 변수 확장 허용
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -32,8 +35,8 @@ import { Submissions } from './users/entities/submissions.entity';
       password: process.env.DB_PASSWORD || '0000',
       database: process.env.DB_DATABASE || 'jungle',
       entities: [Users, Pages, Templates, PageMembers, Submissions],
-      synchronize: process.env.NODE_ENV !== 'production',
-      logging: process.env.NODE_ENV !== 'false',
+      synchronize: process.env.DB_SYNCHRONIZE === 'true', // 명시적 제어
+      logging: process.env.DB_LOGGING === 'true', // 명시적 제어
     }),
     AuthModule,
     UsersModule,
