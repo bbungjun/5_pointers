@@ -37,7 +37,8 @@ function NoCodeEditor({ pageId }) {
   // URL 파라미터에서 초기 뷰포트 설정 읽기
   const initialViewport = searchParams.get('viewport') || 'desktop';
   
-  // URL 파라미터에서 템플릿 카테고리 확인
+  // URL 파라미터에서 템플릿 정보 확인
+  const isFromTemplate = searchParams.get('fromTemplate') === 'true';
   const templateCategory = searchParams.get('template') ? 
     (() => {
       try {
@@ -423,6 +424,7 @@ function NoCodeEditor({ pageId }) {
         connectionError={connectionError}
         isAdmin={isAdmin}
         templateCategory={templateCategory}
+        isFromTemplate={isFromTemplate}
       />
 
       {/* 저장 상태 표시 */}

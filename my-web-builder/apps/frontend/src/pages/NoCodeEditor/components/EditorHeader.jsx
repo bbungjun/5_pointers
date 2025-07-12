@@ -23,6 +23,7 @@ function EditorHeader({
   connectionError,
   isAdmin,
   templateCategory = null,
+  isFromTemplate = false,
 }) {
   const navigate = useNavigate();
 
@@ -94,17 +95,25 @@ n          {/* 페이지 네비게이션 */}
             <select
               value={designMode}
               onChange={(e) => onDesignModeChange(e.target.value, pageId)}
-              className="
+              disabled={isFromTemplate}
+              className={`
                 px-3 py-2 text-sm
-                bg-white border border-gray-300 rounded-lg
-                focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                hover:border-blue-400 transition-colors
-                cursor-pointer
-              "
+                border rounded-lg transition-colors
+                ${isFromTemplate 
+                  ? 'bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed' 
+                  : 'bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-400 cursor-pointer'
+                }
+              `}
+              title={isFromTemplate ? '템플릿에서는 편집 기준을 변경할 수 없습니다' : '편집 기준 선택'}
             >
               {templateCategory !== 'wedding' && <option value="desktop">💻 데스크탑</option>}
               <option value="mobile">📱 모바일</option>
             </select>
+            {isFromTemplate && (
+              <span className="text-xs text-gray-500 ml-2">
+                템플릿 모드
+              </span>
+            )}
           </div>
         </div>
       </div>
