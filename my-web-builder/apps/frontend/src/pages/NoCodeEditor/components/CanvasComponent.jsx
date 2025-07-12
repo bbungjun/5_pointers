@@ -16,6 +16,7 @@ import BankAccountRenderer from '../ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import SlidoRenderer from '../ComponentRenderers/SlidoRenderer';
 import PageButtonRenderer from '../ComponentRenderers/PageButtonRenderer';
+import LinkCopyRenderer from '../ComponentRenderers/LinkCopyRenderer';
 
 import {
   clamp,
@@ -337,6 +338,15 @@ function CanvasComponent({
             onUpdate={onUpdate}
           />
         );
+      case 'linkcopy':
+        return (
+          <LinkCopyRenderer
+            component={componentWithFinalStyles}
+            isEditor={true}
+            onUpdate={onUpdate}
+          />
+        );
+
       default:
         return <span>{comp.props?.text || ''}</span>;
     }

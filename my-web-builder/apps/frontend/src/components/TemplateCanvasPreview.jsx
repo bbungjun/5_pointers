@@ -1,6 +1,22 @@
 import React from 'react';
 import { ComponentRenderers } from '../pages/NoCodeEditor/ComponentRenderers/index.js';
 
+// type 변환 함수 추가
+function toKebabCase(str) {
+  // 특수 케이스 처리
+  if (str === 'dday') return 'd-day';
+  if (str === 'slideGallery') return 'slide-gallery';
+  if (str === 'weddingContent') return 'wedding-content';
+  if (str === 'weddingContact') return 'wedding-contact';
+  if (str === 'gridGallery') return 'grid-gallery';
+  if (str === 'bankAccount') return 'bank-account';
+  if (str === 'mapInfo') return 'map-info';
+  if (str === 'weddingInvite') return 'wedding-invite';
+  if (str === 'kakaotalkShare') return 'kakaotalk-share';
+  if (str === 'musicPlayer') return 'music-player';
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
 const TemplateCanvasPreview = ({ template, className = '' }) => {
   if (!template || !template.content) {
     return (
@@ -74,14 +90,14 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   const getPreviewDimensions = () => {
     if (editingMode === 'mobile') {
       return {
-        width: 200,  // 모바일 화면 영역 크기
-        height: 400, // 더 길게 만든 높이
+        width: 200,  // 모바일 화면 영역 크기 확대
+        height: 400, // 더 길게 만든 높이 확대
         aspectRatio: '1/2'
       };
     } else {
       return {
-        width: 300,  // 데스크톱 비율 (16:9)
-        height: 200,
+        width: 240,  // 데스크톱 비율 (16:9) 확대
+        height: 180,
         aspectRatio: '16/9'
       };
     }
@@ -90,7 +106,28 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   const previewDimensions = getPreviewDimensions();
   const scaleX = previewDimensions.width / contentWidth;
   const scaleY = previewDimensions.height / contentHeight;
-  const finalScale = Math.min(scaleX, scaleY, 0.65); // 최대 0.25 스케일
+  
+  // 편집 기준에 따른 스케일 전략
+  let finalScale;
+  if (editingMode === 'mobile') {
+    // 모바일: 화면 너비를 꽉 채우도록 스케일 조정
+    finalScale = Math.max(scaleX, scaleY, 0.4);
+  } else {
+    // 데스크톱: 전체 내용이 모두 보이도록 스케일 조정
+    finalScale = Math.min(scaleX, scaleY, 0.9);
+  }
+  
+  // 디버깅을 위한 로그
+  console.log('스케일링 정보:', {
+    editingMode,
+    contentWidth,
+    contentHeight,
+    previewWidth: previewDimensions.width,
+    previewHeight: previewDimensions.height,
+    scaleX,
+    scaleY,
+    finalScale
+  });
 
   return (
     <div className={`relative bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
@@ -132,8 +169,8 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
               <div 
                 className="relative bg-white rounded-[1.25rem] overflow-hidden border border-gray-600"
                 style={{
-                  width: '180px',
-                  height: '360px', // 더 길게 만듦
+                  width: `${previewDimensions.width}px`,
+                  height: `${previewDimensions.height}px`,
                 }}
               >
                 {/* 컨텐츠 영역 */}
@@ -147,9 +184,17 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                     }}
                   >
                     {components.map((comp, index) => {
-                      const RendererComponent = ComponentRenderers[comp.type];
+                      console.log('렌더링 시도:', comp.type, comp);
+                      // 타입 변환 적용
+                      const rendererKey = ComponentRenderers[comp.type]
+                        ? comp.type
+                        : ComponentRenderers[toKebabCase(comp.type)]
+                          ? toKebabCase(comp.type)
+                          : comp.type;
+                      const RendererComponent = ComponentRenderers[rendererKey];
                       
                       if (!RendererComponent) {
+                        console.warn('렌더러를 찾을 수 없음:', comp.type);
                         return (
                           <div
                             key={comp.id || index}
@@ -166,35 +211,53 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                         );
                       }
 
-                      return (
-                        <div
-                          key={comp.id || index}
-                          className="absolute"
-                          style={{
-                            left: (comp.x || 0) - bounds.minX,
-                            top: (comp.y || 0) - bounds.minY,
-                            width: comp.width || 100,
-                            height: comp.height || 50,
-                            pointerEvents: 'none',
-                          }}
-                        >
-                          <div className="w-full h-full overflow-hidden">
-                            <div className="w-full h-full">
-                              <RendererComponent
-                                comp={comp}
-                                isPreview={true}
-                                isEditor={false}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
-                                  ...comp.props?.style,
-                                }}
-                              />
+                      try {
+                        return (
+                          <div
+                            key={comp.id || index}
+                            className="absolute"
+                            style={{
+                              left: (comp.x || 0) - bounds.minX,
+                              top: (comp.y || 0) - bounds.minY,
+                              width: comp.width || 100,
+                              height: comp.height || 50,
+                              pointerEvents: 'none',
+                            }}
+                          >
+                            <div className="w-full h-full overflow-hidden">
+                              <div className="w-full h-full">
+                                <RendererComponent
+                                  comp={comp}
+                                  isPreview={true}
+                                  isEditor={false}
+                                  style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
+                                    ...comp.props?.style,
+                                  }}
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
+                        );
+                      } catch (error) {
+                        console.error('컴포넌트 렌더링 에러:', comp.type, error);
+                        return (
+                          <div
+                            key={comp.id || index}
+                            className="absolute bg-red-100 border border-red-300 rounded flex items-center justify-center"
+                            style={{
+                              left: (comp.x || 0) - bounds.minX,
+                              top: (comp.y || 0) - bounds.minY,
+                              width: comp.width || 100,
+                              height: comp.height || 50,
+                            }}
+                          >
+                            <span className="text-xs text-red-500">에러: {comp.type}</span>
+                          </div>
+                        );
+                      }
                     })}
                   </div>
                 </div>
@@ -213,7 +276,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
       ) : (
         // 데스크톱 미리보기 (기존)
         <div 
-          className="relative bg-gray-50 w-full aspect-[16/9]"
+          className="relative bg-gray-50 w-full aspect-[16/9] overflow-hidden"
           style={{
             minHeight: '200px',
           }}
@@ -230,9 +293,17 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
             }}
           >
             {components.map((comp, index) => {
-              const RendererComponent = ComponentRenderers[comp.type];
+              console.log('데스크톱 렌더링 시도:', comp.type, comp);
+              // 타입 변환 적용
+              const rendererKey = ComponentRenderers[comp.type]
+                ? comp.type
+                : ComponentRenderers[toKebabCase(comp.type)]
+                  ? toKebabCase(comp.type)
+                  : comp.type;
+              const RendererComponent = ComponentRenderers[rendererKey];
               
               if (!RendererComponent) {
+                console.warn('데스크톱 렌더러를 찾을 수 없음:', comp.type);
                 return (
                   <div
                     key={comp.id || index}
@@ -249,35 +320,53 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                 );
               }
 
-              return (
-                <div
-                  key={comp.id || index}
-                  className="absolute"
-                  style={{
-                    left: (comp.x || 0) - bounds.minX,
-                    top: (comp.y || 0) - bounds.minY,
-                    width: comp.width || 100,
-                    height: comp.height || 50,
-                    pointerEvents: 'none',
-                  }}
-                >
-                  <div className="w-full h-full overflow-hidden">
-                    <div className="w-full h-full">
-                      <RendererComponent
-                        comp={comp}
-                        isPreview={true}
-                        isEditor={false}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
-                          ...comp.props?.style,
-                        }}
-                      />
+              try {
+                return (
+                  <div
+                    key={comp.id || index}
+                    className="absolute"
+                    style={{
+                      left: (comp.x || 0) - bounds.minX,
+                      top: (comp.y || 0) - bounds.minY,
+                      width: comp.width || 100,
+                      height: comp.height || 50,
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    <div className="w-full h-full overflow-hidden">
+                      <div className="w-full h-full">
+                        <RendererComponent
+                          comp={comp}
+                          isPreview={true}
+                          isEditor={false}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
+                            ...comp.props?.style,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
+                );
+              } catch (error) {
+                console.error('데스크톱 컴포넌트 렌더링 에러:', comp.type, error);
+                return (
+                  <div
+                    key={comp.id || index}
+                    className="absolute bg-red-100 border border-red-300 rounded flex items-center justify-center"
+                    style={{
+                      left: (comp.x || 0) - bounds.minX,
+                      top: (comp.y || 0) - bounds.minY,
+                      width: comp.width || 100,
+                      height: comp.height || 50,
+                    }}
+                  >
+                    <span className="text-xs text-red-500">에러: {comp.type}</span>
+                  </div>
+                );
+              }
             })}
           </div>
         </div>
