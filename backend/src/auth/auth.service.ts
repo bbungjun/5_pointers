@@ -109,7 +109,7 @@ export class AuthService {
     const isProduction = process.env.NODE_ENV === 'production';
     const callbackUrl = isProduction
       ? 'https://ddukddak.org/social-callback?provider=google'
-      : 'http://localhost:5173/social-callback?provider=google';
+      : 'http://localhost:5174/social-callback?provider=google';
 
     console.log('Google OAuth 설정 (백엔드):', {
       clientId: process.env.GOOGLE_CLIENT_ID,

@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigService) {
-    const jwtSecret = configService.get<string>('JWT_SECRET') || 'fallback-secret-key';
+    const jwtSecret = configService.get<string>('JWT_SECRET') || 'jungle-5pointers-super-secret-key-2025';
     console.log('[JWT Strategy] JWT_SECRET 확인:', jwtSecret ? '설정됨' : '설정되지 않음');
     
     super({
