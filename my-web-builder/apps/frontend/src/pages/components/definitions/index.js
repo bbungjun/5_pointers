@@ -18,6 +18,7 @@ import slidoDef from './slido.json';
 import kakaotalkShareDef from './kakaotalk-share.json';
 import pageDef from "./page.json";
 import pageButtonDef from "./pageButton.json";
+import linkcopyDef from './linkcopy.json';
 
 export const ComponentList = [
   pageDef,          // 페이지 (최상단 배치)
@@ -41,6 +42,7 @@ export const ComponentList = [
   musicDef,           // 음악
   mapInfoDef,         // 지도 정보
   kakaotalkShareDef,  // 카카오톡 
+  linkcopyDef,        // 링크복사
   
   // 하단 기본 컴포넌트들
   buttonDef,        // 버튼
