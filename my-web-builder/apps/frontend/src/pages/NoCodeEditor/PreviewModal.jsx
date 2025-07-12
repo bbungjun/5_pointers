@@ -204,7 +204,9 @@ const PreviewModal = ({
                 title: "Mobile Preview",
                 style: {
                   scrollbarWidth: "none",
-                  msOverflowStyle: "none"
+                  msOverflowStyle: "none",
+                  width: "375px",
+                  height: "100%"
                 }
               })
             ),
@@ -304,7 +306,7 @@ const PreviewModal = ({
       }
 
       .preview-iframe.mobile {
-        width: 100%;
+        width: 375px !important;
         height: 100%;
         border: none;
         background: #fff;
@@ -320,7 +322,7 @@ const PreviewModal = ({
 
       .iphone-wrapper {
         position: relative;
-        width: 375px;
+        width: 395px;
         height: 812px;
         display: flex;
         align-items: center;
@@ -329,11 +331,11 @@ const PreviewModal = ({
 
       .iphone-frame {
         position: relative;
-        width: 375px;
+        width: 395px;
         height: 812px;
         background: #000;
         border-radius: 40px;
-        padding: 8px;
+        padding: 10px;
         box-shadow: 
           0 0 0 2px #1a1a1a,
           0 0 0 7px #2a2a2a,
@@ -342,7 +344,7 @@ const PreviewModal = ({
 
       .iphone-notch {
         position: absolute;
-        top: 8px;
+        top: 10px;
         left: 50%;
         transform: translateX(-50%);
         width: 164px;
@@ -378,7 +380,7 @@ const PreviewModal = ({
 
       .iphone-home-indicator {
         position: absolute;
-        bottom: 8px;
+        bottom: 10px;
         left: 50%;
         transform: translateX(-50%);
         width: 134px;
