@@ -27,6 +27,10 @@ import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
 // 컴포넌트 렌더링 헬퍼
 const ComponentRenderer = ({ component, editingViewport }) => {
   const props = { comp: component, mode: 'preview', isEditor: false, editingViewport };
+  // bankAccount는 preview 모드에서 버튼만 보이도록 props 전달
+  if (component.type === 'bankAccount') {
+    return <BankAccountRenderer {...props} />;
+  }
   switch (component.type) {
     case 'button':
       return <ButtonRenderer {...props} />;
@@ -54,8 +58,6 @@ const ComponentRenderer = ({ component, editingViewport }) => {
       return <MapInfoRenderer {...props} />;
     case 'calendar':
       return <CalendarRenderer {...props} />;
-    case 'bankAccount':
-      return <BankAccountRenderer {...props} />;
     case 'comment':
       return <CommentRenderer {...props} />;
     case 'slido':
@@ -186,7 +188,23 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
               const originalWidth = component.width || getComponentDimensions(component.type).defaultWidth;
               const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
               const finalWidth = Math.min(originalWidth, canvasWidth - 40);
-              
+
+              // bankAccount는 모바일 preview에서도 버튼만 보이도록 강제
+              if (component.type === 'bankAccount') {
+                return (
+                  <div
+                    key={component.id}
+                    className="component-wrapper"
+                    style={{
+                      width: `${finalWidth}px`,
+                      height: `${originalHeight}px`
+                    }}
+                  >
+                    <BankAccountRenderer comp={component} mode="preview" isEditor={false} editingViewport={editingViewport} />
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={component.id}
