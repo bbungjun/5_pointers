@@ -128,7 +128,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
   const containerRef = useRef(null);
   
   // 캔버스 크기를 뷰포트에 맞게 설정
-  const actualCanvasWidth = 375;
+  // const actualCanvasWidth = 375;
   const [actualCanvasWidth, setActualCanvasWidth] = useState(375);
   const canvasWidth = forcedViewport === 'mobile' ? actualCanvasWidth : 1920;
   const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
