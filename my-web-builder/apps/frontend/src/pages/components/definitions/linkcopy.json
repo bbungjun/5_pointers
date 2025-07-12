@@ -1,0 +1,15 @@
+{
+  "type": "linkcopy",
+  "label": "링크복사",
+  "props": {
+    "icon": "/icons/linkcopy.png",
+    "tooltip": "링크 복사",
+    "size": 32,
+    "bg": "transparent",
+    "hoverBg": "#f5f5f5"
+  },
+  "x": 100,
+  "y": 100,
+  "width": 50,
+  "height": 50
+}

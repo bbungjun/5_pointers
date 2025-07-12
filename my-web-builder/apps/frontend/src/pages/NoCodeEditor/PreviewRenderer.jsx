@@ -23,6 +23,7 @@ import MusicRenderer from './ComponentRenderers/MusicRenderer';
 import PageRenderer from './ComponentRenderers/PageRenderer';
 import KakaoTalkShareRenderer from './ComponentRenderers/KakaoTalkShareRenderer';
 import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
+import LinkCopyRenderer from './ComponentRenderers/LinkCopyRenderer';
 
 // 컴포넌트 렌더링 헬퍼
 const ComponentRenderer = ({ component, editingViewport }) => {
@@ -68,6 +69,8 @@ const ComponentRenderer = ({ component, editingViewport }) => {
       return <PageRenderer component={component} mode="preview" isEditor={false} />;
     case 'pageButton':
       return <PageButtonRenderer {...props} isPreview={true} />;
+    case 'linkcopy': // 추가
+      return <LinkCopyRenderer {...props} />;
     default:
       return (
         <div
@@ -123,8 +126,6 @@ const calculateActualDimensions = (components) => {
 const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewport = 'desktop' }) => {
   const [scale, setScale] = useState(1);
   const containerRef = useRef(null);
-  
-  // 캔버스 크기를 뷰포트에 맞게 설정
   const [actualCanvasWidth, setActualCanvasWidth] = useState(375);
   const canvasWidth = forcedViewport === 'mobile' ? actualCanvasWidth : 1920;
   const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
