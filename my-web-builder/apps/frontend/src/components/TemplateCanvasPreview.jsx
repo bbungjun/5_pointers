@@ -90,7 +90,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   const previewDimensions = getPreviewDimensions();
   const scaleX = previewDimensions.width / contentWidth;
   const scaleY = previewDimensions.height / contentHeight;
-  const finalScale = Math.min(scaleX, scaleY, 0.25); // 최대 0.25 스케일
+  const finalScale = Math.min(scaleX, scaleY, 0.65); // 최대 0.25 스케일
 
   return (
     <div className={`relative bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
@@ -121,19 +121,19 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
 
       {editingMode === 'mobile' ? (
         // 모바일 휴대폰 프레임 (단순화된 버전)
-        <div className="flex items-center justify-center p-4 bg-gradient-to-br from-slate-100 to-slate-200">
+        <div className="flex items-center justify-center h-full">
           <div className="relative">
             {/* 휴대폰 외곽 프레임 */}
-            <div className="relative bg-gradient-to-b from-gray-800 to-gray-900 rounded-[2rem] p-1 shadow-2xl border border-gray-700">
+            <div className="relative bg-gradient-to-b from-gray-800 to-gray-900 rounded-[1.5rem] p-1">
               {/* 상단 노치 (단순화) */}
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-4 bg-gray-900 rounded-b-xl z-20"></div>
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-3 bg-gray-900 rounded-b-lg z-20"></div>
               
               {/* 스크린 영역 (세로로 길게) */}
               <div 
-                className="relative bg-white rounded-[1.75rem] overflow-hidden border border-gray-600"
+                className="relative bg-white rounded-[1.25rem] overflow-hidden border border-gray-600"
                 style={{
-                  width: '200px',
-                  height: '400px', // 더 길게 만듦
+                  width: '180px',
+                  height: '360px', // 더 길게 만듦
                 }}
               >
                 {/* 컨텐츠 영역 */}
@@ -187,7 +187,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                                 style={{
                                   width: '100%',
                                   height: '100%',
-                                  fontSize: Math.max(6, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
+                                  fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
                                   ...comp.props?.style,
                                 }}
                               />
@@ -201,16 +201,13 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
               </div>
               
               {/* 홈 인디케이터 (하단) */}
-              <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gray-600 rounded-full"></div>
+              <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gray-600 rounded-full"></div>
               
               {/* 사이드 버튼들 (단순화) */}
-              <div className="absolute left-0 top-16 w-0.5 h-6 bg-gray-700 rounded-r-full"></div>
-              <div className="absolute left-0 top-28 w-0.5 h-10 bg-gray-700 rounded-r-full"></div>
-              <div className="absolute right-0 top-20 w-0.5 h-12 bg-gray-700 rounded-l-full"></div>
+              <div className="absolute left-0 top-12 w-0.5 h-4 bg-gray-700 rounded-r-full"></div>
+              <div className="absolute left-0 top-20 w-0.5 h-8 bg-gray-700 rounded-r-full"></div>
+              <div className="absolute right-0 top-16 w-0.5 h-8 bg-gray-700 rounded-l-full"></div>
             </div>
-            
-            {/* 휴대폰 그림자 */}
-            <div className="absolute inset-0 bg-black opacity-20 rounded-[2rem] transform translate-y-2 translate-x-1 -z-10"></div>
           </div>
         </div>
       ) : (
@@ -283,13 +280,6 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
               );
             })}
           </div>
-        </div>
-      )}
-      
-      {/* 컴포넌트 개수 표시 */}
-      {components.length > 0 && (
-        <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded z-10">
-          {components.length}개 컴포넌트
         </div>
       )}
     </div>
