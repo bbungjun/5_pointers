@@ -298,7 +298,7 @@ function NoCodeEditor({ pageId }) {
   };
 
   // 컴포넌트 선택 핸들러 (Ctrl+클릭 지원)
-  const handleSelect = (id) => {
+  const handleSelect = (id, isCtrlPressed = false) => {
     if (id === null) {
       // 빈 영역 클릭 시 선택 해제
       setSelectedIds([]);
@@ -306,23 +306,29 @@ function NoCodeEditor({ pageId }) {
       return;
     }
 
-    // Ctrl+클릭으로 다중 선택 토글
-    if (selectedIds.includes(id)) {
-      // 이미 선택된 컴포넌트를 다시 클릭하면 선택 해제
-      const newSelectedIds = selectedIds.filter(selectedId => selectedId !== id);
-      setSelectedIds(newSelectedIds);
-      if (newSelectedIds.length === 1) {
-        interaction.setSelectedId(newSelectedIds[0]);
-      } else if (newSelectedIds.length === 0) {
-        interaction.setSelectedId(null);
+    if (isCtrlPressed) {
+      // Ctrl+클릭으로 다중 선택 토글
+      if (selectedIds.includes(id)) {
+        // 이미 선택된 컴포넌트를 다시 클릭하면 선택 해제
+        const newSelectedIds = selectedIds.filter(selectedId => selectedId !== id);
+        setSelectedIds(newSelectedIds);
+        if (newSelectedIds.length === 1) {
+          interaction.setSelectedId(newSelectedIds[0]);
+        } else if (newSelectedIds.length === 0) {
+          interaction.setSelectedId(null);
+        }
+      } else {
+        // 새로운 컴포넌트를 다중 선택에 추가
+        const newSelectedIds = [...selectedIds, id];
+        setSelectedIds(newSelectedIds);
+        if (newSelectedIds.length === 1) {
+          interaction.setSelectedId(id);
+        }
       }
     } else {
-      // 새로운 컴포넌트 선택
-      const newSelectedIds = [...selectedIds, id];
-      setSelectedIds(newSelectedIds);
-      if (newSelectedIds.length === 1) {
-        interaction.setSelectedId(id);
-      }
+      // 일반 클릭 시 단일 선택 (기존 다중 선택 해제)
+      setSelectedIds([id]);
+      interaction.setSelectedId(id);
     }
   };
 

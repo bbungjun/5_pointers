@@ -639,13 +639,8 @@ function CanvasComponent({
       onMouseDown={handleDragStart}
       onClick={(e) => {
         e.stopPropagation();
-        if (e.ctrlKey || e.metaKey) {
-          // Ctrl+클릭으로 다중 선택 토글
-          // 이 기능은 부모 컴포넌트에서 처리해야 함
-          onSelect(comp.id);
-        } else {
-          onSelect(comp.id);
-        }
+        const isCtrlPressed = e.ctrlKey || e.metaKey;
+        onSelect(comp.id, isCtrlPressed);
       }}
     >
       {renderContent()}
