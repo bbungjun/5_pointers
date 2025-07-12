@@ -15,6 +15,7 @@ function DashboardPage({ user, onLogout }) {
   const [myPages, setMyPages] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedDevice, setSelectedDevice] = useState('all');
   const [loading, setLoading] = useState(false);
   const [pagesLoading, setPagesLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
@@ -51,14 +52,29 @@ function DashboardPage({ user, onLogout }) {
     { value: 'portfolio', label: '포트폴리오' },
   ];
 
+  const deviceTypes = [
+    { value: 'all', label: '전체' },
+    { value: 'mobile', label: '모바일' },
+    { value: 'desktop', label: '데스크톱' },
+  ];
+
   // 템플릿 목록 조회
-  const fetchTemplates = async (category = 'all') => {
+  const fetchTemplates = async (category = 'all', device = 'all') => {
     try {
       setLoading(true);
-      const url =
-        category === 'all'
-          ? `${API_BASE_URL}/templates`
-          : `${API_BASE_URL}/templates?category=${category}`;
+      let url = `${API_BASE_URL}/templates`;
+      const params = [];
+      
+      if (category !== 'all') {
+        params.push(`category=${category}`);
+      }
+      if (device !== 'all') {
+        params.push(`editingMode=${device}`);
+      }
+      
+      if (params.length > 0) {
+        url += `?${params.join('&')}`;
+      }
 
       console.log('템플릿 조회 URL:', url);
 
@@ -119,9 +135,9 @@ function DashboardPage({ user, onLogout }) {
   };
 
   useEffect(() => {
-    fetchTemplates(selectedCategory);
+    fetchTemplates(selectedCategory, selectedDevice);
     fetchMyPages();
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedDevice]);
 
   // 템플릿으로 페이지 생성
   const handleCreateFromTemplate = async (template) => {
@@ -558,20 +574,83 @@ function DashboardPage({ user, onLogout }) {
                 <p className="text-slate-600">미리 준비된 큐브 테마를 선택해보세요</p>
               </div>
             </div>
-            <div className="flex gap-2">
-              {categories.map((category) => (
-                <button
-                  key={category.value}
-                  onClick={() => setSelectedCategory(category.value)}
-                  className={`px-4 py-2 rounded-lg transition-all duration-300 font-medium ${
-                    selectedCategory === category.value
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600'
-                  }`}
-                >
-                  {category.label}
-                </button>
-              ))}
+
+            {/* 필터 버튼들 */}
+            <div className="flex flex-col gap-4">
+              {/* 테마 카테고리 */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-slate-700 min-w-fit">테마</span>
+                <div className="flex gap-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category.value}
+                      onClick={() => setSelectedCategory(category.value)}
+                      className={`px-3 py-1.5 rounded-lg transition-all duration-300 font-medium text-sm flex items-center gap-1.5 min-w-[70px] justify-center ${
+                        selectedCategory === category.value
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600'
+                      }`}
+                    >
+                      {category.value === 'all' && (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                      )}
+                      {category.value === 'wedding' && (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      )}
+                      {category.value === 'events' && (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      )}
+                      {category.value === 'portfolio' && (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 01-2 2H10a2 2 0 01-2-2V6m8 0H8" />
+                        </svg>
+                      )}
+                      {category.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 디바이스 타입 */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-slate-700 min-w-fit">기기</span>
+                <div className="flex gap-2">
+                  {deviceTypes.map((device) => (
+                    <button
+                      key={device.value}
+                      onClick={() => setSelectedDevice(device.value)}
+                      className={`px-3 py-1.5 rounded-lg transition-all duration-300 font-medium text-sm flex items-center gap-1.5 min-w-[70px] justify-center ${
+                        selectedDevice === device.value
+                          ? 'bg-indigo-600 text-white shadow-lg'
+                          : 'bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                      }`}
+                    >
+                      {device.value === 'mobile' && (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
+                        </svg>
+                      )}
+                      {device.value === 'desktop' && (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      )}
+                      {device.value === 'all' && (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z" />
+                        </svg>
+                      )}
+                      {device.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -585,7 +664,7 @@ function DashboardPage({ user, onLogout }) {
                 <p className="text-slate-600 font-medium">큐브 템플릿을 불러오는 중...</p>
               </div>
             ) : templates.length === 0 ? (
-              <div className="text-center py-16 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+              <div className="text-center py-16 rounded-xl border-2 border-dashed border-slate-200">
                 <div className="w-12 h-12 mx-auto mb-4 bg-slate-100 rounded-xl flex items-center justify-center">
                   <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -595,36 +674,175 @@ function DashboardPage({ user, onLogout }) {
                 <p className="text-slate-600">다른 테마를 선택해보세요</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {templates.map((template) => (
-                  <div
-                    key={template.id}
-                    onClick={() => handleCreateFromTemplate(template)}
-                    className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
-                  >
-                    <div className="p-4">
-                      {/* 템플릿 캔버스 미리보기 */}
-                      <div className="relative rounded-lg overflow-hidden mb-4 aspect-video bg-slate-50">
-                        <TemplateCanvasPreview 
-                          template={template} 
-                          className="w-full h-full"
-                        />
+              <div className="space-y-8">
+                {(() => {
+                  // 기기 타입이 "전체"일 때만 그룹별로 분리
+                  if (selectedDevice === 'all') {
+                    const mobileTemplates = templates.filter(t => t.editingMode === 'mobile');
+                    const desktopTemplates = templates.filter(t => t.editingMode === 'desktop');
+                    
+                    return (
+                      <>
+                        {/* 모바일 템플릿 섹션 */}
+                        {mobileTemplates.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-3 mb-6">
+                              <div className="flex items-center gap-2">
+                                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
+                                </svg>
+                                <h4 className="text-lg font-bold text-slate-800">모바일 템플릿</h4>
+                                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                                  {mobileTemplates.length}개
+                                </span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                              {mobileTemplates.map((template) => (
+                                <div
+                                  key={template.id}
+                                  onClick={() => handleCreateFromTemplate(template)}
+                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
+                                >
+                                  <div className="p-4">
+                                    {/* 템플릿 캔버스 미리보기 */}
+                                    <div className={`relative rounded-lg overflow-hidden mb-4 ${
+                                      template.editingMode === 'mobile' 
+                                        ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
+                                        : 'aspect-video'   // 데스크톱: 16:9 비율
+                                    }`}>
+                                      <TemplateCanvasPreview 
+                                        template={template} 
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                    
+                                    <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors">
+                                      {template.name}
+                                    </h4>
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm text-blue-600 font-medium">
+                                          {template.category}
+                                        </span>                                        
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 구분선 */}
+                        {mobileTemplates.length > 0 && desktopTemplates.length > 0 && (
+                          <div className="flex items-center gap-4 py-4">
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+                            <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full">
+                              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                              </svg>
+                              <span className="text-sm font-medium text-slate-600">데스크톱 템플릿</span>
+                            </div>
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+                          </div>
+                        )}
+
+                        {/* 데스크톱 템플릿 섹션 */}
+                        {desktopTemplates.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-3 mb-6">
+                              <div className="flex items-center gap-2">
+                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <h4 className="text-lg font-bold text-slate-800">데스크톱 템플릿</h4>
+                                <span className="px-2 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+                                  {desktopTemplates.length}개
+                                </span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                              {desktopTemplates.map((template) => (
+                                <div
+                                  key={template.id}
+                                  onClick={() => handleCreateFromTemplate(template)}
+                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
+                                >
+                                  <div className="p-4">
+                                    {/* 템플릿 캔버스 미리보기 */}
+                                    <div className={`relative rounded-lg overflow-hidden mb-4 ${
+                                      template.editingMode === 'mobile' 
+                                        ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
+                                        : 'aspect-video'   // 데스크톱: 16:9 비율
+                                    }`}>
+                                      <TemplateCanvasPreview 
+                                        template={template} 
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                    
+                                    <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors">
+                                      {template.name}
+                                    </h4>
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm text-blue-600 font-medium">
+                                          {template.category}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  } else {
+                    // 특정 기기 선택 시 기존 방식 유지
+                    return (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {templates.map((template) => (
+                          <div
+                            key={template.id}
+                            onClick={() => handleCreateFromTemplate(template)}
+                            className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
+                          >
+                            <div className="p-4">
+                              {/* 템플릿 캔버스 미리보기 */}
+                              <div className={`relative rounded-lg overflow-hidden mb-4 ${
+                                template.editingMode === 'mobile' 
+                                  ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
+                                  : 'aspect-video'   // 데스크톱: 16:9 비율
+                              }`}>
+                                <TemplateCanvasPreview 
+                                  template={template} 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              
+                              <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors">
+                                {template.name}
+                              </h4>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm text-blue-600 font-medium">
+                                    {template.category}
+                                  </span>
+                                </div>
+                                <span className="text-sm text-slate-500">
+                                  {template.usageCount}회 사용
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      
-                      <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors">
-                        {template.name}
-                      </h4>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-blue-600 font-medium">
-                          {template.category}
-                        </span>
-                        <span className="text-sm text-slate-500">
-                          {template.usageCount}회 사용
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  }
+                })()}
               </div>
             )}
           </div>

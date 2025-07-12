@@ -14,10 +14,7 @@ const ViewportController = ({ currentViewport, onViewportChange, templateCategor
     ...config,
   }));
   
-  // 웨딩 카테고리인 경우 모바일만 표시
-  if (templateCategory === 'wedding') {
-    viewports = viewports.filter(viewport => viewport.id === 'mobile');
-  }
+
 
   return (
     <div
