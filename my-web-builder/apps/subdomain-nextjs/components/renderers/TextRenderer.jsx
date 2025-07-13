@@ -65,7 +65,7 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
 
   return (
     <div 
-      className={`${isEditor ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center transition-all duration-200 hover:opacity-80 ${
+      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center transition-all duration-200 hover:opacity-80 ${
         comp.props?.bold ? 'font-bold' : 'font-normal'
       } ${
         comp.props?.italic ? 'italic' : 'not-italic'
