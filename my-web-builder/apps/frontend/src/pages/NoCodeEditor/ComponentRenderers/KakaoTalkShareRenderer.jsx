@@ -25,12 +25,13 @@ export default function KakaoTalkShareRenderer({ comp, mode = 'editor' }) {
     }
   }, [mode]);
 
-  const handleShare = () => {
+  const handleShare = (e) => {
     console.log('handleShare 클릭 - mode:', mode);
 
-    // 에디터 모드인 경우 알림 표시
+    // 에디터 모드인 경우 클릭 이벤트 차단
     if (mode === 'editor') {
-      alert("카카오톡 공유는 배포된 페이지에서만 사용할 수 있습니다.");
+      e.preventDefault();
+      e.stopPropagation();
       return;
     }
 
@@ -74,7 +75,7 @@ export default function KakaoTalkShareRenderer({ comp, mode = 'editor' }) {
         color: '#191600', 
         border: '1px solid #FEE500',
         borderRadius: 0,
-        cursor: 'pointer',
+        cursor: mode === 'editor' ? 'default' : 'pointer',
         fontSize: '16px',
         fontFamily: 'Montserrat, sans-serif',
         fontWeight: '600',
