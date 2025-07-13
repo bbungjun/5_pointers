@@ -228,6 +228,7 @@ const DynamicPageRenderer = ({
                           comp={{ ...comp, width: originalWidth, height: originalHeight }}
                           mode="live"
                           isEditor={false}
+                          pageId={pageId}
                         />
                       </div>
                     );
@@ -261,6 +262,7 @@ const DynamicPageRenderer = ({
                       comp={{ ...comp, width: originalWidth, height: originalHeight }}
                       mode="live"
                       isEditor={false}
+                      pageId={pageId}
                     />
                   </div>
                 );

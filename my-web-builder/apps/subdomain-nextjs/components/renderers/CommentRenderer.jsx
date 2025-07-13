@@ -64,7 +64,7 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       if (response.ok) {
         setNewComment({ author: '', content: '', password: '' });
         await fetchComments();
-        alert('댓글이 성공적으로 등록되었습니다.');
+        // alert('댓글이 성공적으로 등록되었습니다.');
       } else {
         alert(`댓글 등록에 실패했습니다. (${response.status}: ${response.statusText})`);
       }
