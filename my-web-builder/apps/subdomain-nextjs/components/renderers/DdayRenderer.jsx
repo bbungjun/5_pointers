@@ -16,7 +16,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange, mode = 'live', width, hei
     }
   }, [mode]);
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
-  const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
+  const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2025-07-26';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
   const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage || '';
   

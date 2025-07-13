@@ -3,7 +3,7 @@ import { DateEditor } from '../PropertyEditors';
 
 function DdayEditor({ selectedComp, onUpdate }) {
   const { defaultProps = {} } = selectedComp;
-  const targetDate = selectedComp.props.targetDate ?? defaultProps.targetDate ?? '';
+  const targetDate = selectedComp.props.targetDate ?? defaultProps.targetDate ?? '2025-07-26';
   const targetTime = selectedComp.props.targetTime ?? defaultProps.targetTime ?? '14:00';
   const backgroundColor = selectedComp.props.backgroundColor ?? defaultProps.backgroundColor ?? '#f8fafc';
   const backgroundImage = selectedComp.props.backgroundImage ?? defaultProps.backgroundImage ?? '';

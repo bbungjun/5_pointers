@@ -2,7 +2,7 @@
   "type": "calendar",
   "label": "Calendar",
   "defaultProps": {
-    "weddingDate": "2024-12-25",
+    "weddingDate": "2025-07-26",
     "title": "우리의 결혼식",
     "highlightColor": "#ff6b9d"
   }
