@@ -1,24 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useResponsive } from '../../hooks/useResponsive';
 
 function AttendRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
-  
-  useEffect(() => {
-    if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
-      
-      const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
-      };
-      
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [mode]);
+  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, width, height);
   // 컴포넌트 크기를 인라인 스타일로 적용
   const containerStyle = {
-    width: '100%',
-    height: '100%',
+    width: isLiveMode ? responsiveWidth : '100%',
+    height: isLiveMode ? responsiveHeight : '100%',
     backgroundColor: comp.props.backgroundColor || '#f8f9fa',
     boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
     textAlign: 'center',

@@ -105,7 +105,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
         
         setNewComment({ author: '', content: '', password: '' });
         await fetchComments(); // 댓글 목록 새로고침
-        alert('댓글이 성공적으로 등록되었습니다.');
+        // alert('댓글이 성공적으로 등록되었습니다.');
       } else {
         const errorText = await response.text();
         console.error('API 응답 에러:', {

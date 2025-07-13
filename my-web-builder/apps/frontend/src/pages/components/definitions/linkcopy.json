@@ -1,5 +1,5 @@
 {
-  "type": "linkcopy",
+  "type": "linkCopy",
   "label": "링크복사",
   "props": {
     "icon": "/icons/linkcopy.png",

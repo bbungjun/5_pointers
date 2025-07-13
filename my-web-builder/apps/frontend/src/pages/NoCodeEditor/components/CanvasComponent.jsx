@@ -341,7 +341,7 @@ function CanvasComponent({
             onUpdate={onUpdate}
           />
         );
-      case 'linkcopy':
+      case 'linkCopy':
         return (
           <LinkCopyRenderer
             component={componentWithFinalStyles}

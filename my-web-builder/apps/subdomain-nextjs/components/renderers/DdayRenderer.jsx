@@ -1,22 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useResponsive } from '../../hooks/useResponsive';
 
-function DdayRenderer({ comp, isEditor, onPropsChange, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
-  
-  useEffect(() => {
-    if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
-      
-      const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
-      };
-      
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [mode]);
+function DdayRenderer({ comp, isEditor = false, mode = 'live' }) {
+  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width, comp.height);
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
-  const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
+  const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2025-07-26';
+  const targetTime = comp.props.targetTime || comp.defaultProps?.targetTime || '14:00';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
   const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage || '';
   
@@ -30,7 +19,7 @@ function DdayRenderer({ comp, isEditor, onPropsChange, mode = 'live', width, hei
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
-      const target = new Date(targetDate).getTime();
+      const target = new Date(`${targetDate}T${targetTime}`).getTime();
       const difference = target - now;
 
       if (difference > 0) {
@@ -63,109 +52,87 @@ function DdayRenderer({ comp, isEditor, onPropsChange, mode = 'live', width, hei
         clearInterval(interval);
       }
     };
-  }, [targetDate]);
+  }, [targetDate, targetTime]);
 
-  // 동적 물방울 스타일
+  // 모던 미니멀 카드 스타일
   const bubbleStyle = {
-    width: isLiveMode ? `clamp(40px, 12vw, 60px)` : '60px',
-    height: isLiveMode ? `clamp(40px, 12vw, 60px)` : '60px',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle at 25% 25%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.1) 70%, rgba(255,255,255,0.05) 100%)',
-    boxShadow: `
-      0 0 20px rgba(255,255,255,0.3),
-      0 0 40px rgba(255,255,255,0.1),
-      inset 0 0 20px rgba(255,255,255,0.3),
-      inset -8px -8px 20px rgba(0,0,0,0.05)
-    `,
-    border: '1px solid rgba(255,255,255,0.2)',
-    backdropFilter: 'blur(15px)',
+    width: isLiveMode ? 'clamp(50px, 12vw, 60px)' : '60px',
+    height: isLiveMode ? 'clamp(50px, 12vw, 60px)' : '60px',
+    borderRadius: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+    background: 'rgba(255, 255, 255, 0.95)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    margin: isLiveMode ? `clamp(2px, 1vw, 5px)` : '5px',
-    overflow: 'hidden'
+    margin: isLiveMode ? 'clamp(2px, 1vw, 4px)' : '4px',
+    backdropFilter: 'blur(10px)',
+    transition: 'all 0.3s ease'
   };
 
-  // 동적 하이라이트
-  const bubbleHighlight = {
-    position: 'absolute',
-    top: '18%',
-    left: '28%',
-    width: isLiveMode ? `clamp(12px, 3vw, 18px)` : '18px',
-    height: isLiveMode ? `clamp(12px, 3vw, 18px)` : '18px',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 70%, transparent 100%)',
-    filter: 'blur(1.5px)'
-  };
-
-  // 숫자 스타일 - 동적 크기 조절
+  // 모던 숫자 스타일
   const numberStyle = {
-    fontSize: isLiveMode ? `clamp(${Math.max(12, 20 * 0.7)}px, ${(20 / 375) * 100}vw, 20px)` : '20px',
-    fontWeight: '700',
+    fontSize: isLiveMode ? 'clamp(16px, 4vw, 20px)' : '20px',
+    fontWeight: '600',
     lineHeight: '1',
-    color: '#ffffff',
+    color: '#1a1a1a',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
     zIndex: 2,
     position: 'relative'
   };
 
-  // 라벨 스타일 - 동적 크기 조절
+  // 모던 라벨 스타일
   const labelStyle = {
-    fontSize: isLiveMode ? `clamp(${Math.max(8, 11 * 0.7)}px, ${(11 / 375) * 100}vw, 11px)` : '11px',
-    fontWeight: '600',
+    fontSize: isLiveMode ? 'clamp(9px, 2.5vw, 11px)' : '11px',
+    fontWeight: '500',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    color: '#ffffff',
+    color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
-    marginTop: '4px'
+    marginTop: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
   };
 
-  // 콜론 스타일 - 동적 크기 조절
-  const colonStyle = {
-    fontSize: isLiveMode ? `clamp(${Math.max(16, 26 * 0.7)}px, ${(26 / 375) * 100}vw, 26px)` : '26px',
-    fontWeight: '700',
-    color: '#ffffff',
-    display: 'flex',
-    alignItems: 'center',
-    margin: '0 2px'
+  // 모던 구분자 스타일
+  const separatorStyle = {
+    width: isLiveMode ? 'clamp(1px, 0.5vw, 2px)' : '2px',
+    height: isLiveMode ? 'clamp(20px, 5vw, 24px)' : '24px',
+    background: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: '1px',
+    margin: isLiveMode ? '0 clamp(6px, 1.5vw, 8px)' : '0 8px'
   };
 
   const getContainerStyle = () => {
     const baseStyle = {
+      width: isLiveMode ? responsiveWidth : '100%',
+      height: isLiveMode ? responsiveHeight : '100%',
+      minHeight: isLiveMode ? 'clamp(100px, 25vw, 120px)' : '120px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: '12px',
+      borderRadius: 0,
       position: 'relative',
-      overflow: 'hidden',
-      ...(isLiveMode ? {
-        width: '100%',
-        maxWidth: `${width}px`,
-        aspectRatio: `${width} / ${height}`,
-        padding: `clamp(6px, 2vw, 10px)`,
-        minHeight: `clamp(80px, 20vw, 120px)`
-      } : {
-        width: '100%',
-        height: '100%',
-        minHeight: '120px',
-        padding: '10px'
-      })
+      overflow: 'hidden'
     };
 
     if (backgroundImage) {
       return {
         ...baseStyle,
-        background: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url(${backgroundImage})`,
+        background: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundRepeat: 'no-repeat',
+        filter: 'grayscale(0.8) contrast(1.1)',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
       };
     }
 
     return {
       ...baseStyle,
-      background: `linear-gradient(135deg, ${backgroundColor} 0%, #e0f2fe 100%)`
+      background: `linear-gradient(135deg, ${backgroundColor} 0%, #f8f9fa 100%)`,
+      border: '1px solid rgba(0, 0, 0, 0.05)'
     };
   };
 
@@ -174,15 +141,14 @@ function DdayRenderer({ comp, isEditor, onPropsChange, mode = 'live', width, hei
       {/* 물방울과 단위를 세로로 배치한 블록들 + 콜론 */}
       <div style={{
         display: 'flex',
-        gap: isLiveMode ? `clamp(2px, 1vw, 4px)` : '4px',
+        gap: isLiveMode ? 'clamp(1px, 0.5vw, 2px)' : '2px',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: isLiveMode ? `clamp(6px, 2vw, 10px)` : '10px'
+        marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px'
       }}>
         {/* Days */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={bubbleStyle}>
-            <div style={bubbleHighlight}></div>
             <div style={numberStyle}>
               {timeLeft.days.toString().padStart(2, '0')}
             </div>
@@ -190,13 +156,12 @@ function DdayRenderer({ comp, isEditor, onPropsChange, mode = 'live', width, hei
           <div style={labelStyle}>Days</div>
         </div>
 
-        {/* 콜론 */}
-        <div style={colonStyle}>:</div>
+        {/* 구분자 */}
+        <div style={separatorStyle}></div>
 
         {/* Hours */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={bubbleStyle}>
-            <div style={bubbleHighlight}></div>
             <div style={numberStyle}>
               {timeLeft.hours.toString().padStart(2, '0')}
             </div>
@@ -204,13 +169,12 @@ function DdayRenderer({ comp, isEditor, onPropsChange, mode = 'live', width, hei
           <div style={labelStyle}>Hours</div>
         </div>
 
-        {/* 콜론 */}
-        <div style={colonStyle}>:</div>
+        {/* 구분자 */}
+        <div style={separatorStyle}></div>
 
         {/* Minutes */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={bubbleStyle}>
-            <div style={bubbleHighlight}></div>
             <div style={numberStyle}>
               {timeLeft.minutes.toString().padStart(2, '0')}
             </div>
@@ -218,13 +182,12 @@ function DdayRenderer({ comp, isEditor, onPropsChange, mode = 'live', width, hei
           <div style={labelStyle}>Minutes</div>
         </div>
 
-        {/* 콜론 */}
-        <div style={colonStyle}>:</div>
+        {/* 구분자 */}
+        <div style={separatorStyle}></div>
 
         {/* Seconds */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={bubbleStyle}>
-            <div style={bubbleHighlight}></div>
             <div style={numberStyle}>
               {timeLeft.seconds.toString().padStart(2, '0')}
             </div>
@@ -233,22 +196,24 @@ function DdayRenderer({ comp, isEditor, onPropsChange, mode = 'live', width, hei
         </div>
       </div>
 
-      {/* 목표 날짜 표시 - 글자 크기만 키움 */}
+      {/* 모던 목표 날짜 표시 */}
       <div style={{
-        fontSize: isLiveMode ? `clamp(${Math.max(9, 13 * 0.7)}px, ${(13 / 375) * 100}vw, 13px)` : '13px',
+        fontSize: isLiveMode ? 'clamp(11px, 3vw, 13px)' : '13px',
         fontWeight: '500',
-        color: '#ffffff',
+        color: 'rgba(0, 0, 0, 0.7)',
         textAlign: 'center',
-        background: 'rgba(255,255,255,0.1)',
-        padding: isLiveMode ? `clamp(2px, 1vw, 4px) clamp(6px, 2vw, 10px)` : '4px 10px',
-        borderRadius: '12px',
-        backdropFilter: 'blur(8px)'
+        background: 'rgba(255, 255, 255, 0.8)',
+        padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
+        borderRadius: isLiveMode ? 'clamp(16px, 4vw, 20px)' : '20px',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
       }}>
-        {new Date(targetDate).toLocaleDateString('ko-KR', {
+        {new Date(`${targetDate}T${targetTime}`).toLocaleDateString('ko-KR', {
           year: 'numeric',
           month: 'long',
           day: 'numeric'
-        })}
+        })} {targetTime}
       </div>
     </div>
   );

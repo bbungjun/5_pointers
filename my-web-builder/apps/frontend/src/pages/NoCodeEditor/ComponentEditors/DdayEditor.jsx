@@ -3,7 +3,8 @@ import { DateEditor } from '../PropertyEditors';
 
 function DdayEditor({ selectedComp, onUpdate }) {
   const { defaultProps = {} } = selectedComp;
-  const targetDate = selectedComp.props.targetDate ?? defaultProps.targetDate ?? '';
+  const targetDate = selectedComp.props.targetDate ?? defaultProps.targetDate ?? '2025-07-26';
+  const targetTime = selectedComp.props.targetTime ?? defaultProps.targetTime ?? '14:00';
   const backgroundColor = selectedComp.props.backgroundColor ?? defaultProps.backgroundColor ?? '#f8fafc';
   const backgroundImage = selectedComp.props.backgroundImage ?? defaultProps.backgroundImage ?? '';
 
@@ -36,8 +37,37 @@ function DdayEditor({ selectedComp, onUpdate }) {
           ...selectedComp,
           props: { ...selectedComp.props, targetDate: value }
         })}
-        label="목표 날짜"
+        label="결혼식 날짜"
       />
+
+      {/* 목표 시간 입력 */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{
+          display: 'block',
+          fontSize: 12,
+          fontWeight: 600,
+          color: '#1d2129',
+          marginBottom: 6
+        }}>
+          결혼식 시간
+        </label>
+        <input
+          type="time"
+          value={targetTime}
+          onChange={(e) => onUpdate({
+            ...selectedComp,
+            props: { ...selectedComp.props, targetTime: e.target.value }
+          })}
+          style={{
+            width: '100%',
+            padding: '8px 12px',
+            border: '1px solid #ddd',
+            borderRadius: 6,
+            fontSize: 13,
+            backgroundColor: '#fff'
+          }}
+        />
+      </div>
 
       {/* 배경 이미지 선택 */}
       <div style={{ marginBottom: 16 }}>

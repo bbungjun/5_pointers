@@ -40,8 +40,8 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
   const autoPlayRef = useRef(null);
 
   const {
-    containerWidth = comp.width || 400,
-    containerHeight = comp.height || 300,
+    containerWidth = 375,
+    containerHeight = 300,
     thumbnailHeight = 80,
     thumbnailGap = 8,
     borderRadius = 8,
@@ -57,7 +57,7 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
 
   // 자동 재생 기능
   useEffect(() => {
-    if (autoPlay && images.length > 1) { // 임시: 편집모드에서도 자동재생 활성화
+    if (autoPlay && images.length > 1) {
       setIsAutoPlaying(true);
       autoPlayRef.current = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -75,12 +75,10 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
         clearInterval(autoPlayRef.current);
       }
     };
-  }, [autoPlay, autoPlayInterval, images.length, isEditor]);
+  }, [autoPlay, autoPlayInterval, images.length, mode]);
 
   // 키보드 네비게이션
   useEffect(() => {
-    // if (isEditor) return; // 임시: 편집모드에서도 키보드 활성화
-
     const handleKeyDown = (e) => {
       if (e.key === "ArrowLeft") {
         e.preventDefault();
@@ -93,7 +91,7 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, images.length]); // 임시: isEditor 의존성 제거
+  }, [currentIndex, images.length]);
 
   // 네비게이션 함수들
   const goToPrevious = () => {
@@ -117,18 +115,20 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
 
   // 메인 컨테이너 스타일
   const mainContainerStyle = {
-    width: "100%",
-    height: "100%",
+    width: comp.width + "px",
+    height: comp.height + "px",
     backgroundColor,
-    overflow: "hidden",
+    borderRadius: 0,
     fontFamily: "system-ui, -apple-system, sans-serif",
     display: "flex",
     flexDirection: "column",
+    boxSizing: "border-box",
+    padding: "12px",
     ...(isLiveMode ? {
-      borderRadius: `clamp(${Math.max(4, borderRadius * 0.7)}px, ${(borderRadius / 375) * 100}vw, ${borderRadius}px)`
-    } : {
-      borderRadius: borderRadius + "px"
-    })
+      width: "100%",
+      height: "auto",
+      minHeight: comp.height + "px"
+    } : {})
   };
 
   // 메인 슬라이드 영역 스타일
@@ -151,7 +151,7 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
     gap: thumbnailGap + "px",
     padding: "12px",
     backgroundColor: "rgba(0, 0, 0, 0.05)",
-    overflowX: "auto"
+    overflow: "hidden"
   };
 
   // 썸네일 스타일
@@ -192,14 +192,35 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
   if (images.length === 0) {
     return (
       <div style={mainContainerStyle}>
-        <div style={slideAreaStyle}>
+        <div style={{
+          width: "100%",
+          height: "100%",
+          border: "2px dashed #d1d5db",
+          borderRadius: "8px",
+          backgroundColor: "#fafafa",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
           <div style={{
             textAlign: "center",
-            color: "#6b7280",
-            fontSize: "14px"
+            color: "#9ca3af",
+            fontSize: "14px",
+            fontWeight: "500"
           }}>
-            <div style={{ fontSize: "48px", marginBottom: "12px" }}>🎠</div>
-            <div>이미지를 추가해주세요</div>
+            <div style={{
+              width: "48px",
+              height: "48px",
+              backgroundColor: "#f3f4f6",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 12px",
+              fontSize: "24px",
+              color: "#d1d5db"
+            }}>+</div>
+            <div>사진을 추가해주세요</div>
           </div>
         </div>
         {showThumbnails && (

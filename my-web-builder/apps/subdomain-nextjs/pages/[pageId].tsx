@@ -29,6 +29,7 @@ import KakaoTalkShareRenderer from '../components/renderers/KakaoTalkShareRender
 import MapView from '../components/renderers/MapView.jsx';
 import PageRenderer from '../components/renderers/PageRenderer.jsx';
 import PageButtonRenderer from '../components/renderers/PageButtonRenderer.jsx';
+import LinkCopyRenderer from '../components/renderers/LinkCopyRenderer.jsx';
 
 // API 설정을 전역으로 설정 (컴포넌트들이 사용할 수 있도록)
 if (typeof window !== 'undefined') {
@@ -62,6 +63,7 @@ const getRendererByType = (type: string) => {
     'music': MusicRenderer,
     'kakaoTalkShare': KakaoTalkShareRenderer,
     'pageButton': PageButtonRenderer,
+    'linkCopy': LinkCopyRenderer,
   };
 
   console.log(`🎯 Getting renderer for type: ${type}`, renderers[type] ? 'Found' : 'Not found');
@@ -210,8 +212,12 @@ const DynamicPageRenderer = ({
                   alignItems: 'flex-start'
                 }}>
                   {row.map((comp) => {
+                    console.log('🔍 Rendering component:', comp.type, comp.id);
                     const RendererComponent = getRendererByType(comp.type);
-                    if (!RendererComponent) return null;
+                    if (!RendererComponent) {
+                      console.warn('❌ No renderer found for type:', comp.type);
+                      return null;
+                    }
                     
                     const defaultSize = getComponentDefaultSize(comp.type);
                     const originalWidth = comp.width || defaultSize.width;
@@ -228,6 +234,7 @@ const DynamicPageRenderer = ({
                           comp={{ ...comp, width: originalWidth, height: originalHeight }}
                           mode="live"
                           isEditor={false}
+                          pageId={pageId}
                         />
                       </div>
                     );
@@ -236,8 +243,12 @@ const DynamicPageRenderer = ({
               ))
             ) : (
               sortedComponents?.map((comp) => {
+                console.log('🔍 Desktop rendering component:', comp.type, comp.id);
                 const RendererComponent = getRendererByType(comp.type);
-                if (!RendererComponent) return null;
+                if (!RendererComponent) {
+                  console.warn('❌ Desktop: No renderer found for type:', comp.type);
+                  return null;
+                }
 
                 const defaultSize = getComponentDefaultSize(comp.type);
                 const originalWidth = comp.width || defaultSize.width;
@@ -261,6 +272,7 @@ const DynamicPageRenderer = ({
                       comp={{ ...comp, width: originalWidth, height: originalHeight }}
                       mode="live"
                       isEditor={false}
+                      pageId={pageId}
                     />
                   </div>
                 );

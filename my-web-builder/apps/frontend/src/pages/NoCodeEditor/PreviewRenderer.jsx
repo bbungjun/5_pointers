@@ -70,7 +70,7 @@ const ComponentRenderer = ({ component, editingViewport }) => {
       return <PageRenderer component={component} mode="preview" />;
     case 'pageButton':
       return <PageButtonRenderer {...props} isPreview={true} />;
-    case 'linkcopy': // 추가
+    case 'linkCopy': // 추가
       return <LinkCopyRenderer {...props} />;
     default:
       return (
@@ -271,3 +271,4 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
 };
 
 export default PreviewRenderer;
+

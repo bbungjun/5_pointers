@@ -66,7 +66,7 @@ export const ComponentRenderers = {
   'kakaotalk-share': KakaoTalkShareRenderer,
   kakaotalkShare: KakaoTalkShareRenderer,
   
-  linkcopy: LinkCopyRenderer,
+  linkCopy: LinkCopyRenderer,
   
   // 음악 플레이어
   'music-player': MusicRenderer,

@@ -1,23 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import { useResponsive } from '../../hooks/useResponsive';
 
-function BankAccountRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
-  
-  useEffect(() => {
-    if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
-      
-      const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
-      };
-      
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [mode]);
+function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', setModalOpen }) {
   const { title, groomSide, brideSide, backgroundColor } = comp.props;
-  const [groomOpen, setGroomOpen] = useState(false);
-  const [brideOpen, setBrideOpen] = useState(false);
+  const [groomModalOpen, setGroomModalOpen] = useState(false);
+  const [brideModalOpen, setBrideModalOpen] = useState(false);
+  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width, comp.height);
+  const ref = useRef();
+
+  useEffect(() => {
+    if (ref.current && onUpdate) {
+      const newHeight = ref.current.offsetHeight;
+      if (comp.height !== newHeight) {
+        onUpdate({ ...comp, height: newHeight });
+      }
+    }
+  }, [comp.props, onUpdate]);
+
+  // 모달 상태 변화를 상위 컴포넌트에 알리기
+  useEffect(() => {
+    if (setModalOpen) {
+      setModalOpen(groomModalOpen || brideModalOpen);
+    }
+  }, [groomModalOpen, brideModalOpen, setModalOpen]);
 
   const copyToClipboard = (account, name) => {
     navigator.clipboard.writeText(account);
@@ -28,27 +34,70 @@ function BankAccountRenderer({ comp, isEditor = false, mode = 'live', width, hei
     if (!person.enabled && label !== '신랑' && label !== '신부') return null;
 
     return (
-      <div className="bg-white rounded-lg p-3 mb-2 shadow-sm border">
-        <div className="mb-2">
+      <div style={{
+        backgroundColor: '#f9fafb',
+        borderRadius: '8px',
+        padding: 'clamp(12px, 3vw, 16px)',
+        marginBottom: 'clamp(8px, 2vw, 12px)',
+        border: '1px solid #e5e7eb'
+      }}>
+        <div style={{ marginBottom: 'clamp(8px, 2vw, 12px)' }}>
           <span
-            className="font-medium text-gray-800"
-            style={{ whiteSpace: 'pre-wrap' }} // ✅
+            style={{
+              fontSize: 'clamp(14px, 3.5vw, 16px)',
+              fontWeight: '600',
+              color: '#4A4A4A',
+              whiteSpace: 'pre-wrap',
+              fontFamily: 'Playfair Display, serif'
+            }}
           >
             {label} {person.name}
           </span>
         </div>
-        <div className="flex items-center justify-between">
-          <span
-            className="text-sm text-gray-600"
-            style={{ whiteSpace: 'pre-wrap' }} // ✅
-          >
-            {person.bank} {person.account}
-          </span>
-          <button 
-            className="ml-3 px-3 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700 transition-colors"
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 'clamp(6px, 2vw, 8px)'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 'clamp(50px, 15vw, 60px)' }}>
+            <span style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#BDB5A6', marginBottom: '4px', fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }}>은행</span>
+            <span style={{ fontSize: 'clamp(12px, 3vw, 14px)', fontWeight: '600', color: '#4A4A4A', fontFamily: 'Montserrat, sans-serif' }}>{person.bank}</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: '1', minWidth: 'clamp(100px, 30vw, 120px)', margin: '0 clamp(4px, 2vw, 8px)' }}>
+            <span style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#BDB5A6', marginBottom: '4px', fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }}>계좌번호</span>
+            <span style={{ fontSize: 'clamp(12px, 3vw, 14px)', fontWeight: '600', color: '#4A4A4A', fontFamily: 'Montserrat, sans-serif' }}>{person.account}</span>
+          </div>
+          <button
+            style={{
+              padding: 'clamp(6px, 2vw, 8px) clamp(12px, 4vw, 16px)',
+              background: 'linear-gradient(135deg, #87CEEB 0%, #6CB4D8 100%)',
+              color: '#FFFFFF',
+              borderRadius: '6px',
+              fontSize: 'clamp(12px, 3vw, 14px)',
+              fontWeight: '600',
+              fontFamily: 'Montserrat, sans-serif',
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(135, 206, 235, 0.3)',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              flexShrink: 0
+            }}
             onClick={(e) => {
               e.stopPropagation();
               copyToClipboard(person.account, person.name);
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'linear-gradient(135deg, #98D7F0 0%, #7BC0E0 100%)';
+              e.target.style.transform = 'translateY(-1px)';
+              e.target.style.boxShadow = '0 4px 12px rgba(135, 206, 235, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'linear-gradient(135deg, #87CEEB 0%, #6CB4D8 100%)';
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 2px 8px rgba(135, 206, 235, 0.3)';
             }}
           >
             복사
@@ -58,97 +107,196 @@ function BankAccountRenderer({ comp, isEditor = false, mode = 'live', width, hei
     );
   };
 
+  const renderModal = (sideData, title, isOpen, setIsOpen) => {
+    if (!isOpen) return null;
+
+    const modalRoot = document.getElementById('modal-root');
+    if (!modalRoot) return null;
+
+    return ReactDOM.createPortal(
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)'
+        }} onClick={() => setIsOpen(false)}></div>
+        <div style={{
+          position: 'relative',
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          maxWidth: 'min(28rem, calc(100vw - 2rem))',
+          width: '100%',
+          margin: '0 1rem',
+          maxHeight: '80vh',
+          overflowY: 'auto'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 'clamp(1rem, 4vw, 1.5rem)',
+            borderBottom: '1px solid #e5e7eb'
+          }}>
+            <h3 style={{
+              fontSize: 'clamp(16px, 4vw, 20px)',
+              fontWeight: '600',
+              color: '#4A4A4A',
+              fontFamily: 'Playfair Display, serif'
+            }}>{title}</h3>
+            <button style={{
+              color: '#9ca3af',
+              transition: 'color 0.2s',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0
+            }} onClick={() => setIsOpen(false)}>
+              <svg style={{ width: 'clamp(20px, 5vw, 24px)', height: 'clamp(20px, 5vw, 24px)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div style={{ padding: 'clamp(1rem, 4vw, 1.5rem)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 2vw, 12px)' }}>
+              {title.includes('신랑') && sideData?.groom && renderAccountInfo(sideData.groom, '신랑')}
+              {title.includes('신랑') && sideData?.groomFather?.enabled && renderAccountInfo(sideData.groomFather, '신랑 아버지')}
+              {title.includes('신랑') && sideData?.groomMother?.enabled && renderAccountInfo(sideData.groomMother, '신랑 어머니')}
+              {title.includes('신부') && sideData?.bride && renderAccountInfo(sideData.bride, '신부')}
+              {title.includes('신부') && sideData?.brideFather?.enabled && renderAccountInfo(sideData.brideFather, '신부 아버지')}
+              {title.includes('신부') && sideData?.brideMother?.enabled && renderAccountInfo(sideData.brideMother, '신부 어머니')}
+            </div>
+          </div>
+        </div>
+      </div>,
+      modalRoot
+    );
+  };
+
   return (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      border: '1px solid #e5e7eb',
-      backgroundColor,
-      display: 'flex',
-      flexDirection: 'column',
-      boxSizing: 'border-box',
-      ...(isLiveMode ? {
-        padding: `clamp(12px, 4vw, 24px)`,
-        borderRadius: `clamp(4px, 1.5vw, 8px)`,
-        minWidth: `clamp(150px, 40vw, 250px)`,
-        minHeight: `clamp(90px, 25vw, 150px)`
-      } : {
-        padding: '24px',
-        borderRadius: '8px',
+    <div
+      ref={ref}
+      style={{
+        width: isLiveMode ? responsiveWidth : '100%',
+        padding: '12px',
+        borderRadius: 0,
+        border: '1px solid #e5e7eb',
+        backgroundColor,
         minWidth: '250px',
-        minHeight: '150px'
-      })
-    }}>
+        minHeight: '150px',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative'
+      }}
+    >
       {title && (
         <h3
-          className="text-lg font-semibold text-center mb-4 text-gray-800"
-          style={{ whiteSpace: 'pre-wrap' }} // ✅
+          style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            textAlign: 'center',
+            marginBottom: '16px',
+            color: '#4A4A4A',
+            whiteSpace: 'pre-wrap',
+            fontFamily: 'Playfair Display, serif'
+          }}
         >
           {title}
         </h3>
       )}
-      
-      {/* 신랑측 드롭다운 */}
-      <div className="mb-4">
-        <button 
-          className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-between ${
-            groomOpen 
-              ? 'bg-gray-800 text-white' 
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
+
+      <div style={{ marginBottom: '16px' }}>
+        <button
+          style={{
+            width: '100%',
+            padding: '16px 24px',
+            background: 'linear-gradient(135deg, #87CEEB 0%, #87CEEB 50%, #6CB4D8 100%)',
+            color: '#FFFFFF',
+            borderRadius: '8px',
+            fontWeight: '600',
+            border: '1px solid rgba(135, 206, 235, 0.3)',
+            boxShadow: '0 4px 16px rgba(135, 206, 235, 0.3)',
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            cursor: 'pointer'
+          }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setGroomOpen(!groomOpen);
+            setGroomModalOpen(true);
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = 'linear-gradient(135deg, #98D7F0 0%, #98D7F0 50%, #7BC0E0 100%)';
+            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 8px 24px rgba(135, 206, 235, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = 'linear-gradient(135deg, #87CEEB 0%, #87CEEB 50%, #6CB4D8 100%)';
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 4px 16px rgba(135, 206, 235, 0.3)';
           }}
         >
-          <span style={{ whiteSpace: 'pre-wrap' }}>신랑 측 계좌번호</span> {/* ✅ */}
-          <span className={`transform transition-transform duration-200 ${
-            groomOpen ? 'rotate-180' : 'rotate-0'
-          }`}>
-            ▼
-          </span>
+          <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+          <span style={{ whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '600', background: 'none', WebkitBackgroundClip: 'unset', WebkitTextFillColor: 'unset' }}>신랑 측 계좌번호</span>
         </button>
-        
-        {groomOpen && groomSide && (
-          <div className="mt-2 space-y-2 pl-4">
-            {groomSide.groom && renderAccountInfo(groomSide.groom, '신랑')}
-            {groomSide.groomFather && groomSide.groomFather.enabled && renderAccountInfo(groomSide.groomFather, '신랑 아버지')}
-            {groomSide.groomMother && groomSide.groomMother.enabled && renderAccountInfo(groomSide.groomMother, '신랑 어머니')}
-          </div>
-        )}
       </div>
-      
-      {/* 신부측 드롭다운 */}
-      <div className="mb-4">
-        <button 
-          className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-between ${
-            brideOpen 
-              ? 'bg-gray-800 text-white' 
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
+
+      <div style={{ marginBottom: '16px' }}>
+        <button
+          style={{
+            width: '100%',
+            padding: '16px 24px',
+            background: 'linear-gradient(135deg, #D8BFD8 0%, #C8A2C8 50%, #B794B7 100%)',
+            color: '#FFFFFF',
+            borderRadius: '8px',
+            fontWeight: '600',
+            border: '1px solid rgba(216, 191, 216, 0.3)',
+            boxShadow: '0 4px 16px rgba(216, 191, 216, 0.3)',
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            cursor: 'pointer'
+          }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setBrideOpen(!brideOpen);
+            setBrideModalOpen(true);
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = 'linear-gradient(135deg, #E6D3E6 0%, #D4B8D4 50%, #C29FC2 100%)';
+            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 8px 24px rgba(216, 191, 216, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = 'linear-gradient(135deg, #D8BFD8 0%, #C8A2C8 50%, #B794B7 100%)';
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 4px 16px rgba(216, 191, 216, 0.3)';
           }}
         >
-          <span style={{ whiteSpace: 'pre-wrap' }}>신부 측 계좌번호</span> {/* ✅ */}
-          <span className={`transform transition-transform duration-200 ${
-            brideOpen ? 'rotate-180' : 'rotate-0'
-          }`}>
-            ▼
-          </span>
+          <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+          <span style={{ whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '600', background: 'none', WebkitBackgroundClip: 'unset', WebkitTextFillColor: 'unset' }}>신부 측 계좌번호</span>
         </button>
-        
-        {brideOpen && brideSide && (
-          <div className="mt-2 space-y-2 pl-4">
-            {brideSide.bride && renderAccountInfo(brideSide.bride, '신부')}
-            {brideSide.brideFather && brideSide.brideFather.enabled && renderAccountInfo(brideSide.brideFather, '신부 아버지')}
-            {brideSide.brideMother && brideSide.brideMother.enabled && renderAccountInfo(brideSide.brideMother, '신부 어머니')}
-          </div>
-        )}
       </div>
+
+      {/* 모달들 */}
+      {renderModal(groomSide, '신랑 측 계좌번호', groomModalOpen, setGroomModalOpen)}
+      {renderModal(brideSide, '신부 측 계좌번호', brideModalOpen, setBrideModalOpen)}
     </div>
   );
 }

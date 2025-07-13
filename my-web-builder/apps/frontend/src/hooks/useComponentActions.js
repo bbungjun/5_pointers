@@ -130,7 +130,7 @@ export function useComponentActions(
       addComponent(pageComponent);
 
       // 5. 성공 알림
-      showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
+      // showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
 
       console.log('✅ Page 컴포넌트 자동 생성 완료:', {
         componentId: pageComponent.id,
@@ -217,7 +217,7 @@ export function useComponentActions(
 
       addComponent(pageButtonComponent);
 
-      showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
+      // showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
 
       return pageButtonComponent.id;
 
