@@ -31,7 +31,6 @@ export default function KakaoTalkShareRenderer({ comp, mode = 'editor' }) {
     // 에디터 모드인 경우 클릭 이벤트 차단
     if (mode === 'editor') {
       e.preventDefault();
-      e.stopPropagation();
       return;
     }
 
@@ -99,7 +98,6 @@ export default function KakaoTalkShareRenderer({ comp, mode = 'editor' }) {
     >
       <span style={{
         fontSize: '18px',
-        marginRight: '4px'
       }}></span>
       {buttonTitle || "카카오톡 공유"}
     </button>
