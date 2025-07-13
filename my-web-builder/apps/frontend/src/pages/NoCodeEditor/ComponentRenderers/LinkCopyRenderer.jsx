@@ -15,9 +15,9 @@ const LinkCopyRenderer = ({ component, isEditor = false, mode = 'editor', onUpda
   // 클릭 동작 분기
   const handleClick = (e) => {
     e.stopPropagation();
+    // 👉 에디터에서는 안내만
     if (mode === 'editor') {
-      // 👉 에디터에서는 안내만
-      alert('배포된 페이지에서만 링크 복사가 가능합니다.');
+      e.preventDefault();
     } else {
       // 👉 실제 배포 페이지에서의 동작
       if (typeof window !== 'undefined' && window.location) {

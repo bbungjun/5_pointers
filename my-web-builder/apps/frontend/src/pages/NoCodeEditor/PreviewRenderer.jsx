@@ -69,7 +69,7 @@ const ComponentRenderer = ({ component, editingViewport, setModalOpen }) => {
       return <PageRenderer component={component} mode="preview" />;
     case 'pageButton':
       return <PageButtonRenderer {...props} isPreview={true} />;
-    case 'linkcopy': // 추가
+    case 'linkCopy': // 추가
       return <LinkCopyRenderer {...props} />;
     default:
       return (
