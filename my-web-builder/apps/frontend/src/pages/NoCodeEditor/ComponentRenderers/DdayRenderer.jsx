@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }) {
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2024-12-31';
+  const targetTime = comp.props.targetTime || comp.defaultProps?.targetTime || '14:00';
   const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
   const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage || '';
   
@@ -16,7 +17,7 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
-      const target = new Date(targetDate).getTime();
+      const target = new Date(`${targetDate}T${targetTime}`).getTime();
       const difference = target - now;
 
       if (difference > 0) {
@@ -51,71 +52,53 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
     };
   }, [targetDate]);
 
-  // 웨딩 테마 우아한 카드 스타일
+  // 모던 미니멀 카드 스타일
   const bubbleStyle = {
-    width: '65px',
-    height: '65px',
-    borderRadius: '12px',
-    background: 'linear-gradient(135deg, #FAF9F6 0%, #F5F3F0 50%, #EBE8E4 100%)',
-    boxShadow: `
-      0 4px 12px rgba(189, 181, 166, 0.15),
-      0 2px 4px rgba(189, 181, 166, 0.1),
-      inset 0 1px 0 rgba(255,255,255,0.8)
-    `,
-    border: '1px solid #BDB5A6',
+    width: '60px',
+    height: '60px',
+    borderRadius: '16px',
+    background: 'rgba(255, 255, 255, 0.95)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    margin: '5px',
-    overflow: 'hidden',
+    margin: '4px',
+    backdropFilter: 'blur(10px)',
     transition: 'all 0.3s ease'
   };
 
-  // 웨딩 테마 우아한 하이라이트
-  const bubbleHighlight = {
-    position: 'absolute',
-    top: '10%',
-    left: '15%',
-    width: '20px',
-    height: '20px',
-    borderRadius: '8px',
-    background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)',
-    filter: 'blur(1px)'
-  };
-
-  // 웨딩 테마 우아한 숫자 스타일
+  // 모던 숫자 스타일
   const numberStyle = {
-    fontSize: '22px',
-    fontWeight: '700',
+    fontSize: '20px',
+    fontWeight: '600',
     lineHeight: '1',
-    color: '#4A4A4A',
-    fontFamily: 'Playfair Display, serif',
+    color: '#1a1a1a',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
     zIndex: 2,
     position: 'relative'
   };
 
-  // 웨딩 테마 우아한 라벨 스타일
+  // 모던 라벨 스타일
   const labelStyle = {
-    fontSize: '12px',
+    fontSize: '11px',
     fontWeight: '500',
     textTransform: 'uppercase',
-    letterSpacing: '1px',
-    color: '#BDB5A6',
+    letterSpacing: '0.5px',
+    color: 'rgba(0, 0, 0, 0.6)',
     textAlign: 'center',
-    marginTop: '6px',
-    fontFamily: 'Montserrat, sans-serif'
+    marginTop: '8px',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
   };
 
-  // 웨딩 테마 우아한 콜론 스타일
-  const colonStyle = {
-    fontSize: '28px',
-    fontWeight: '300',
-    color: '#BDB5A6',
-    display: 'flex',
-    alignItems: 'center',
-    margin: '0 4px',
-    fontFamily: 'Playfair Display, serif'
+  // 모던 구분자 스타일
+  const separatorStyle = {
+    width: '2px',
+    height: '24px',
+    background: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: '1px',
+    margin: '0 8px'
   };
 
   const getContainerStyle = () => {
@@ -136,17 +119,19 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
     if (backgroundImage) {
       return {
         ...baseStyle,
-        background: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url(${backgroundImage})`,
+        background: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundRepeat: 'no-repeat',
+        filter: 'grayscale(0.8) contrast(1.1)',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
       };
     }
 
     return {
       ...baseStyle,
-      background: `linear-gradient(135deg, ${backgroundColor} 0%, #F5F3F0 50%, #EBE8E4 100%)`,
-      border: '1px solid rgba(189, 181, 166, 0.2)'
+      background: `linear-gradient(135deg, ${backgroundColor} 0%, #f8f9fa 100%)`,
+      border: '1px solid rgba(0, 0, 0, 0.05)'
     };
   };
 
@@ -155,15 +140,14 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
       {/* 물방울과 단위를 세로로 배치한 블록들 + 콜론 */}
       <div style={{
         display: 'flex',
-        gap: '4px',          // 원래 크기로 되돌림
+        gap: '2px',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: '10px'  // 원래 크기로 되돌림
+        marginBottom: '16px'
       }}>
         {/* Days */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={bubbleStyle}>
-            <div style={bubbleHighlight}></div>
             <div style={numberStyle}>
               {timeLeft.days.toString().padStart(2, '0')}
             </div>
@@ -171,13 +155,12 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
           <div style={labelStyle}>Days</div>
         </div>
 
-        {/* 콜론 */}
-        <div style={colonStyle}>:</div>
+        {/* 구분자 */}
+        <div style={separatorStyle}></div>
 
         {/* Hours */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={bubbleStyle}>
-            <div style={bubbleHighlight}></div>
             <div style={numberStyle}>
               {timeLeft.hours.toString().padStart(2, '0')}
             </div>
@@ -185,13 +168,12 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
           <div style={labelStyle}>Hours</div>
         </div>
 
-        {/* 콜론 */}
-        <div style={colonStyle}>:</div>
+        {/* 구분자 */}
+        <div style={separatorStyle}></div>
 
         {/* Minutes */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={bubbleStyle}>
-            <div style={bubbleHighlight}></div>
             <div style={numberStyle}>
               {timeLeft.minutes.toString().padStart(2, '0')}
             </div>
@@ -199,13 +181,12 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
           <div style={labelStyle}>Minutes</div>
         </div>
 
-        {/* 콜론 */}
-        <div style={colonStyle}>:</div>
+        {/* 구분자 */}
+        <div style={separatorStyle}></div>
 
         {/* Seconds */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={bubbleStyle}>
-            <div style={bubbleHighlight}></div>
             <div style={numberStyle}>
               {timeLeft.seconds.toString().padStart(2, '0')}
             </div>
@@ -214,24 +195,24 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
         </div>
       </div>
 
-      {/* 웨딩 테마 목표 날짜 표시 */}
+      {/* 모던 목표 날짜 표시 */}
       <div style={{
-        fontSize: '14px',
+        fontSize: '13px',
         fontWeight: '500',
-        color: '#4A4A4A',
+        color: 'rgba(0, 0, 0, 0.7)',
         textAlign: 'center',
-        background: 'rgba(189, 181, 166, 0.1)',
-        padding: '6px 12px',
-        borderRadius: '16px',
-        backdropFilter: 'blur(8px)',
-        border: '1px solid rgba(189, 181, 166, 0.2)',
-        fontFamily: 'Montserrat, sans-serif'
+        background: 'rgba(255, 255, 255, 0.8)',
+        padding: '8px 16px',
+        borderRadius: '20px',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
       }}>
-        {new Date(targetDate).toLocaleDateString('ko-KR', {
+        {new Date(`${targetDate}T${targetTime}`).toLocaleDateString('ko-KR', {
           year: 'numeric',
           month: 'long',
           day: 'numeric'
-        })}
+        })} {targetTime}
       </div>
     </div>
   );
