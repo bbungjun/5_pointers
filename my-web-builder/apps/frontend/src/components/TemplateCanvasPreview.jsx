@@ -113,8 +113,8 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
     // 모바일: 화면 너비를 꽉 채우도록 스케일 조정
     finalScale = Math.max(scaleX, scaleY, 0.4);
   } else {
-    // 데스크톱: 전체 내용이 모두 보이도록 스케일 조정
-    finalScale = Math.min(scaleX, scaleY, 0.9);
+    // 데스크톱: 너비를 기준으로 스케일 고정하여 높이 변화에 영향받지 않도록
+    finalScale = Math.min(scaleX, 0.8);
   }
   
   // 디버깅을 위한 로그
@@ -276,8 +276,10 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
       ) : (
         // 데스크톱 미리보기 (기존)
         <div 
-          className="relative bg-gray-50 w-full aspect-[16/9] overflow-hidden"
+          className="relative bg-gray-50 w-full overflow-hidden"
           style={{
+            width: `${previewDimensions.width}px`,
+            height: `${previewDimensions.height}px`,
             minHeight: '200px',
           }}
         >
@@ -338,7 +340,6 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                         <RendererComponent
                           comp={comp}
                           isPreview={true}
-                          isEditor={false}
                           style={{
                             width: '100%',
                             height: '100%',

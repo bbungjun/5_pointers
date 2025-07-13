@@ -95,6 +95,9 @@ export function useCollaboration({
 
   // 컴포넌트 데이터 동기화를 위한 Y.Array 설정
   const componentsArrayRef = useRef(null);
+  
+  // 캔버스 설정 동기화를 위한 Y.Map 설정
+  const canvasSettingsRef = useRef(null);
 
   useEffect(() => {
     if (!ydoc) return;
@@ -104,6 +107,12 @@ export function useCollaboration({
       ydoc && ydoc.getArray ? ydoc.getArray('components') : null;
     if (!yComponents) return;
     componentsArrayRef.current = yComponents;
+    
+    // Y.js에서 캔버스 설정을 관리하는 Y.Map 생성
+    const yCanvasSettings =
+      ydoc && ydoc.getMap ? ydoc.getMap('canvasSettings') : null;
+    if (!yCanvasSettings) return;
+    canvasSettingsRef.current = yCanvasSettings;
 
     // 컴포넌트 변화 감지 및 React 상태 업데이트
     const handleComponentsChange = () => {
@@ -299,6 +308,26 @@ export function useCollaboration({
       });
   };
 
+  // 캔버스 설정 업데이트 함수
+  const updateCanvasSettings = (settings) => {
+    if (!canvasSettingsRef.current) {
+      console.warn('Y.js 캔버스 설정이 아직 준비되지 않았습니다.');
+      return;
+    }
+
+    try {
+      ydoc &&
+        ydoc.transact(() => {
+          Object.entries(settings).forEach(([key, value]) => {
+            canvasSettingsRef.current.set(key, value);
+          });
+        });
+      console.log('캔버스 설정 업데이트:', settings);
+    } catch (error) {
+      console.error('캔버스 설정 업데이트 실패:', error);
+    }
+  };
+
   // 현재 활성 사용자 목록 가져오기
   const getActiveUsers = () => {
     if (!awareness) return [];
@@ -337,6 +366,9 @@ export function useCollaboration({
     addComponent,
     removeComponent,
     updateAllComponents,
+
+    // 캔버스 설정 동기화
+    updateCanvasSettings,
 
     // 사용자 관리
     getActiveUsers,

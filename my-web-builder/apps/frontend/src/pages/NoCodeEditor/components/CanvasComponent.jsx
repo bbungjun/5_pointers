@@ -191,7 +191,7 @@ function CanvasComponent({
         return (
           <ButtonRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
@@ -199,15 +199,27 @@ function CanvasComponent({
         return (
           <TextRenderer
             comp={componentWithFinalStyles}
+            mode="editor"
+            isPreview={false}
+            isSelected={selected}
+            onUpdate={onUpdate}
+          />
+        );
+
+      case 'text':
+        return (
+          <TextRenderer
+            component={componentWithFinalStyles}
             isEditor={true}
             onUpdate={onUpdate}
           />
         );
+
       case 'link':
         return (
           <LinkRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
@@ -215,17 +227,17 @@ function CanvasComponent({
         return (
           <AttendRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
       case 'map':
-        return <MapView {...(comp.props || {})} comp={componentWithFinalStyles} />;
+        return <MapView {...(comp.props || {})} comp={componentWithFinalStyles} mode="editor" />;
       case 'dday':
         return (
           <DdayRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
@@ -233,7 +245,7 @@ function CanvasComponent({
         return (
           <WeddingContactRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
@@ -241,7 +253,7 @@ function CanvasComponent({
         return (
           <WeddingInviteRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
@@ -249,7 +261,7 @@ function CanvasComponent({
         return (
           <ImageRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
@@ -257,7 +269,7 @@ function CanvasComponent({
         return (
           <GridGalleryRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
@@ -265,23 +277,23 @@ function CanvasComponent({
         return (
           <SlideGalleryRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
       case 'mapInfo':
         return (
-          <MapInfoRenderer comp={componentWithFinalStyles} isEditor={true} />
+          <MapInfoRenderer comp={componentWithFinalStyles} mode="editor" />
         );
       case 'calendar':
         return (
-          <CalendarRenderer comp={componentWithFinalStyles} isEditor={true} />
+          <CalendarRenderer comp={componentWithFinalStyles} mode="editor" />
         );
       case 'bankAccount':
         return (
           <BankAccountRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={handleComponentUpdate}
           />
         );
@@ -289,7 +301,7 @@ function CanvasComponent({
         return (
           <CommentRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             viewport={viewport}
           />
         );
@@ -297,7 +309,7 @@ function CanvasComponent({
         return (
           <SlidoRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
             viewport={viewport}
           />
@@ -306,7 +318,7 @@ function CanvasComponent({
         return (
           <MusicRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
             viewport={viewport}
           />
@@ -315,7 +327,7 @@ function CanvasComponent({
         return (
           <KakaoTalkShareRenderer
             comp={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
             viewport={viewport}
           />
@@ -325,7 +337,7 @@ function CanvasComponent({
         return (
           <PageRenderer
             component={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
@@ -334,15 +346,15 @@ function CanvasComponent({
         return (
           <PageButtonRenderer
             component={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );
-      case 'linkcopy':
+      case 'linkCopy':
         return (
           <LinkCopyRenderer
             component={componentWithFinalStyles}
-            isEditor={true}
+            mode="editor"
             onUpdate={onUpdate}
           />
         );

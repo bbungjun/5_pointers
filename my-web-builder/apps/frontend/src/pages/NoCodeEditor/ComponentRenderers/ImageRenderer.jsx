@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function ImageRenderer({ comp, component, isEditor = false, isPreview = false, onUpdate }) {
+function ImageRenderer({ comp, component, isEditor = false, mode = 'editor', isPreview = false, onUpdate }) {
   // comp 또는 component 중 하나를 사용 (하위 호환성)
   const actualComp = comp || component;
   const [imageError, setImageError] = useState(false);
@@ -10,6 +10,8 @@ function ImageRenderer({ comp, component, isEditor = false, isPreview = false, o
   const animationRef = useRef(null);
   const [particles, setParticles] = useState([]);
   const animationFrameRef = useRef(null);
+
+  const borderRadius = actualComp?.props?.borderRadius ?? 0; 
   
   // 동적 애니메이션 효과 초기화
   useEffect(() => {
@@ -162,7 +164,7 @@ function ImageRenderer({ comp, component, isEditor = false, isPreview = false, o
   const containerStyle = {
     width: '100%',
     height: '100%',
-    borderRadius: '0px',
+    borderRadius: `${borderRadius}px`,
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
@@ -252,7 +254,8 @@ function ImageRenderer({ comp, component, isEditor = false, isPreview = false, o
           height: '100%',
           objectFit: actualComp?.props?.objectFit || 'cover',
           display: imageError ? 'none' : 'block',
-          transition: 'all 0.3s ease'
+          transition: 'all 0.3s ease',
+          borderRadius: `${borderRadius}px`
         }}
       />
       

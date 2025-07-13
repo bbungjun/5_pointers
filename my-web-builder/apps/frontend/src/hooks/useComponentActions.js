@@ -26,7 +26,7 @@ export function useComponentActions(
   setTemplateData,
   setIsTemplateSaveOpen
 ) {
-  const { addComponent, updateComponent, removeComponent } = collaboration;
+  const { addComponent, updateComponent, removeComponent, updateCanvasSettings } = collaboration;
 
   // 유니크한 ID 생성 함수
   const generateUniqueId = () => {
@@ -130,7 +130,7 @@ export function useComponentActions(
       addComponent(pageComponent);
 
       // 5. 성공 알림
-      showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
+      // showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
 
       console.log('✅ Page 컴포넌트 자동 생성 완료:', {
         componentId: pageComponent.id,
@@ -217,7 +217,7 @@ export function useComponentActions(
 
       addComponent(pageButtonComponent);
 
-      showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
+      // showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
 
       return pageButtonComponent.id;
 
@@ -417,9 +417,13 @@ export function useComponentActions(
     (sectionY, containerRef, zoom) => {
       const newHeight = Math.max(canvasHeight, sectionY + 200);
       setCanvasHeight(newHeight);
+      
+      // 협업 시스템을 통해 캔버스 높이 동기화
+      updateCanvasSettings({ canvasHeight: newHeight });
+      
       console.log('섹션 추가:', { 기존높이: canvasHeight, 새높이: newHeight });
     },
-    [canvasHeight, setCanvasHeight]
+    [canvasHeight, setCanvasHeight, updateCanvasSettings]
   );
 
   return {

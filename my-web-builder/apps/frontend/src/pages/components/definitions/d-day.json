@@ -3,7 +3,7 @@
   "label": "D-Day",
   "icon": "📅",
   "defaultProps": {
-    "targetDate": "2024-12-31",
+    "targetDate": "2025-07-26",
     "backgroundColor": "#f8fafc",
     "backgroundImage": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800"
   }

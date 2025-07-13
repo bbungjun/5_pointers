@@ -1,6 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function LinkRenderer({ comp, isEditor = false }) {
+function LinkRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props.text);
   const inputRef = useRef();
@@ -72,8 +86,8 @@ function LinkRenderer({ comp, isEditor = false }) {
       className={`${isEditor ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
       style={{
         color: comp.props.color || '#D8BFD8', 
-        fontSize: comp.props.fontSize || '16px',
-        whiteSpace: 'pre-wrap', // ✅ 줄바꿈 지원
+        fontSize: isLiveMode ? `clamp(${Math.max(10, (comp.props.fontSize || 16) * 0.7)}px, ${((comp.props.fontSize || 16) / 375) * 100}vw, ${comp.props.fontSize || 16}px)` : comp.props.fontSize || '16px',
+        whiteSpace: 'pre-wrap',
         textDecoration: 'underline',
         fontFamily: comp.props.fontFamily || 'Montserrat, sans-serif'
       }}

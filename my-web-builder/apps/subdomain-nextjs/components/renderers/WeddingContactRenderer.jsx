@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 // SVG 아이콘 (더 심플하게)
 const PhoneIcon = (
@@ -22,8 +22,8 @@ function PersonRow({ name, phone1, phone2, phone3, role, deceased }) {
   
   return (
     <div style={{ marginBottom: 16, textAlign: 'center' }}>
-      {role && <div style={{ fontSize: 14, color: '#888', marginBottom: 4 }}>{role}</div>}
-      {name && <div style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 8, whiteSpace: 'pre-wrap' }}>{displayName}</div>}
+      {role && <div style={{ fontSize: 14, color: '#BDB5A6', marginBottom: 4, fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }}>{role}</div>}
+      {name && <div style={{ fontSize: 16, fontWeight: 600, color: '#4A4A4A', marginBottom: 8, whiteSpace: 'pre-wrap', fontFamily: 'Playfair Display, serif' }}>{displayName}</div>}
       {fullPhone && (
         <div style={{ display: 'flex', justifyContent: 'center', gap: 12 }}>
           <a href={`tel:${fullPhone}`} draggable={false}>{PhoneIcon}</a>
@@ -34,24 +34,47 @@ function PersonRow({ name, phone1, phone2, phone3, role, deceased }) {
   );
 }
 
-function WeddingContactRenderer({ comp }) {
+function WeddingContactRenderer({ comp, mode = 'live', width, height }) {
+  const [isLiveMode, setIsLiveMode] = useState(false);
+  
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      setIsLiveMode(window.innerWidth <= 768);
+      
+      const handleResize = () => {
+        setIsLiveMode(window.innerWidth <= 768);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
+  
   const p = comp.props;
   return (
     <div style={{
       width: '100%',
       height: '100%',
-      background: '#fff',
-      border: '1px solid #ddd',
-      borderRadius: '12px',
-      padding: '20px',
-      color: '#333',
-      fontFamily: 'inherit',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-      minWidth: '250px',
-      minHeight: '200px',
+      background: '#FAF9F6',
+      border: '1px solid #BDB5A6',
+      color: '#4A4A4A',
+      fontFamily: 'Montserrat, sans-serif',
+      boxShadow: '0 8px 32px rgba(189, 181, 166, 0.15)',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      boxSizing: 'border-box',
+      ...(isLiveMode ? {
+        borderRadius: 0,
+        padding: `clamp(12px, 4vw, 20px)`,
+        minWidth: `clamp(150px, 40vw, 250px)`,
+        minHeight: `clamp(120px, 35vw, 200px)`
+      } : {
+        borderRadius: 0,
+        padding: '20px',
+        minWidth: '250px',
+        minHeight: '200px'
+      })
     }}>
       {/* 상단 신랑/신부 */}
       <div style={{ display: 'flex', marginBottom: 24 }}>
@@ -59,12 +82,12 @@ function WeddingContactRenderer({ comp }) {
           <>
             {/* 신부 먼저 */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 14, color: '#666', marginBottom: 4, whiteSpace: 'pre-wrap' }}>신부</div>
+              <div style={{ fontSize: 14, color: '#BDB5A6', marginBottom: 4, whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }}>신부</div>
               <PersonRow name={p.brideName} phone1={p.bridePhone1} phone2={p.bridePhone2} phone3={p.bridePhone3} />
             </div>
             {/* 신랑 */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 14, color: '#666', marginBottom: 4, whiteSpace: 'pre-wrap' }}>신랑</div>
+              <div style={{ fontSize: 14, color: '#BDB5A6', marginBottom: 4, whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }}>신랑</div>
               <PersonRow name={p.groomName} phone1={p.groomPhone1} phone2={p.groomPhone2} phone3={p.groomPhone3} />
             </div>
           </>
@@ -72,12 +95,12 @@ function WeddingContactRenderer({ comp }) {
           <>
             {/* 신랑 */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 14, color: '#666', marginBottom: 4, whiteSpace: 'pre-wrap' }}>신랑</div>
+              <div style={{ fontSize: 14, color: '#BDB5A6', marginBottom: 4, whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }}>신랑</div>
               <PersonRow name={p.groomName} phone1={p.groomPhone1} phone2={p.groomPhone2} phone3={p.groomPhone3} />
             </div>
             {/* 신부 */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 14, color: '#666', marginBottom: 4, whiteSpace: 'pre-wrap' }}>신부</div>
+              <div style={{ fontSize: 14, color: '#BDB5A6', marginBottom: 4, whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }}>신부</div>
               <PersonRow name={p.brideName} phone1={p.bridePhone1} phone2={p.bridePhone2} phone3={p.bridePhone3} />
             </div>
           </>

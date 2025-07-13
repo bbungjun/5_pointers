@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../../config';
 
-function SlidoRenderer({ comp, isEditor = false, pageId }) {
+function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
   const { question, placeholder, backgroundColor } = comp.props;
   const [opinions, setOpinions] = useState([]);
   const [newOpinion, setNewOpinion] = useState('');
@@ -201,7 +201,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
 
   // 의견 목록 조회
   const fetchOpinions = async () => {
-    if (isEditor) return; // 에디터 모드에서는 API 호출 안함
+    if (mode === 'editor') return; // 에디터 모드에서는 API 호출 안함
     
     const actualPageId = pageId || comp.pageId;
     const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
@@ -309,7 +309,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
   useEffect(() => {
     const actualPageId = pageId || comp.pageId;
     
-    if (!isEditor && actualPageId) {
+    if (mode !== 'editor' && actualPageId) {
       fetchOpinions(); // 초기 로드
       intervalRef.current = setInterval(fetchOpinions, 5000); // 5초마다 업데이트 (팝업 없이)
     }
@@ -319,7 +319,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [comp.id, pageId, comp.pageId, isEditor]);
+  }, [comp.id, pageId, comp.pageId, mode]);
 
   // 애니메이션 스타일
   const getOpinionStyle = (opinion) => {
@@ -374,9 +374,10 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
       style={{
         width: '100%',
         height: '100%',
+        minHeight: '400px',
         padding: '20px',
         borderRadius: 0,
-        border: isEditor ? '2px dashed #3b82f6' : '2px solid #e5e7eb',
+        border: mode === 'editor' ? '2px dashed #3b82f6' : '2px solid #e5e7eb',
         backgroundColor: backgroundColor || '#ffffff',
         display: 'flex',
         flexDirection: 'column',
@@ -495,7 +496,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
       </div>
 
       {/* 의견 입력 폼 */}
-      {!isEditor && (
+      {mode !== 'editor' && (
         <form onSubmit={handleSubmitOpinion} style={{
           marginBottom: '24px',
           display: 'flex',
@@ -574,7 +575,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
       )}
 
       {/* 에디터 모드용 입력 폼 미리보기 */}
-      {isEditor && (
+      {mode === 'editor' && (
         <div style={{
           marginBottom: '24px',
           display: 'flex',
@@ -612,19 +613,19 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
       <div style={{
         flex: 1,
         position: 'relative',
-        minHeight: '200px',
+        minHeight: '250px',
         height: 'auto',
         overflow: 'hidden',
         width: '100%',
         backgroundColor: 'rgba(248, 250, 252, 0.5)'
       }}>
-        {isEditor ? (
+        {mode === 'editor' ? (
           // 에디터 모드에서 샘플 의견들 (전체 공간 활용)
           <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '200px' }}>
             <div style={{
               position: 'absolute',
-              left: '5%',
-              top: '10%',
+              left: '20px',
+              top: '20px',
               background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)',
               color: 'white',
               padding: '12px 20px',
@@ -639,8 +640,8 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
             </div>
             <div style={{
               position: 'absolute',
-              right: '8%',
-              top: '25%',
+              right: '20px',
+              top: '60px',
               background: 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)',
               color: 'white',
               padding: '14px 22px',
@@ -655,7 +656,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
             </div>
             <div style={{
               position: 'absolute',
-              left: '60%',
+              left: '50%',
               top: '50%',
               background: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)',
               color: 'white',
@@ -663,7 +664,7 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
               borderRadius: '35px',
               fontSize: '22px',
               fontWeight: '700',
-              transform: 'rotate(3deg) scale(1.8)',
+              transform: 'translate(-50%, -50%) rotate(3deg) scale(1.5)',
               boxShadow: '0 12px 30px rgba(33, 150, 243, 0.4)',
               border: '3px solid rgba(255, 255, 255, 0.4)'
             }}>
@@ -671,8 +672,8 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
             </div>
             <div style={{
               position: 'absolute',
-              left: '15%',
-              bottom: '30%',
+              left: '30px',
+              bottom: '80px',
               background: 'linear-gradient(135deg, #4caf50 0%, #388e3c 100%)',
               color: 'white',
               padding: '8px 14px',
@@ -686,8 +687,8 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
             </div>
             <div style={{
               position: 'absolute',
-              right: '20%',
-              bottom: '10%',
+              right: '30px',
+              bottom: '40px',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
               padding: '10px 18px',
@@ -702,15 +703,15 @@ function SlidoRenderer({ comp, isEditor = false, pageId }) {
             </div>
             <div style={{
               position: 'absolute',
-              left: '45%',
-              top: '75%',
+              left: '50%',
+              bottom: '20px',
               background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
               color: 'white',
               padding: '12px 22px',
               borderRadius: '25px',
               fontSize: '18px',
               fontWeight: '700',
-              transform: 'rotate(-3deg) scale(1.6)',
+              transform: 'translateX(-50%) rotate(-3deg) scale(1.3)',
               boxShadow: '0 8px 20px rgba(244, 67, 54, 0.4)',
               border: '3px solid rgba(255, 255, 255, 0.4)'
             }}>

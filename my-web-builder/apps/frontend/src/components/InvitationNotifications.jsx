@@ -56,8 +56,25 @@ function InvitationNotifications() {
       if (response.ok) {
         // 초대 목록에서 제거
         setInvitations(prev => prev.filter(inv => inv.invitationToken !== invitationToken));
-        // 에디터 페이지로 이동
-        navigate(`/editor/${pageId}`);
+        
+        // 초대 정보에서 viewport와 fromTemplate 파라미터 가져오기
+        const invitation = invitations.find(inv => inv.invitationToken === invitationToken);
+        const viewport = invitation?.viewport;
+        const fromTemplate = invitation?.fromTemplate;
+        
+        // URL 파라미터 구성
+        const params = new URLSearchParams();
+        if (viewport) params.append('viewport', viewport);
+        if (fromTemplate) params.append('fromTemplate', fromTemplate);
+        
+        const queryString = params.toString();
+        const targetUrl = queryString ? `/editor/${pageId}?${queryString}` : `/editor/${pageId}`;
+        
+        console.log('InvitationNotifications: 에디터로 이동:', targetUrl);
+        console.log('InvitationNotifications: 파라미터:', { viewport, fromTemplate });
+        
+        // 에디터 페이지로 이동 (파라미터 포함)
+        navigate(targetUrl);
       } else {
         const errorData = await response.json();
         alert(errorData.message || '초대 수락에 실패했습니다.');

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-export default function MusicRenderer({ comp, isEditor = false }) {
+export default function MusicRenderer({ comp, isEditor = false, mode = 'editor' }) {
     const audioRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
 
