@@ -374,6 +374,7 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
       style={{
         width: '100%',
         height: '100%',
+        minHeight: '400px',
         padding: '20px',
         borderRadius: 0,
         border: mode === 'editor' ? '2px dashed #3b82f6' : '2px solid #e5e7eb',
@@ -612,7 +613,7 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
       <div style={{
         flex: 1,
         position: 'relative',
-        minHeight: '200px',
+        minHeight: '250px',
         height: 'auto',
         overflow: 'hidden',
         width: '100%',
@@ -623,8 +624,8 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
           <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '200px' }}>
             <div style={{
               position: 'absolute',
-              left: '5%',
-              top: '10%',
+              left: '20px',
+              top: '20px',
               background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)',
               color: 'white',
               padding: '12px 20px',
@@ -639,8 +640,8 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
             </div>
             <div style={{
               position: 'absolute',
-              right: '8%',
-              top: '25%',
+              right: '20px',
+              top: '60px',
               background: 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)',
               color: 'white',
               padding: '14px 22px',
@@ -655,7 +656,7 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
             </div>
             <div style={{
               position: 'absolute',
-              left: '60%',
+              left: '50%',
               top: '50%',
               background: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)',
               color: 'white',
@@ -663,7 +664,7 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
               borderRadius: '35px',
               fontSize: '22px',
               fontWeight: '700',
-              transform: 'rotate(3deg) scale(1.8)',
+              transform: 'translate(-50%, -50%) rotate(3deg) scale(1.5)',
               boxShadow: '0 12px 30px rgba(33, 150, 243, 0.4)',
               border: '3px solid rgba(255, 255, 255, 0.4)'
             }}>
@@ -671,8 +672,8 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
             </div>
             <div style={{
               position: 'absolute',
-              left: '15%',
-              bottom: '30%',
+              left: '30px',
+              bottom: '80px',
               background: 'linear-gradient(135deg, #4caf50 0%, #388e3c 100%)',
               color: 'white',
               padding: '8px 14px',
@@ -686,8 +687,8 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
             </div>
             <div style={{
               position: 'absolute',
-              right: '20%',
-              bottom: '10%',
+              right: '30px',
+              bottom: '40px',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
               padding: '10px 18px',
@@ -702,15 +703,15 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
             </div>
             <div style={{
               position: 'absolute',
-              left: '45%',
-              top: '75%',
+              left: '50%',
+              bottom: '20px',
               background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
               color: 'white',
               padding: '12px 22px',
               borderRadius: '25px',
               fontSize: '18px',
               fontWeight: '700',
-              transform: 'rotate(-3deg) scale(1.6)',
+              transform: 'translateX(-50%) rotate(-3deg) scale(1.3)',
               boxShadow: '0 8px 20px rgba(244, 67, 54, 0.4)',
               border: '3px solid rgba(255, 255, 255, 0.4)'
             }}>

@@ -50,7 +50,9 @@ function WeddingContactRenderer({ comp, mode = 'editor', isEditor = false }) {
       minHeight: '200px',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      padding: '20px',
+      boxSizing: 'border-box'
     }}>
       {/* 상단 신랑/신부 */}
       <div style={{ display: 'flex', marginBottom: 24 }}>
