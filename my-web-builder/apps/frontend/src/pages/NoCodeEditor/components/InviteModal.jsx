@@ -10,8 +10,9 @@ import { API_BASE_URL } from '../../../config';
  * - isOpen: 모달 열림 상태
  * - onClose: 모달 닫기 함수
  * - pageId: 현재 페이지 ID
+ * - onInviteSuccess: 초대 성공 시 호출할 콜백 함수
  */
-function InviteModal({ isOpen, onClose, pageId }) {
+function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -81,6 +82,12 @@ function InviteModal({ isOpen, onClose, pageId }) {
           );
           setMessageType('success');
           setEmail('');
+          
+          // 초대 성공 콜백 호출
+          if (onInviteSuccess) {
+            onInviteSuccess();
+          }
+          
           // 5초 후 모달 닫기 (링크 복사 시간 고려)
           setTimeout(() => {
             onClose();
