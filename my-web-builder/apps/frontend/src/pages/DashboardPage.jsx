@@ -710,7 +710,7 @@ function DashboardPage({ user, onLogout }) {
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-slate-800">이벤트 테마</h3>
-                <p className="text-slate-600">다양한 이벤트 테마를 선택해보세요</p>
+                <p className="text-slate-600">다양한 이벤트 템플릿을 선택해보세요</p>
               </div>
             </div>
 
