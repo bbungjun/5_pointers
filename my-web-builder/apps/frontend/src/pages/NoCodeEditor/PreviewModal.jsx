@@ -256,7 +256,7 @@ const PreviewModal = ({
     ),
 
     // Styles
-    React.createElement("style", { jsx: true }, `
+    React.createElement("style", null, `
       .modal-overlay {
         position: fixed;
         top: 0;

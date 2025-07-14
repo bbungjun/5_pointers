@@ -329,10 +329,10 @@ export function useComponentActions(
       Object.keys(comp).forEach((key) => {
         if (JSON.stringify(existingComp[key]) !== JSON.stringify(comp[key])) {
           updates[key] = comp[key];
-          console.log(`속성 변경 감지: ${key}`, {
-            기존: existingComp[key],
-            새로운: comp[key],
-          });
+          // console.log(`속성 변경 감지: ${key}`, {
+          //   기존: existingComp[key],
+          //   새로운: comp[key],
+          // });
         }
       });
 
