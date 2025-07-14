@@ -146,7 +146,7 @@ function EditorHeader({
               멤버
             </label>
             <div className="relative" ref={membersDropdownRef}>
-              {/* 현재 사용자와 멤버 수를 가로로 배치 */}
+              {/* 현재 사용자와 멤버들을 가로로 배치 */}
               <div className="flex items-center gap-2">
                 {/* 현재 사용자 표시 */}
                 <div className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded text-xs">
@@ -159,26 +159,48 @@ function EditorHeader({
                   </span>
                 </div>
                 
-                {/* 다른 멤버가 있으면 드롭다운 버튼 표시 */}
-                {otherMembers.length > 0 && (
+                {/* 다른 멤버들 표시 (최대 2명까지) */}
+                {otherMembers.slice(0, 2).map((member) => (
+                  <div
+                    key={member.id}
+                    className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${
+                      member.status === 'PENDING' 
+                        ? 'bg-yellow-50 text-yellow-700' 
+                        : 'bg-blue-50 text-blue-700'
+                    }`}
+                  >
+                    <span 
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: member.color }}
+                    ></span>
+                    <span className="max-w-16 truncate">
+                      {member.nickname}
+                    </span>
+                  </div>
+                ))}
+                
+                {/* 3명 이상이면 + 버튼 표시 */}
+                {otherMembers.length > 2 && (
                   <button
                     onClick={() => setShowMembersDropdown(!showMembersDropdown)}
                     className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs hover:bg-blue-100 transition-colors"
                   >
-                    +{otherMembers.length}
+                    +{otherMembers.length - 2}
                   </button>
                 )}
               </div>
               
               {/* 멤버 드롭다운 */}
-              {showMembersDropdown && otherMembers.length > 0 && (
+              {showMembersDropdown && otherMembers.length > 2 && (
                 <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48">
                   <div className="p-2">
                     <div className="text-xs text-gray-500 mb-2 px-2">페이지 멤버</div>
                     {otherMembers.map((member) => (
                       <div
                         key={member.id}
-                        className="flex items-center gap-2 px-2 py-1 rounded text-xs hover:bg-gray-50"
+                        className={`flex items-center gap-2 px-2 py-1 rounded text-xs hover:bg-gray-50 ${
+                          member.status === 'PENDING' ? 'bg-yellow-50' : ''
+                        }`}
                       >
                         <span 
                           className="w-2 h-2 rounded-full"
@@ -187,8 +209,13 @@ function EditorHeader({
                         <span className="flex-1 truncate">
                           {member.nickname}
                         </span>
-                        <span className="text-gray-500 text-xs">
-                          {member.isOwner ? '소유자' : member.role}
+                        <span className={`text-xs ${
+                          member.status === 'PENDING' 
+                            ? 'text-yellow-600 font-medium' 
+                            : 'text-gray-500'
+                        }`}>
+                          {member.isOwner ? '소유자' : 
+                           member.status === 'PENDING' ? '초대 대기' : member.role}
                         </span>
                       </div>
                     ))}

@@ -69,7 +69,7 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
                 fontFamily: 'monospace',
                 wordBreak: 'break-all'
               }}>
-                초대 링크: {data.inviteUrl}
+                초대 링크: {data.inviteUrl || '링크 생성 중...'}
               </p>
               <p style={{ 
                 marginTop: '8px', 
@@ -99,12 +99,13 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
           setMessageType('error');
         }
       } else {
-        setMessage(data.message || '초대 링크 생성에 실패했습니다.');
+        const errorData = await response.json().catch(() => ({}));
+        setMessage(errorData.message || data.message || '초대 링크 생성에 실패했습니다.');
         setMessageType('error');
       }
     } catch (error) {
       console.error('초대 링크 생성 오류:', error);
-      setMessage('네트워크 오류가 발생했습니다.');
+      setMessage('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       setMessageType('error');
     } finally {
       setLoading(false);

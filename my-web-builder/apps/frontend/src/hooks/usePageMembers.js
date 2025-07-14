@@ -59,8 +59,8 @@ export const usePageMembers = (pageId) => {
   useEffect(() => {
     fetchMembers();
     
-    // 30초마다 멤버 목록 새로고침
-    const interval = setInterval(fetchMembers, 30000);
+    // 5초마다 멤버 목록 새로고침 (더 빠른 업데이트)
+    const interval = setInterval(fetchMembers, 5000);
     
     return () => clearInterval(interval);
   }, [fetchMembers]);
