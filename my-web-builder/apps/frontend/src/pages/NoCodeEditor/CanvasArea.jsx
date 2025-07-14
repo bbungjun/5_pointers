@@ -218,14 +218,14 @@ const CanvasArea = forwardRef(
         e.target.closest('[data-component-id]') !== null ||
         e.target.closest('.canvas-component') !== null;
       
-      console.log('선택 시작 시도:', {
-        button: e.button,
-        ctrlKey: e.ctrlKey,
-        metaKey: e.metaKey,
-        isClickOnComponent,
-        target: e.target.className,
-        targetTagName: e.target.tagName
-      });
+      // console.log('선택 시작 시도:', {
+      //   button: e.button,
+      //   ctrlKey: e.ctrlKey,
+      //   metaKey: e.metaKey,
+      //   isClickOnComponent,
+      //   target: e.target.className,
+      //   targetTagName: e.target.tagName
+      // });
       
       if (e.button === 0 && !e.ctrlKey && !e.metaKey && !isClickOnComponent) {
         const rect = canvasRefToUse.current.getBoundingClientRect();
@@ -233,7 +233,7 @@ const CanvasArea = forwardRef(
         const x = (e.clientX - rect.left) / scale;
         const y = (e.clientY - rect.top) / scale;
         
-        console.log('선택 영역 시작:', { x, y, scale, rect });
+        // console.log('선택 영역 시작:', { x, y, scale, rect });
         setSelectionStart({ x, y });
         setIsSelecting(true);
         setSelectionBox({ x, y, width: 0, height: 0 });
@@ -265,20 +265,20 @@ const CanvasArea = forwardRef(
           height: Math.abs(height)
         };
         
-        console.log('선택 영역 업데이트:', newSelectionBox);
+        // console.log('선택 영역 업데이트:', newSelectionBox);
         setSelectionBox(newSelectionBox);
       }
     };
 
     // 다중 선택 완료
     const handleSelectionEnd = () => {
-      console.log('선택 완료 시도:', { isSelecting, selectionBox: !!selectionBox, onMultiSelect: !!onMultiSelect });
+      // console.log('선택 완료 시도:', { isSelecting, selectionBox: !!selectionBox, onMultiSelect: !!onMultiSelect });
       
       if (isSelecting && selectionBox && onMultiSelect) {
         // 최소 선택 영역 크기 (너무 작은 선택은 무시)
         const minSize = 5;
         if (selectionBox.width < minSize || selectionBox.height < minSize) {
-          console.log('선택 영역이 너무 작음:', selectionBox);
+          // console.log('선택 영역이 너무 작음:', selectionBox);
           setIsSelecting(false);
           setSelectionBox(null);
           setSelectionStart(null);
@@ -329,7 +329,7 @@ const CanvasArea = forwardRef(
       
       // 다중 선택 완료
       if (isSelecting) {
-        console.log('캔버스에서 선택 완료');
+        // console.log('캔버스에서 선택 완료');
         handleSelectionEnd();
       }
       
@@ -719,7 +719,7 @@ const CanvasArea = forwardRef(
             onDragOver={onDragOver}
             onClick={onClick}
             onMouseDown={(e) => {
-              console.log('캔버스 마우스 다운:', e.target.className);
+              // console.log('캔버스 마우스 다운:', e.target.className);
               handleMouseDown(e);
               handleSelectionStart(e);
             }}
