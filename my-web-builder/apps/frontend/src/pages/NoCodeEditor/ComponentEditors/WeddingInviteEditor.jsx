@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TextEditor,
   NumberEditor,
   FontFamilyEditor,
   TextStyleEditor,
   ColorEditor,
-  TextAlignEditor
+  TextAlignEditor,
+  BorderEditor
 } from '../PropertyEditors';
 
 function WeddingInviteEditor({ selectedComp, onUpdate }) {
@@ -34,8 +35,18 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
     contentTextDecoration = "none",
     contentColor = "#444",
     contentAlign = "center",
-    backgroundColor = "#fff"
+    backgroundColor = "#fff",
+    noBorder = true,
+    borderColor = "#e5e7eb",
+    borderWidth = "1px",
+    borderRadius = 0
   } = selectedComp.props;
+
+  const [localNoBorder, setLocalNoBorder] = useState(noBorder);
+
+  useEffect(() => {
+    setLocalNoBorder(selectedComp.props?.noBorder !== undefined ? !!selectedComp.props.noBorder : true);
+  }, [selectedComp.props?.noBorder]);
 
   // 속성 업데이트 함수
   const updateProperty = (key, value) => {
@@ -46,6 +57,7 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
         [key]: value
       }
     });
+    if (key === 'noBorder') setLocalNoBorder(!!value);
   };
 
   // 본문 textarea 입력값을 배열로 변환
@@ -65,8 +77,6 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
 
   return (
     <div>
-
-
       {/* 제목 영역 */}
       <div style={{ marginBottom: 8 }}>
         <TextEditor
@@ -191,6 +201,15 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
           label="배경색"
         />
       </div>
+
+      {/* 테두리 옵션 - BorderEditor로 통합 */}
+      <BorderEditor
+        noBorder={localNoBorder}
+        borderColor={borderColor}
+        borderWidth={borderWidth}
+        borderRadius={borderRadius}
+        onChange={updateProperty}
+      />
     </div>
   );
 }

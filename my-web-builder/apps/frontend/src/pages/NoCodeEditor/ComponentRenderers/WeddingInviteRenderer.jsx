@@ -29,7 +29,11 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
         contentTextDecoration = "none",
         contentColor = "#4A4A4A",
         contentAlign = comp.props.contentAlign || comp.props.textAlign || "center",
-        backgroundColor = "#FAF9F6"
+        backgroundColor = "#FAF9F6",
+        noBorder = comp.props?.noBorder !== undefined ? comp.props.noBorder : true,
+        borderColor = comp.props?.borderColor || "#BDB5A6",
+        borderWidth = comp.props?.borderWidth || "1px",
+        borderRadius = comp.props?.borderRadius || 0
     } = comp.props;
 
     // px 변환
@@ -42,7 +46,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
             style={{
                 padding: 40,
                 background: backgroundColor,
-                borderRadius: 0,
+                borderRadius: borderRadius,
                 width: '100%',
                 height: '100%',
                 minWidth: 200,
@@ -52,8 +56,8 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '1px solid #BDB5A6',
-                boxShadow: '0 8px 32px rgba(189, 181, 166, 0.15)',
+                border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`,
+                //boxShadow: '0 8px 32px rgba(189, 181, 166, 0.15)',
             }}
         >
             {/* 제목 */}
@@ -72,7 +76,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
                     lineHeight: 1.2,
                     wordBreak: 'keep-all',
                     background: 'none',
-                    whiteSpace: 'pre-wrap' // ✅ 연속 스페이스/줄바꿈 반영
+                    whiteSpace: 'pre-wrap'
                 }}
             >
                 {title || <span style={{ color: "#bbb" }}>제목 없음</span>}
@@ -92,7 +96,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
                     width: '100%',
                     wordBreak: 'keep-all',
                     background: 'none',
-                    whiteSpace: 'pre-wrap' // ✅ 연속 스페이스/줄바꿈 반영
+                    whiteSpace: 'pre-wrap'
                 }}
             >
                 {contentLines.map((line, idx) => (

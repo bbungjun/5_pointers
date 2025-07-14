@@ -1,7 +1,15 @@
 import React from 'react';
 
 function CalendarRenderer({ comp, mode = 'editor' }) {
-  const { weddingDate, title, highlightColor } = comp.props;
+  const {
+    weddingDate,
+    title,
+    highlightColor = '#ff6b9d',
+    noBorder = true,
+    borderColor = '#e5e7eb',
+    borderWidth = '1px',
+    borderRadius = 0
+  } = comp.props;
   
   // 날짜 파싱
   const targetDate = new Date(weddingDate);
@@ -41,8 +49,9 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
       width: '100%',
       height: '100%',
       backgroundColor: 'white',
-      borderRadius: 0,
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+      border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`,
+      borderRadius: borderRadius,
+      //boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
       display: 'flex',
       flexDirection: 'column',
       minHeight: '300px',
@@ -115,7 +124,7 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '14px',
-                  borderRadius: '8px',
+                  borderRadius: borderRadius,
                   cursor: 'pointer',
                   color: !isCurrentMonth ? '#d1d5db' : '#374151',
                   backgroundColor: isWeddingDay ? highlightColor : 

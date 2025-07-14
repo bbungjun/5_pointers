@@ -1,7 +1,30 @@
-import React from 'react';
-import { FontFamilyEditor, TextAlignEditor, LineHeightEditor, LetterSpacingEditor, TextStyleEditor, ColorEditor } from '../PropertyEditors';
+import React, { useState, useEffect } from 'react';
+import { 
+  FontFamilyEditor, 
+  TextAlignEditor, 
+  LineHeightEditor, 
+  LetterSpacingEditor, 
+  TextStyleEditor, 
+  ColorEditor, 
+  SelectEditor, 
+  NumberEditor,
+  BorderEditor,
+} from '../PropertyEditors';
 
 function CommentEditor({ selectedComp, onUpdate }) {
+  const {
+    noBorder = true,
+    borderColor = '#e5e7eb',
+    borderWidth = '1px',
+    borderRadius = 0,
+  } = selectedComp.props;
+
+  const [localNoBorder, setLocalNoBorder] = useState(noBorder);
+
+  useEffect(() => {
+    setLocalNoBorder(selectedComp.props?.noBorder !== undefined ? !!selectedComp.props.noBorder : true);
+  }, [selectedComp.props?.noBorder]);
+
   const handlePropChange = (propName, value) => {
     onUpdate({
       ...selectedComp,
@@ -10,12 +33,11 @@ function CommentEditor({ selectedComp, onUpdate }) {
         [propName]: value
       }
     });
+    if (propName === 'noBorder') setLocalNoBorder(!!value);
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-
       <div>
         <label style={{
           display: 'block', fontSize: 13, fontWeight: 500,
@@ -139,6 +161,15 @@ function CommentEditor({ selectedComp, onUpdate }) {
           }}
         />
       </div>
+
+      {/* 테두리 옵션 - BorderEditor로 통합 */}
+      <BorderEditor
+        noBorder={localNoBorder}
+        borderColor={borderColor}
+        borderWidth={borderWidth}
+        borderRadius={borderRadius}
+        onChange={handlePropChange}
+      />
     </div>
   );
 }

@@ -15,7 +15,7 @@ export default function MapInfoRenderer({ comp, mode = 'editor' }) {
     letterSpacing = comp.props?.letterSpacing || 0,
     color = comp.props?.color || '#2c2c2c',
     bgColor = comp.props?.bgColor || '#ffffff',
-    noBorder = true,
+    noBorder = comp.props?.noBorder !== undefined ? comp.props.noBorder : true,
     borderColor = comp.props?.borderColor || '#e5e7eb',
     borderWidth = comp.props?.borderWidth || '1px',
     borderRadius = comp.props?.borderRadius || 8
@@ -29,12 +29,11 @@ export default function MapInfoRenderer({ comp, mode = 'editor' }) {
       style={{
         padding: '28px 24px',
         background: bgColor,
-        borderRadius: 0,
+        borderRadius: borderRadius,
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
         overflow: 'hidden',
-        //boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
         border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`
       }}
     >

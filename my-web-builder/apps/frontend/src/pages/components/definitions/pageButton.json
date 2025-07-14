@@ -30,7 +30,7 @@
       "label": "모서리 둥글기",
       "min": 0,
       "max": 50,
-      "default": 8,
+      "default": 0,
       "suffix": "px"
     },
     "fontSize": {
@@ -61,7 +61,8 @@
     "icon": "📄",
     "backgroundColor": "#007bff",
     "textColor": "#ffffff",
-    "borderRadius": 8,
+    "borderRadius": 0,
+    "noBorder": true,
     "fontSize": 16,
     "fontWeight": "600",
     "linkedPageId": "",
