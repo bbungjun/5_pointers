@@ -322,4 +322,44 @@ export class UsersController {
   ) {
     return this.usersService.updateDesignMode(pageId, body.designMode);
   }
+
+  // 참석 의사 조회
+  @Get('pages/:pageId/attendance/:componentId')
+  async getAttendance(
+    @Param('pageId') pageId: string,
+    @Param('componentId') componentId: string,
+  ) {
+    return this.usersService.getAttendance(pageId, componentId);
+  }
+
+  // 참석 의사 작성
+  @Post('pages/:pageId/attendance/:componentId')
+  async createAttendance(
+    @Param('pageId') pageId: string,
+    @Param('componentId') componentId: string,
+    @Body() attendanceData: {
+      attendeeName: string;
+      attendeeCount: number;
+      guestSide: string;
+      contact: string;
+      companionCount: number;
+      mealOption: string;
+      privacyConsent: boolean;
+    },
+  ) {
+    console.log('🎯 Attendance API Request received:', { 
+      pageId, 
+      componentId, 
+      attendeeName: attendanceData.attendeeName,
+      guestSide: attendanceData.guestSide 
+    });
+    try {
+      const result = await this.usersService.createAttendance(pageId, componentId, attendanceData);
+      console.log('✅ Attendance created successfully:', result.id);
+      return result;
+    } catch (error) {
+      console.error('❌ Attendance creation failed:', error);
+      throw error;
+    }
+  }
 }

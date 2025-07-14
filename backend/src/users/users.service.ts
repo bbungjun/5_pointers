@@ -1074,4 +1074,71 @@ export class UsersService {
       designMode: designMode
     };
   }
+
+  // 참석 의사 조회
+  async getAttendance(pageId: string, componentId: string): Promise<any[]> {
+    const submissions = await this.submissionsRepository.find({
+      where: {
+        pageId: pageId,
+        component_id: componentId,
+      },
+      order: { createdAt: 'DESC' },
+    });
+
+    return submissions.map((submission) => ({
+      id: submission.id,
+      attendeeName: submission.data.attendeeName,
+      attendeeCount: submission.data.attendeeCount,
+      guestSide: submission.data.guestSide,
+      contact: submission.data.contact,
+      companionCount: submission.data.companionCount,
+      mealOption: submission.data.mealOption,
+      createdAt: submission.createdAt,
+    }));
+  }
+
+  // 참석 의사 작성
+  async createAttendance(
+    pageId: string,
+    componentId: string,
+    attendanceData: {
+      attendeeName: string;
+      attendeeCount: number;
+      guestSide: string;
+      contact: string;
+      companionCount: number;
+      mealOption: string;
+      privacyConsent: boolean;
+    },
+  ): Promise<any> {
+    const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+    if (!page) throw new Error('Page not found');
+
+    const submission = this.submissionsRepository.create({
+      page: page,
+      pageId: pageId,
+      component_id: componentId,
+      data: {
+        attendeeName: attendanceData.attendeeName,
+        attendeeCount: attendanceData.attendeeCount,
+        guestSide: attendanceData.guestSide,
+        contact: attendanceData.contact,
+        companionCount: attendanceData.companionCount,
+        mealOption: attendanceData.mealOption,
+        privacyConsent: attendanceData.privacyConsent,
+      },
+    });
+
+    const saved = await this.submissionsRepository.save(submission);
+    return {
+      id: saved.id,
+      attendeeName: saved.data.attendeeName,
+      attendeeCount: saved.data.attendeeCount,
+      guestSide: saved.data.guestSide,
+      contact: saved.data.contact,
+      companionCount: saved.data.companionCount,
+      mealOption: saved.data.mealOption,
+      createdAt: saved.createdAt,
+    };
+  }
 }

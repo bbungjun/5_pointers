@@ -48,6 +48,7 @@ function CanvasComponent({
   getComponentDimensions,
   canvasHeight, // 확장된 캔버스 높이
   updateCursorPosition, // 협업 커서 위치 업데이트 함수
+  pageId, // 페이지 ID prop 추가
 }) {
   const ref = useRef();
 
@@ -221,6 +222,7 @@ function CanvasComponent({
             comp={componentWithFinalStyles}
             mode="editor"
             onUpdate={onUpdate}
+            pageId={pageId}
           />
         );
       case 'map':

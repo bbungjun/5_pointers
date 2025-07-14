@@ -26,8 +26,8 @@ import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
 import LinkCopyRenderer from './ComponentRenderers/LinkCopyRenderer';
 
 // 컴포넌트 렌더링 헬퍼
-const ComponentRenderer = ({ component, editingViewport }) => {
-  const props = { comp: component, mode: 'preview', isEditor: false, editingViewport };
+const ComponentRenderer = ({ component, editingViewport, pageId }) => {
+  const props = { comp: component, mode: 'preview', isEditor: false, editingViewport, pageId };
   
   switch (component.type) {
     case 'button':
@@ -124,7 +124,7 @@ const calculateActualDimensions = (components) => {
   };
 };
 
-const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewport = 'desktop' }) => {
+const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewport = 'desktop', pageId }) => {
   const [scale, setScale] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const containerRef = useRef(null);
@@ -176,9 +176,8 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
           flexDirection: 'column',
           alignItems: 'center',
           gap: '16px',
-          padding: '16px 0',
-          margin: 0,
           padding: 0,
+          margin: 0,
         }}
       >
         {rows.map((row, rowIndex) => (
@@ -218,7 +217,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
                     height: `${originalHeight}px`
                   }}
                 >
-                  <ComponentRenderer component={component} editingViewport={editingViewport} setModalOpen={setIsModalOpen} />
+                  <ComponentRenderer component={component} editingViewport={editingViewport} pageId={pageId} setModalOpen={setIsModalOpen} />
                 </div>
               );
             })}
@@ -265,7 +264,7 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
               getComponentDimensions(component.type).defaultHeight,
           }}
         >
-          <ComponentRenderer component={component} editingViewport={editingViewport} setModalOpen={setIsModalOpen} />
+          <ComponentRenderer component={component} editingViewport={editingViewport} pageId={pageId} setModalOpen={setIsModalOpen} />
         </div>
       ))}
     </div>
