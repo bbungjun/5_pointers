@@ -119,7 +119,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   
 
   return (
-    <div className={`relative bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
+    <div className={`relative bg-white rounded-lg overflow-hidden ${className}`}>
       {/* 디바이스 타입 표시 */}
       <div className="absolute top-2 left-2 z-10">
         <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
