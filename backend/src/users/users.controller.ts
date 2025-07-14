@@ -29,6 +29,13 @@ export class UsersController {
     private readonly s3Service: S3Service,
   ) {}
 
+  // 내 페이지 목록 조회 API
+  @UseGuards(JwtAuthGuard)
+  @Get('pages/my-pages')
+  async getMyPages(@Request() req) {
+    return this.usersService.getMyPages(req.user.userId);
+  }
+
   // 페이지 단일 조회 API
   @UseGuards(JwtAuthGuard)
   @Get('pages/:pageId')
@@ -72,7 +79,15 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Delete('pages/:pageId')
   async deletePage(@Request() req, @Param('pageId') pageId: string) {
-    return this.usersService.deletePage(req.user.userId, pageId);
+    try {
+      console.log('🗑️ 페이지 삭제 요청:', { pageId, userId: req.user.userId });
+      const result = await this.usersService.deletePage(req.user.userId, pageId);
+      console.log('✅ 페이지 삭제 성공:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ 페이지 삭제 실패:', error);
+      throw error;
+    }
   }
 
   // 페이지 생성 API 리팩토링

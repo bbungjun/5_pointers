@@ -73,6 +73,7 @@ export class UsersService {
     // 소유한 페이지들 가져오기
     const ownedPages = await this.pagesRepository.find({
       where: { owner: { id: userId } },
+      relations: ['owner'],
       order: { updatedAt: 'DESC' },
     });
 
@@ -101,11 +102,25 @@ export class UsersService {
     // 소유한 페이지와 초대받은 페이지 합치기
     const allPages = [...ownedPages, ...invitedPages];
 
-    // 최신 업데이트 순으로 정렬
-    return allPages.sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-    );
+    // 배포된 페이지는 deployedAt 기준, 그 외는 updatedAt 기준으로 정렬
+    const sortedPages = allPages.sort((a, b) => {
+      const aTime = a.status === 'DEPLOYED' && a.deployedAt 
+        ? new Date(a.deployedAt).getTime() 
+        : new Date(a.updatedAt).getTime();
+      const bTime = b.status === 'DEPLOYED' && b.deployedAt 
+        ? new Date(b.deployedAt).getTime() 
+        : new Date(b.updatedAt).getTime();
+      return bTime - aTime;
+    });
+    
+    console.log('📋 getMyPages 결과:', {
+      totalPages: sortedPages.length,
+      deployedPages: sortedPages.filter(p => p.status === 'DEPLOYED').length,
+      draftPages: sortedPages.filter(p => p.status === 'DRAFT').length,
+      pages: sortedPages.map(p => ({ id: p.id, status: p.status, title: p.title }))
+    });
+    
+    return sortedPages;
   }
 
   // 네비게이션용 내 페이지 목록 조회 (기존 getMyPages와 동일)
@@ -317,13 +332,41 @@ export class UsersService {
     userId: number,
     pageId: string,
   ): Promise<{ message: string }> {
-    const page = await this.pagesRepository.findOne({
+    // 먼저 페이지 소유자인지 확인
+    let page = await this.pagesRepository.findOne({
       where: { id: pageId, owner: { id: userId } },
     });
 
+    // 페이지 소유자가 아니면 멤버 권한 확인
     if (!page) {
-      throw new Error('Page not found');
+      console.log(`페이지 소유자가 아님, 멤버 권한 확인 중...`);
+
+      // PageMembers 테이블에서 권한 확인
+      const pageMembersRepository =
+        this.pagesRepository.manager.getRepository('PageMembers');
+      const member = await pageMembersRepository.findOne({
+        where: {
+          page: { id: pageId },
+          user: { id: userId },
+          status: 'ACCEPTED',
+        },
+      });
+
+      if (!member) {
+        throw new Error('Page not found or access denied');
+      }
+
+      // 멤버인 경우 페이지 정보 가져오기
+      page = await this.pagesRepository.findOne({
+        where: { id: pageId },
+      });
+
+      if (!page) {
+        throw new Error('Page not found');
+      }
     }
+
+    console.log('🗑️ 페이지 삭제:', { pageId, userId, pageTitle: page.title });
 
     await this.pagesRepository.remove(page);
     return { message: 'Page deleted successfully' };
