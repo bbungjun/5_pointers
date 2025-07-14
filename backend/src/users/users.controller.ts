@@ -29,13 +29,6 @@ export class UsersController {
     private readonly s3Service: S3Service,
   ) {}
 
-  // 내 페이지 목록 조회 API
-  @UseGuards(JwtAuthGuard)
-  @Get('pages/my-pages')
-  async getMyPages(@Request() req) {
-    return this.usersService.getMyPagesForNavigation(req.user.userId, req.query.currentPageId);
-  }
-
   // 페이지 단일 조회 API
   @UseGuards(JwtAuthGuard)
   @Get('pages/:pageId')
