@@ -48,7 +48,7 @@ function DeploySection({ components, roomId }) {
             color: '#1d2129',
             letterSpacing: '0.3px'
           }}>
-            Deploy Site
+            뚝딱 게시
           </h4>
           <div style={{
             fontSize: 11,
@@ -108,7 +108,7 @@ function DeploySection({ components, roomId }) {
         style={{
           width: '100%',
           padding: '12px 16px',
-          background: isDeploying ? '#e1e5e9' : '#00b894',
+          background: isDeploying ? '#e1e5e9' : '#ec4899',
           color: isDeploying ? '#65676b' : '#ffffff',
           border: 'none',
           borderRadius: 6,
@@ -124,12 +124,12 @@ function DeploySection({ components, roomId }) {
         }}
         onMouseEnter={(e) => {
           if (!isDeploying) {
-            e.target.style.background = '#00a085';
+            e.target.style.background = '#db2777';
           }
         }}
         onMouseLeave={(e) => {
           if (!isDeploying) {
-            e.target.style.background = '#00b894';
+            e.target.style.background = '#ec4899';
           }
         }}
       >
@@ -141,7 +141,7 @@ function DeploySection({ components, roomId }) {
         ) : (
           <>
             <span style={{ fontSize: 14 }}>🚀</span>
-            Deploy Site
+            뚝딱 게시
           </>
         )}
       </button>

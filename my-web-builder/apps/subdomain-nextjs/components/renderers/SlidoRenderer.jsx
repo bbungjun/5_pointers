@@ -1,21 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../config';
+import { useResponsive } from '../../hooks/useResponsive';
 
 function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
-  
-  useEffect(() => {
-    if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
-      
-      const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
-      };
-      
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [mode]);
+  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width || width, comp.height || height);
   const { question, placeholder, backgroundColor } = comp.props;
   const [opinions, setOpinions] = useState([]);
   const [newOpinion, setNewOpinion] = useState('');
@@ -386,7 +374,7 @@ function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
     <div 
       ref={containerRef}
       style={{
-        borderRadius: '16px',
+        borderRadius: 0,
         border: mode === 'editor' ? '2px dashed #3b82f6' : '2px solid #e5e7eb',
         backgroundColor: backgroundColor || '#ffffff',
         display: 'flex',
@@ -397,16 +385,10 @@ function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         transition: 'all 0.2s ease',
         boxSizing: 'border-box',
-        ...(isLiveMode ? {
-          width: '100%',
-          maxWidth: `${width}px`,
-          aspectRatio: `${width} / ${height}`,
-          padding: `clamp(12px, 3vw, 20px)`
-        } : {
-          width: '100%',
-          height: '100%',
-          padding: '20px'
-        })
+        width: responsiveWidth || '100%',
+        height: responsiveHeight || '100%',
+        minHeight: '400px',
+        padding: isLiveMode ? `clamp(12px, 3vw, 20px)` : '20px'
       }}
     >
       {/* CSS 애니메이션 정의 */}

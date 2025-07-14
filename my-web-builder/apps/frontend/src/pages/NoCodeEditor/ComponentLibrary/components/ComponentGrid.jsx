@@ -16,7 +16,7 @@ function ComponentGrid({ components, searchTerm, onDragStart }) {
         fontSize: 14
       }}>
         <div style={{ fontSize: 24, marginBottom: 8 }}>🔍</div>
-        No components found for "{searchTerm}"
+        검색 결과가 없습니다.
       </div>
     );
   }

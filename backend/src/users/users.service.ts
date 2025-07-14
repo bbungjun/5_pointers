@@ -137,6 +137,9 @@ export class UsersService {
       });
 
       if (!member) {
+        console.error(
+          `페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`,
+        );
         throw new Error('Page not found');
       }
 
@@ -146,6 +149,7 @@ export class UsersService {
       });
 
       if (!page) {
+        console.error(`페이지를 찾을 수 없음: ${pageId}`);
         throw new Error('Page not found');
       }
     }
@@ -260,8 +264,12 @@ export class UsersService {
   async updatePageContent(
     userId: number,
     pageId: string,
-    content: any,
+    content: any[],
   ): Promise<Pages> {
+    console.log(
+      `DB 업데이트 시도: 페이지 ${pageId}, 사용자 ${userId}, 컴포넌트 ${content.length}개`,
+    );
+
     // 먼저 페이지 소유자인지 확인
     let page = await this.pagesRepository.findOne({
       where: { id: pageId, owner: { id: userId } },
@@ -283,6 +291,9 @@ export class UsersService {
       });
 
       if (!member) {
+        console.error(
+          `페이지 접근 권한 없음: 페이지 ${pageId}, 사용자 ${userId}`,
+        );
         throw new Error('Page not found');
       }
 
@@ -292,23 +303,16 @@ export class UsersService {
       });
 
       if (!page) {
+        console.error(`페이지를 찾을 수 없음: ${pageId}`);
         throw new Error('Page not found');
       }
     }
 
-    // content가 객체인 경우 그대로 저장, 아닌 경우 components 배열로 저장
-    if (typeof content === 'object' && !Array.isArray(content)) {
-      page.content = content;
-    } else {
-      page.content = {
-        components: Array.isArray(content) ? content : [],
-        canvasSettings: {
-          canvasHeight: 1080 // 기본값
-        }
-      };
-    }
-
+    console.log(`기존 컨텐츠: ${page.content?.length || 0}개 컴포넌트`);
+    page.content = content;
     const savedPage = await this.pagesRepository.save(page);
+    console.log(`DB 저장 완료: ${savedPage.content?.length || 0}개 컴포넌트`);
+
     return savedPage;
   }
 
@@ -347,19 +351,8 @@ export class UsersService {
         where: { id: body.templateId },
       });
       if (template && template.content) {
-        // 컴포넌트 ID 재발급 및 구조 통일
-        let componentsArr = Array.isArray(template.content)
-          ? template.content
-          : template.content.components || [];
-        const canvasSettings =
-          typeof template.content === 'object' && !Array.isArray(template.content)
-            ? template.content.canvasSettings || { canvasHeight: 1080 }
-            : { canvasHeight: 1080 };
-
-        content = {
-          components: this.regenerateComponentIds(componentsArr),
-          canvasSettings,
-        };
+        // 컴포넌트 ID 재발급
+        content = this.regenerateComponentIds(template.content);
       }
     }
 
@@ -753,6 +746,7 @@ export class UsersService {
     componentId: string;
     pageName?: string;
   }) {
+    console.log('📄 새 페이지 생성 시작:', createDto);
 
     try {
       // 1. 새 페이지 생성
@@ -774,6 +768,7 @@ export class UsersService {
       });
 
       const savedPage = await this.pagesRepository.save(newPage);
+      console.log('✅ 새 페이지 생성 완료:', savedPage.id, savedPage.title);
 
       // 2. 부모 페이지의 연결 정보 업데이트
       await this.addPageConnection(createDto.parentPageId, {
@@ -792,6 +787,7 @@ export class UsersService {
         },
       };
     } catch (error) {
+      console.error('❌ 페이지 생성 실패:', error);
       throw new Error('페이지 생성 실패: ' + error.message);
     }
   }
@@ -836,7 +832,9 @@ export class UsersService {
 
       // 부모 페이지 업데이트
       await this.pagesRepository.update(pageId, { content });
+      console.log('✅ 부모 페이지 연결 정보 업데이트 완료');
     } catch (error) {
+      console.error('❌ 페이지 연결 정보 업데이트 실패:', error);
       throw error;
     }
   }

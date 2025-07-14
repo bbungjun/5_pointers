@@ -8,7 +8,7 @@ import {
 } from '../config';
 import googleLoginImg from '../assets/web_light_sq_ctn@1x.png';
 import kakaoLoginImg from '../assets/kakao_login_medium_narrow.png';
-import ddukddakLogo from '../assets/page-cube-logo.png';
+const ddukddakLogo = '/ddukddak-logo.png';
 
 function MainPage({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -48,23 +48,23 @@ function MainPage({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-center border border-blue-200/30">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-center border border-pink-200/30">
         <div className="mb-8">
           {/* 로고 영역 */}
           <div className="mb-6">
             <img
               src={ddukddakLogo}
               alt="DdukDdak"
-              className="w-20 h-20 mx-auto mb-4 object-contain"
+              className="w-60 h-60 mx-auto mb-4 object-contain"
             />
           </div>
 
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3">
-            PAGE CUBE
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-3">
+            뚝딱
           </h1>
           <p className="text-slate-600 text-lg font-medium leading-relaxed">
-            이영준 과자 그만먹어 
+            특별한 순간을 위한 이벤트 페이지 
           </p>
         </div>
 
@@ -76,7 +76,7 @@ function MainPage({ onLogin }) {
               placeholder="이메일"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-300 bg-white/80 backdrop-blur-sm placeholder-slate-400 font-medium"
+              className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all duration-300 bg-white/80 backdrop-blur-sm placeholder-slate-400 font-medium"
               required
             />
           </div>
@@ -87,14 +87,14 @@ function MainPage({ onLogin }) {
               placeholder="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-300 bg-white/80 backdrop-blur-sm placeholder-slate-400 font-medium"
+              className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all duration-300 bg-white/80 backdrop-blur-sm placeholder-slate-400 font-medium"
               required
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border-0 mt-6"
+            className="w-full py-4 px-6 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border-0 mt-6"
           >
             로그인하기
           </button>
@@ -147,9 +147,9 @@ function MainPage({ onLogin }) {
             계정이 없으신가요?{' '}
             <button
               onClick={() => navigate('/signup')}
-              className="text-blue-600 hover:text-indigo-600 font-semibold hover:underline transition-all duration-300"
+              className="text-pink-600 hover:text-rose-600 font-semibold hover:underline transition-all duration-300"
             >
-              가입하고 시작하기
+              지금 시작하기
             </button>
           </p>
         </div>
