@@ -210,7 +210,8 @@ const DynamicPageRenderer = ({
           maxWidth: '100vw',
           minHeight: '100vh',
           background: '#ffffff',
-          overflowX: 'hidden', // 항상 가로 스크롤 방지
+          overflowX: 'hidden', // 가로 스크롤만 방지
+          overflowY: 'auto', // 세로 스크롤 허용
           padding: isMobileView ? '0' : 'unset'
         }}
       >
@@ -219,13 +220,13 @@ const DynamicPageRenderer = ({
           style={{
             position: 'relative',
             zIndex: 1,
-            minHeight: '100vh',
+            minHeight: isMobileView ? '100vh' : 'auto', // 데스크톱에서는 자동 높이
             width: '100%',
             maxWidth: '100%',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'flex-start',
-            overflow: 'hidden',
+            overflow: 'visible', // 스크롤 허용
             padding: '0', // 패딩 완전 제거
           }}>
           {components && components.length > 0 ? (
