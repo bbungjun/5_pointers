@@ -30,10 +30,10 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
         contentColor = "#4A4A4A",
         contentAlign = comp.props.contentAlign || comp.props.textAlign || "center",
         backgroundColor = "#FAF9F6",
-        noBorder = true,
-        borderColor = "#BDB5A6",
-        borderWidth = "1px",
-        borderRadius = 0
+        noBorder = comp.props?.noBorder !== undefined ? comp.props.noBorder : true,
+        borderColor = comp.props?.borderColor || "#BDB5A6",
+        borderWidth = comp.props?.borderWidth || "1px",
+        borderRadius = comp.props?.borderRadius || 0
     } = comp.props;
 
     // px 변환
@@ -46,7 +46,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
             style={{
                 padding: 40,
                 background: backgroundColor,
-                borderRadius: 0,
+                borderRadius: borderRadius,
                 width: '100%',
                 height: '100%',
                 minWidth: 200,
