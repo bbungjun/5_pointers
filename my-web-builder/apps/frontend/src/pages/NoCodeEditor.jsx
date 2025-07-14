@@ -600,6 +600,7 @@ function NoCodeEditor({ pageId }) {
             UserCursor={UserCursor}
             getComponentDimensions={getComponentDimensions}
             updateCursorPosition={throttledUpdateCursorPosition}
+            pageId={pageId}
             onAddSection={(sectionY) =>
               actions.handleAddSection(
                 sectionY,

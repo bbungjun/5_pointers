@@ -117,6 +117,7 @@ const CanvasArea = forwardRef(
       getComponentDimensions,
       onPageChange,
       containerRef, // NoCodeEditor로부터 받음
+      pageId, // 페이지 ID prop 추가
     },
     ref
   ) => {
@@ -796,6 +797,7 @@ const CanvasArea = forwardRef(
                     getComponentDimensions={getComponentDimensions}
                     canvasHeight={canvasHeight} // 확장된 캔버스 높이 전달
                     updateCursorPosition={updateCursorPosition} // 협업 커서 위치 업데이트 함수 전달
+                    pageId={pageId} // 페이지 ID 전달
                   />
                 );
               })}

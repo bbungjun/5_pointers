@@ -16,6 +16,15 @@ function DeployedPage({ user, onLogout }) {
     title: '',
   });
 
+  // 참석 의사 확인 모달 상태
+  const [attendanceModal, setAttendanceModal] = useState({
+    isOpen: false,
+    pageId: null,
+    title: '',
+    attendanceData: [],
+    loading: false,
+  });
+
   // 내 페이지 목록 조회
   const fetchMyPages = async () => {
     try {
@@ -100,6 +109,84 @@ function DeployedPage({ user, onLogout }) {
   // 삭제 모달 닫기
   const closeDeleteModal = () => {
     setDeleteModal({ isOpen: false, pageId: null, title: '' });
+  };
+
+  // AttendRenderer가 포함된 페이지인지 확인
+  const hasAttendRenderer = (page) => {
+    if (!page.content || !page.content.components) return false;
+    return page.content.components.some(component => component.type === 'attend');
+  };
+
+  // 참석 의사 데이터 조회
+  const fetchAttendanceData = async (pageId) => {
+    try {
+      setAttendanceModal(prev => ({ ...prev, loading: true }));
+      const token = localStorage.getItem('token');
+      
+      // 먼저 페이지의 모든 attend 컴포넌트를 찾기
+      const page = myPages.find(p => p.id === pageId);
+      if (!page || !page.content || !page.content.components) {
+        throw new Error('페이지 데이터를 찾을 수 없습니다.');
+      }
+
+      const attendComponents = page.content.components.filter(comp => comp.type === 'attend');
+      const allAttendanceData = [];
+
+      // 각 attend 컴포넌트별로 데이터 조회
+      for (const component of attendComponents) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/users/pages/${pageId}/attendance/${component.id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            allAttendanceData.push({
+              componentId: component.id,
+              componentTitle: component.props?.buttonText || '참석 의사 전달',
+              submissions: data,
+            });
+          }
+        } catch (error) {
+          console.error(`컴포넌트 ${component.id} 데이터 조회 실패:`, error);
+        }
+      }
+
+      setAttendanceModal(prev => ({
+        ...prev,
+        attendanceData: allAttendanceData,
+        loading: false,
+      }));
+    } catch (error) {
+      console.error('참석 의사 데이터 조회 실패:', error);
+      setAttendanceModal(prev => ({ ...prev, loading: false }));
+      alert('참석 의사 데이터를 불러오는데 실패했습니다.');
+    }
+  };
+
+  // 참석 의사 확인 모달 열기
+  const openAttendanceModal = async (pageId, title) => {
+    setAttendanceModal({
+      isOpen: true,
+      pageId,
+      title,
+      attendanceData: [],
+      loading: true,
+    });
+    await fetchAttendanceData(pageId);
+  };
+
+  // 참석 의사 확인 모달 닫기
+  const closeAttendanceModal = () => {
+    setAttendanceModal({
+      isOpen: false,
+      pageId: null,
+      title: '',
+      attendanceData: [],
+      loading: false,
+    });
   };
 
   // 페이지 삭제 실행
@@ -250,6 +337,19 @@ function DeployedPage({ user, onLogout }) {
         >
           보기
         </button>
+        {/* AttendRenderer가 포함된 페이지에만 참석 의사 확인 버튼 표시 */}
+        {hasAttendRenderer(page) && (
+          <button
+            onClick={() => openAttendanceModal(page.id, page.title)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-1"
+            title="참석 의사 확인"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v1M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            참석 확인
+          </button>
+        )}
       </div>
     </div>
   );
@@ -472,6 +572,154 @@ function DeployedPage({ user, onLogout }) {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 참석 의사 확인 모달 */}
+      {attendanceModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-slate-800">
+                참석 의사 확인 - {attendanceModal.title}
+              </h3>
+              <button
+                onClick={closeAttendanceModal}
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {attendanceModal.loading ? (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 mx-auto mb-4">
+                  <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                </div>
+                <p className="text-slate-600 font-medium">참석 데이터를 불러오는 중...</p>
+              </div>
+            ) : attendanceModal.attendanceData.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v1M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                </div>
+                <p className="font-medium text-slate-800 mb-2">아직 참석 의사가 전달되지 않았습니다</p>
+                <p className="text-slate-600">참석자들이 의사를 전달하면 여기에 표시됩니다.</p>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {attendanceModal.attendanceData.map((componentData, index) => (
+                  <div key={componentData.componentId} className="border border-slate-200 rounded-xl p-6">
+                    <h4 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                      <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
+                        {index + 1}
+                      </span>
+                      {componentData.componentTitle}
+                      <span className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                        {componentData.submissions.length}명 참석
+                      </span>
+                    </h4>
+
+                    {componentData.submissions.length === 0 ? (
+                      <p className="text-slate-500 italic">아직 참석 의사가 전달되지 않았습니다.</p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200">
+                              <th className="text-left p-3 font-semibold text-slate-700">참석자</th>
+                              <th className="text-left p-3 font-semibold text-slate-700">구분</th>
+                              <th className="text-left p-3 font-semibold text-slate-700">인원</th>
+                              <th className="text-left p-3 font-semibold text-slate-700">연락처</th>
+                              <th className="text-left p-3 font-semibold text-slate-700">동행인</th>
+                              <th className="text-left p-3 font-semibold text-slate-700">식사</th>
+                              <th className="text-left p-3 font-semibold text-slate-700">등록일</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {componentData.submissions.map((submission, idx) => (
+                              <tr key={submission.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                                <td className="p-3 font-medium text-slate-800">{submission.attendeeName}</td>
+                                <td className="p-3">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    submission.guestSide === '신부측' 
+                                      ? 'bg-pink-100 text-pink-700' 
+                                      : 'bg-blue-100 text-blue-700'
+                                  }`}>
+                                    {submission.guestSide}
+                                  </span>
+                                </td>
+                                <td className="p-3">{submission.attendeeCount}명</td>
+                                <td className="p-3 text-slate-600">{submission.contact || '-'}</td>
+                                <td className="p-3">{submission.companionCount}명</td>
+                                <td className="p-3">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    submission.mealOption === '식사함' 
+                                      ? 'bg-green-100 text-green-700' 
+                                      : submission.mealOption === '식사안함'
+                                      ? 'bg-red-100 text-red-700'
+                                      : 'bg-gray-100 text-gray-700'
+                                  }`}>
+                                    {submission.mealOption || '미정'}
+                                  </span>
+                                </td>
+                                <td className="p-3 text-slate-600">
+                                  {new Date(submission.createdAt).toLocaleDateString('ko-KR')}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* 통계 요약 */}
+                    {componentData.submissions.length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-blue-600">
+                            {componentData.submissions.length}
+                          </div>
+                          <div className="text-sm text-slate-600">총 참석자</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-pink-600">
+                            {componentData.submissions.filter(s => s.guestSide === '신부측').length}
+                          </div>
+                          <div className="text-sm text-slate-600">신부측</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-blue-600">
+                            {componentData.submissions.filter(s => s.guestSide === '신랑측').length}
+                          </div>
+                          <div className="text-sm text-slate-600">신랑측</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-600">
+                            {componentData.submissions.reduce((sum, s) => sum + (s.attendeeCount || 0) + (s.companionCount || 0), 0)}
+                          </div>
+                          <div className="text-sm text-slate-600">총 인원</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={closeAttendanceModal}
+                    className="px-6 py-3 bg-slate-600 text-white rounded-xl font-medium hover:bg-slate-700 transition-colors"
+                  >
+                    닫기
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
