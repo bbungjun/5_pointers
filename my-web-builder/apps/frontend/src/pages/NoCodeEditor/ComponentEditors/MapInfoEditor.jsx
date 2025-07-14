@@ -5,6 +5,7 @@ import {
   FontFamilyEditor,
   TextStyleEditor,
   ColorEditor,
+  SelectEditor,
   BorderEditor
 } from '../PropertyEditors';
 
