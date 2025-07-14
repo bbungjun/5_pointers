@@ -101,7 +101,7 @@ function KakaoMapView({
     <div>
       <div
         ref={mapRef}
-        style={{ width: `${comp?.width || width || 300}px`, height: `${comp?.height || height || 200}px`, borderRadius: 8, border: '1px solid #ccc' }}
+        style={{ width: `${comp?.width || width || 300}px`, height: `${comp?.height || height || 200}px`, borderRadius: 0, border: '1px solid #ccc' }}
       />
     </div>
   );
