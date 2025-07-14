@@ -33,14 +33,14 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('pages/my-pages')
   async getMyPages(@Request() req) {
-    return this.usersService.getMyPagesForNavigation(req.user.id, req.query.currentPageId);
+    return this.usersService.getMyPagesForNavigation(req.user.userId, req.query.currentPageId);
   }
 
   // 페이지 단일 조회 API
   @UseGuards(JwtAuthGuard)
   @Get('pages/:pageId')
   async getPage(@Request() req, @Param('pageId') pageId: string) {
-    return this.usersService.getPage(req.user.id, pageId);
+    return this.usersService.getPage(req.user.userId, pageId);
   }
 
   // 페이지 제목 수정 API
@@ -51,7 +51,7 @@ export class UsersController {
     @Param('pageId') pageId: string,
     @Body() body: { title: string },
   ) {
-    return this.usersService.updatePageTitle(req.user.id, pageId, body.title);
+    return this.usersService.updatePageTitle(req.user.userId, pageId, body.title);
   }
 
   // 페이지 컨텐츠 업데이트 API (Y.js 백업용)
@@ -72,7 +72,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Delete('pages/:pageId')
   async deletePage(@Request() req, @Param('pageId') pageId: string) {
-    return this.usersService.deletePage(req.user.id, pageId);
+    return this.usersService.deletePage(req.user.userId, pageId);
   }
 
   // 페이지 생성 API 리팩토링
@@ -82,7 +82,7 @@ export class UsersController {
     @Request() req,
     @Body() body: { subdomain?: string; title?: string; templateId?: string },
   ) {
-    return this.usersService.createPage(req.user.id, body);
+    return this.usersService.createPage(req.user.userId, body);
   }
 
   // 🖼️ 이미지 업로드 엔드포인트
@@ -171,7 +171,11 @@ export class UsersController {
 
     fs.writeFileSync(filePath, file.buffer);
 
-    return `/uploads/images/${year}/${month}/${day}/${filename}`;
+    const baseUrl = process.env.NODE_ENV === 'production'
+      ? 'https://ddukddak.org'
+      : 'http://localhost:3000';
+
+    return `${baseUrl}/uploads/images/${year}/${month}/${day}/${filename}`;
   }
 
   @Post('pages/:pageId/deploy')

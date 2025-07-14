@@ -178,10 +178,14 @@ function InvitationNotifications() {
     if (!userId) return;
 
     // WebSocket 연결
+    const baseUrl = API_BASE_URL.replace('/api', '');
     const socketUrl = API_BASE_URL.replace('http', 'ws');
     const newSocket = io(`${socketUrl}/invite`, {
       query: { userId },
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
+      forceNew: true,
+      timeout: 10000,
+      autoConnect: true
     });
 
     newSocket.on('connect', () => {
