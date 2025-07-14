@@ -239,7 +239,10 @@ function DeployedPage({ user, onLogout }) {
       </div>
       <div className="flex gap-2">
         <button
-          onClick={() => navigate(`/editor/${page.id}`)}
+          onClick={() => {
+            const viewport = page.editingMode === 'mobile' ? 'mobile' : 'desktop';
+            navigate(`/editor/${page.id}?viewport=${viewport}`);
+          }}
           className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
         >
           편집하기
