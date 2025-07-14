@@ -254,6 +254,32 @@ function DraftsPage({ user, onLogout }) {
                       ) : (
                         <h3 className="text-lg font-bold text-slate-800 mb-2 line-clamp-2">{page.title || '제목 없음'}</h3>
                       )}
+                      
+                      {/* 뷰포트 표시 */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          page.editingMode === 'mobile' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {page.editingMode === 'mobile' ? (
+                            <>
+                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z" clipRule="evenodd" />
+                              </svg>
+                              모바일
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
+                              </svg>
+                              데스크톱
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      
                       <p className="text-sm text-slate-600">
                         마지막 수정: {new Date(page.updatedAt).toLocaleDateString()}
                       </p>

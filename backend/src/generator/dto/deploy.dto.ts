@@ -14,4 +14,7 @@ export interface DeployDto {
 
   /** 사용자가 입력한 커스텀 도메인 이름 */
   domain?: string;
+
+  /** 편집 기준 (desktop | mobile) */
+  editingMode?: 'desktop' | 'mobile';
 }

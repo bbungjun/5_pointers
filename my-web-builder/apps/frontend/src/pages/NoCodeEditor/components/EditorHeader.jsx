@@ -305,7 +305,7 @@ function EditorHeader({
         isDeploying={isDeploying}
         deployedUrl={deployedUrl}
         onDeploy={(domain) => {
-          handleDeploy(components, roomId, domain);
+          handleDeploy(components, roomId, domain, designMode);
         }}
       />
     </div>

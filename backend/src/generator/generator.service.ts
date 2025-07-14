@@ -17,7 +17,7 @@ export class GeneratorService {
    * @returns 배포된 사이트의 URL
    */
   async deploy(deployDto: DeployDto): Promise<{ url: string }> {
-    const { projectId, userId, components } = deployDto;
+    const { projectId, userId, components, editingMode } = deployDto;
 
 
     // 1. projectId 유효성 확인
@@ -76,12 +76,14 @@ export class GeneratorService {
             title: 'Deployed Page',
             status: PageStatus.DEPLOYED,
             userId: numericUserId,
+            editingMode: editingMode || 'desktop', // 편집 기준 저장
           });
           await this.pagesRepository.save(page);
         } else {
           // 기존 프로젝트의 서브도메인 변경
           page.subdomain = subdomain;
           page.status = PageStatus.DEPLOYED;
+          page.editingMode = editingMode || page.editingMode || 'desktop'; // 편집 기준 업데이트
           await this.pagesRepository.save(page);
         }
       }
@@ -104,6 +106,7 @@ export class GeneratorService {
       page.content = { components };
       page.deployedAt = new Date(); // 배포 시간 업데이트
       page.status = PageStatus.DEPLOYED; // 상태 명시적으로 설정
+      page.editingMode = editingMode || page.editingMode || 'desktop'; // 편집 기준 업데이트
       
       console.log('🚀 배포 저장 전 페이지 상태:', {
         id: page.id,
@@ -199,11 +202,10 @@ export class GeneratorService {
         throw new NotFoundException(`Subdomain "${subdomain}" not found`);
       }
 
-      // content 컬럼에서 컴포넌트 데이터와 페이지 ID, editingMode 반환
+      // content 컬럼에서 컴포넌트 데이터와 페이지 ID 반환
       return {
         components: page.content?.components || [],
         pageId: page.id,
-        editingMode: page.editingMode || 'desktop', // editingMode 추가
       };
     } catch (error) {
       throw error;
