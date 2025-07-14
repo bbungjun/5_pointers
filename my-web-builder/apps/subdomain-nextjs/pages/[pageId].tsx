@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 
@@ -74,14 +74,17 @@ const DynamicPageRenderer = ({
   components,
   pageId,
   subdomain,
+  editingMode = 'desktop',
 }: {
   components: ComponentData[];
   pageId: string;
   subdomain?: string;
+  editingMode?: 'desktop' | 'mobile';
 }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [scaleFactor, setScaleFactor] = useState(1);
+  const containerRef = useRef(null); // 컨테이너 참조 추가
 
   useEffect(() => {
     setIsMounted(true);
@@ -90,11 +93,15 @@ const DynamicPageRenderer = ({
       const isMobile = window.innerWidth <= 768;
       setIsMobileView(isMobile);
       
-      // 모바일에서만 375px 기준으로 스케일 계산
-      if (isMobile) {
-        const currentWidth = window.innerWidth;
+      // 모바일 화면 + 모바일 편집 페이지인 경우에만 스케일링 적용
+      if (isMobile && editingMode === 'mobile') {
+        // 실제 컨테이너 너비 측정
+        const actualWidth = containerRef.current 
+          ? containerRef.current.offsetWidth 
+          : window.innerWidth;
+        
         const baseWidth = 375;
-        const newScaleFactor = currentWidth / baseWidth;
+        const newScaleFactor = actualWidth / baseWidth;
         setScaleFactor(newScaleFactor);
       } else {
         setScaleFactor(1);
@@ -105,7 +112,7 @@ const DynamicPageRenderer = ({
     window.addEventListener('resize', checkViewport);
 
     return () => window.removeEventListener('resize', checkViewport);
-  }, []);
+  }, [editingMode]);
 
   if (!isMounted) {
     return (
@@ -207,60 +214,155 @@ const DynamicPageRenderer = ({
           padding: isMobileView ? '0' : 'unset'
         }}
       >
-        <div style={{
-          position: 'relative',
-          zIndex: 1,
-          minHeight: '100vh',
-          width: '100%',
-          maxWidth: '100%',
-          width: '100%',
-          display: isMobileView ? 'flex' : 'block',
-          flexDirection: isMobileView ? 'column' : 'unset',
-          alignItems: isMobileView ? 'center' : 'unset',
-        }}>
+        <div 
+          ref={containerRef}
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            minHeight: '100vh',
+            width: '100%',
+            maxWidth: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            overflow: 'hidden',
+            padding: '0', // 패딩 완전 제거
+          }}>
           {components && components.length > 0 ? (
             isMobileView ? (
-              rows?.map((row, rowIndex) => (
-                <div key={rowIndex} style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  flexWrap: 'wrap',
-                  alignItems: 'flex-start'
-                }}>
-                  {row.map((comp) => {
-                    console.log('🔍 Rendering component:', comp.type, comp.id);
-                    const RendererComponent = getRendererByType(comp.type);
-                    if (!RendererComponent) {
-                      console.warn('❌ No renderer found for type:', comp.type);
-                      return null;
-                    }
-                    
+              // 모바일 화면에서의 조건부 렌더링
+              editingMode === 'mobile' ? (
+                // 모바일 편집 페이지: CSS Transform 스케일링
+                (() => {
+                  // 컨테이너 높이 계산 (가장 아래 컴포넌트 기준)
+                  const maxY = Math.max(...components.map(comp => {
                     const defaultSize = getComponentDefaultSize(comp.type);
-                    const originalWidth = comp.width || defaultSize.width;
-                    const originalHeight = comp.height || defaultSize.height;
-                    
-                    return (
-                      <div key={comp.id} className="component-wrapper" style={{
-                        transform: `scale(${scaleFactor})`,
-                        transformOrigin: 'top center',
-                        width: `${originalWidth}px`,
-                        height: `${originalHeight}px`,
-                        marginBottom: `${16 * scaleFactor}px`,
-                        display: 'flex',
-                        justifyContent: 'center'
-                      }}>
-                        <RendererComponent
-                          {...comp.props}
-                          comp={{ ...comp, width: originalWidth, height: originalHeight }}
-                          mode="live"
-                          isEditor={false}
-                          pageId={pageId}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              ))
+                    return (comp.y || 0) + (comp.height || defaultSize.height);
+                  }));
+                  const containerHeight = Math.max(maxY + 50, 600); // 최소 높이 600px
+                  
+                  return (
+                    <div style={{
+                      width: '100%', // 화면에 꽉 참
+                      height: `${containerHeight}px`,
+                      position: 'relative',
+                    }}>
+                      {components.map((comp) => {
+                        const RendererComponent = getRendererByType(comp.type);
+                        if (!RendererComponent) {
+                          console.warn('❌ No renderer found for type:', comp.type);
+                          return null;
+                        }
+                        
+                        // 화면 너비에 맞춰 컴포넌트 크기 및 위치 조정
+                        const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
+                        const baseWidth = 375;
+                        const scaleFactor = screenWidth / baseWidth;
+                        
+                        // 화면에 꽉 차도록 컴포넌트 크기 조정
+                        const originalWidth = screenWidth;
+                        const originalHeight = comp.height || defaultSize.height;
+                        
+                        return (
+                          <div key={comp.id} className="component-wrapper" style={{
+                            position: 'absolute',
+                            left: '0', // 왼쪽 끝에 배치
+                            top: `${(comp.y || 0) * scaleFactor}px`, // Y 좌표도 스케일링 적용
+                            width: `${originalWidth}px`, // 화면 너비와 동일
+                            height: `${originalHeight}px`,
+                          }}>
+                            {(() => {
+                              try {
+                                return (
+                                  <RendererComponent
+                                    {...comp.props}
+                                    comp={{ ...comp, width: originalWidth, height: originalHeight }}
+                                    mode="live"
+                                    isEditor={false}
+                                    pageId={pageId}
+                                  />
+                                );
+                              } catch (error) {
+                                console.error('❌ Error rendering mobile component:', comp.type, comp.id, error);
+                                return (
+                                  <div style={{ 
+                                    padding: '10px', 
+                                    border: '2px dashed #ff6b6b', 
+                                    color: '#ff6b6b',
+                                    textAlign: 'center',
+                                    fontSize: '12px'
+                                  }}>
+                                    Error: {comp.type}
+                                  </div>
+                                );
+                              }
+                            })()}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
+              ) : (
+                // 데스크톱 편집 페이지: 기존 행 그룹화 방식
+                rows?.map((row, rowIndex) => (
+                  <div key={rowIndex} style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    flexWrap: 'wrap',
+                    alignItems: 'flex-start'
+                  }}>
+                    {row.map((comp) => {
+                      console.log('🔍 Rendering desktop-edited component:', comp.type, comp.id);
+                      const RendererComponent = getRendererByType(comp.type);
+                      if (!RendererComponent) {
+                        console.warn('❌ No renderer found for type:', comp.type);
+                        return null;
+                      }
+                      
+                      const defaultSize = getComponentDefaultSize(comp.type);
+                      const originalWidth = comp.width || defaultSize.width;
+                      const originalHeight = comp.height || defaultSize.height;
+                      
+                      return (
+                        <div key={comp.id} className="component-wrapper" style={{
+                          width: `min(${originalWidth}px, 90vw)`,
+                          height: `${originalHeight}px`,
+                          marginBottom: '16px',
+                          display: 'flex',
+                          justifyContent: 'center'
+                        }}>
+                          {(() => {
+                            try {
+                              return (
+                                <RendererComponent
+                                  {...comp.props}
+                                  comp={{ ...comp, width: originalWidth, height: originalHeight }}
+                                  mode="live"
+                                  isEditor={false}
+                                  pageId={pageId}
+                                />
+                              );
+                            } catch (error) {
+                              console.error('❌ Error rendering component:', comp.type, comp.id, error);
+                              return (
+                                <div style={{ 
+                                  padding: '20px', 
+                                  border: '2px dashed #ff6b6b', 
+                                  color: '#ff6b6b',
+                                  textAlign: 'center'
+                                }}>
+                                  Error rendering {comp.type}
+                                </div>
+                              );
+                            }
+                          })()}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))
+              )
             ) : (
               sortedComponents?.map((comp) => {
                 console.log('🔍 Desktop rendering component:', comp.type, comp.id);
@@ -353,6 +455,7 @@ interface PageProps {
   pageData: {
     components: ComponentData[];
     pageId?: string;
+    editingMode?: 'desktop' | 'mobile';
   } | null;
   pageId: string;
 }
@@ -388,6 +491,7 @@ const RenderedPage = ({ pageData, pageId, subdomain }: PageProps & { subdomain?:
       components={pageData.components}
       pageId={pageData.pageId || pageId}
       subdomain={subdomain}
+      editingMode={pageData.editingMode}
     />
   );
 };
@@ -413,6 +517,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (subdomain === 'test123' || subdomain === 'demo' || subdomain === 'test') {
       const mockPageData = {
         pageId: subdomain,
+        editingMode: 'mobile', // 테스트를 위해 mobile로 설정
         components: [
           {
             id: 'test-button-1',
@@ -425,6 +530,75 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
               text: '테스트 버튼',
               bg: '#3B4EFF',
               color: '#fff'
+            }
+          },
+          {
+            id: 'test-text-1',
+            type: 'text',
+            x: 50,
+            y: 120,
+            width: 275,
+            height: 40,
+            props: {
+              text: '모바일 편집 테스트 텍스트입니다',
+              fontSize: 16,
+              color: '#333'
+            }
+          },
+          {
+            id: 'test-image-1',
+            type: 'image',
+            x: 50,
+            y: 180,
+            width: 275,
+            height: 200,
+            props: {
+              src: 'https://via.placeholder.com/275x200/FF6B6B/FFFFFF?text=Test+Image',
+              alt: '테스트 이미지'
+            }
+          }
+        ]
+      };
+
+      return {
+        props: {
+          pageData: mockPageData,
+          pageId: subdomain,
+          subdomain,
+        },
+      };
+    }
+
+    // 데스크톱 편집 테스트용 mock 데이터
+    if (subdomain === 'desktop-test') {
+      const mockPageData = {
+        pageId: subdomain,
+        editingMode: 'desktop', // 데스크톱 편집 테스트
+        components: [
+          {
+            id: 'desktop-button-1',
+            type: 'button',
+            x: 100,
+            y: 50,
+            width: 200,
+            height: 60,
+            props: {
+              text: '데스크톱 버튼',
+              bg: '#FF6B6B',
+              color: '#fff'
+            }
+          },
+          {
+            id: 'desktop-text-1',
+            type: 'text',
+            x: 100,
+            y: 130,
+            width: 400,
+            height: 50,
+            props: {
+              text: '데스크톱 편집 테스트 텍스트입니다',
+              fontSize: 18,
+              color: '#333'
             }
           }
         ]
@@ -471,11 +645,22 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       pageData.components = [];
     }
 
+    // 컴포넌트 크기 데이터 확인
+    console.log('🔧 API에서 받은 컴포넌트 데이터:', pageData.components.map(comp => ({
+      id: comp.id,
+      type: comp.type,
+      width: comp.width,
+      height: comp.height,
+      x: comp.x,
+      y: comp.y
+    })));
+
     return {
       props: {
         pageData: {
           components: pageData.components,
-          pageId: pageData.pageId || subdomain
+          pageId: pageData.pageId || subdomain,
+          editingMode: pageData.editingMode || 'desktop' // editingMode 추가
         },
         pageId: subdomain,
         subdomain,

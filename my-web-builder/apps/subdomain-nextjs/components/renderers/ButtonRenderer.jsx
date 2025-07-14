@@ -33,12 +33,9 @@ const pxToVw = (px, minPx, maxPx) => {
   return `${vw.toFixed(4)}vw`;
 };
 
-import { useResponsive } from '../../hooks/useResponsive';
-
 function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPreview = false, editingViewport = 'desktop' }) {
   // comp 또는 component 중 하나를 사용 (하위 호환성)
   const actualComp = comp || component;
-  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, actualComp?.width, actualComp?.height);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(actualComp?.props?.text || '');
   const inputRef = useRef();
@@ -98,19 +95,19 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         style={{
-          fontSize: isLiveMode ? pxToVw(actualComp?.props?.fontSize || 18, 14, 22) : (actualComp?.props?.fontSize || 18) + 'px',
+          fontSize: mode === 'live' ? pxToVw(actualComp?.props?.fontSize || 18, 14, 22) : (actualComp?.props?.fontSize || 18) + 'px',
           fontFamily: fontStyle,
           textAlign: textAlign,
           lineHeight: lineHeight,
-          letterSpacing: isLiveMode ? pxToVw(letterSpacing) : letterSpacing + 'px',
+          letterSpacing: mode === 'live' ? pxToVw(letterSpacing) : letterSpacing + 'px',
           fontWeight: fontWeight,
           textDecoration: textDecoration,
           transform: italicTransform,
           width: '100%',
           height: '100%',
           border: '1px solid #000000',
-          borderRadius: isLiveMode ? pxToVw(4) : '4px',
-          padding: isLiveMode ? `${pxToVw(8)} ${pxToVw(12)}` : '8px 12px',
+          borderRadius: mode === 'live' ? pxToVw(4) : '4px',
+          padding: mode === 'live' ? `${pxToVw(8)} ${pxToVw(12)}` : '8px 12px',
           boxSizing: 'border-box'
         }}
       />
@@ -123,8 +120,8 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
     <div 
       ref={buttonRef}
       style={{
-        width: isLiveMode ? responsiveWidth : '100%', 
-        height: isLiveMode ? responsiveHeight : '100%',
+        width: `${actualComp?.width || 150}px`, 
+        height: `${actualComp?.height || 50}px`,
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: textAlign === 'left' ? 'flex-start' : 
@@ -144,7 +141,7 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
         userSelect: 'none',
         textTransform: 'none',
         lineHeight: lineHeight,
-        letterSpacing: isLiveMode ? pxToVw(letterSpacing) : letterSpacing + 'px',
+        letterSpacing: mode === 'live' ? pxToVw(letterSpacing) : letterSpacing + 'px',
         padding: 0,
         boxSizing: 'border-box',
         textAlign: textAlign,
@@ -157,7 +154,7 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
         style={{
           display: 'inline-block', // 핵심!
           textAlign: textAlign,
-          letterSpacing: isLiveMode ? pxToVw(letterSpacing) : letterSpacing + 'px',
+          letterSpacing: mode === 'live' ? pxToVw(letterSpacing) : letterSpacing + 'px',
           lineHeight: lineHeight,
           fontWeight: fontWeight,
           textDecoration: textDecoration,
@@ -165,9 +162,9 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
           overflow: 'visible',
           whiteSpace: 'pre-wrap',
           textIndent: textAlign === 'center' && letterSpacing !== 0 ? 
-                     (isLiveMode ? pxToVw(letterSpacing / 2) : (letterSpacing / 2) + 'px') : '0',
+                     (mode === 'live' ? pxToVw(letterSpacing / 2) : (letterSpacing / 2) + 'px') : '0',
           marginRight: textAlign === 'center' && letterSpacing !== 0 ? 
-                      (isLiveMode ? pxToVw(-letterSpacing / 2) : (-letterSpacing / 2) + 'px') : '0'
+                      (mode === 'live' ? pxToVw(-letterSpacing / 2) : (-letterSpacing / 2) + 'px') : '0'
         }}
       >
         {textContent}

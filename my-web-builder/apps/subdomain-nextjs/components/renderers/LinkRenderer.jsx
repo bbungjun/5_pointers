@@ -1,14 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 function LinkRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
   
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
       
       const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
       };
       
       window.addEventListener('resize', handleResize);
@@ -86,7 +83,7 @@ function LinkRenderer({ comp, isEditor = false, mode = 'live', width, height }) 
       className={`${isEditor ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
       style={{
         color: comp.props.color || '#D8BFD8', 
-        fontSize: isLiveMode ? `clamp(${Math.max(10, (comp.props.fontSize || 16) * 0.7)}px, ${((comp.props.fontSize || 16) / 375) * 100}vw, ${comp.props.fontSize || 16}px)` : comp.props.fontSize || '16px',
+        fontSize: mode === 'live' ? `clamp(${Math.max(10, (comp.props.fontSize || 16) * 0.7)}px, ${((comp.props.fontSize || 16) / 375) * 100}vw, ${comp.props.fontSize || 16}px)` : comp.props.fontSize || '16px',
         whiteSpace: 'pre-wrap',
         textDecoration: 'underline',
         fontFamily: comp.props.fontFamily || 'Montserrat, sans-serif'

@@ -21,14 +21,11 @@
 import React, { useState, useEffect, useRef } from "react";
 
 function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
   
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
       
       const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
       };
       
       window.addEventListener('resize', handleResize);
@@ -124,7 +121,7 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
     flexDirection: "column",
     boxSizing: "border-box",
     padding: "12px",
-    ...(isLiveMode ? {
+    ...(mode === 'live' ? {
       width: "100%",
       height: "auto",
       minHeight: comp.height + "px"

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useResponsive } from '../../hooks/useResponsive';
 
 function CommentRenderer({ comp, mode = 'live', pageId }) {
   const { title, placeholder, backgroundColor } = comp.props;
-  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width, comp.height);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
     author: '',
@@ -121,8 +119,8 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
   return (
     <div
       style={{
-        width: isLiveMode ? responsiveWidth : '100%',
-        height: isLiveMode ? responsiveHeight : '100%',
+        width: `${actualComp?.width || comp?.width || 300}px`,
+        height: `${actualComp?.height || comp?.height || 200}px`,
         borderRadius: 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
@@ -130,14 +128,14 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
         flexDirection: 'column',
         overflow: 'auto',
         fontFamily: fontFamily,
-        padding: isLiveMode ? 'clamp(12px, 3vw, 24px)' : '24px',
+        padding: mode === 'live' ? 'clamp(12px, 3vw, 24px)' : '24px',
       }}
     >
       <h3
         style={{
-          fontSize: isLiveMode ? 'clamp(16px, 4vw, 18px)' : '18px',
+          fontSize: mode === 'live' ? 'clamp(16px, 4vw, 18px)' : '18px',
           fontWeight: fontWeight === 'bold' ? 'bold' : '600',
-          marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+          marginBottom: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
           color: comp.props?.color || '#1f2937',
           whiteSpace: 'pre-wrap',
           fontFamily: fontFamily,
@@ -155,18 +153,18 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       <form
         onSubmit={handleSubmitComment}
         style={{
-          marginBottom: isLiveMode ? 'clamp(16px, 4vw, 24px)' : '24px',
-          padding: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+          marginBottom: mode === 'live' ? 'clamp(16px, 4vw, 24px)' : '24px',
+          padding: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
           backgroundColor: '#f9fafb',
-          borderRadius: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+          borderRadius: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
         }}
       >
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: isLiveMode ? 'clamp(8px, 2vw, 12px)' : '12px',
-            marginBottom: isLiveMode ? 'clamp(8px, 2vw, 12px)' : '12px',
+            gap: mode === 'live' ? 'clamp(8px, 2vw, 12px)' : '12px',
+            marginBottom: mode === 'live' ? 'clamp(8px, 2vw, 12px)' : '12px',
           }}
         >
           <input
@@ -177,10 +175,10 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               setNewComment({ ...newComment, author: e.target.value })
             }
             style={{
-              padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
+              padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
               border: '1px solid #d1d5db',
-              borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
-              fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+              borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
+              fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
               outline: 'none',
             }}
           />
@@ -192,10 +190,10 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               setNewComment({ ...newComment, password: e.target.value })
             }
             style={{
-              padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
+              padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
               border: '1px solid #d1d5db',
-              borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
-              fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+              borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
+              fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
               outline: 'none',
             }}
           />
@@ -208,13 +206,13 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
           }
           style={{
             width: '100%',
-            padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
+            padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
             border: '1px solid #d1d5db',
-            borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
-            fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+            borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
+            fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
             outline: 'none',
             resize: 'none',
-            minHeight: isLiveMode ? 'clamp(50px, 12vw, 80px)' : '80px',
+            minHeight: mode === 'live' ? 'clamp(50px, 12vw, 80px)' : '80px',
             whiteSpace: 'pre-wrap',
             boxSizing: 'border-box'
           }}
@@ -223,10 +221,10 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
         <button
           type="submit"
           style={{
-            marginTop: isLiveMode ? 'clamp(8px, 2vw, 12px)' : '12px',
-            padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
-            borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
-            fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+            marginTop: mode === 'live' ? 'clamp(8px, 2vw, 12px)' : '12px',
+            padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
+            borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
+            fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
             border: 'none',
             cursor: 'pointer',
             backgroundColor: '#2563eb',
@@ -240,13 +238,13 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       </form>
 
       {/* 댓글 목록 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: isLiveMode ? 'clamp(8px, 2vw, 12px)' : '12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: mode === 'live' ? 'clamp(8px, 2vw, 12px)' : '12px' }}>
         {comments.length === 0 ? (
           <div
             style={{
               textAlign: 'center',
               color: '#6b7280',
-              padding: isLiveMode ? 'clamp(24px, 6vw, 32px) 0' : '32px 0',
+              padding: mode === 'live' ? 'clamp(24px, 6vw, 32px) 0' : '32px 0',
             }}
           >
             첫 번째 댓글을 남겨보세요!
@@ -257,31 +255,31 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               key={comment.id}
               style={{
                 position: 'relative',
-                padding: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+                padding: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
                 backgroundColor: '#ffffff',
                 border: '1px solid #e5e7eb',
-                borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
+                borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
               }}
             >
               <button
                 onClick={() => setShowDeleteModal(comment.id)}
                 style={{
                   position: 'absolute',
-                  top: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
-                  right: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
-                  width: isLiveMode ? 'clamp(20px, 5vw, 24px)' : '24px',
-                  height: isLiveMode ? 'clamp(20px, 5vw, 24px)' : '24px',
+                  top: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+                  right: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+                  width: mode === 'live' ? 'clamp(20px, 5vw, 24px)' : '24px',
+                  height: mode === 'live' ? 'clamp(20px, 5vw, 24px)' : '24px',
                   color: '#9ca3af',
                   cursor: 'pointer',
                   border: 'none',
                   background: 'none',
-                  fontSize: isLiveMode ? 'clamp(14px, 3.5vw, 16px)' : '16px',
+                  fontSize: mode === 'live' ? 'clamp(14px, 3.5vw, 16px)' : '16px',
                   transition: 'color 0.2s',
                 }}
               >
                 ×
               </button>
-              <div style={{ paddingRight: isLiveMode ? 'clamp(24px, 6vw, 32px)' : '32px' }}>
+              <div style={{ paddingRight: mode === 'live' ? 'clamp(24px, 6vw, 32px)' : '32px' }}>
                 <div
                   style={{
                     fontWeight: fontWeight === 'bold' ? 'bold' : '500',
@@ -299,7 +297,7 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                 <div
                   style={{
                     color: comp.props?.color || '#4b5563',
-                    fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+                    fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
                     lineHeight: lineHeight,
                     whiteSpace: 'pre-wrap',
                     fontFamily: fontFamily,
@@ -313,9 +311,9 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                 </div>
                 <div
                   style={{
-                    fontSize: isLiveMode ? 'clamp(10px, 2.5vw, 12px)' : '12px',
+                    fontSize: mode === 'live' ? 'clamp(10px, 2.5vw, 12px)' : '12px',
                     color: '#9ca3af',
-                    marginTop: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+                    marginTop: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
                   }}
                 >
                   {new Date(comment.createdAt).toLocaleDateString()}
@@ -345,16 +343,16 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
           <div
             style={{
               backgroundColor: '#ffffff',
-              padding: isLiveMode ? 'clamp(16px, 4vw, 24px)' : '24px',
-              borderRadius: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
-              width: isLiveMode ? 'clamp(250px, 70vw, 320px)' : '320px',
+              padding: mode === 'live' ? 'clamp(16px, 4vw, 24px)' : '24px',
+              borderRadius: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+              width: mode === 'live' ? 'clamp(250px, 70vw, 320px)' : '320px',
             }}
           >
             <h3
               style={{
-                fontSize: isLiveMode ? 'clamp(16px, 4vw, 18px)' : '18px',
+                fontSize: mode === 'live' ? 'clamp(16px, 4vw, 18px)' : '18px',
                 fontWeight: '600',
-                marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+                marginBottom: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
                 whiteSpace: 'pre-wrap',
               }}
             >
@@ -363,7 +361,7 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
             <p
               style={{
                 color: '#4b5563',
-                marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+                marginBottom: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
                 whiteSpace: 'pre-wrap',
               }}
             >
@@ -376,12 +374,12 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               onChange={(e) => setDeletePassword(e.target.value)}
               style={{
                 width: '100%',
-                padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
+                padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
                 border: '1px solid #d1d5db',
-                borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
-                marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+                borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
+                marginBottom: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
                 outline: 'none',
-                fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+                fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
                 boxSizing: 'border-box'
               }}
               onKeyPress={(e) => e.key === 'Enter' && handleDeleteComment()}
@@ -389,21 +387,21 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
             <div
               style={{
                 display: 'flex',
-                gap: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+                gap: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
               }}
             >
               <button
                 onClick={handleDeleteComment}
                 style={{
                   flex: 1,
-                  padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
+                  padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
                   backgroundColor: '#dc2626',
                   color: '#ffffff',
-                  borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
+                  borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',
-                  fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+                  fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
                   whiteSpace: 'pre-wrap',
                 }}
               >
@@ -416,14 +414,14 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                 }}
                 style={{
                   flex: 1,
-                  padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
+                  padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
                   backgroundColor: '#d1d5db',
                   color: '#374151',
-                  borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : '6px',
+                  borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',
-                  fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+                  fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
                   whiteSpace: 'pre-wrap',
                 }}
               >

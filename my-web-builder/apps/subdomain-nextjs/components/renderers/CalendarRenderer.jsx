@@ -1,9 +1,7 @@
 import React from 'react';
-import { useResponsive } from '../../hooks/useResponsive';
 
 function CalendarRenderer({ comp, mode = 'live' }) {
   const { weddingDate, title, highlightColor } = comp.props;
-  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width, comp.height);
   
   // 날짜 파싱
   const targetDate = new Date(weddingDate);
@@ -40,23 +38,23 @@ function CalendarRenderer({ comp, mode = 'live' }) {
   
   return (
     <div style={{
-      width: isLiveMode ? responsiveWidth : (comp.width || 350),
-      height: isLiveMode ? responsiveHeight : (comp.height || 400),
+      width: `${actualComp?.width || comp?.width || 300}px`,
+      height: `${actualComp?.height || comp?.height || 200}px`,
       backgroundColor: 'white',
       borderRadius: 0,
       boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
       display: 'flex',
       flexDirection: 'column',
-      minHeight: isLiveMode ? 'clamp(250px, 60vw, 300px)' : '300px',
-      padding: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+      minHeight: mode === 'live' ? 'clamp(250px, 60vw, 300px)' : '300px',
+      padding: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
       boxSizing: 'border-box'
     }}>
       {title && (
         <h3 style={{
-          fontSize: isLiveMode ? 'clamp(16px, 4vw, 18px)' : '18px',
+          fontSize: mode === 'live' ? 'clamp(16px, 4vw, 18px)' : '18px',
           fontWeight: '600',
           textAlign: 'center',
-          marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
+          marginBottom: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
           color: '#1f2937'
         }}>
           {title}
@@ -64,9 +62,9 @@ function CalendarRenderer({ comp, mode = 'live' }) {
       )}
       
       {/* 월/년 헤더 */}
-      <div style={{ textAlign: 'center', marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px' }}>
+      <div style={{ textAlign: 'center', marginBottom: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px' }}>
         <h4 style={{
-          fontSize: isLiveMode ? 'clamp(18px, 4.5vw, 20px)' : '20px',
+          fontSize: mode === 'live' ? 'clamp(18px, 4.5vw, 20px)' : '20px',
           fontWeight: 'bold',
           color: '#374151'
         }}>
@@ -78,16 +76,16 @@ function CalendarRenderer({ comp, mode = 'live' }) {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(7, 1fr)',
-        gap: isLiveMode ? 'clamp(2px, 1vw, 4px)' : '4px',
-        marginBottom: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px'
+        gap: mode === 'live' ? 'clamp(2px, 1vw, 4px)' : '4px',
+        marginBottom: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px'
       }}>
         {dayNames.map(dayName => (
           <div key={dayName} style={{
             textAlign: 'center',
-            fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
+            fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
             fontWeight: '500',
             color: '#6b7280',
-            padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) 0' : '8px 0'
+            padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) 0' : '8px 0'
           }}>
             {dayName}
           </div>
@@ -98,7 +96,7 @@ function CalendarRenderer({ comp, mode = 'live' }) {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(7, 1fr)',
-        gap: isLiveMode ? 'clamp(2px, 1vw, 4px)' : '4px',
+        gap: mode === 'live' ? 'clamp(2px, 1vw, 4px)' : '4px',
         flex: 1
       }}>
         {weeks.map((week, weekIndex) =>
@@ -111,13 +109,13 @@ function CalendarRenderer({ comp, mode = 'live' }) {
               <div
                 key={`${weekIndex}-${dayIndex}`}
                 style={{
-                  height: isLiveMode ? 'clamp(32px, 8vw, 40px)' : '40px',
-                  width: isLiveMode ? 'clamp(32px, 8vw, 40px)' : '40px',
+                  height: mode === 'live' ? 'clamp(32px, 8vw, 40px)' : '40px',
+                  width: mode === 'live' ? 'clamp(32px, 8vw, 40px)' : '40px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px',
-                  borderRadius: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+                  fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
+                  borderRadius: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
                   cursor: 'pointer',
                   color: !isCurrentMonth ? '#d1d5db' : '#374151',
                   backgroundColor: isWeddingDay ? highlightColor : 
@@ -130,8 +128,8 @@ function CalendarRenderer({ comp, mode = 'live' }) {
                 {isWeddingDay && (
                   <div style={{
                     position: 'absolute',
-                    marginTop: isLiveMode ? 'clamp(24px, 6vw, 32px)' : '32px',
-                    fontSize: isLiveMode ? 'clamp(10px, 2.5vw, 12px)' : '12px',
+                    marginTop: mode === 'live' ? 'clamp(24px, 6vw, 32px)' : '32px',
+                    fontSize: mode === 'live' ? 'clamp(10px, 2.5vw, 12px)' : '12px',
                     textAlign: 'center'
                   }}>
                     💒
@@ -144,9 +142,9 @@ function CalendarRenderer({ comp, mode = 'live' }) {
       </div>
       
       {/* 웨딩 날짜 표시 */}
-      <div style={{ marginTop: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px', textAlign: 'center' }}>
+      <div style={{ marginTop: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px', textAlign: 'center' }}>
         <div style={{ 
-          fontSize: isLiveMode ? 'clamp(12px, 3vw, 14px)' : '14px', 
+          fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px', 
           color: '#6b7280' 
         }}>
           Wedding Date: <span style={{ fontWeight: '600', color: highlightColor }}>

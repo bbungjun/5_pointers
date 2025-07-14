@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 export default function WeddingInviteRenderer({ comp, mode = 'live', width, height }) {
-    const [isLiveMode, setIsLiveMode] = useState(false);
     
     useEffect(() => {
         if (mode === 'live' && typeof window !== 'undefined') {
-            setIsLiveMode(window.innerWidth <= 768);
             
             const handleResize = () => {
-                setIsLiveMode(window.innerWidth <= 768);
             };
             
             window.addEventListener('resize', handleResize);
@@ -68,7 +65,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'live', width, heig
                 boxShadow: '0 8px 32px rgba(189, 181, 166, 0.15)',
                 width: '100%',
                 height: '100%',
-                ...(isLiveMode ? {
+                ...(mode === 'live' ? {
                     borderRadius: 0,
                     padding: `clamp(16px, 6vw, 40px)`,
                     minWidth: `clamp(120px, 40vw, 200px)`,
@@ -85,12 +82,12 @@ export default function WeddingInviteRenderer({ comp, mode = 'live', width, heig
             <div
                 style={{
                     fontFamily: titleFontFamily,
-                    fontSize: isLiveMode ? `clamp(${Math.max(16, titleFontSize * 0.7)}px, ${(titleFontSize / 375) * 100}vw, ${titleFontSize}px)` : toPx(titleFontSize),
+                    fontSize: mode === 'live' ? `clamp(${Math.max(16, titleFontSize * 0.7)}px, ${(titleFontSize / 375) * 100}vw, ${titleFontSize}px)` : toPx(titleFontSize),
                     fontStyle: titleFontStyle,
                     fontWeight: titleFontWeight,
                     textDecoration: titleTextDecoration,
                     color: titleColor,
-                    marginBottom: isLiveMode ? `clamp(14px, 5vw, 28px)` : 28,
+                    marginBottom: mode === 'live' ? `clamp(14px, 5vw, 28px)` : 28,
                     textAlign: titleAlign,
                     width: '100%',
                     letterSpacing: 1,
@@ -107,7 +104,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'live', width, heig
             <div
                 style={{
                     fontFamily: contentFontFamily,
-                    fontSize: isLiveMode ? `clamp(${Math.max(12, contentFontSize * 0.7)}px, ${(contentFontSize / 375) * 100}vw, ${contentFontSize}px)` : toPx(contentFontSize),
+                    fontSize: mode === 'live' ? `clamp(${Math.max(12, contentFontSize * 0.7)}px, ${(contentFontSize / 375) * 100}vw, ${contentFontSize}px)` : toPx(contentFontSize),
                     fontWeight: contentFontWeight,
                     fontStyle: contentFontStyle,
                     textDecoration: contentTextDecoration,
@@ -122,7 +119,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'live', width, heig
             >
                 {contentLines.map((line, idx) => (
                     <div key={idx} style={{ 
-                        minHeight: isLiveMode ? `clamp(12px, 4vw, 24px)` : 24, 
+                        minHeight: mode === 'live' ? `clamp(12px, 4vw, 24px)` : 24, 
                         whiteSpace: 'pre-wrap' 
                     }}>
                         {line && line.trim().length > 0 ? line : <span style={{ opacity: 0.3 }}>　</span>}

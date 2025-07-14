@@ -1,8 +1,6 @@
 import React from 'react';
-import { useResponsive } from '../../hooks/useResponsive';
 
 export default function MapInfoRenderer({ comp, mode = 'live' }) {
-  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width, comp.height);
   const {
     containerWidth = comp.width || 300,
     containerHeight = comp.height || 275,
@@ -28,8 +26,8 @@ export default function MapInfoRenderer({ comp, mode = 'live' }) {
         padding: '28px 24px',
         background: `linear-gradient(135deg, ${bgColor} 0%, #f9f9f9 100%)`,
         borderRadius: '0px',
-        width: responsiveWidth || '100%',
-        height: responsiveHeight || '100%',
+        width: `${comp?.width || 300}px`,
+        height: `${comp?.height || 200}px`,
         boxSizing: 'border-box',
         overflow: 'hidden',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',

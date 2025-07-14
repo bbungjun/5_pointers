@@ -18,20 +18,6 @@
 import React, { useState, useEffect } from "react";
 
 function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
-  
-  useEffect(() => {
-    if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
-      
-      const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
-      };
-      
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [mode]);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageSize, setImageSize] = useState(0);
@@ -109,7 +95,7 @@ function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
     backgroundColor,
     boxSizing: "border-box",
     overflow: "hidden",
-    ...(isLiveMode ? {
+    ...(mode === 'live' ? {
       borderRadius: `clamp(${Math.max(2, borderRadius * 0.7)}px, ${(borderRadius / 375) * 100}vw, ${borderRadius}px)`,
       padding: `clamp(${Math.max(2, gap * 0.7)}px, ${(gap / 375) * 100}vw, ${gap}px)`
     } : {

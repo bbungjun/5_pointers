@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { useResponsive } from '../../hooks/useResponsive';
 
 function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', setModalOpen }) {
   const { title, groomSide, brideSide, backgroundColor } = comp.props;
   const [groomModalOpen, setGroomModalOpen] = useState(false);
   const [brideModalOpen, setBrideModalOpen] = useState(false);
-  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width, comp.height);
   const ref = useRef();
 
   useEffect(() => {
@@ -184,7 +182,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
     <div
       ref={ref}
       style={{
-        width: isLiveMode ? responsiveWidth : '100%',
+        width: `${actualComp?.width || comp?.width || 300}px`,
         padding: '12px',
         borderRadius: 0,
         border: '1px solid #e5e7eb',
