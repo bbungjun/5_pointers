@@ -25,7 +25,7 @@ export default function MapInfoRenderer({ comp, mode = 'editor' }) {
       style={{
         padding: '28px 24px',
         background: `linear-gradient(135deg, ${bgColor} 0%, #f9f9f9 100%)`,
-        borderRadius: '16px',
+        borderRadius: '0px',
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
