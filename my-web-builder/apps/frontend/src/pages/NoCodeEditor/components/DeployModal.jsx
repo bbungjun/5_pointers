@@ -57,7 +57,7 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
               color: '#1f2937',
             }}
           >
-            🚀 사이트 배포
+            내가 만든 페이지 게시
           </h2>
           <button
             onClick={onClose}

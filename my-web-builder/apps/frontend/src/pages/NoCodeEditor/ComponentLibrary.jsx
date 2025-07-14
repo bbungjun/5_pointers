@@ -59,8 +59,8 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
             top: '20px',
             width: '28px',
             height: '76px',
-            backgroundColor: '#3B4EFF',
-            border: 'none',
+            backgroundColor: '#ffffff',
+            border: '2px solid #f9a8d4',
             borderLeft: 'none',
             borderTopRightRadius: '8px',
             borderBottomRightRadius: '8px',
@@ -68,21 +68,23 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
+            boxShadow: '2px 0 8px rgba(236, 72, 153, 0.2)',
             zIndex: 10,
             transition: 'all 0.2s ease'
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = '#5560FF';
-            e.target.style.boxShadow = '2px 0 12px rgba(0,0,0,0.15)';
+            e.target.style.backgroundColor = '#fdf2f8';
+            e.target.style.borderColor = '#ec4899';
+            e.target.style.boxShadow = '2px 0 12px rgba(236, 72, 153, 0.3)';
           }}
           onMouseLeave={(e) => {
-            e.target.style.backgroundColor = '#3B4EFF';
-            e.target.style.boxShadow = '2px 0 8px rgba(0,0,0,0.1)';
+            e.target.style.backgroundColor = '#ffffff';
+            e.target.style.borderColor = '#f9a8d4';
+            e.target.style.boxShadow = '2px 0 8px rgba(236, 72, 153, 0.2)';
           }}
           title="컴포넌트 라이브러리 열기"
         >
-          <span style={{ fontSize: '14px', color: '#ffffff' }}>▶</span>
+          <span style={{ fontSize: '14px', color: '#ec4899' }}>▶</span>
         </button>
       </div>
     );
@@ -134,8 +136,8 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
           top: '0',
           width: '28px',
           height: '76px',
-          backgroundColor: '#3B4EFF',
-          border: 'none',
+          backgroundColor: '#ffffff',
+          border: '2px solid #f9a8d4',
           borderLeft: 'none',
           borderTopRightRadius: '8px',
           borderBottomRightRadius: '8px',
@@ -143,18 +145,20 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
+          boxShadow: '2px 0 8px rgba(236, 72, 153, 0.2)',
           zIndex: 10,
           transition: 'all 0.2s ease',
-          color: '#ffffff'
+          color: '#ec4899'
         }}
         onMouseEnter={(e) => {
-          e.target.style.backgroundColor = '#5560FF';
-          e.target.style.boxShadow = '2px 0 12px rgba(0,0,0,0.15)';
+          e.target.style.backgroundColor = '#fdf2f8';
+          e.target.style.borderColor = '#ec4899';
+          e.target.style.boxShadow = '2px 0 12px rgba(236, 72, 153, 0.3)';
         }}
         onMouseLeave={(e) => {
-          e.target.style.backgroundColor = '#3B4EFF';
-          e.target.style.boxShadow = '2px 0 8px rgba(0,0,0,0.1)';
+          e.target.style.backgroundColor = '#ffffff';
+          e.target.style.borderColor = '#f9a8d4';
+          e.target.style.boxShadow = '2px 0 8px rgba(236, 72, 153, 0.2)';
         }}
         title="컴포넌트 라이브러리 토글"
       >

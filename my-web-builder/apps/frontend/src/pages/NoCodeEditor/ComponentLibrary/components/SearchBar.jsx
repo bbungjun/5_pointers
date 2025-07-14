@@ -12,23 +12,28 @@ function SearchBar({ searchTerm, onSearchChange }) {
         display: 'flex',
         alignItems: 'center'
       }}>
-        {/* 검색 아이콘과 X 아이콘을 담는 컨테이너 */}
+        {/* 검색 아이콘 */}
         <div style={{
           position: 'absolute',
           left: '12px',
           top: '50%',
           transform: 'translateY(-50%)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
           zIndex: 1
         }}>
           <span style={{ color: '#6b7280', fontSize: '16px' }}>
             🔍
           </span>
-          
-          {/* 검색어가 있을 때 지우기 버튼 */}
-          {searchTerm && (
+        </div>
+        
+        {/* 검색어가 있을 때 지우기 버튼 (오른쪽) */}
+        {searchTerm && (
+          <div style={{
+            position: 'absolute',
+            right: '12px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 1
+          }}>
             <button
               onClick={() => onSearchChange('')}
               style={{
@@ -56,8 +61,8 @@ function SearchBar({ searchTerm, onSearchChange }) {
             >
               ✕
             </button>
-          )}
-        </div>
+          </div>
+        )}
         
         <input
           type="text"
@@ -66,7 +71,7 @@ function SearchBar({ searchTerm, onSearchChange }) {
           onChange={(e) => onSearchChange(e.target.value)}
           style={{
             width: '100%',
-            padding: '12px 12px 12px 40px',
+            padding: '12px 40px 12px 40px',
             border: '2px solid #e5e7eb',
             borderRadius: '8px',
             fontSize: '14px',

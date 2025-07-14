@@ -516,7 +516,7 @@ function DashboardPage({ user, onLogout }) {
                           </svg>
                         </div>
                         <div>
-                          <h3 className="text-sm font-bold text-slate-800">임시 저장</h3>
+                          <h3 className="text-sm font-bold text-slate-800">제작중인 페이지</h3>
                           <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
                             {myPages.filter((page) => page.status === 'DRAFT').length}개
                           </span>
@@ -581,7 +581,7 @@ function DashboardPage({ user, onLogout }) {
                         )}
                         {!pagesLoading && myPages.filter((page) => page.status === 'DRAFT').length === 0 && (
                           <div className="text-center py-3 text-slate-500 text-sm">
-                            임시 저장된 페이지가 없습니다
+                            제작중인 페이지가 없습니다.
                           </div>
                         )}
                       </div>
@@ -596,7 +596,7 @@ function DashboardPage({ user, onLogout }) {
                           </svg>
                         </div>
                         <div>
-                          <h3 className="text-sm font-bold text-slate-800">배포된 페이지</h3>
+                          <h3 className="text-sm font-bold text-slate-800">최종 완료된 페이지</h3>
                           <span className="ml-2 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
                             {myPages.filter((page) => page.status === 'DEPLOYED').length}개
                           </span>
@@ -661,7 +661,7 @@ function DashboardPage({ user, onLogout }) {
                         )}
                         {!pagesLoading && myPages.filter((page) => page.status === 'DEPLOYED').length === 0 && (
                           <div className="text-center py-3 text-slate-500 text-sm">
-                            배포된 페이지가 없습니다
+                            최종 완료된 페이지가 없습니다
                           </div>
                         )}
                       </div>

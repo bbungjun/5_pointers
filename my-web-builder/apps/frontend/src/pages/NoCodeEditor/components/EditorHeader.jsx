@@ -150,12 +150,12 @@ n          {/* 페이지 네비게이션 */}
         <button
           onClick={onInviteOpen}
           className="
-            px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800
+            px-4 py-2 bg-white border border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700
             font-medium rounded-lg transition-colors duration-200
             flex items-center whitespace-nowrap text-sm
           "
         >
-          <span className="material-symbols-outlined text-xl" title="공유" aria-label="공유">group_add</span>
+          <span className="material-symbols-outlined text-base" title="공유" aria-label="공유">group_add</span>
         </button>
 
         {/* 미리보기 버튼 */}
@@ -181,7 +181,7 @@ n          {/* 페이지 네비게이션 */}
             flex items-center whitespace-nowrap text-sm
           "
         >
-          뚝딱 게시
+          게시
         </button>
       </div>
       {/* 배포 모달 */}
