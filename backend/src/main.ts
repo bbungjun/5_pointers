@@ -34,14 +34,16 @@ async function bootstrap() {
         'http://127.0.0.1:5174',
         'http://localhost:3000',
         'http://localhost:3001',
-        'http://127.0.0.1:5173',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:3001'
       ].flat().filter(Boolean);
       
 
 
       const subdomainPatterns = [
         /^https?:\/\/[^.]+\.ddukddak\.org$/,
-        /^https?:\/\/[^.]+\.localhost:\d+$/
+        /^https?:\/\/[^.]+\.localhost:\d+$/,
+        /^http:\/\/127\.0\.0\.1:\d+$/ // 127.0.0.1의 모든 포트 허용
       ];
       
       console.log('[CORS] 요청 Origin:', origin);

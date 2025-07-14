@@ -157,6 +157,91 @@ export class UsersService {
     return page;
   }
 
+  // 페이지 멤버 목록 조회
+  async getPageMembers(pageId: string, userId: number): Promise<any[]> {
+    // 먼저 페이지 정보와 소유자 정보 가져오기
+    let page = await this.pagesRepository.findOne({
+      where: { id: pageId },
+      relations: ['owner'],
+    });
+
+    if (!page) {
+      throw new Error('Page not found');
+    }
+
+    // 페이지 소유자인지 확인
+    const isOwner = page.owner.id === userId;
+
+    // 페이지 소유자가 아니면 멤버 권한 확인
+    if (!isOwner) {
+      const pageMembersRepository =
+        this.pagesRepository.manager.getRepository('PageMembers');
+      const member = await pageMembersRepository.findOne({
+        where: {
+          page: { id: pageId },
+          user: { id: userId },
+          status: 'ACCEPTED',
+        },
+      });
+
+      if (!member) {
+        throw new Error('Page not found');
+      }
+    }
+
+    // 페이지 멤버 목록 가져오기 (초대받은 사람들)
+    const pageMembersRepository =
+      this.pagesRepository.manager.getRepository('PageMembers');
+    const invitedMembers = await pageMembersRepository.find({
+      where: { page: { id: pageId } },
+      relations: ['user'],
+      order: { createdAt: 'ASC' },
+    });
+
+    // 초대받은 멤버들 매핑
+    const invitedMembersList = invitedMembers.map((member) => {
+      // 초대 상태에 따라 다른 표시
+      let displayName = '알 수 없음';
+      let displayEmail = member.email;
+      
+      if (member.status === 'ACCEPTED' && member.user) {
+        // 초대를 수락한 경우: 사용자 닉네임 표시
+        displayName = member.user.nickname;
+        displayEmail = member.user.email;
+      } else if (member.status === 'PENDING') {
+        // 초대 대기 중인 경우: 이메일 주소 표시
+        displayName = member.email ? member.email.split('@')[0] : '알 수 없음';
+        displayEmail = member.email;
+      }
+      
+      return {
+        id: member.id,
+        email: displayEmail,
+        userId: member.user?.id,
+        nickname: displayName,
+        role: member.role,
+        status: member.status,
+        createdAt: member.createdAt,
+        isOwner: false,
+      };
+    });
+
+    // 페이지 소유자 정보 추가
+    const ownerMember = {
+      id: `owner-${page.owner.id}`,
+      email: page.owner.email,
+      userId: page.owner.id,
+      nickname: page.owner.nickname,
+      role: 'OWNER',
+      status: 'ACCEPTED',
+      createdAt: page.createdAt,
+      isOwner: true,
+    };
+
+    // 소유자를 맨 앞에, 나머지는 생성일 순으로 정렬
+    return [ownerMember, ...invitedMembersList];
+  }
+
   // 페이지 제목 수정
   async updatePageTitle(
     userId: number,

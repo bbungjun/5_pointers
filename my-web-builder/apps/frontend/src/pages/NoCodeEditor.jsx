@@ -56,6 +56,9 @@ function NoCodeEditor({ pageId }) {
   // 다중 선택 관련 상태
   const [selectedIds, setSelectedIds] = useState([]);
   const [clipboard, setClipboard] = useState([]);
+  
+  // 멤버 목록 새로고침 함수 (useCallback으로 관리)
+  const [refetchMembers, setRefetchMembers] = useState(() => () => {});
 
   // 1. 데이터 로딩 및 상태 관리
   const {
@@ -425,6 +428,11 @@ function NoCodeEditor({ pageId }) {
         isAdmin={isAdmin}
         templateCategory={templateCategory}
         isFromTemplate={isFromTemplate}
+        onMembersRefetch={(refetchFn) => {
+          if (typeof refetchFn === 'function') {
+            setRefetchMembers(() => refetchFn);
+          }
+        }}
       />
 
       {/* 저장 상태 표시 */}
@@ -550,6 +558,13 @@ function NoCodeEditor({ pageId }) {
         isOpen={interaction.isInviteOpen}
         onClose={interaction.handleInviteClose}
         pageId={pageId}
+        onInviteSuccess={() => {
+          // 초대 성공 시 멤버 목록 새로고침
+          if (typeof refetchMembers === 'function') {
+            refetchMembers();
+            console.log('초대 성공! 멤버 목록을 새로고침합니다.');
+          }
+        }}
       />
 
       {/* WebSocket 연결 안내 UI */}

@@ -24,7 +24,7 @@ const PageNavigation = ({ currentPageId }) => {
       if (response.ok) {
         const data = await response.json();
         setUserPages(data);
-        console.log('페이지 목록 조회 성공:', data.length, '개');
+        // console.log('페이지 목록 조회 성공:', data.length, '개');
       } else {
         console.error('페이지 목록 조회 실패:', response.status);
       }
