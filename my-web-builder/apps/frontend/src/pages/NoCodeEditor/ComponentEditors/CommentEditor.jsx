@@ -7,9 +7,9 @@ import {
   TextStyleEditor, 
   ColorEditor, 
   SelectEditor, 
-  NumberEditor 
+  NumberEditor,
+  BorderEditor,
 } from '../PropertyEditors';
-import BorderEditor from '../PropertyEditors/BorderEditor';
 
 function CommentEditor({ selectedComp, onUpdate }) {
   const {

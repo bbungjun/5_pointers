@@ -18,3 +18,4 @@ export { default as ThumbnailEditor } from "./ThumbnailEditor";
 export { default as TextAreaEditor } from "./TextAreaEditor";
 export { default as SelectEditor } from "./SelectEditor";
 export { default as ColorPaletteEditor } from "./ColorPaletteEditor";
+export { default as BorderEditor } from "./BorderEditor";

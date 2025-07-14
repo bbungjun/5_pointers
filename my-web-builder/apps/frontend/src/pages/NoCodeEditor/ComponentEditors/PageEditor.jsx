@@ -6,9 +6,9 @@ import {
   ThumbnailEditor,
   ColorEditor,
   NumberEditor,
-  SelectEditor
+  SelectEditor,
+  BorderEditor
 } from '../PropertyEditors';
-import BorderEditor from '../PropertyEditors/BorderEditor';
 
 const PageEditor = ({ selectedComp, onUpdate }) => {
   const [localProps, setLocalProps] = useState(selectedComp.props || {});

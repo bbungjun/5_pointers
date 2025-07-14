@@ -5,9 +5,9 @@ import {
   FontFamilyEditor,
   TextStyleEditor,
   ColorEditor,
-  TextAlignEditor
+  TextAlignEditor,
+  BorderEditor
 } from '../PropertyEditors';
-import BorderEditor from '../PropertyEditors/BorderEditor';
 
 function WeddingInviteEditor({ selectedComp, onUpdate }) {
   const {

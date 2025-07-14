@@ -4,9 +4,9 @@ import {
   NumberEditor,
   FontFamilyEditor,
   TextStyleEditor,
-  ColorEditor
+  ColorEditor,
+  BorderEditor
 } from '../PropertyEditors';
-import BorderEditor from '../PropertyEditors/BorderEditor';
 
 function MapInfoEditor({ selectedComp, onUpdate }) {
   const {

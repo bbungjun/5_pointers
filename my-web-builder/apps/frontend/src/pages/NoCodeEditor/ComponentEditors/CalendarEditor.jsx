@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import * as PropertyEditors from '../PropertyEditors';
-import BorderEditor from '../PropertyEditors/BorderEditor';
 
 function CalendarEditor({ selectedComp, onUpdate }) {
   const {
