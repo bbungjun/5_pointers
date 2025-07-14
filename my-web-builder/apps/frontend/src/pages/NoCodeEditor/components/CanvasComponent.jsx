@@ -206,6 +206,15 @@ function CanvasComponent({
           />
         );
 
+      case 'text':
+        return (
+          <TextRenderer
+            component={componentWithFinalStyles}
+            isEditor={true}
+            onUpdate={onUpdate}
+          />
+        );
+
       case 'link':
         return (
           <LinkRenderer
@@ -478,7 +487,7 @@ function CanvasComponent({
     if (isResizing) return;
 
     e.stopPropagation();
-    // console.log('드래그 시작:', comp.id, '현재 위치:', currentX, currentY);
+    console.log('드래그 시작:', comp.id, '현재 위치:', currentX, currentY);
     setIsDragging(true);
     setDragStart({
       x: e.clientX,
