@@ -4,9 +4,9 @@ import {
   NumberEditor,
   FontFamilyEditor,
   TextStyleEditor,
-  ColorEditor,
-  SelectEditor
+  ColorEditor
 } from '../PropertyEditors';
+import BorderEditor from '../PropertyEditors/BorderEditor';
 
 function MapInfoEditor({ selectedComp, onUpdate }) {
   const {
@@ -21,7 +21,7 @@ function MapInfoEditor({ selectedComp, onUpdate }) {
     noBorder = true,
     borderColor = '#e5e7eb',
     borderWidth = '1px',
-    borderRadius = 8,
+    borderRadius = 0,
   } = selectedComp.props;
 
   const [localNoBorder, setLocalNoBorder] = useState(noBorder);
@@ -39,12 +39,7 @@ function MapInfoEditor({ selectedComp, onUpdate }) {
         [key]: value
       }
     });
-  };
-
-  // 테두리 제거 체크박스 핸들러
-  const handleNoBorderChange = (e) => {
-    setLocalNoBorder(e.target.checked);
-    updateCommon('noBorder', e.target.checked);
+    if (key === 'noBorder') setLocalNoBorder(!!value);
   };
 
   // 섹션 내용 업데이트
@@ -106,45 +101,14 @@ function MapInfoEditor({ selectedComp, onUpdate }) {
         label="배경색"
       />
 
-      {/* 테두리 옵션 */}
-      <div style={{ margin: '16px 0 8px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <input
-          type="checkbox"
-          checked={localNoBorder}
-          onChange={handleNoBorderChange}
-          id="noBorderCheckbox"
-          style={{ accentColor: '#007bff' }}
-        />
-        <label htmlFor="noBorderCheckbox" style={{ fontSize: 14 }}>테두리 제거</label>
-      </div>
-      {!localNoBorder && (
-        <>
-          <ColorEditor
-            value={borderColor}
-            onChange={v => updateCommon('borderColor', v)}
-            label="테두리 색상"
-          />
-          <SelectEditor
-            value={borderWidth}
-            onChange={v => updateCommon('borderWidth', v)}
-            label="테두리 두께"
-            options={[
-              { value: '1px', label: '1px' },
-              { value: '2px', label: '2px' },
-              { value: '3px', label: '3px' },
-              { value: '4px', label: '4px' }
-            ]}
-          />
-          <NumberEditor
-            value={parseInt(borderRadius) || 8}
-            onChange={v => updateCommon('borderRadius', v)}
-            label="모서리 둥글기"
-            min={0}
-            max={50}
-            suffix="px"
-          />
-        </>
-      )}
+      {/* 테두리 옵션 - BorderEditor로 대체 */}
+      <BorderEditor
+        noBorder={localNoBorder}
+        borderColor={borderColor}
+        borderWidth={borderWidth}
+        borderRadius={borderRadius}
+        onChange={updateCommon}
+      />
 
       <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
 
