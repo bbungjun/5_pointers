@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 function CommentRenderer({ comp, mode = 'live', pageId }) {
+  // 컨테이너 크기 기준으로 스케일 팩터 계산
+  const baseWidth = 375; // 기준 너비
+  const actualWidth = comp.width || baseWidth;
+  const scaleFactor = actualWidth / baseWidth;
+  
   const { title, placeholder, backgroundColor } = comp.props;
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
@@ -119,29 +124,29 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
   return (
     <div
       style={{
-        width: `${actualComp?.width || comp?.width || 300}px`,
-        height: `${actualComp?.height || comp?.height || 200}px`,
-        borderRadius: 0,
+        width: mode === 'live' ? '100%' : `${comp?.width || 300}px`,
+        height: mode === 'live' ? `${(comp?.height || 400) * scaleFactor}px` : `${comp?.height || 200}px`,
+        borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'auto',
         fontFamily: fontFamily,
-        padding: mode === 'live' ? 'clamp(12px, 3vw, 24px)' : '24px',
+        padding: mode === 'live' ? `${24 * scaleFactor}px` : '24px',
       }}
     >
       <h3
         style={{
-          fontSize: mode === 'live' ? 'clamp(16px, 4vw, 18px)' : '18px',
+          fontSize: mode === 'live' ? `${18 * scaleFactor}px` : '18px',
           fontWeight: fontWeight === 'bold' ? 'bold' : '600',
-          marginBottom: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
+          marginBottom: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
           color: comp.props?.color || '#1f2937',
           whiteSpace: 'pre-wrap',
           fontFamily: fontFamily,
           textAlign: textAlign,
           lineHeight: lineHeight,
-          letterSpacing: letterSpacing + 'px',
+          letterSpacing: `${letterSpacing * scaleFactor}px`,
           textDecoration: textDecoration,
           transform: italicTransform,
         }}
@@ -153,18 +158,18 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       <form
         onSubmit={handleSubmitComment}
         style={{
-          marginBottom: mode === 'live' ? 'clamp(16px, 4vw, 24px)' : '24px',
-          padding: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
+          marginBottom: mode === 'live' ? `${24 * scaleFactor}px` : '24px',
+          padding: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
           backgroundColor: '#f9fafb',
-          borderRadius: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+          borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
         }}
       >
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: mode === 'live' ? 'clamp(8px, 2vw, 12px)' : '12px',
-            marginBottom: mode === 'live' ? 'clamp(8px, 2vw, 12px)' : '12px',
+            gap: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
+            marginBottom: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
           }}
         >
           <input
@@ -175,10 +180,10 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               setNewComment({ ...newComment, author: e.target.value })
             }
             style={{
-              padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
+              padding: mode === 'live' ? `${8 * scaleFactor}px ${12 * scaleFactor}px` : '8px 12px',
               border: '1px solid #d1d5db',
-              borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
-              fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
+              borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
+              fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
               outline: 'none',
             }}
           />
@@ -190,10 +195,10 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               setNewComment({ ...newComment, password: e.target.value })
             }
             style={{
-              padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
+              padding: mode === 'live' ? `${8 * scaleFactor}px ${12 * scaleFactor}px` : '8px 12px',
               border: '1px solid #d1d5db',
-              borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
-              fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
+              borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
+              fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
               outline: 'none',
             }}
           />
@@ -206,13 +211,13 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
           }
           style={{
             width: '100%',
-            padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
+            padding: mode === 'live' ? `${8 * scaleFactor}px ${12 * scaleFactor}px` : '8px 12px',
             border: '1px solid #d1d5db',
-            borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
-            fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
+            borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
+            fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
             outline: 'none',
             resize: 'none',
-            minHeight: mode === 'live' ? 'clamp(50px, 12vw, 80px)' : '80px',
+            minHeight: mode === 'live' ? `${80 * scaleFactor}px` : '80px',
             whiteSpace: 'pre-wrap',
             boxSizing: 'border-box'
           }}
@@ -221,10 +226,10 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
         <button
           type="submit"
           style={{
-            marginTop: mode === 'live' ? 'clamp(8px, 2vw, 12px)' : '12px',
-            padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
-            borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
-            fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
+            marginTop: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
+            padding: mode === 'live' ? `${8 * scaleFactor}px ${16 * scaleFactor}px` : '8px 16px',
+            borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
+            fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
             border: 'none',
             cursor: 'pointer',
             backgroundColor: '#2563eb',
@@ -238,13 +243,14 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       </form>
 
       {/* 댓글 목록 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: mode === 'live' ? 'clamp(8px, 2vw, 12px)' : '12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: mode === 'live' ? `${12 * scaleFactor}px` : '12px' }}>
         {comments.length === 0 ? (
           <div
             style={{
               textAlign: 'center',
               color: '#6b7280',
-              padding: mode === 'live' ? 'clamp(24px, 6vw, 32px) 0' : '32px 0',
+              padding: mode === 'live' ? `${32 * scaleFactor}px 0` : '32px 0',
+              fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
             }}
           >
             첫 번째 댓글을 남겨보세요!
@@ -255,41 +261,42 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               key={comment.id}
               style={{
                 position: 'relative',
-                padding: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
+                padding: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
                 backgroundColor: '#ffffff',
                 border: '1px solid #e5e7eb',
-                borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
+                borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
               }}
             >
               <button
                 onClick={() => setShowDeleteModal(comment.id)}
                 style={{
                   position: 'absolute',
-                  top: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
-                  right: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
-                  width: mode === 'live' ? 'clamp(20px, 5vw, 24px)' : '24px',
-                  height: mode === 'live' ? 'clamp(20px, 5vw, 24px)' : '24px',
+                  top: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
+                  right: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
+                  width: mode === 'live' ? `${24 * scaleFactor}px` : '24px',
+                  height: mode === 'live' ? `${24 * scaleFactor}px` : '24px',
                   color: '#9ca3af',
                   cursor: 'pointer',
                   border: 'none',
                   background: 'none',
-                  fontSize: mode === 'live' ? 'clamp(14px, 3.5vw, 16px)' : '16px',
+                  fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
                   transition: 'color 0.2s',
                 }}
               >
                 ×
               </button>
-              <div style={{ paddingRight: mode === 'live' ? 'clamp(24px, 6vw, 32px)' : '32px' }}>
+              <div style={{ paddingRight: mode === 'live' ? `${32 * scaleFactor}px` : '32px' }}>
                 <div
                   style={{
                     fontWeight: fontWeight === 'bold' ? 'bold' : '500',
                     color: comp.props?.color || '#1f2937',
-                    marginBottom: '4px',
+                    marginBottom: `${4 * scaleFactor}px`,
                     fontFamily: fontFamily,
                     textAlign: textAlign,
-                    letterSpacing: letterSpacing + 'px',
+                    letterSpacing: `${letterSpacing * scaleFactor}px`,
                     textDecoration: textDecoration,
                     transform: italicTransform,
+                    fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
                   }}
                 >
                   {comment.author}
@@ -297,12 +304,12 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                 <div
                   style={{
                     color: comp.props?.color || '#4b5563',
-                    fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
+                    fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
                     lineHeight: lineHeight,
                     whiteSpace: 'pre-wrap',
                     fontFamily: fontFamily,
                     textAlign: textAlign,
-                    letterSpacing: letterSpacing + 'px',
+                    letterSpacing: `${letterSpacing * scaleFactor}px`,
                     textDecoration: textDecoration,
                     transform: italicTransform,
                   }}
@@ -311,9 +318,9 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                 </div>
                 <div
                   style={{
-                    fontSize: mode === 'live' ? 'clamp(10px, 2.5vw, 12px)' : '12px',
+                    fontSize: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
                     color: '#9ca3af',
-                    marginTop: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+                    marginTop: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
                   }}
                 >
                   {new Date(comment.createdAt).toLocaleDateString()}

@@ -21,6 +21,10 @@
 import React, { useState, useEffect, useRef } from "react";
 
 function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width, height }) {
+  // 컨테이너 크기 기준으로 스케일 팩터 계산
+  const baseWidth = 375; // 기준 너비
+  const actualWidth = comp.width || baseWidth;
+  const scaleFactor = actualWidth / baseWidth;
   
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
@@ -115,16 +119,16 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
     width: comp.width + "px",
     height: comp.height + "px",
     backgroundColor,
-    borderRadius: 0,
+    borderRadius: `${borderRadius * scaleFactor}px`, // 스케일링 적용
     fontFamily: "system-ui, -apple-system, sans-serif",
     display: "flex",
     flexDirection: "column",
     boxSizing: "border-box",
-    padding: "12px",
+    padding: `${12 * scaleFactor}px`, // 스케일링 적용
     ...(mode === 'live' ? {
       width: "100%",
-      height: "auto",
-      minHeight: comp.height + "px"
+      height: `${(comp.height || containerHeight) * scaleFactor}px`, // 높이 스케일링
+      minHeight: `${(comp.height || containerHeight) * scaleFactor}px` // 최소 높이 스케일링
     } : {})
   };
 
@@ -145,8 +149,8 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: thumbnailGap + "px",
-    padding: "12px",
+    gap: `${thumbnailGap * scaleFactor}px`, // 스케일링 적용
+    padding: `${12 * scaleFactor}px`, // 스케일링 적용
     backgroundColor: "rgba(0, 0, 0, 0.05)",
     overflow: "hidden"
   };
@@ -202,19 +206,19 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
           <div style={{
             textAlign: "center",
             color: "#9ca3af",
-            fontSize: "14px",
+            fontSize: `${14 * scaleFactor}px`, // 스케일링 적용
             fontWeight: "500"
           }}>
             <div style={{
-              width: "48px",
-              height: "48px",
+              width: `${48 * scaleFactor}px`, // 스케일링 적용
+              height: `${48 * scaleFactor}px`, // 스케일링 적용
               backgroundColor: "#f3f4f6",
-              borderRadius: "12px",
+              borderRadius: `${12 * scaleFactor}px`, // 스케일링 적용
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              margin: "0 auto 12px",
-              fontSize: "24px",
+              margin: `0 auto ${12 * scaleFactor}px`, // 스케일링 적용
+              fontSize: `${24 * scaleFactor}px`, // 스케일링 적용
               color: "#d1d5db"
             }}>+</div>
             <div>사진을 추가해주세요</div>
@@ -223,7 +227,7 @@ function SlideGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live',
         {showThumbnails && (
           <div style={thumbnailAreaStyle}>
             <div style={{
-              fontSize: "12px",
+              fontSize: `${12 * scaleFactor}px`, // 스케일링 적용
               color: "#9ca3af",
               textAlign: "center"
             }}>

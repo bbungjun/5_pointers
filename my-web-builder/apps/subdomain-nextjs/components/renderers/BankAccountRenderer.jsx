@@ -2,6 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
 function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', setModalOpen }) {
+  // 컨테이너 크기 기준으로 스케일 팩터 계산
+  const baseWidth = 375; // 기준 너비
+  const actualWidth = comp.width || baseWidth;
+  const scaleFactor = actualWidth / baseWidth;
+  
   const { title, groomSide, brideSide, backgroundColor } = comp.props;
   const [groomModalOpen, setGroomModalOpen] = useState(false);
   const [brideModalOpen, setBrideModalOpen] = useState(false);
@@ -182,13 +187,13 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
     <div
       ref={ref}
       style={{
-        width: `${actualComp?.width || comp?.width || 300}px`,
-        padding: '12px',
-        borderRadius: 0,
+        width: mode === 'live' ? '100%' : `${comp?.width || 300}px`,
+        padding: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
+        borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
-        minWidth: '250px',
-        minHeight: '150px',
+        minWidth: mode === 'live' ? `${250 * scaleFactor}px` : '250px',
+        minHeight: mode === 'live' ? `${150 * scaleFactor}px` : '150px',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative'
@@ -197,10 +202,10 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
       {title && (
         <h3
           style={{
-            fontSize: '18px',
+            fontSize: mode === 'live' ? `${18 * scaleFactor}px` : '18px',
             fontWeight: '600',
             textAlign: 'center',
-            marginBottom: '16px',
+            marginBottom: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
             color: '#4A4A4A',
             whiteSpace: 'pre-wrap',
             fontFamily: 'Playfair Display, serif'
@@ -210,22 +215,23 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
         </h3>
       )}
 
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: mode === 'live' ? `${16 * scaleFactor}px` : '16px' }}>
         <button
           style={{
             width: '100%',
-            padding: '16px 24px',
+            padding: mode === 'live' ? `${16 * scaleFactor}px ${24 * scaleFactor}px` : '16px 24px',
             background: 'linear-gradient(135deg, #87CEEB 0%, #87CEEB 50%, #6CB4D8 100%)',
             color: '#FFFFFF',
-            borderRadius: '8px',
+            borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
             fontWeight: '600',
+            fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
             border: '1px solid rgba(135, 206, 235, 0.3)',
             boxShadow: '0 4px 16px rgba(135, 206, 235, 0.3)',
             transition: 'all 0.3s ease',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px',
+            gap: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
             cursor: 'pointer'
           }}
           onClick={(e) => {
@@ -244,29 +250,30 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
             e.target.style.boxShadow = '0 4px 16px rgba(135, 206, 235, 0.3)';
           }}
         >
-          <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg style={{ width: `${20 * scaleFactor}px`, height: `${20 * scaleFactor}px`, flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
           <span style={{ whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '600', background: 'none', WebkitBackgroundClip: 'unset', WebkitTextFillColor: 'unset' }}>신랑 측 계좌번호</span>
         </button>
       </div>
 
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: mode === 'live' ? `${16 * scaleFactor}px` : '16px' }}>
         <button
           style={{
             width: '100%',
-            padding: '16px 24px',
+            padding: mode === 'live' ? `${16 * scaleFactor}px ${24 * scaleFactor}px` : '16px 24px',
             background: 'linear-gradient(135deg, #D8BFD8 0%, #C8A2C8 50%, #B794B7 100%)',
             color: '#FFFFFF',
-            borderRadius: '8px',
+            borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
             fontWeight: '600',
+            fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
             border: '1px solid rgba(216, 191, 216, 0.3)',
             boxShadow: '0 4px 16px rgba(216, 191, 216, 0.3)',
             transition: 'all 0.3s ease',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px',
+            gap: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
             cursor: 'pointer'
           }}
           onClick={(e) => {
@@ -285,7 +292,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
             e.target.style.boxShadow = '0 4px 16px rgba(216, 191, 216, 0.3)';
           }}
         >
-          <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg style={{ width: `${20 * scaleFactor}px`, height: `${20 * scaleFactor}px`, flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
           <span style={{ whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '600', background: 'none', WebkitBackgroundClip: 'unset', WebkitTextFillColor: 'unset' }}>신부 측 계좌번호</span>
