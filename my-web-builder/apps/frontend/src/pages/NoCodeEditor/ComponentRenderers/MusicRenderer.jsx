@@ -94,7 +94,7 @@ export default function MusicRenderer({ comp, isEditor = false, mode = 'editor' 
                     padding: 0
                 }}
             >
-                {isPlaying ? '⏸' : '▶'}
+                {isPlaying ? '❚❚' : '▶'}
             </button>
         </div>
     );
