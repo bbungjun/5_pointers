@@ -1,4 +1,4 @@
-# PAGE CUBE - Frontend
+# 뚝딱 - Frontend
 
 React + TypeScript + Vite 기반의 웹 빌더 프론트엔드 애플리케이션입니다.
 
@@ -34,7 +34,7 @@ VITE_KAKAO_CLIENT_SECRET=your_kakao_client_secret_here
 VITE_KAKAO_REDIRECT_URI=http://localhost:5173/auth/kakao/callback
 
 # 기타 설정
-VITE_APP_NAME=PAGE CUBE
+VITE_APP_NAME=뚝딱
 VITE_APP_VERSION=1.0.0
 ```
 

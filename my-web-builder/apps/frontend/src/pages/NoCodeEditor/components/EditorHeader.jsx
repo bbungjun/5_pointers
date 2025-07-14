@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NotificationToggle from '../../../components/NotificationToggle';
-import ddukddakLogo from '../../../assets/page-cube-logo.png';
+import ddukddakLogo from '/ddukddak-logo.png';
 import { useDeploy } from '../ComponentLibrary/hooks/useDeploy';
 import DeployModal from './DeployModal';
 import PageNavigation from './PageNavigation';
@@ -46,7 +46,7 @@ function EditorHeader({
     <div
       className="
         h-16 w-full
-        bg-white/95 backdrop-blur-sm border-b border-blue-200/30 
+        bg-pink-50 backdrop-blur-sm border-b border-pink-100 
         flex items-center justify-between px-6
         shadow-sm
       "
@@ -55,8 +55,8 @@ function EditorHeader({
         alignItems: 'center',
         padding: '0 1rem',
         height: '64px',
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid #e5e7eb',
+        backgroundColor: '#fdf2f8',
+        borderBottom: '1px solid #fce7f3',
         color: '#1f2937',
         zIndex: 10,
         position: 'sticky',
@@ -72,12 +72,9 @@ function EditorHeader({
         >
           <img
             src={ddukddakLogo}
-            alt="DdukDdak"
-            className="w-10 h-10 object-contain"
+            alt="뚝딱"
+            className="w-13 h-6 object-contain"
           />
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent whitespace-nowrap">
-            DDUKDDAK
-          </h1>
         </div>
       </div>
 
@@ -165,26 +162,26 @@ n          {/* 페이지 네비게이션 */}
         <button
           onClick={onPreviewOpen}
           className="
-            px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800
+            px-4 py-2 bg-white border border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700
             font-medium rounded-lg transition-colors duration-200
             flex items-center whitespace-nowrap text-sm
           "
         >
-          <span className="material-symbols-outlined text-xl" title="미리보기" aria-label="미리보기">visibility</span>
+          미리보기
         </button>
 
-        {/* 게시 버튼 (최우측, 강조 색상) */}
+        {/* 뚝딱 게시 버튼 (최우측, 강조 색상) */}
         <button
           onClick={() => setShowDeployModal(true)}
           disabled={isDeploying || !components || components.length === 0}
           className="
-            px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600
-            hover:from-blue-700 hover:to-indigo-700 text-white
+            px-4 py-2 bg-gradient-to-r from-pink-500 to-rose-500
+            hover:from-pink-600 hover:to-rose-600 text-white
             font-medium rounded-lg transition-all duration-200
             flex items-center whitespace-nowrap text-sm
           "
         >
-          게시
+          뚝딱 게시
         </button>
       </div>
       {/* 배포 모달 */}

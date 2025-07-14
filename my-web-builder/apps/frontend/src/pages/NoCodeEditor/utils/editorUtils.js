@@ -15,7 +15,7 @@ export function getComponentDimensions(type) {
     gridGallery: { defaultWidth: 375, defaultHeight: 250, minWidth: 200, minHeight: 200 },
     slideGallery: { defaultWidth: 375, defaultHeight: 400, minWidth: 200, minHeight:200 },
     mapInfo: { defaultWidth: 280, defaultHeight: 200, minWidth: 200, minHeight: 120 },
-    calendar: { defaultWidth: 375, defaultHeight: 400, minWidth: 300, minHeight: 350 },
+    calendar: { defaultWidth: 375, defaultHeight: 500, minWidth: 300, minHeight: 350 },
     bankAccount: { defaultWidth: 375, defaultHeight: 200, minWidth: 250, minHeight: 150 },
     comment: { defaultWidth: 375, defaultHeight: 650, minWidth: 250, minHeight: 150 },
     musicPlayer: { defaultWidth: 50, defaultHeight: 50, minWidth: 50, minHeight: 50 },
