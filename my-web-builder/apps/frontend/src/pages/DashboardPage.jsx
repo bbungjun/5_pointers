@@ -25,8 +25,6 @@ function DashboardPage({ user, onLogout }) {
     pageId: null,
     title: '',
   });
-  const [isMyPagesOpen, setIsMyPagesOpen] = useState(false);
-  const dropdownRef = useRef(null);
 
   // 모바일과 데스크톱 템플릿 상태
   const [mobileTemplates, setMobileTemplates] = useState([]);
@@ -47,22 +45,7 @@ function DashboardPage({ user, onLogout }) {
   const mobileItemsPerPage = 4;
   const desktopItemsPerPage = 8;
 
-  // 드롭다운 외부 클릭 감지
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsMyPagesOpen(false);
-      }
-    }
 
-    if (isMyPagesOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isMyPagesOpen]);
 
   const categories = [
     { value: 'all', label: '전체' },
@@ -481,183 +464,63 @@ function DashboardPage({ user, onLogout }) {
 
             {/* 우측 버튼 그룹 */}
             <div className="flex items-center gap-3">
-              {/* 내 페이지 드롭다운 */}
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setIsMyPagesOpen(!isMyPagesOpen)}
-                  className="px-4 py-2 bg-white border border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 group"
-                >
-
-                  내 페이지
-                  <svg className={`w-4 h-4 transition-transform duration-300 ${isMyPagesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* 마이페이지 드롭다운 */}
+              <div className="relative group">
+                <button className="px-4 py-2 bg-white text-slate-600 hover:text-blue-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-blue-200 flex items-center gap-2 group">
+                  <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  마이페이지
+                  <svg className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
+                
+                {/* 드롭다운 메뉴 */}
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <div className="p-2">
+                    {/* 임시 저장 페이지 버튼 */}
+                    <button
+                      onClick={() => navigate('/dashboard/drafts')}
+                      className="w-full px-4 py-3 text-left text-slate-600 hover:text-amber-600 rounded-lg transition-all duration-300 font-medium hover:bg-amber-50 flex items-center gap-3 group"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">제작 중</div>
+                      </div>
+                      <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                        {myPages.filter((page) => page.status === 'DRAFT').length}개
+                      </span>
+                    </button>
 
-                {/* 드롭다운 메뉴는 그대로 유지 */}
-                {isMyPagesOpen && (
-                  <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-slate-200/50 overflow-hidden backdrop-blur-sm z-50">
-                    {/* 임시 저장 섹션 */}
-                    <div className="p-4 border-b border-slate-100">
-                      <div className="flex items-center mb-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center mr-2">
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-bold text-slate-800">임시 저장</h3>
-                          <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
-                            {myPages.filter((page) => page.status === 'DRAFT').length}개
-                          </span>
-                        </div>
-                      </div>
-                      <div className="space-y-2 max-h-48 overflow-y-auto">
-                        {pagesLoading ? (
-                          <div className="text-center py-4">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500 mx-auto"></div>
-                          </div>
-                        ) : (
-                          myPages
-                            .filter((page) => page.status === 'DRAFT')
-                            .map((draft) => (
-                              <div
-                                key={draft.id}
-                                className="p-2 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 border border-amber-200 rounded-lg transition-all duration-300 group"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div 
-                                    className="flex-1 cursor-pointer"
-                                    onClick={() => navigate(`/editor/${draft.id}`)}
-                                  >
-                                    {editingId === draft.id ? (
-                                      <input
-                                        type="text"
-                                        value={editingTitle}
-                                        onChange={(e) => setEditingTitle(e.target.value)}
-                                        onBlur={() => saveEditTitle(draft.id)}
-                                        onKeyPress={(e) => e.key === 'Enter' && saveEditTitle(draft.id)}
-                                        className="w-full px-2 py-1 text-sm border border-amber-300 rounded focus:outline-none focus:border-amber-500"
-                                        autoFocus
-                                      />
-                                    ) : (
-                                      <div className="text-sm font-medium text-slate-700">{draft.title || '제목 없음'}</div>
-                                    )}
-                                    <div className="text-xs text-slate-500 mt-1">
-                                      마지막 수정: {new Date(draft.updatedAt).toLocaleDateString()}
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                      onClick={() => startEditTitle(draft.id, draft.title)}
-                                      className="p-1 text-amber-600 hover:bg-amber-100 rounded"
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                      </svg>
-                                    </button>
-                                    <button
-                                      onClick={() => openDeleteModal(draft.id, draft.title)}
-                                      className="p-1 text-red-600 hover:bg-red-100 rounded"
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                      </svg>
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            ))
-                        )}
-                        {!pagesLoading && myPages.filter((page) => page.status === 'DRAFT').length === 0 && (
-                          <div className="text-center py-3 text-slate-500 text-sm">
-                            임시 저장된 페이지가 없습니다
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    {/* 구분선 */}
+                    <div className="h-px bg-slate-200 my-2"></div>
 
-                    {/* 배포된 페이지 섹션 */}
-                    <div className="p-4">
-                      <div className="flex items-center mb-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg flex items-center justify-center mr-2">
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-bold text-slate-800">배포된 페이지</h3>
-                          <span className="ml-2 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
-                            {myPages.filter((page) => page.status === 'DEPLOYED').length}개
-                          </span>
-                        </div>
+                    {/* 배포된 페이지 버튼 */}
+                    <button
+                      onClick={() => navigate('/dashboard/deployed')}
+                      className="w-full px-4 py-3 text-left text-slate-600 hover:text-emerald-600 rounded-lg transition-all duration-300 font-medium hover:bg-emerald-50 flex items-center gap-3 group"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                       </div>
-                      <div className="space-y-2 max-h-48 overflow-y-auto">
-                        {pagesLoading ? (
-                          <div className="text-center py-4">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-500 mx-auto"></div>
-                          </div>
-                        ) : (
-                          myPages
-                            .filter((page) => page.status === 'DEPLOYED')
-                            .map((pub) => (
-                              <div
-                                key={pub.id}
-                                className="p-2 bg-gradient-to-r from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100 border border-emerald-200 rounded-lg transition-all duration-300 group"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div 
-                                    className="flex-1 cursor-pointer"
-                                    onClick={() => navigate(`/editor/${pub.id}`)}
-                                  >
-                                    {editingId === pub.id ? (
-                                      <input
-                                        type="text"
-                                        value={editingTitle}
-                                        onChange={(e) => setEditingTitle(e.target.value)}
-                                        onBlur={() => saveEditTitle(pub.id)}
-                                        onKeyPress={(e) => e.key === 'Enter' && saveEditTitle(pub.id)}
-                                        className="w-full px-2 py-1 text-sm border border-emerald-300 rounded focus:outline-none focus:border-emerald-500"
-                                        autoFocus
-                                      />
-                                    ) : (
-                                      <div className="text-sm font-medium text-slate-700">{pub.title || '제목 없음'}</div>
-                                    )}
-                                    <div className="text-xs text-slate-500 mt-1">
-                                      배포일: {new Date(pub.deployedAt || pub.updatedAt).toLocaleDateString()}
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                      onClick={() => startEditTitle(pub.id, pub.title)}
-                                      className="p-1 text-emerald-600 hover:bg-emerald-100 rounded"
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                      </svg>
-                                    </button>
-                                    <button
-                                      onClick={() => openDeleteModal(pub.id, pub.title)}
-                                      className="p-1 text-red-600 hover:bg-red-100 rounded"
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                      </svg>
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            ))
-                        )}
-                        {!pagesLoading && myPages.filter((page) => page.status === 'DEPLOYED').length === 0 && (
-                          <div className="text-center py-3 text-slate-500 text-sm">
-                            배포된 페이지가 없습니다
-                          </div>
-                        )}
+                      <div className="flex-1">
+                        <div className="font-medium">배포된 페이지</div>
                       </div>
-                    </div>
+                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
+                        {myPages.filter((page) => page.status === 'DEPLOYED').length}개
+                      </span>
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
 
               {/* 알림 토글 */}

@@ -117,17 +117,6 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
     finalScale = Math.min(scaleX, 0.8);
   }
   
-  // 디버깅을 위한 로그
-  console.log('스케일링 정보:', {
-    editingMode,
-    contentWidth,
-    contentHeight,
-    previewWidth: previewDimensions.width,
-    previewHeight: previewDimensions.height,
-    scaleX,
-    scaleY,
-    finalScale
-  });
 
   return (
     <div className={`relative bg-white rounded-lg overflow-hidden ${className}`}>
@@ -183,8 +172,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                       transformOrigin: 'top left',
                     }}
                   >
-                    {components.map((comp, index) => {
-                      console.log('렌더링 시도:', comp.type, comp);
+                    {components.map((comp, index) => {            
                       // 타입 변환 적용
                       const rendererKey = ComponentRenderers[comp.type]
                         ? comp.type
@@ -295,7 +283,6 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
             }}
           >
             {components.map((comp, index) => {
-              console.log('데스크톱 렌더링 시도:', comp.type, comp);
               // 타입 변환 적용
               const rendererKey = ComponentRenderers[comp.type]
                 ? comp.type
