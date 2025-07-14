@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NotificationToggle from '../../../components/NotificationToggle';
 import ddukddakLogo from '../../../assets/page-cube-logo.png';
 import { useDeploy } from '../ComponentLibrary/hooks/useDeploy';
 import DeployModal from './DeployModal';
 import PageNavigation from './PageNavigation';
+import { usePageMembers } from '../../../hooks/usePageMembers';
+import { getUserColor } from '../../../utils/userColors';
 
 function EditorHeader({
   components,
@@ -24,6 +26,7 @@ function EditorHeader({
   isAdmin,
   templateCategory = null,
   isFromTemplate = false,
+  onMembersRefetch,
 }) {
   const navigate = useNavigate();
 
@@ -36,12 +39,38 @@ function EditorHeader({
     resetDeploy,
   } = useDeploy();
 
+  // 페이지 멤버 정보 가져오기
+  const { members, otherMembers, currentUser, loading: membersLoading, refetch: refetchMembers } = usePageMembers(pageId);
+
   // 배포 모달 상태
   const [showDeployModal, setShowDeployModal] = useState(false);
+  const [showMembersDropdown, setShowMembersDropdown] = useState(false);
+  const membersDropdownRef = useRef(null);
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (membersDropdownRef.current && !membersDropdownRef.current.contains(event.target)) {
+        setShowMembersDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleLogoClick = () => {
     navigate('/dashboard');
   };
+
+  // refetchMembers 함수를 부모 컴포넌트로 전달
+  useEffect(() => {
+    if (onMembersRefetch) {
+      onMembersRefetch(refetchMembers);
+    }
+  }, [refetchMembers, onMembersRefetch]);
   return (
     <div
       className="
@@ -81,10 +110,10 @@ function EditorHeader({
         </div>
       </div>
 
-      {/* 중앙: 편집 기준 선택 */}
+      {/* 중앙: 편집 기준 선택 및 멤버 정보 */}
       <div className="flex-1 flex justify-center mx-4 min-w-0">
         <div className="flex items-center gap-4">
-n          {/* 페이지 네비게이션 */}
+          {/* 페이지 네비게이션 */}
           <PageNavigation currentPageId={pageId} />
 
           {/* DesignMode 선택 드롭다운 */}
@@ -109,6 +138,64 @@ n          {/* 페이지 네비게이션 */}
               {templateCategory !== 'wedding' && <option value="desktop">💻 데스크탑</option>}
               <option value="mobile">📱 모바일</option>
             </select>
+          </div>
+
+          {/* 멤버 정보 표시 */}
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-gray-600 font-medium whitespace-nowrap">
+              멤버
+            </label>
+            <div className="relative" ref={membersDropdownRef}>
+              {/* 현재 사용자와 멤버 수를 가로로 배치 */}
+              <div className="flex items-center gap-2">
+                {/* 현재 사용자 표시 */}
+                <div className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded text-xs">
+                  <span 
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: currentUser ? getUserColor(currentUser.id) : '#10B981' }}
+                  ></span>
+                  <span className="max-w-16 truncate">
+                    {currentUser?.nickname || '나'}
+                  </span>
+                </div>
+                
+                {/* 다른 멤버가 있으면 드롭다운 버튼 표시 */}
+                {otherMembers.length > 0 && (
+                  <button
+                    onClick={() => setShowMembersDropdown(!showMembersDropdown)}
+                    className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs hover:bg-blue-100 transition-colors"
+                  >
+                    +{otherMembers.length}
+                  </button>
+                )}
+              </div>
+              
+              {/* 멤버 드롭다운 */}
+              {showMembersDropdown && otherMembers.length > 0 && (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48">
+                  <div className="p-2">
+                    <div className="text-xs text-gray-500 mb-2 px-2">페이지 멤버</div>
+                    {otherMembers.map((member) => (
+                      <div
+                        key={member.id}
+                        className="flex items-center gap-2 px-2 py-1 rounded text-xs hover:bg-gray-50"
+                      >
+                        <span 
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: member.color }}
+                        ></span>
+                        <span className="flex-1 truncate">
+                          {member.nickname}
+                        </span>
+                        <span className="text-gray-500 text-xs">
+                          {member.isOwner ? '소유자' : member.role}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

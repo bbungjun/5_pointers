@@ -43,6 +43,13 @@ export class UsersController {
     return this.usersService.getPage(req.user.userId, pageId);
   }
 
+  // 페이지 멤버 목록 조회 API
+  @UseGuards(JwtAuthGuard)
+  @Get('pages/:pageId/members')
+  async getPageMembers(@Request() req, @Param('pageId') pageId: string) {
+    return this.usersService.getPageMembers(pageId, req.user.userId);
+  }
+
   // 페이지 제목 수정 API
   @UseGuards(JwtAuthGuard)
   @Patch('pages/:pageId')
