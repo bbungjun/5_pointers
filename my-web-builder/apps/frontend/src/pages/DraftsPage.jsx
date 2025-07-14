@@ -244,9 +244,10 @@ function DraftsPage({ user, onLogout }) {
               {draftPages.map((page) => (
                 <div
                   key={page.id}
-                  className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 hover:from-amber-100 hover:to-orange-100 transition-all duration-300 group"
+                  className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 hover:from-amber-100 hover:to-orange-100 transition-all duration-300 group flex flex-col"
+                  style={{ minHeight: '140px' }}
                 >
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-between mb-4 flex-1">
                     <div className="flex-1">
                       {editingId === page.id ? (
                         <input
@@ -259,13 +260,13 @@ function DraftsPage({ user, onLogout }) {
                           autoFocus
                         />
                       ) : (
-                        <h3 className="text-lg font-bold text-slate-800 mb-2">{page.title || '제목 없음'}</h3>
+                        <h3 className="text-lg font-bold text-slate-800 mb-2 line-clamp-2">{page.title || '제목 없음'}</h3>
                       )}
                       <p className="text-sm text-slate-600">
                         마지막 수정: {new Date(page.updatedAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
                       <button
                         onClick={() => startEditTitle(page.id, page.title)}
                         className="p-2 text-amber-600 hover:bg-amber-100 rounded-lg"
@@ -286,7 +287,7 @@ function DraftsPage({ user, onLogout }) {
                       </button>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-auto">
                     <button
                       onClick={() => navigate(`/editor/${page.id}`)}
                       className="w-full px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import ddukddakLogo from '../assets/page-cube-logo.png';
+import PageCanvasPreview from '../components/PageCanvasPreview';
 
 function DeployedPage({ user, onLogout }) {
   const navigate = useNavigate();
@@ -252,6 +253,15 @@ function DeployedPage({ user, onLogout }) {
                   key={page.id}
                   className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-xl p-6 hover:from-emerald-100 hover:to-green-100 transition-all duration-300 group"
                 >
+                  {/* 미리보기 영역 */}
+                  <div className="mb-4">
+                    <PageCanvasPreview 
+                      page={page} 
+                      className="w-full h-64" 
+                      editingMode={page.editingMode || 'desktop'}
+                    />
+                  </div>
+                  
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       {editingId === page.id ? (
