@@ -674,7 +674,7 @@ const CanvasArea = forwardRef(
           width: '100%',
           height: '100%',
           position: 'relative',
-          background: '#f0f1f5',
+          background: '#ffffff',
           cursor: isPanning ? 'grabbing' : 'default',
           overflowX: viewport === 'mobile' ? 'hidden' : 'auto',
           overflowY: 'auto',

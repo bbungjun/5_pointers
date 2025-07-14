@@ -57,7 +57,7 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
               color: '#1f2937',
             }}
           >
-            🚀 사이트 배포
+            내가 만든 페이지 게시
           </h2>
           <button
             onClick={onClose}
@@ -77,8 +77,8 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
         {deployedUrl ? (
           // 성공 메시지
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px' }}>✅ 배포 완료!</p>
-            <a href={deployedUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#3B4EFF', textDecoration: 'underline', wordBreak: 'break-all' }}>
+            <p style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px' }}>게시 완료!</p>
+            <a href={deployedUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#ec4899', textDecoration: 'underline', wordBreak: 'break-all' }}>
               {deployedUrl}
             </a>
             <div style={{ marginTop: '24px' }}>
@@ -87,7 +87,7 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
                 style={{
                   padding: '10px 20px',
                   borderRadius: '8px',
-                  background: '#3B4EFF',
+                  background: 'linear-gradient(90deg, #ec4899 0%, #be185d 100%)',
                   color: '#fff',
                   fontWeight: 500,
                   cursor: 'pointer',
@@ -137,14 +137,14 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
                 width: '100%',
                 padding: '12px',
                 borderRadius: '8px',
-                background: isDeploying ? '#9ca3af' : 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
+                background: isDeploying ? '#9ca3af' : 'linear-gradient(90deg, #ec4899 0%, #be185d 100%)',
                 color: 'white',
                 fontWeight: 600,
                 fontSize: '16px',
                 cursor: isDeploying ? 'not-allowed' : 'pointer',
               }}
             >
-              {isDeploying ? '배포 중...' : '배포'}
+              {isDeploying ? '게시 중...' : '최종 확정'}
             </button>
           </>
         )}
