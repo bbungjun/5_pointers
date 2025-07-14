@@ -1,9 +1,54 @@
 {
   "type": "calendar",
   "label": "Calendar",
+  "props": {
+    "weddingDate": {
+      "type": "date",
+      "label": "날짜",
+      "default": "2025-07-26"
+    },
+    "title": {
+      "type": "string",
+      "label": "제목",
+      "default": "우리의 결혼식"
+    },
+    "highlightColor": {
+      "type": "color",
+      "label": "강조 색상",
+      "default": "#ff6b9d"
+    },
+    "noBorder": {
+      "type": "boolean",
+      "label": "테두리 제거",
+      "default": true
+    },
+    "borderColor": {
+      "type": "color",
+      "label": "테두리 색상",
+      "default": "#e5e7eb"
+    },
+    "borderWidth": {
+      "type": "select",
+      "label": "테두리 두께",
+      "options": ["1px", "2px", "3px", "4px"],
+      "default": "1px"
+    },
+    "borderRadius": {
+      "type": "number",
+      "label": "모서리 둥글기",
+      "min": 0,
+      "max": 50,
+      "default": 8,
+      "suffix": "px"
+    }
+  },
   "defaultProps": {
     "weddingDate": "2025-07-26",
     "title": "우리의 결혼식",
-    "highlightColor": "#ff6b9d"
+    "highlightColor": "#ff6b9d",
+    "noBorder": true,
+    "borderColor": "#e5e7eb",
+    "borderWidth": "1px",
+    "borderRadius": 8
   }
 }
