@@ -73,7 +73,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
           <button
             style={{
               padding: 'clamp(6px, 2vw, 8px) clamp(12px, 4vw, 16px)',
-              background: isForBride ? '#D8BFD8' : '#87CEEB',
+              background: isForBride ? '#F4C2C2' : '#87CEEB',
               color: '#FFFFFF',
               borderRadius: '6px',
               fontSize: 'clamp(12px, 3vw, 14px)',
@@ -81,7 +81,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
               fontFamily: 'Montserrat, sans-serif',
               border: 'none',
               boxShadow: isForBride 
-                ? '0 2px 8px rgba(216, 191, 216, 0.3)'
+                ? '0 2px 8px rgba(244, 194, 194, 0.3)'
                 : '0 2px 8px rgba(135, 206, 235, 0.3)',
               transition: 'all 0.2s ease',
               cursor: 'pointer',
@@ -94,8 +94,8 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
             }}
             onMouseEnter={(e) => {
               if (isForBride) {
-                e.target.style.background = '#E6D3E6';
-                e.target.style.boxShadow = '0 4px 12px rgba(216, 191, 216, 0.4)';
+                e.target.style.background = '#F8D4D4';
+                e.target.style.boxShadow = '0 4px 12px rgba(244, 194, 194, 0.4)';
               } else {
                 e.target.style.background = '#98D7F0';
                 e.target.style.boxShadow = '0 4px 12px rgba(135, 206, 235, 0.4)';
@@ -104,8 +104,8 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
             }}
             onMouseLeave={(e) => {
               if (isForBride) {
-                e.target.style.background = '#D8BFD8';
-                e.target.style.boxShadow = '0 2px 8px rgba(216, 191, 216, 0.3)';
+                e.target.style.background = '#F4C2C2';
+                e.target.style.boxShadow = '0 2px 8px rgba(244, 194, 194, 0.3)';
               } else {
                 e.target.style.background = '#87CEEB';
                 e.target.style.boxShadow = '0 2px 8px rgba(135, 206, 235, 0.3)';
@@ -271,12 +271,12 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
           style={{
             width: '100%',
             padding: '16px 24px',
-            background: '#D8BFD8',
+            background: '#F4C2C2',
             color: '#FFFFFF',
             borderRadius: '8px',
             fontWeight: '600',
-            border: '1px solid rgba(216, 191, 216, 0.3)',
-            boxShadow: '0 4px 16px rgba(216, 191, 216, 0.3)',
+            border: '1px solid rgba(244, 194, 194, 0.3)',
+            boxShadow: '0 4px 16px rgba(244, 194, 194, 0.3)',
             transition: 'all 0.3s ease',
             display: 'flex',
             alignItems: 'center',
@@ -290,14 +290,14 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
             setBrideModalOpen(true);
           }}
           onMouseEnter={(e) => {
-            e.target.style.background = '#E6D3E6';
+            e.target.style.background = '#F8D4D4';
             e.target.style.transform = 'translateY(-2px)';
-            e.target.style.boxShadow = '0 8px 24px rgba(216, 191, 216, 0.4)';
+            e.target.style.boxShadow = '0 8px 24px rgba(244, 194, 194, 0.4)';
           }}
           onMouseLeave={(e) => {
-            e.target.style.background = '#D8BFD8';
+            e.target.style.background = '#F4C2C2';
             e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 4px 16px rgba(216, 191, 216, 0.3)';
+            e.target.style.boxShadow = '0 4px 16px rgba(244, 194, 194, 0.3)';
           }}
         >
           <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">

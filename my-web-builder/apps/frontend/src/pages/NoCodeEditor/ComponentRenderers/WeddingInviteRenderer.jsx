@@ -22,7 +22,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
             "지켜나갈 수 있게 앞날을",
             "축복해 주시면 감사하겠습니다."
         ],
-        contentFontFamily = "Montserrat, sans-serif",
+        contentFontFamily = "Playfair Display, serif",
         contentFontSize = 18,
         contentFontWeight = "400",
         contentFontStyle = "normal",
