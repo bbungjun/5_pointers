@@ -87,11 +87,49 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
 
   const containerStyle = {
     width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    padding: '16px',
+    fontFamily: '"Playfair Display", serif',
+    backgroundColor: comp.props?.backgroundColor || '#f8f9fa',
+    borderRadius: comp.props?.borderRadius || '8px',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
   };
 
   return (
     <div style={containerStyle}>
-      <button
+      {/* 제목 영역 */}
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '16px',
+      }}>
+        <h3 style={{
+          fontSize: comp.props?.titleFontSize || '18px',
+          fontWeight: '600',
+          color: comp.props?.titleColor || '#1f2937',
+          margin: '0 0 8px 0',
+          fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+        }}>
+          {comp.props?.title || '참석 여부 확인'}
+        </h3>
+        {comp.props?.description && (
+          <p style={{
+            fontSize: comp.props?.descriptionFontSize || '14px',
+            color: comp.props?.descriptionColor || '#6b7280',
+            margin: '0',
+            lineHeight: '1.5',
+            fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+          }}>
+            {comp.props.description}
+          </p>
+        )}
+      </div>
+
+      {/* 버튼 영역 - 맨 아래 배치 */}
+      <div style={{ marginTop: 'auto' }}>
+        <button
         onClick={(e) => {
           e.stopPropagation();
           // 에디터 모드에서는 알림만 표시, 배포된 사이트나 미리보기에서는 모달 열기
@@ -103,17 +141,18 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
           }
         }}
         style={{
-          backgroundColor: comp.props?.buttonColor || '#6366f1',
+          backgroundColor: comp.props?.buttonColor || '#475569',
           color: comp.props?.textColor || 'white',
           border: 'none',
           borderRadius: comp.props?.borderRadius || '8px',
           padding: '12px 24px',
           fontSize: comp.props?.fontSize || '16px',
           fontWeight: '500',
-          fontFamily: comp.props?.fontFamily || 'Playfair Display, serif',
+          fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          width: '100%',
         }}
         onMouseEnter={(e) => {
           e.target.style.opacity = '0.9';
@@ -126,6 +165,7 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
       >
         {comp.props.buttonText || '참석 의사 전달'}
       </button>
+      </div>
 
       {isModalOpen && (
         <div
@@ -163,7 +203,7 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
               marginBottom: '24px',
               color: '#1f2937',
               textAlign: 'center',
-              fontFamily: comp.props.fontFamily || 'Playfair Display, serif',
+              fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
             }}>
               참석 정보 입력
             </h2>
@@ -254,7 +294,7 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
                 alignItems: 'flex-start',
                 cursor: 'pointer',
                 fontSize: '14px',
-                fontFamily: comp.props.fontFamily || 'Playfair Display, serif',
+                fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
                 color: '#374151',
                 gap: '8px',
               }}>
@@ -288,7 +328,7 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
                 style={buttonStyle(
                   (!attendeeName.trim() || !guestSide || !privacyConsent || isSubmitting)
                     ? '#d1d5db'
-                    : (comp.props?.buttonColor || '#6366f1'),
+                    : (comp.props?.buttonColor || '#475569'),
                   'white',
                   comp,
                   !attendeeName.trim() || !guestSide || !privacyConsent || isSubmitting
@@ -310,12 +350,12 @@ const labelStyle = (comp) => ({
   fontSize: '16px',
   fontWeight: '500',
   color: '#374151',
-  fontFamily: comp.props.fontFamily || 'Playfair Display, serif',
+  fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
 });
 
 const textStyle = (comp) => ({
   fontSize: '16px',
-  fontFamily: comp.props.fontFamily || 'Playfair Display, serif',
+  fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
 });
 
 const buttonStyle = (bg, color, comp, disabled = false) => ({
@@ -327,7 +367,8 @@ const buttonStyle = (bg, color, comp, disabled = false) => ({
   fontSize: '16px',
   fontWeight: '500',
   cursor: disabled ? 'not-allowed' : 'pointer',
-  fontFamily: comp.props.fontFamily || 'Playfair Display, serif',
+  fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+  transition: 'all 0.2s ease',
 });
 
 const FormInput = ({ label, type = 'text', value, onChange, placeholder, required = false, comp }) => (
@@ -346,7 +387,7 @@ const FormInput = ({ label, type = 'text', value, onChange, placeholder, require
         border: '1px solid #d1d5db',
         borderRadius: '8px',
         fontSize: '16px',
-        fontFamily: comp.props.fontFamily || 'Playfair Display, serif',
+        fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
         boxSizing: 'border-box',
       }}
     />
