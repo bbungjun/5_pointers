@@ -195,16 +195,32 @@ export class UsersService {
     });
 
     // 초대받은 멤버들 매핑
-    const invitedMembersList = invitedMembers.map((member) => ({
-      id: member.id,
-      email: member.email || member.user?.email,
-      userId: member.user?.id,
-      nickname: member.user?.nickname || '알 수 없음',
-      role: member.role,
-      status: member.status,
-      createdAt: member.createdAt,
-      isOwner: false,
-    }));
+    const invitedMembersList = invitedMembers.map((member) => {
+      // 초대 상태에 따라 다른 표시
+      let displayName = '알 수 없음';
+      let displayEmail = member.email;
+      
+      if (member.status === 'ACCEPTED' && member.user) {
+        // 초대를 수락한 경우: 사용자 닉네임 표시
+        displayName = member.user.nickname;
+        displayEmail = member.user.email;
+      } else if (member.status === 'PENDING') {
+        // 초대 대기 중인 경우: 이메일 주소 표시
+        displayName = member.email ? member.email.split('@')[0] : '알 수 없음';
+        displayEmail = member.email;
+      }
+      
+      return {
+        id: member.id,
+        email: displayEmail,
+        userId: member.user?.id,
+        nickname: displayName,
+        role: member.role,
+        status: member.status,
+        createdAt: member.createdAt,
+        isOwner: false,
+      };
+    });
 
     // 페이지 소유자 정보 추가
     const ownerMember = {
