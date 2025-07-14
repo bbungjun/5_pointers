@@ -832,15 +832,32 @@ function DashboardPage({ user, onLogout }) {
                                 >
                                   <div className="p-4">
                                     {/* 템플릿 캔버스 미리보기 */}
-                                    <div className={`relative rounded-lg overflow-hidden mb-4 ${
-                                      template.editingMode === 'mobile' 
-                                        ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
-                                        : 'aspect-video'   // 데스크톱: 16:9 비율
-                                    }`}>
-                                      <TemplateCanvasPreview 
-                                        template={template} 
-                                        className="w-full h-full object-cover"
-                                      />
+                                    <div className="relative rounded-lg overflow-hidden mb-4">
+                                      {template.editingMode === 'mobile' ? (
+                                        // 모바일은 기존 코드 유지
+                                        <div className="relative rounded-lg overflow-hidden aspect-[9/16]">
+                                          <TemplateCanvasPreview
+                                            template={template}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        </div>
+                                      ) : (
+                                        // 데스크톱만 배포된 페이지와 동일하게
+                                        <div className="flex items-center justify-center">
+                                          <div
+                                            className="relative bg-gray-50 overflow-hidden rounded-lg border border-gray-200"
+                                            style={{
+                                              width: '240px',
+                                              height: '180px',
+                                            }}
+                                          >
+                                            <TemplateCanvasPreview
+                                              template={template}
+                                              className="w-full h-full"
+                                            />
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
                                     
                                     <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors">
