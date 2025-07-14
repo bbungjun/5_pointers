@@ -50,7 +50,7 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
       height: '100%',
       backgroundColor: 'white',
       border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`,
-      borderRadius: 0,
+      borderRadius: borderRadius,
       //boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
       display: 'flex',
       flexDirection: 'column',
@@ -124,7 +124,7 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '14px',
-                  borderRadius: '8px',
+                  borderRadius: borderRadius,
                   cursor: 'pointer',
                   color: !isCurrentMonth ? '#d1d5db' : '#374151',
                   backgroundColor: isWeddingDay ? highlightColor : 

@@ -38,7 +38,7 @@
       "label": "모서리 둥글기",
       "min": 0,
       "max": 50,
-      "default": 8,
+      "default": 0,
       "suffix": "px"
     }
   },
@@ -49,6 +49,6 @@
     "noBorder": true,
     "borderColor": "#e5e7eb",
     "borderWidth": "1px",
-    "borderRadius": 8
+    "borderRadius": 0
   }
 }
