@@ -20,7 +20,7 @@ export function getComponentDimensions(type) {
     comment: { defaultWidth: 375, defaultHeight: 650, minWidth: 250, minHeight: 150 },
     musicPlayer: { defaultWidth: 50, defaultHeight: 50, minWidth: 50, minHeight: 50 },
     kakaotalkShare: { defaultWidth: 150, defaultHeight: 50, minWidth: 50, minHeight: 50 },
-    slido: { defaultWidth: 375, defaultHeight: 250, minWidth: 300, minHeight: 200 },
+    slido: { defaultWidth: 375, defaultHeight: 450, minWidth: 300, minHeight: 200 },
     linkcopy: { defaultWidth: 50, defaultHeight: 50, minWidth: 32, minHeight: 32 },
   };
   return dimensions[type] || { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 };
