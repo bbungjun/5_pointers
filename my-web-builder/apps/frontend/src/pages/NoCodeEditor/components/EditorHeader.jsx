@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NotificationToggle from '../../../components/NotificationToggle';
-import ddukddakLogo from '/ddukddak-logo.png';
+
 import { useDeploy } from '../ComponentLibrary/hooks/useDeploy';
 import DeployModal from './DeployModal';
 import { usePageMembers } from '../../../hooks/usePageMembers';
@@ -98,11 +98,9 @@ function EditorHeader({
           className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
           onClick={handleLogoClick}
         >
-          <img
-            src={ddukddakLogo}
-            alt="뚝딱"
-            className="w-13 h-6 object-contain"
-          />
+          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-700 to-blue-800 bg-clip-text text-transparent">
+            DDUKDDAK
+          </h1>
         </div>
       </div>
 
