@@ -10,8 +10,9 @@ import { API_BASE_URL } from '../../../config';
  * - isOpen: 모달 열림 상태
  * - onClose: 모달 닫기 함수
  * - pageId: 현재 페이지 ID
+ * - onInviteSuccess: 초대 성공 시 호출할 콜백 함수
  */
-function InviteModal({ isOpen, onClose, pageId }) {
+function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -68,7 +69,7 @@ function InviteModal({ isOpen, onClose, pageId }) {
                 fontFamily: 'monospace',
                 wordBreak: 'break-all'
               }}>
-                초대 링크: {data.inviteUrl}
+                초대 링크: {data.inviteUrl || '링크 생성 중...'}
               </p>
               <p style={{ 
                 marginTop: '8px', 
@@ -81,6 +82,12 @@ function InviteModal({ isOpen, onClose, pageId }) {
           );
           setMessageType('success');
           setEmail('');
+          
+          // 초대 성공 콜백 호출
+          if (onInviteSuccess) {
+            onInviteSuccess();
+          }
+          
           // 5초 후 모달 닫기 (링크 복사 시간 고려)
           setTimeout(() => {
             onClose();
@@ -92,12 +99,13 @@ function InviteModal({ isOpen, onClose, pageId }) {
           setMessageType('error');
         }
       } else {
-        setMessage(data.message || '초대 링크 생성에 실패했습니다.');
+        const errorData = await response.json().catch(() => ({}));
+        setMessage(errorData.message || data.message || '초대 링크 생성에 실패했습니다.');
         setMessageType('error');
       }
     } catch (error) {
       console.error('초대 링크 생성 오류:', error);
-      setMessage('네트워크 오류가 발생했습니다.');
+      setMessage('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       setMessageType('error');
     } finally {
       setLoading(false);

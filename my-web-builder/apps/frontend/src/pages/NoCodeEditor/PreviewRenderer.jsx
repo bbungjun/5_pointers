@@ -26,8 +26,9 @@ import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
 import LinkCopyRenderer from './ComponentRenderers/LinkCopyRenderer';
 
 // 컴포넌트 렌더링 헬퍼
-const ComponentRenderer = ({ component, editingViewport, setModalOpen }) => {
-  const props = { comp: component, mode: 'preview', isEditor: false, editingViewport, setModalOpen };
+const ComponentRenderer = ({ component, editingViewport }) => {
+  const props = { comp: component, mode: 'preview', isEditor: false, editingViewport };
+  
   switch (component.type) {
     case 'button':
       return <ButtonRenderer {...props} />;
@@ -170,10 +171,12 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
         className="page-container"
         style={{
           width: `${canvasWidth}px`,
-          height: `${canvasHeight}px`,
-          position: 'relative',
-          background: '#ffffff',
-          overflowX: 'hidden'
+          minHeight: `${canvasHeight}px`,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px',
+          padding: '16px 0'
         }}
       >
         {rows.map((row, rowIndex) => (
@@ -188,6 +191,22 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
               const originalHeight = component.height || getComponentDimensions(component.type).defaultHeight;
               const finalWidth = Math.min(originalWidth, canvasWidth - 40);
 
+              // bankAccount는 모바일 preview에서도 버튼만 보이도록 강제
+              if (component.type === 'bankAccount') {
+                return (
+                  <div
+                    key={component.id}
+                    className="component-wrapper"
+                    style={{
+                      width: `${finalWidth}px`,
+                      height: `${originalHeight}px`
+                    }}
+                  >
+                    <BankAccountRenderer comp={component} mode="preview" isEditor={false} editingViewport={editingViewport} />
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={component.id}
@@ -201,38 +220,6 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
                 </div>
               );
             })}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  // 모바일 편집 기준 → 모바일 미리보기: 그대로 표시 (절대 위치)
-  if (forcedViewport === 'mobile' && editingViewport === 'mobile') {
-    return (
-      <div
-        className="page-container"
-        style={{
-          width: `${canvasWidth}px`,
-          height: `${canvasHeight}px`,
-          position: 'relative',
-          background: '#ffffff',
-          overflowX: 'hidden'
-        }}
-      >
-        {components.map((component) => (
-          <div
-            key={component.id}
-            className="mobile-absolute-wrapper"
-            style={{
-              position: 'absolute',
-              left: component.x || 0,
-              top: component.y || 0,
-              width: component.width || getComponentDimensions(component.type).defaultWidth,
-              height: component.height || getComponentDimensions(component.type).defaultHeight,
-            }}
-          >
-            <ComponentRenderer component={component} editingViewport={editingViewport} setModalOpen={setIsModalOpen} />
           </div>
         ))}
       </div>

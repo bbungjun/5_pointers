@@ -372,6 +372,17 @@ export class GeneratorService {
       object-fit: ${comp.props?.objectFit || 'cover'};
       border-radius: ${comp.props?.borderRadius || '0'};
     `;
+
+    // 👇 이미지 URL 처리 로직 추가
+    let imageSrc = comp.props?.src || '';
+
+    // 상대 경로인 경우 절대 URL로 변환
+    if (imageSrc.startsWith('/uploads/')) {
+      const baseUrl = process.env.NODE_ENV === 'production'
+      ? 'https://ddukddak.org'
+      : 'http://localhost:3000';
+      imageSrc = `${baseUrl}${imageSrc}`;
+    }
     return `<img src="${comp.props?.src || ''}" style="${imgStyle}" alt="${comp.props?.alt || ''}" />`;
   }
 
