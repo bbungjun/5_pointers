@@ -69,7 +69,7 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: '2px 0 8px rgba(236, 72, 153, 0.2)',
-            zIndex: 10,
+            zIndex: 5,
             transition: 'all 0.2s ease'
           }}
           onMouseEnter={(e) => {
@@ -146,7 +146,7 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
           alignItems: 'center',
           justifyContent: 'center',
           boxShadow: '2px 0 8px rgba(236, 72, 153, 0.2)',
-          zIndex: 10,
+          zIndex: 5,
           transition: 'all 0.2s ease',
           color: '#ec4899'
         }}

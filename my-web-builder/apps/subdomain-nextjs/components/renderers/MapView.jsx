@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useResponsive } from '../../hooks/useResponsive';
 
 function loadKakaoMapsScript() {
   return new Promise((resolve) => {
@@ -36,8 +37,10 @@ function KakaoMapView({
   width = 400, 
   height = 300,
   interactive = false,     // 배포된 페이지에서는 기본적으로 상호작용 비활성화
-  mode = 'live'            // 'preview' 또는 'live'
+  mode = 'live',           // 'preview' 또는 'live'
+  comp = {}                // 컴포넌트 props
 }) {
+  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width || width, comp.height || height);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
@@ -100,7 +103,7 @@ function KakaoMapView({
     <div>
       <div
         ref={mapRef}
-        style={{ width: width, height: height, borderRadius: 8, border: '1px solid #ccc' }}
+        style={{ width: responsiveWidth || width, height: responsiveHeight || height, borderRadius: 8, border: '1px solid #ccc' }}
       />
     </div>
   );

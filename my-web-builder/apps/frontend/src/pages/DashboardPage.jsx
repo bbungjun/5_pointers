@@ -691,7 +691,7 @@ function DashboardPage({ user, onLogout }) {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* 메인 헤더 */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <p className="text-3xl text-slate-500 font-light">
             사랑하는 사람들과 함께하는 특별한 순간
           </p>
@@ -874,7 +874,7 @@ function DashboardPage({ user, onLogout }) {
                                 <div
                                   key={template.id}
                                   onClick={() => handleCreateFromTemplate(template)}
-                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
+                                  className="group cursor-pointer bg-white rounded-xl hover:shadow-lg transition-all duration-300"
                                 >
                                   <div className="p-4">
                                     {/* 템플릿 캔버스 미리보기 */}
@@ -976,7 +976,7 @@ function DashboardPage({ user, onLogout }) {
                                 <div
                                   key={template.id}
                                   onClick={() => handleCreateFromTemplate(template)}
-                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
+                                  className="group cursor-pointer bg-white rounded-xl hover:shadow-lg transition-all duration-300"
                                 >
                                   <div className="p-4">
                                     {/* 템플릿 캔버스 미리보기 */}
@@ -1104,7 +1104,7 @@ function DashboardPage({ user, onLogout }) {
                           <div
                             key={template.id}
                             onClick={() => handleCreateFromTemplate(template)}
-                            className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
+                            className="group cursor-pointer bg-white rounded-xl hover:shadow-lg transition-all duration-300"
                           >
                             <div className="p-4">
                               {/* 템플릿 캔버스 미리보기 */}

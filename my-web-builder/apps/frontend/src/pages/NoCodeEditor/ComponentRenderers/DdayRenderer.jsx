@@ -4,8 +4,7 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2025-07-26';
   const targetTime = comp.props.targetTime || comp.defaultProps?.targetTime || '14:00';
-  const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
-  const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage || '';
+  const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#ffffff';
   
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -54,84 +53,66 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
 
   // 모던 미니멀 카드 스타일
   const bubbleStyle = {
-    width: '60px',
-    height: '60px',
+    width: '70px',
+    height: '70px',
     borderRadius: '16px',
-    background: 'rgba(255, 255, 255, 0.95)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    background: '#ffffff',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+    border: '1px solid rgba(0, 0, 0, 0.06)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    margin: '4px',
-    backdropFilter: 'blur(10px)',
+    margin: '0 6px',
     transition: 'all 0.3s ease'
   };
 
   // 모던 숫자 스타일
   const numberStyle = {
-    fontSize: '20px',
-    fontWeight: '600',
+    fontSize: '24px',
+    fontWeight: '700',
     lineHeight: '1',
-    color: '#1a1a1a',
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-    zIndex: 2,
-    position: 'relative'
+    color: '#1f2937',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
   };
 
   // 모던 라벨 스타일
   const labelStyle = {
-    fontSize: '11px',
+    fontSize: '12px',
     fontWeight: '500',
     textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    color: 'rgba(255, 255, 255, 0.9)',
+    letterSpacing: '0.8px',
+    color: '#6b7280',
     textAlign: 'center',
-    marginTop: '8px',
+    marginTop: '10px',
     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
   };
 
   // 모던 구분자 스타일
   const separatorStyle = {
-    width: '2px',
-    height: '24px',
-    background: 'rgba(0, 0, 0, 0.1)',
-    borderRadius: '1px',
-    margin: '0 8px'
+    fontSize: '20px',
+    fontWeight: '300',
+    color: '#d1d5db',
+    margin: '0 4px',
+    alignSelf: 'flex-start',
+    marginTop: '25px'
   };
 
   const getContainerStyle = () => {
-    const baseStyle = {
+    return {
       width: comp.width || 340,
       height: comp.height || 150,
-      minHeight: '120px',  // 원래 크기로 되돌림
+      minHeight: '140px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      // padding: '10px',     // 패딩삭제
-      borderRadius: 0,
+      padding: '20px',
+      borderRadius: '0px',
       position: 'relative',
-      overflow: 'hidden'
-    };
-
-    if (backgroundImage) {
-      return {
-        ...baseStyle,
-        background: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        filter: 'grayscale(0.8) contrast(1.1)',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
-      };
-    }
-
-    return {
-      ...baseStyle,
-      background: `linear-gradient(135deg, ${backgroundColor} 0%, #f8f9fa 100%)`,
-      border: '1px solid rgba(0, 0, 0, 0.05)'
+      overflow: 'hidden',
+      backgroundColor: backgroundColor,
+      border: '1px solid rgba(0, 0, 0, 0.08)'
     };
   };
 
@@ -203,7 +184,7 @@ function DdayRenderer({ comp, isEditor = false, mode = 'editor', onPropsChange }
         textAlign: 'center',
         background: 'rgba(255, 255, 255, 0.8)',
         padding: '8px 16px',
-        borderRadius: '20px',
+        borderRadius: '16px',
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(255, 255, 255, 0.2)',
         fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'

@@ -158,7 +158,7 @@ function InviteModal({ isOpen, onClose, pageId }) {
             fontWeight: 'bold',
             color: '#1f2937'
           }}>
-            👥 팀원 초대하기
+            팀원 초대하기
           </h2>
           <button
             onClick={handleClose}

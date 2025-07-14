@@ -176,7 +176,7 @@ const DynamicPageRenderer = ({
         <title>{subdomain ? `${subdomain} - My Web Builder` : 'My Web Builder'}</title>
         <meta name="description" content={`${subdomain || pageId}에서 만든 웹사이트입니다.`} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/ddukddak-logo2.png" />
       </Head>
       
       <div

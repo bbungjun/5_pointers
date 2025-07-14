@@ -6,8 +6,8 @@ function DdayRenderer({ comp, isEditor = false, mode = 'live' }) {
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2025-07-26';
   const targetTime = comp.props.targetTime || comp.defaultProps?.targetTime || '14:00';
-  const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#f8fafc';
-  const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage || '';
+  const backgroundColor = comp.props.backgroundColor || comp.defaultProps?.backgroundColor || '#ffffff';
+  const backgroundImage = comp.props.backgroundImage || comp.defaultProps?.backgroundImage;
   
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -56,83 +56,66 @@ function DdayRenderer({ comp, isEditor = false, mode = 'live' }) {
 
   // 모던 미니멀 카드 스타일
   const bubbleStyle = {
-    width: isLiveMode ? 'clamp(50px, 12vw, 60px)' : '60px',
-    height: isLiveMode ? 'clamp(50px, 12vw, 60px)' : '60px',
-    borderRadius: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px',
-    background: 'rgba(255, 255, 255, 0.95)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    width: '70px',
+    height: '70px',
+    borderRadius: '16px',
+    background: '#ffffff',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+    border: '1px solid rgba(0, 0, 0, 0.06)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    margin: isLiveMode ? 'clamp(2px, 1vw, 4px)' : '4px',
-    backdropFilter: 'blur(10px)',
+    margin: '0 6px',
     transition: 'all 0.3s ease'
   };
 
   // 모던 숫자 스타일
   const numberStyle = {
-    fontSize: isLiveMode ? 'clamp(16px, 4vw, 20px)' : '20px',
-    fontWeight: '600',
+    fontSize: '24px',
+    fontWeight: '700',
     lineHeight: '1',
-    color: '#1a1a1a',
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-    zIndex: 2,
-    position: 'relative'
+    color: '#1f2937',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
   };
 
   // 모던 라벨 스타일
   const labelStyle = {
-    fontSize: isLiveMode ? 'clamp(9px, 2.5vw, 11px)' : '11px',
+    fontSize: '12px',
     fontWeight: '500',
     textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    color: 'rgba(255, 255, 255, 0.9)',
+    letterSpacing: '0.8px',
+    color: '#6b7280',
     textAlign: 'center',
-    marginTop: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+    marginTop: '10px',
     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
   };
 
   // 모던 구분자 스타일
   const separatorStyle = {
-    width: isLiveMode ? 'clamp(1px, 0.5vw, 2px)' : '2px',
-    height: isLiveMode ? 'clamp(20px, 5vw, 24px)' : '24px',
-    background: 'rgba(0, 0, 0, 0.1)',
-    borderRadius: '1px',
-    margin: isLiveMode ? '0 clamp(6px, 1.5vw, 8px)' : '0 8px'
+    fontSize: '20px',
+    fontWeight: '300',
+    color: '#d1d5db',
+    margin: '0 4px',
+    alignSelf: 'flex-start',
+    marginTop: '25px'
   };
 
   const getContainerStyle = () => {
-    const baseStyle = {
-      width: isLiveMode ? responsiveWidth : '100%',
-      height: isLiveMode ? responsiveHeight : '100%',
-      minHeight: isLiveMode ? 'clamp(100px, 25vw, 120px)' : '120px',
+    return {
+      width: comp.width || 340,
+      height: comp.height || 150,
+      minHeight: '140px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: 0,
+      padding: '20px',
+      borderRadius: '0px',
       position: 'relative',
-      overflow: 'hidden'
-    };
-
-    if (backgroundImage) {
-      return {
-        ...baseStyle,
-        background: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        filter: 'grayscale(0.8) contrast(1.1)',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
-      };
-    }
-
-    return {
-      ...baseStyle,
-      background: `linear-gradient(135deg, ${backgroundColor} 0%, #f8f9fa 100%)`,
-      border: '1px solid rgba(0, 0, 0, 0.05)'
+      overflow: 'hidden',
+      backgroundColor: backgroundColor,
+      border: '1px solid rgba(0, 0, 0, 0.08)'
     };
   };
 
@@ -141,10 +124,10 @@ function DdayRenderer({ comp, isEditor = false, mode = 'live' }) {
       {/* 물방울과 단위를 세로로 배치한 블록들 + 콜론 */}
       <div style={{
         display: 'flex',
-        gap: isLiveMode ? 'clamp(1px, 0.5vw, 2px)' : '2px',
+        gap: '2px',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: isLiveMode ? 'clamp(12px, 3vw, 16px)' : '16px'
+        marginBottom: '16px'
       }}>
         {/* Days */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -198,13 +181,13 @@ function DdayRenderer({ comp, isEditor = false, mode = 'live' }) {
 
       {/* 모던 목표 날짜 표시 */}
       <div style={{
-        fontSize: isLiveMode ? 'clamp(11px, 3vw, 13px)' : '13px',
+        fontSize: '13px',
         fontWeight: '500',
         color: 'rgba(0, 0, 0, 0.7)',
         textAlign: 'center',
         background: 'rgba(255, 255, 255, 0.8)',
-        padding: isLiveMode ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
-        borderRadius: isLiveMode ? 'clamp(16px, 4vw, 20px)' : '20px',
+        padding: '8px 16px',
+        borderRadius: '16px',
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(255, 255, 255, 0.2)',
         fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
