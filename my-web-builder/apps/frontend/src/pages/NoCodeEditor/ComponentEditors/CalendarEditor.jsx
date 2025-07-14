@@ -42,7 +42,7 @@ function CalendarEditor({ selectedComp, onUpdate }) {
       />
 
       {/* 테두리 옵션 - BorderEditor로 통합 */}
-      <BorderEditor
+      <PropertyEditors.BorderEditor
         noBorder={localNoBorder}
         borderColor={borderColor}
         borderWidth={borderWidth}

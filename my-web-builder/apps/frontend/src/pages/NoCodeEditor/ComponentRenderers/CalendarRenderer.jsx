@@ -8,7 +8,7 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
     noBorder = true,
     borderColor = '#e5e7eb',
     borderWidth = '1px',
-    borderRadius = 8
+    borderRadius = 0
   } = comp.props;
   
   // 날짜 파싱
