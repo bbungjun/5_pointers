@@ -18,20 +18,11 @@
 import React, { useState, useEffect } from "react";
 
 function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
+  // 컨테이너 크기 기준으로 스케일 팩터 계산
+  const baseWidth = 375; // 기준 너비
+  const actualWidth = comp.width || baseWidth;
+  const scaleFactor = actualWidth / baseWidth;
   
-  useEffect(() => {
-    if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
-      
-      const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
-      };
-      
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [mode]);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageSize, setImageSize] = useState(0);
@@ -50,22 +41,28 @@ function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
     backgroundColor = "#ffffff"
   } = comp.props;
 
+  // 스케일링된 값들 계산
+  const scaledContainerWidth = mode === 'live' ? containerWidth * scaleFactor : containerWidth;
+  const scaledContainerHeight = mode === 'live' ? containerHeight * scaleFactor : containerHeight;
+  const scaledGap = mode === 'live' ? gap * scaleFactor : gap;
+  const scaledBorderRadius = mode === 'live' ? borderRadius * scaleFactor : borderRadius;
+
   // 명시적 기본값 설정
   const showNavigation = comp.props.showNavigation !== undefined ? comp.props.showNavigation : true;
   const showCaption = comp.props.showCaption !== undefined ? comp.props.showCaption : true;
 
-  // 이미지 크기 자동 계산
+  // 이미지 크기 자동 계산 (스케일링된 값 사용)
   useEffect(() => {
-    const availableWidth = containerWidth - (gap * (columns - 1));
-    const availableHeight = containerHeight - (gap * (rows - 1));
+    const availableWidth = scaledContainerWidth - (scaledGap * (columns - 1));
+    const availableHeight = scaledContainerHeight - (scaledGap * (rows - 1));
     
     const widthPerImage = availableWidth / columns;
     const heightPerImage = availableHeight / rows;
     
     // 정사각형을 위해 작은 값 선택
     const calculatedSize = Math.min(widthPerImage, heightPerImage);
-    setImageSize(Math.max(calculatedSize, 50)); // 최소 50px
-  }, [containerWidth, containerHeight, rows, columns, gap]);
+    setImageSize(Math.max(calculatedSize, 50 * (mode === 'live' ? scaleFactor : 1))); // 최소 크기도 스케일링
+  }, [scaledContainerWidth, scaledContainerHeight, rows, columns, scaledGap, scaleFactor, mode]);
 
   // 이미지 클릭 핸들러
   const handleImageClick = (index) => {
@@ -104,14 +101,14 @@ function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
 
   // 갤러리 컨테이너 스타일
   const galleryStyle = {
-    width: "100%",
-    height: "100%",
+    width: mode === 'live' ? '100%' : `${scaledContainerWidth}px`,
+    height: `${scaledContainerHeight}px`,
     backgroundColor,
     boxSizing: "border-box",
     overflow: "hidden",
-    ...(isLiveMode ? {
-      borderRadius: `clamp(${Math.max(2, borderRadius * 0.7)}px, ${(borderRadius / 375) * 100}vw, ${borderRadius}px)`,
-      padding: `clamp(${Math.max(2, gap * 0.7)}px, ${(gap / 375) * 100}vw, ${gap}px)`
+    ...(mode === 'live' ? {
+      borderRadius: `${scaledBorderRadius}px`,
+      padding: `${scaledGap}px`
     } : {
       borderRadius: borderRadius + "px",
       padding: gap + "px"
@@ -123,7 +120,7 @@ function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
     display: "grid",
     gridTemplateColumns: `repeat(${columns}, 1fr)`,
     gridTemplateRows: `repeat(${rows}, 1fr)`,
-    gap: gap + "px",
+    gap: `${scaledGap}px`,
     width: "100%",
     height: "100%"
   };
@@ -132,7 +129,7 @@ function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
   const imageItemStyle = {
     width: "100%",
     height: "100%",
-    borderRadius: borderRadius + "px",
+    borderRadius: `${scaledBorderRadius}px`,
     overflow: "hidden",
     cursor: enableModal ? "pointer" : "default", // 임시: 편집모드에서도 포인터
     transition: "transform 0.2s ease",
