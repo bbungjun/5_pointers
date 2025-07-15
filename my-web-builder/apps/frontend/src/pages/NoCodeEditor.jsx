@@ -657,7 +657,8 @@ function NoCodeEditor({ pageId }) {
       {connectionError && (
         <div className="websocket-guide">
           <WebSocketConnectionGuide
-            wsUrl="wss://43.201.125.200:1235"
+            wsUrl="ws://43.201.125.200:1234"
+
             onRetry={() => {
               // 협업 시스템 재연결 시도
               if (collaboration && collaboration.provider) {
