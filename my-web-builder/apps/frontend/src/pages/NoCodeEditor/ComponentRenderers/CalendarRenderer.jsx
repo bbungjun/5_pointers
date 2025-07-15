@@ -158,6 +158,7 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
         )}
       </div>
 
+
       {/* 날짜 표시 */}
       <div style={{ marginTop: '16px', textAlign: 'center' }}>
         <div style={{ fontSize: '14px', color: '#6b7280' }}>
