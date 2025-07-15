@@ -183,7 +183,8 @@ function NotificationToggle() {
     if (!userId) return;
 
     // 소켓 연결
-    const socket = io(`${API_BASE_URL.replace(/\/api$/, '')}/invite`, {
+    const socketUrl = API_BASE_URL.replace('https://', 'wss://').replace('http://', 'ws://');
+    const socket = io(`${socketUrl}/invite`, {
       query: { userId },
       transports: ['websocket'],
       autoConnect: true,
