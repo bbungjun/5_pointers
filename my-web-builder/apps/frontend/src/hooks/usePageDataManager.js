@@ -67,6 +67,12 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
           const pageData = await response.json();
           console.log('📄 페이지 데이터 로딩 성공:', pageData);
 
+          // 페이지의 editingMode를 우선적으로 사용하여 편집 기준 설정
+          if (pageData.editingMode) {
+            console.log('📄 페이지 editingMode 설정:', pageData.editingMode);
+            setDesignMode(pageData.editingMode);
+          }
+
           // content 구조 처리
           if (pageData.content && typeof pageData.content === 'object') {
             // 새로운 형식: { components: [], canvasSettings: {} }
@@ -79,16 +85,11 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
               setComponents(loadedComponents);
             }
 
-            // designMode 설정 (있는 경우)
-            if (pageData.content.canvasSettings?.designMode) {
-              setDesignMode(pageData.content.canvasSettings.designMode);
-            }
-
             // 캔버스 높이 복원 (있는 경우)
             if (pageData.content.canvasSettings?.canvasHeight) {
               setCanvasHeight(pageData.content.canvasSettings.canvasHeight);
             }
-          } else {
+          } else if (Array.isArray(pageData.content)) {
             // 이전 형식: content가 직접 배열인 경우
             const loadedComponents = pageData.content || [];
             console.log('📄 페이지 데이터에서 로드된 컴포넌트:', loadedComponents.length, '개');

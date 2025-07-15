@@ -13,10 +13,4 @@ export class CreateInvitationDto {
   @IsEnum(MemberRole)
   @IsOptional()
   role?: MemberRole = MemberRole.EDITOR;
-
-  @IsOptional()
-  viewport?: string;
-
-  @IsOptional()
-  fromTemplate?: string;
 }

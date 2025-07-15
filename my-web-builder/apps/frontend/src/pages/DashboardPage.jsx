@@ -304,15 +304,15 @@ function DashboardPage({ user, onLogout }) {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/users/pages`, {
+      // 템플릿으로 페이지 생성 API 사용
+      const response = await fetch(`${API_BASE_URL}/templates/${template.id}/create-page`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          templateId: template.id,
-          title: `Template Page ${Date.now()}`,
+          title: `${template.name} 복사본`,
           subdomain: `template-${Date.now()}`,
         }),
       });
@@ -320,10 +320,10 @@ function DashboardPage({ user, onLogout }) {
       if (response.ok) {
         const newPage = await response.json();
         console.log('새 페이지 생성:', newPage);
-        // 템플릿의 편집 기준에 따라 뷰포트 설정
-        const viewport = template.editingMode === 'mobile' ? 'mobile' : 'desktop';
-        const url = `/editor/${newPage.id}?viewport=${viewport}&fromTemplate=true`;
-        console.log('네비게이션 URL:', url, 'template.editingMode:', template.editingMode);
+        console.log('템플릿 editingMode:', template.editingMode);
+        // URL 파라미터 없이 일반 페이지로 시작
+        const url = `/editor/${newPage.id}`;
+        console.log('네비게이션 URL:', url);
         navigate(url);
       } else {
         alert('템플릿 페이지 생성에 실패했습니다.');

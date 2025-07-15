@@ -217,7 +217,7 @@ export class TemplatesService {
       };
     }
 
-    // 새 페이지 생성
+    // 새 페이지 생성 (템플릿의 editingMode를 페이지에 저장)
     const newPage = this.pagesRepository.create({
       title: title || template.name,
       subdomain: subdomain || this.generateRandomSubdomain(),
@@ -225,6 +225,7 @@ export class TemplatesService {
       owner: user,
       userId,
       status: PageStatus.DRAFT,
+      editingMode: template.editingMode, // 템플릿의 편집 기준을 페이지에 저장
     });
 
     const savedPage = await this.pagesRepository.save(newPage);

@@ -48,20 +48,12 @@ function NoCodeEditor({ pageId }) {
   // roomId가 없으면 임시 ID 생성
   const effectiveRoomId = roomId || `room-${Date.now()}`;
   
-  // URL 파라미터에서 초기 뷰포트 설정 읽기
-  const initialViewport = searchParams.get('viewport') || 'desktop';
+  // URL 파라미터는 더 이상 사용하지 않음 (페이지의 editingMode 사용)
+  const initialViewport = 'desktop'; // 기본값만 설정
   
-  // URL 파라미터에서 템플릿 정보 확인
-  const isFromTemplate = searchParams.get('fromTemplate') === 'true';
-  const templateCategory = searchParams.get('template') ? 
-    (() => {
-      try {
-        const templateData = JSON.parse(decodeURIComponent(searchParams.get('template')));
-        return templateData.category;
-      } catch {
-        return null;
-      }
-    })() : null;
+  // 템플릿 정보는 더 이상 URL 파라미터로 전달하지 않음
+  const isFromTemplate = false;
+  const templateCategory = null;
   
   const canvasRef = useRef();
   const containerRef = useRef();
@@ -657,8 +649,7 @@ function NoCodeEditor({ pageId }) {
       {connectionError && (
         <div className="websocket-guide">
           <WebSocketConnectionGuide
-            wsUrl="ws://43.201.125.200:1234"
-
+            wsUrl="wss://43.201.125.200:1235"
             onRetry={() => {
               // 협업 시스템 재연결 시도
               if (collaboration && collaboration.provider) {
