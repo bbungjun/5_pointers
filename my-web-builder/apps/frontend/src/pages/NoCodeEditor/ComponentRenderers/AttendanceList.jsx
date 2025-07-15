@@ -1,4 +1,3 @@
-my-web-builder/apps/frontend/src/components/AttendanceList.jsx
 
 import React, { useState, useEffect } from 'react';
 
