@@ -8,6 +8,7 @@ import {
 } from '../config';
 import googleLoginImg from '../assets/web_light_sq_ctn@1x.png';
 import kakaoLoginImg from '../assets/kakao_login_medium_narrow.png';
+import ddukddakLogo from '/ddukddak-logo.png';
 
 function MainPage({ onLogin }) {
   const [email, setEmail] = useState('');
