@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../config';
-import { useResponsive } from '../../hooks/useResponsive';
 
 function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
-  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width || width, comp.height || height);
   const { question, placeholder, backgroundColor } = comp.props;
   const [opinions, setOpinions] = useState([]);
   const [newOpinion, setNewOpinion] = useState('');
@@ -385,10 +383,10 @@ function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         transition: 'all 0.2s ease',
         boxSizing: 'border-box',
-        width: responsiveWidth || '100%',
-        height: responsiveHeight || '100%',
+        width: `${comp?.width || 300}px`,
+        height: `${comp?.height || 400}px`,
         minHeight: '400px',
-        padding: isLiveMode ? `clamp(12px, 3vw, 20px)` : '20px'
+        padding: mode === 'live' ? `clamp(12px, 3vw, 20px)` : '20px'
       }}
     >
       {/* CSS 애니메이션 정의 */}
@@ -483,9 +481,9 @@ function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
 
       {/* 질문 제목 */}
       <div style={{
-        fontSize: isLiveMode ? `clamp(${Math.max(14, 20 * 0.7)}px, ${(20 / 375) * 100}vw, 20px)` : '20px',
+        fontSize: mode === 'live' ? `clamp(${Math.max(14, 20 * 0.7)}px, ${(20 / 375) * 100}vw, 20px)` : '20px',
         fontWeight: '700',
-        marginBottom: isLiveMode ? `clamp(12px, 3vw, 20px)` : '20px',
+        marginBottom: mode === 'live' ? `clamp(12px, 3vw, 20px)` : '20px',
         color: '#1f2937',
         textAlign: 'center',
         whiteSpace: 'pre-wrap',
@@ -500,9 +498,9 @@ function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
       {/* 의견 입력 폼 */}
       {mode !== 'editor' && (
         <form onSubmit={handleSubmitOpinion} style={{
-          marginBottom: isLiveMode ? `clamp(16px, 4vw, 24px)` : '24px',
+          marginBottom: mode === 'live' ? `clamp(16px, 4vw, 24px)` : '24px',
           display: 'flex',
-          gap: isLiveMode ? `clamp(8px, 2vw, 12px)` : '12px',
+          gap: mode === 'live' ? `clamp(8px, 2vw, 12px)` : '12px',
           alignItems: 'center'
         }}>
           <div style={{

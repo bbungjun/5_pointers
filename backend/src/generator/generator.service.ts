@@ -54,6 +54,10 @@ export class GeneratorService {
         page = existingPageBySubdomain;
         page.status = PageStatus.DEPLOYED;
         page.title = 'Deployed Page'; // 제목 업데이트
+        // editingMode가 없으면 기본값 설정
+        if (!page.editingMode) {
+          page.editingMode = 'desktop';
+        }
         await this.pagesRepository.save(page);
       } else {
         // 서브도메인이 사용되지 않는 경우 - 새 페이지 생성
@@ -76,14 +80,17 @@ export class GeneratorService {
             title: 'Deployed Page',
             status: PageStatus.DEPLOYED,
             userId: numericUserId,
-            editingMode: editingMode || 'desktop', // 편집 기준 저장
+            editingMode: 'desktop', // editingMode 기본값 설정
           });
           await this.pagesRepository.save(page);
         } else {
           // 기존 프로젝트의 서브도메인 변경
           page.subdomain = subdomain;
           page.status = PageStatus.DEPLOYED;
-          page.editingMode = editingMode || page.editingMode || 'desktop'; // 편집 기준 업데이트
+          // editingMode가 없으면 기본값 설정
+          if (!page.editingMode) {
+            page.editingMode = 'desktop';
+          }
           await this.pagesRepository.save(page);
         }
       }
@@ -202,10 +209,18 @@ export class GeneratorService {
         throw new NotFoundException(`Subdomain "${subdomain}" not found`);
       }
 
-      // content 컬럼에서 컴포넌트 데이터와 페이지 ID 반환
+      // content 컬럼에서 컴포넌트 데이터와 페이지 ID, editingMode 반환
+      const components = page.content?.components || [];
+      
+      // 컴포넌트의 editedViewport를 기준으로 실제 편집 모드 판단
+      const actualEditingMode = components.length > 0 && components[0]?.editedViewport === 'mobile' 
+        ? 'mobile' 
+        : page.editingMode || 'desktop';
+      
       return {
-        components: page.content?.components || [],
+        components,
         pageId: page.id,
+        editingMode: actualEditingMode,
       };
     } catch (error) {
       throw error;

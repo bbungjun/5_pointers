@@ -49,6 +49,8 @@ function CanvasComponent({
   canvasHeight, // 확장된 캔버스 높이
   updateCursorPosition, // 협업 커서 위치 업데이트 함수
   pageId, // 페이지 ID prop 추가
+  setComponentDragging, // 드래그 상태 설정 함수
+  isComponentDragging, // 드래그 상태 확인 함수
 }) {
   const ref = useRef();
 
@@ -483,6 +485,12 @@ function CanvasComponent({
 
     e.stopPropagation();
     console.log('드래그 시작:', comp.id, '현재 위치:', currentX, currentY);
+    
+    // 🔧 드래그 상태 설정 (다른 사용자의 업데이트 방지)
+    if (setComponentDragging) {
+      setComponentDragging(comp.id, true);
+    }
+    
     setIsDragging(true);
     setDragStart({
       x: e.clientX,
@@ -559,40 +567,63 @@ function CanvasComponent({
       setSnapLines(lines);
     }
 
-    // 다중 선택된 컴포넌트들과 함께 이동
-    if (selectedIds && selectedIds.length > 1 && selectedIds.includes(comp.id)) {
-      // 다중 선택된 컴포넌트들의 상대적 위치를 유지하면서 이동
-      const deltaX = newX - currentX;
-      const deltaY = newY - currentY;
-
-      selectedIds.forEach(selectedId => {
-        if (selectedId !== comp.id) {
-          const selectedComp = components.find(c => c.id === selectedId);
-          if (selectedComp) {
-            onMultiUpdate({
-              ...selectedComp,
-              x: selectedComp.x + deltaX,
-              y: selectedComp.y + deltaY,
-            });
-          }
-        }
-      });
-    }
-
-    // 단일 좌표계로 위치 업데이트 (실시간 동기화)
-    const updatedComponent = {
-      ...comp,
-      x: newX,
-      y: newY,
-    };
-    
-    // 협업 시스템을 통한 업데이트
-    onUpdate(updatedComponent);
+    // 🔧 드래그 중에는 로컬 상태만 업데이트 (Y.js 동기화 방지)
+    // 임시 위치를 저장하여 시각적 피드백만 제공
+    setDragStart(prev => ({
+      ...prev,
+      tempX: newX,
+      tempY: newY
+    }));
   };
 
   // 드래그 종료 핸들러 (snapLines 항상 초기화)
   const handleDragEnd = () => {
+    console.log('드래그 종료:', comp.id);
+    
+    // 🔧 드래그 상태 해제 (다른 사용자의 업데이트 허용)
+    if (setComponentDragging) {
+      setComponentDragging(comp.id, false);
+    }
+    
+    // 최종 위치 계산
+    const finalX = dragStart.tempX !== undefined ? dragStart.tempX : currentX;
+    const finalY = dragStart.tempY !== undefined ? dragStart.tempY : currentY;
+    
+    // 🔧 드래그 완료 시에만 Y.js 동기화 수행
+    if (finalX !== currentX || finalY !== currentY) {
+      console.log('위치 변경 감지, Y.js 동기화:', comp.id, `(${currentX}, ${currentY}) -> (${finalX}, ${finalY})`);
+      
+      // 다중 선택된 컴포넌트들과 함께 이동
+      if (selectedIds && selectedIds.length > 1 && selectedIds.includes(comp.id)) {
+        const deltaX = finalX - currentX;
+        const deltaY = finalY - currentY;
+
+        selectedIds.forEach(selectedId => {
+          if (selectedId !== comp.id) {
+            const selectedComp = components.find(c => c.id === selectedId);
+            if (selectedComp) {
+              onMultiUpdate({
+                ...selectedComp,
+                x: selectedComp.x + deltaX,
+                y: selectedComp.y + deltaY,
+              });
+            }
+          }
+        });
+      }
+
+      // 메인 컴포넌트 위치 업데이트 (Y.js 동기화)
+      const updatedComponent = {
+        ...comp,
+        x: finalX,
+        y: finalY,
+      };
+      
+      onUpdate(updatedComponent);
+    }
+    
     setIsDragging(false);
+    
     // 드래그가 끝나면 snapLines를 항상 초기화 (숨김)
     if (setSnapLines) {
       setSnapLines({ vertical: [], horizontal: [] });
@@ -638,8 +669,9 @@ function CanvasComponent({
       data-component-id={comp.id}
       style={{
         position: 'absolute',
-        left: currentX,
-        top: currentY,
+        // 🔧 드래그 중에는 임시 위치 사용, 아니면 실제 위치 사용
+        left: isDragging && dragStart.tempX !== undefined ? dragStart.tempX : currentX,
+        top: isDragging && dragStart.tempY !== undefined ? dragStart.tempY : currentY,
         width: currentWidth,
         //height: currentHeight,
         height: comp.type === 'bankAccount' ? 'auto' : currentHeight,
@@ -653,6 +685,9 @@ function CanvasComponent({
         userSelect: 'none',
         boxSizing: 'border-box',
         pointerEvents: 'auto',
+        // 드래그 중 시각적 피드백
+        opacity: isDragging ? 0.8 : 1,
+        transition: isDragging ? 'none' : 'all 0.1s ease',
       }}
       data-selected={selected}
       data-selected-ids={selectedIds ? selectedIds.join(',') : ''}

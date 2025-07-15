@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { useResponsive } from '../../hooks/useResponsive';
 
 const LinkCopyRenderer = ({ comp, isEditor = false, mode = 'live' }) => {
-  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width, comp.height);
   
   // comp.props 구조 분해
   const {
@@ -30,7 +28,7 @@ const LinkCopyRenderer = ({ comp, isEditor = false, mode = 'live' }) => {
     }
   };
 
-  const responsiveSize = isLiveMode ? `clamp(${size * 0.7}px, ${(size / 375) * 100}vw, ${size}px)` : `${size}px`;
+  const responsiveSize = mode === 'live' ? `clamp(${size * 0.7}px, ${(size / 375) * 100}vw, ${size}px)` : `${size}px`;
 
   return (
     <div
@@ -40,10 +38,10 @@ const LinkCopyRenderer = ({ comp, isEditor = false, mode = 'live' }) => {
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: isLiveMode ? responsiveWidth : '100%',
-        height: isLiveMode ? responsiveHeight : '100%',
+        width: `${actualComp?.width || comp?.width || 300}px`,
+        height: `${actualComp?.height || comp?.height || 200}px`,
         background: bg,
-        borderRadius: isLiveMode ? 'clamp(6px, 1.5vw, 8px)' : '8px',
+        borderRadius: mode === 'live' ? 'clamp(6px, 1.5vw, 8px)' : '8px',
         cursor: (isEditor || mode === 'editor') ? 'default' : 'pointer',
         transition: 'background 0.2s',
         position: 'relative',
@@ -63,21 +61,21 @@ const LinkCopyRenderer = ({ comp, isEditor = false, mode = 'live' }) => {
       <img
         src={icon}
         alt="링크 복사"
-        width={isLiveMode ? `clamp(${size * 0.56}px, ${(size * 0.8 / 375) * 100}vw, ${size * 0.8}px)` : size * 0.8}
-        height={isLiveMode ? `clamp(${size * 0.56}px, ${(size * 0.8 / 375) * 100}vw, ${size * 0.8}px)` : size * 0.8}
+        width={mode === 'live' ? `clamp(${size * 0.56}px, ${(size * 0.8 / 375) * 100}vw, ${size * 0.8}px)` : size * 0.8}
+        height={mode === 'live' ? `clamp(${size * 0.56}px, ${(size * 0.8 / 375) * 100}vw, ${size * 0.8}px)` : size * 0.8}
         style={{ pointerEvents: 'none' }}
       />
       {copied && (
         <span style={{
           position: 'absolute',
-          top: isLiveMode ? 'clamp(-32px, -8vw, -28px)' : '-28px',
+          top: mode === 'live' ? 'clamp(-32px, -8vw, -28px)' : '-28px',
           left: '50%',
           transform: 'translateX(-50%)',
           background: '#222',
           color: '#fff',
-          fontSize: isLiveMode ? 'clamp(10px, 2.5vw, 12px)' : 12,
-          padding: isLiveMode ? 'clamp(3px, 1vw, 4px) clamp(8px, 2vw, 10px)' : '4px 10px',
-          borderRadius: isLiveMode ? 'clamp(4px, 1vw, 6px)' : 6,
+          fontSize: mode === 'live' ? 'clamp(10px, 2.5vw, 12px)' : 12,
+          padding: mode === 'live' ? 'clamp(3px, 1vw, 4px) clamp(8px, 2vw, 10px)' : '4px 10px',
+          borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : 6,
           whiteSpace: 'nowrap',
           zIndex: 10,
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
