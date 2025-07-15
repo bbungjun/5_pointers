@@ -656,10 +656,21 @@ function NoCodeEditor({ pageId }) {
 
 
             onRetry={() => {
+              console.log('🔄 WebSocket 재연결 시도...');
+              
               // 협업 시스템 재연결 시도
               if (collaboration && collaboration.provider) {
+                console.log('🔗 Y.js Provider 재연결 시도');
                 collaboration.provider.connect();
               }
+              
+              // 페이지 새로고침을 통한 강제 재연결
+              setTimeout(() => {
+                if (!isConnected) {
+                  console.log('🔄 페이지 새로고침을 통한 재연결');
+                  window.location.reload();
+                }
+              }, 3000);
             }}
           />
         </div>
