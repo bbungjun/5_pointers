@@ -12,6 +12,8 @@ import WeddingInviteEditor from './ComponentEditors/WeddingInviteEditor';
 import MusicEditor from './ComponentEditors/MusicEditor';
 import KakaoTalkShareEditor from './ComponentEditors/KakaoTalkShareEditor.jsx';
 import PageButtonEditor from './ComponentEditors/PageButtonEditor';
+import LinkCopyEditor from './ComponentEditors/LinkCopyEditor';
+
 
 
 export default function ComponentEditor({ selectedComp, onUpdate }) {
@@ -48,6 +50,8 @@ export default function ComponentEditor({ selectedComp, onUpdate }) {
             return <PageEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
         case 'pageButton':
             return <PageButtonEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
+        case 'linkCopy':
+            return <LinkCopyEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
         default:
             return <p>Select a component to edit its properties.</p>;
     }
