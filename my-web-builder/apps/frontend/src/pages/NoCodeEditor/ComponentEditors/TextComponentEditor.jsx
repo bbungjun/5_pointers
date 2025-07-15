@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { TextEditor, NumberEditor, ColorEditor, FontFamilyEditor, TextAlignEditor, LineHeightEditor, LetterSpacingEditor, TextStyleEditor } from '../PropertyEditors';
+import { debounceKorean } from '../../../utils/debounce';
 
 function TextComponentEditor({ selectedComp, onUpdate }) {
   // 속성 업데이트 함수
-  const updateProperty = (propKey, value) => {
+  const updateProperty = useCallback((propKey, value) => {
     const updatedComp = {
       ...selectedComp,
       props: {
@@ -12,7 +13,12 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
       }
     };
     onUpdate(updatedComp);
-  };
+  }, [selectedComp, onUpdate]);
+
+  // 텍스트 업데이트를 위한 최적화된 함수 (한글 입력 고려)
+  const updateTextProperty = useMemo(() => {
+    return debounceKorean((value) => updateProperty('text', value), 150);
+  }, [updateProperty]);
 
   return (
     <div>
@@ -21,7 +27,7 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
       {/* 텍스트 전용 에디터들 */}
       <TextEditor
         value={selectedComp.props?.text || ''}
-        onChange={(value) => updateProperty('text', value)}
+        onChange={updateTextProperty}
         label="내용"
         placeholder="텍스트 내용을 입력하세요"
       />

@@ -94,7 +94,7 @@ const PageCanvasPreview = ({ page, className = '', editingMode = 'desktop' }) =>
       };
     } else {
       return {
-        width: 320,
+        width: 320,  // TemplateCanvasPreview와 동일한 크기
         height: 240,
         aspectRatio: '16/9'
       };
@@ -105,10 +105,15 @@ const PageCanvasPreview = ({ page, className = '', editingMode = 'desktop' }) =>
   const scaleX = previewDimensions.width / contentWidth;
   const scaleY = previewDimensions.height / contentHeight;
   
-  // 스케일 계산 - 컴포넌트가 잘 보이도록 조정
-  // 너비와 높이 모두 고려하여 적절한 스케일 계산
-  const scale = Math.min(scaleX, scaleY);
-  const finalScale = Math.min(scale * 3); // 최대 1.3배까지 확대
+  // 편집 기준에 따른 스케일 전략
+  let finalScale;
+  if (editingMode === 'mobile') {
+    // 모바일: 화면 너비를 꽉 채우도록 스케일 조정
+    finalScale = Math.max(scaleX, scaleY, 0.4);
+  } else {
+    // 데스크톱: 너비를 기준으로 스케일 고정하여 높이 변화에 영향받지 않도록
+    finalScale = Math.min(scaleX, 0.8);
+  }
 
   // 컴포넌트 렌더링 함수
   const renderComponents = () => {
@@ -235,10 +240,10 @@ const PageCanvasPreview = ({ page, className = '', editingMode = 'desktop' }) =>
                 <div className="absolute inset-0 bg-gray-50 overflow-hidden">
                   {/* 컴포넌트들 렌더링 */}
                   <div 
-                    className="absolute inset-0 flex justify-center"
+                    className="absolute inset-0"
                     style={{
                       transform: `scale(${finalScale})`,
-                      transformOrigin: 'top center',
+                      transformOrigin: 'top left',
                     }}
                   >
                     {renderComponents()}
@@ -247,26 +252,27 @@ const PageCanvasPreview = ({ page, className = '', editingMode = 'desktop' }) =>
               </div>
             </div>
           ) : (
-            // 데스크톱 화면 프레임
+            // 데스크톱 미리보기 (TemplateCanvasPreview와 동일한 스타일)
             <div 
-              className="relative bg-white rounded-lg overflow-hidden border border-gray-300 shadow-sm"
+              className="relative bg-gray-50 w-full overflow-hidden"
               style={{
                 width: `${previewDimensions.width}px`,
                 height: `${previewDimensions.height}px`,
+                minHeight: '200px',
               }}
             >
-              {/* 컨텐츠 영역 */}
-              <div className="absolute inset-0 bg-gray-50 overflow-hidden">
-                {/* 컴포넌트들 렌더링 */}
-                <div 
-                  className="absolute inset-0 flex justify-center"
-                  style={{
-                    transform: `scale(${finalScale})`,
-                    transformOrigin: 'top center',
-                  }}
-                >
-                  {renderComponents()}
-                </div>
+              {/* 캔버스 배경 */}
+              <div className="absolute inset-0 bg-white" />
+              
+              {/* 컴포넌트들 렌더링 */}
+              <div 
+                className="absolute inset-0"
+                style={{
+                  transform: `scale(${finalScale})`,
+                  transformOrigin: 'top left',
+                }}
+              >
+                {renderComponents()}
               </div>
             </div>
           )}

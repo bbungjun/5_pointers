@@ -1,7 +1,31 @@
-import React from 'react';
-import { FontFamilyEditor, TextAlignEditor, LineHeightEditor, LetterSpacingEditor, TextStyleEditor, ColorEditor } from '../PropertyEditors';
+import React, { useState, useEffect } from 'react';
+import { 
+  FontFamilyEditor, 
+  TextAlignEditor, 
+  LineHeightEditor, 
+  LetterSpacingEditor, 
+  TextStyleEditor, 
+  ColorEditor, 
+  SelectEditor, 
+  NumberEditor,
+  BorderEditor,
+  TextEditor,
+} from '../PropertyEditors';
 
 function CommentEditor({ selectedComp, onUpdate }) {
+  const {
+    noBorder = true,
+    borderColor = '#e5e7eb',
+    borderWidth = '1px',
+    borderRadius = 0,
+  } = selectedComp.props;
+
+  const [localNoBorder, setLocalNoBorder] = useState(noBorder);
+
+  useEffect(() => {
+    setLocalNoBorder(selectedComp.props?.noBorder !== undefined ? !!selectedComp.props.noBorder : true);
+  }, [selectedComp.props?.noBorder]);
+
   const handlePropChange = (propName, value) => {
     onUpdate({
       ...selectedComp,
@@ -10,12 +34,11 @@ function CommentEditor({ selectedComp, onUpdate }) {
         [propName]: value
       }
     });
+    if (propName === 'noBorder') setLocalNoBorder(!!value);
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-
       <div>
         <label style={{
           display: 'block', fontSize: 13, fontWeight: 500,
@@ -23,14 +46,10 @@ function CommentEditor({ selectedComp, onUpdate }) {
         }}>
           제목
         </label>
-        <input
-          type="text"
+        <TextEditor
           value={selectedComp.props.title || ''}
-          onChange={(e) => handlePropChange('title', e.target.value)}
-          style={{
-            width: '100%', padding: '8px 12px', border: '1px solid #ddd',
-            borderRadius: 6, fontSize: 14, outline: 'none'
-          }}
+          onChange={(value) => handlePropChange('title', value)}
+          placeholder="제목을 입력하세요"
         />
       </div>
       
@@ -41,14 +60,10 @@ function CommentEditor({ selectedComp, onUpdate }) {
         }}>
           댓글 입력 안내 문구
         </label>
-        <input
-          type="text"
+        <TextEditor
           value={selectedComp.props.placeholder || ''}
-          onChange={(e) => handlePropChange('placeholder', e.target.value)}
-          style={{
-            width: '100%', padding: '8px 12px', border: '1px solid #ddd',
-            borderRadius: 6, fontSize: 14, outline: 'none'
-          }}
+          onChange={(value) => handlePropChange('placeholder', value)}
+          placeholder="안내 문구를 입력하세요"
         />
       </div>
 
@@ -139,6 +154,15 @@ function CommentEditor({ selectedComp, onUpdate }) {
           }}
         />
       </div>
+
+      {/* 테두리 옵션 - BorderEditor로 통합 */}
+      <BorderEditor
+        noBorder={localNoBorder}
+        borderColor={borderColor}
+        borderWidth={borderWidth}
+        borderRadius={borderRadius}
+        onChange={handlePropChange}
+      />
     </div>
   );
 }

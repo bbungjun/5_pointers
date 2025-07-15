@@ -43,7 +43,7 @@ export function useDeploy() {
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState('');
 
-  const handleDeploy = async (components, roomId, domainOverride = null, onDeploySuccess = null) => {
+  const handleDeploy = async (components, roomId, domainOverride = null, editingMode = 'desktop', onDeploySuccess = null) => {
     const domainToUse = domainOverride ? domainOverride.trim() : domainName.trim();
 
     console.log('🚀 배포 시작:', { domainToUse, roomId, componentsCount: components?.length });
@@ -84,7 +84,8 @@ export function useDeploy() {
         projectId: roomId,
         userId: userId.toString(),
         components: components || [],
-        domain: domainToUse
+        domain: domainToUse,
+        editingMode: editingMode
       };
       
       console.log('📤 API 요청:', {

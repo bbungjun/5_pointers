@@ -8,7 +8,7 @@ export function getComponentDimensions(type) {
     image: { defaultWidth: 200, defaultHeight: 150, minWidth: 100, minHeight: 100 },
     map: { defaultWidth: 375, defaultHeight: 250, minWidth: 200, minHeight: 150 },
     link: { defaultWidth: 150, defaultHeight: 50, minWidth: 100, minHeight: 50 },
-    attend: { defaultWidth: 375, defaultHeight: 300, minWidth: 250, minHeight: 150 },
+    attend: { defaultWidth: 375, defaultHeight: 200, minWidth: 250, minHeight: 250 },
     dday: { defaultWidth: 375, defaultHeight: 200, minWidth: 150, minHeight: 100 },
     weddingContact: { defaultWidth: 375, defaultHeight: 250, minWidth: 250, minHeight: 200 },
     weddingInvite: { defaultWidth: 375, defaultHeight: 400, minWidth: 300, minHeight: 250 },

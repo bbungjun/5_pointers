@@ -17,7 +17,7 @@ export class GeneratorService {
    * @returns 배포된 사이트의 URL
    */
   async deploy(deployDto: DeployDto): Promise<{ url: string }> {
-    const { projectId, userId, components } = deployDto;
+    const { projectId, userId, components, editingMode } = deployDto;
 
 
     // 1. projectId 유효성 확인
@@ -113,6 +113,7 @@ export class GeneratorService {
       page.content = { components };
       page.deployedAt = new Date(); // 배포 시간 업데이트
       page.status = PageStatus.DEPLOYED; // 상태 명시적으로 설정
+      page.editingMode = editingMode || page.editingMode || 'desktop'; // 편집 기준 업데이트
       
       console.log('🚀 배포 저장 전 페이지 상태:', {
         id: page.id,

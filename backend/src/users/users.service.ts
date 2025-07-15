@@ -381,7 +381,6 @@ export class UsersService {
     if (!user) throw new Error('User not found');
 
     let content = null;
-    let editingMode: 'desktop' | 'mobile' = 'desktop'; // 기본값
 
     // templateId가 있으면 템플릿에서 content 가져오기
     if (body.templateId) {
@@ -391,9 +390,6 @@ export class UsersService {
         where: { id: body.templateId },
       });
       if (template && template.content) {
-        // editingMode 가져오기
-        editingMode = template.editingMode || 'desktop';
-        
         // 컴포넌트 ID 재발급 및 구조 통일
         let componentsArr = Array.isArray(template.content)
           ? template.content
@@ -416,7 +412,6 @@ export class UsersService {
       subdomain: body.subdomain || `page-${Date.now()}`,
       title: body.title || 'Untitled',
       content: content,
-      editingMode: editingMode, // editingMode 추가
       status: PageStatus.DRAFT,
     });
 
@@ -1077,6 +1072,73 @@ export class UsersService {
       message: 'Design mode updated successfully',
       pageId: pageId,
       designMode: designMode
+    };
+  }
+
+  // 참석 의사 조회
+  async getAttendance(pageId: string, componentId: string): Promise<any[]> {
+    const submissions = await this.submissionsRepository.find({
+      where: {
+        pageId: pageId,
+        component_id: componentId,
+      },
+      order: { createdAt: 'DESC' },
+    });
+
+    return submissions.map((submission) => ({
+      id: submission.id,
+      attendeeName: submission.data.attendeeName,
+      attendeeCount: submission.data.attendeeCount,
+      guestSide: submission.data.guestSide,
+      contact: submission.data.contact,
+      companionCount: submission.data.companionCount,
+      mealOption: submission.data.mealOption,
+      createdAt: submission.createdAt,
+    }));
+  }
+
+  // 참석 의사 작성
+  async createAttendance(
+    pageId: string,
+    componentId: string,
+    attendanceData: {
+      attendeeName: string;
+      attendeeCount: number;
+      guestSide: string;
+      contact: string;
+      companionCount: number;
+      mealOption: string;
+      privacyConsent: boolean;
+    },
+  ): Promise<any> {
+    const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+    if (!page) throw new Error('Page not found');
+
+    const submission = this.submissionsRepository.create({
+      page: page,
+      pageId: pageId,
+      component_id: componentId,
+      data: {
+        attendeeName: attendanceData.attendeeName,
+        attendeeCount: attendanceData.attendeeCount,
+        guestSide: attendanceData.guestSide,
+        contact: attendanceData.contact,
+        companionCount: attendanceData.companionCount,
+        mealOption: attendanceData.mealOption,
+        privacyConsent: attendanceData.privacyConsent,
+      },
+    });
+
+    const saved = await this.submissionsRepository.save(submission);
+    return {
+      id: saved.id,
+      attendeeName: saved.data.attendeeName,
+      attendeeCount: saved.data.attendeeCount,
+      guestSide: saved.data.guestSide,
+      contact: saved.data.contact,
+      companionCount: saved.data.companionCount,
+      mealOption: saved.data.mealOption,
+      createdAt: saved.createdAt,
     };
   }
 }

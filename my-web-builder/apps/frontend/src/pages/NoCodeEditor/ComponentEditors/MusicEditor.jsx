@@ -121,7 +121,7 @@ export default function MusicEditor({ selectedComp, onUpdate }) {
                                     marginLeft: 8
                                 }}
                             >
-                                {isPreviewPlaying && previewMusicId === music.id ? '⏹' : '▶'}
+                                {isPreviewPlaying && previewMusicId === music.id ? '■' : '▶'}
                             </button>
                         </div>
                     ))}

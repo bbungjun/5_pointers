@@ -88,7 +88,8 @@ const PreviewModal = ({
   onClose, 
   components = [], 
   editingViewport = "desktop",
-  templateCategory 
+  templateCategory,
+  pageId 
 }) => {
   const [viewMode, setViewMode] = useState(editingViewport);
   const iframeRef = useRef(null);
@@ -151,7 +152,8 @@ const PreviewModal = ({
           React.createElement(PreviewRenderer, {
             components: components,
             forcedViewport: viewMode,
-            editingViewport: editingViewport
+            editingViewport: editingViewport,
+            pageId: pageId
           })
         )
       );

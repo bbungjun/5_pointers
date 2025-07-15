@@ -24,7 +24,15 @@ const AVAILABLE_FONTS = [
 ];
 
 function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }) {
-  const { title, placeholder, backgroundColor } = comp.props;
+  const { 
+    title, 
+    placeholder, 
+    backgroundColor,
+    noBorder = true,
+    borderColor = '#e5e7eb',
+    borderWidth = '1px',
+    borderRadius = 0
+  } = comp.props;
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
     author: '',
@@ -49,11 +57,8 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
       const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
       
       const response = await fetch(apiUrl);
-      console.log('🚀 CommentRenderer - API 응답 상태:', response.status);
-      
       if (response.ok) {
         const data = await response.json();
-        console.log('🚀 CommentRenderer - API 응답 데이터:', data);
         setComments(data);
       } else {
         console.error('❌ CommentRenderer - API 응답 오류:', response.status, response.statusText);
@@ -74,26 +79,13 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
     const actualPageId = pageId || comp.pageId;
     const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
     
-    console.log('🚀 CommentRenderer - handleSubmitComment 호출');
-    console.log('🚀 CommentRenderer - actualPageId:', actualPageId);
-    console.log('🚀 CommentRenderer - actualApiBaseUrl:', actualApiBaseUrl);
-    console.log('🚀 CommentRenderer - comp.id:', comp.id);
-    console.log('🚀 CommentRenderer - newComment:', newComment);
-    
     if (!actualPageId || !actualApiBaseUrl) {
-      console.error('❌ CommentRenderer - pageId 또는 API_BASE_URL이 없습니다', {
-        actualPageId,
-        actualApiBaseUrl,
-        comp: comp
-      });
       alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
       return;
     }
 
     try {
       const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
-      console.log('🚀 CommentRenderer - POST API 호출 URL:', apiUrl);
-      
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -101,22 +93,12 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
       });
 
       if (response.ok) {
-        const result = await response.json();
-        
         setNewComment({ author: '', content: '', password: '' });
         await fetchComments(); // 댓글 목록 새로고침
-        // alert('댓글이 성공적으로 등록되었습니다.');
       } else {
-        const errorText = await response.text();
-        console.error('API 응답 에러:', {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText
-        });
         alert(`댓글 등록에 실패했습니다. (${response.status}: ${response.statusText})`);
       }
     } catch (error) {
-      console.error('댓글 등록 실패:', error);
       alert(`댓글 등록에 실패했습니다. 네트워크 오류: ${error.message}`);
     }
   };
@@ -146,13 +128,13 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
         alert('비밀번호가 일치하지 않습니다.');
       }
     } catch (error) {
-      console.error('댓글 삭제 실패:', error);
       alert('댓글 삭제에 실패했습니다.');
     }
   };
 
   useEffect(() => {
     fetchComments();
+    // eslint-disable-next-line
   }, [comp.id, comp.pageId, mode]);
 
   // viewport에 따른 반응형 스타일 계산
@@ -190,8 +172,8 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
       style={{
         width: '100%',
         height: '100%',
-        borderRadius: 0,
-        border: '1px solid #e5e7eb',
+        borderRadius: borderRadius,
+        border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`,
         backgroundColor,
         display: 'flex',
         flexDirection: 'column',
@@ -287,7 +269,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
             outline: 'none',
             resize: 'none',
             minHeight: styles.textareaHeight,
-            whiteSpace: 'pre-wrap', // ✅
+            whiteSpace: 'pre-wrap',
           }}
           onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
           onBlur={(e) => (e.target.style.borderColor = '#d1d5db')}
@@ -306,7 +288,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
             backgroundColor: mode === 'editor' ? '#d1d5db' : '#2563eb',
             color: mode === 'editor' ? '#6b7280' : '#ffffff',
             transition: 'background-color 0.2s',
-            whiteSpace: 'pre-wrap', // ✅
+            whiteSpace: 'pre-wrap',
           }}
           onMouseOver={(e) => {
             if (mode !== 'editor') e.target.style.backgroundColor = '#1d4ed8';
@@ -364,7 +346,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
                     color: '#4b5563',
                     fontSize: '14px',
                     lineHeight: '1.5',
-                    whiteSpace: 'pre-wrap', // ✅
+                    whiteSpace: 'pre-wrap',
                   }}
                 >
                   이곳에 댓글이 표시됩니다. 배포 후에 실제 댓글을 작성할 수
@@ -422,7 +404,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
                     color: '#4b5563',
                     fontSize: '14px',
                     lineHeight: '1.5',
-                    whiteSpace: 'pre-wrap', // ✅
+                    whiteSpace: 'pre-wrap',
                   }}
                 >
                   댓글 예시입니다.
@@ -555,7 +537,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
                 fontSize: '18px',
                 fontWeight: '600',
                 marginBottom: '16px',
-                whiteSpace: 'pre-wrap', // ✅
+                whiteSpace: 'pre-wrap',
               }}
             >
               댓글 삭제
@@ -564,7 +546,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
               style={{
                 color: '#4b5563',
                 marginBottom: '16px',
-                whiteSpace: 'pre-wrap', // ✅
+                whiteSpace: 'pre-wrap',
               }}
             >
               댓글 작성 시 입력한 비밀번호를 입력해주세요.
@@ -605,7 +587,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',
                   fontSize: styles.inputFontSize,
-                  whiteSpace: 'pre-wrap', // ✅
+                  whiteSpace: 'pre-wrap',
                 }}
                 onMouseOver={(e) =>
                   (e.target.style.backgroundColor = '#b91c1c')
@@ -629,7 +611,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',
                   fontSize: styles.inputFontSize,
-                  whiteSpace: 'pre-wrap', // ✅
+                  whiteSpace: 'pre-wrap',
                 }}
                 onMouseOver={(e) =>
                   (e.target.style.backgroundColor = '#9ca3af')
