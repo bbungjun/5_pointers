@@ -198,7 +198,7 @@ const PageCanvasPreview = ({ page, className = '', editingMode = 'desktop' }) =>
       <div className="absolute top-2 right-2 z-10">
         <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
           editingMode === 'mobile' 
-            ? 'bg-blue-100 text-blue-800' 
+            ? 'bg-pink-100 text-blue-800' 
             : 'bg-green-100 text-green-800'
         }`}>
           {editingMode === 'mobile' ? (

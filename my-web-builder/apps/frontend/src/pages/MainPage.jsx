@@ -8,7 +8,6 @@ import {
 } from '../config';
 import googleLoginImg from '../assets/web_light_sq_ctn@1x.png';
 import kakaoLoginImg from '../assets/kakao_login_medium_narrow.png';
-const ddukddakLogo = '/ddukddak-logo.png';
 
 function MainPage({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -60,10 +59,13 @@ function MainPage({ onLogin }) {
             />
           </div>
 
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-3">
-            뚝딱
-          </h1>
-          <p className="text-slate-600 text-lg font-medium leading-relaxed">
+          <div className="flex justify-center mb-6">
+            <img 
+              src="/ddukddak-logo.png" 
+              alt="DDUKDDAK" 
+              className="h-8 object-contain" 
+            />
+          </div>          <p className="text-slate-600 text-lg font-medium leading-relaxed">
             특별한 순간을 위한 이벤트 페이지 
           </p>
         </div>

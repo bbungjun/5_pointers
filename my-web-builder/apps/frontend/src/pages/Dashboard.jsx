@@ -67,7 +67,7 @@ function Dashboard() {
       display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
       background: '#f5f6fa', gap: 20
     }}>
-      <h1 style={{ fontSize: 32, color: '#333', marginBottom: 40, fontWeight: 'bold' }}>뚝딱 - 모바일 이벤트 페이지 빌더</h1>
+      <h1 style={{ fontSize: 32, color: '#333', marginBottom: 40, fontWeight: 'bold' }}>모바일 이벤트 페이지 빌더</h1>
       
       <button
         onClick={handleCreateNewPage}
@@ -77,7 +77,7 @@ function Dashboard() {
           marginBottom: 12, fontWeight: 'bold', boxShadow: '0 4px 15px rgba(255, 107, 53, 0.3)'
         }}
       >
-뚝딱 페이지 만들기
+페이지 만들기
       </button>
       
 

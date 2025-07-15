@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
-import ddukddakLogo from '../assets/page-cube-logo.png';
+import { colors } from '../styles/colors';
 import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
 
 function DeployedPage({ user, onLogout }) {
@@ -220,7 +220,7 @@ function DeployedPage({ user, onLogout }) {
   const PageCard = ({ page, isMobile = false }) => (
     <div
       key={page.id}
-      className={`bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-xl p-6 hover:from-emerald-100 hover:to-green-100 transition-all duration-300 group ${
+      className={`bg-gradient-to-r from-purple-100 to-purple-200 border border-purple-300 rounded-xl p-6 hover:from-purple-200 hover:to-purple-300 transition-all duration-300 group ${
         isMobile ? 'max-w-xs mx-auto' : ''
       }`}
     >
@@ -287,7 +287,7 @@ function DeployedPage({ user, onLogout }) {
               onChange={(e) => setEditingTitle(e.target.value)}
               onBlur={() => saveEditTitle(page.id)}
               onKeyPress={(e) => e.key === 'Enter' && saveEditTitle(page.id)}
-              className="w-full px-3 py-2 text-lg font-bold border border-emerald-300 rounded-lg focus:outline-none focus:border-emerald-500 bg-white"
+              className="w-full px-3 py-2 text-lg font-bold border border-purple-400 rounded-lg focus:outline-none focus:border-purple-600 bg-white"
               autoFocus
             />
           ) : (
@@ -298,7 +298,7 @@ function DeployedPage({ user, onLogout }) {
             배포일: {new Date(page.deployedAt || page.updatedAt).toLocaleDateString()}
           </p>
           {page.subdomain && (
-            <p className="text-sm text-emerald-600 font-medium">
+            <p className="text-sm text-purple-600 font-medium">
               도메인: {page.subdomain}.ddukddak.org
             </p>
           )}
@@ -306,7 +306,7 @@ function DeployedPage({ user, onLogout }) {
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => startEditTitle(page.id, page.title)}
-            className="p-2 text-emerald-600 hover:bg-emerald-100 rounded-lg"
+            className="p-2 text-purple-600 hover:bg-purple-200 rounded-lg"
             title="제목 수정"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -330,13 +330,13 @@ function DeployedPage({ user, onLogout }) {
             const viewport = page.editingMode === 'mobile' ? 'mobile' : 'desktop';
             navigate(`/editor/${page.id}?viewport=${viewport}`);
           }}
-          className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+          className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
         >
           편집하기
         </button>
         <button
           onClick={() => window.open(`http://${page.subdomain}.ddukddak.org`, '_blank')}
-          className="px-4 py-2 bg-white text-emerald-600 border border-emerald-600 rounded-lg font-medium hover:bg-emerald-50 transition-colors"
+          className="px-4 py-2 bg-white text-purple-600 border border-purple-600 rounded-lg font-medium hover:bg-purple-100 transition-colors"
         >
           보기
         </button>
@@ -344,7 +344,7 @@ function DeployedPage({ user, onLogout }) {
         {hasAttendRenderer(page) && (
           <button
             onClick={() => openAttendanceModal(page.id, page.title)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-1"
+            className="px-4 py-2 bg-pink-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-1"
             title="참석 의사 확인"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,20 +373,17 @@ function DeployedPage({ user, onLogout }) {
                 onClick={() => navigate('/dashboard')}
               >
                 <img
-                  src={ddukddakLogo}
-                  alt="DdukDdak"
-                  className="w-10 h-10 object-contain transform group-hover:scale-105 transition duration-300"
+                  src="/ddukddak-logo.png"
+                  alt="DDUKDDAK"
+                  className="h-6 object-contain transform group-hover:scale-105 transition duration-300"
                 />
               </div>
               <div className="flex items-center gap-6">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  PAGE CUBE
-                </h1>
                 <div className="h-6 w-px bg-slate-200"></div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 border border-green-600 shadow-sm"></div>
+                  <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
                   <p className="text-slate-600 font-medium text-sm">
-                    <span className="text-blue-600 font-semibold">{user.nickname}</span>님
+                    <span className="text-pink-600 font-semibold">{user.nickname}</span>님
                   </p>
                 </div>
               </div>
@@ -399,7 +396,7 @@ function DeployedPage({ user, onLogout }) {
                 onClick={() => navigate('/dashboard/drafts')}
                 className="px-4 py-2 bg-white text-slate-600 hover:text-amber-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-amber-200 flex items-center gap-2 group"
               >
-                <div className="w-5 h-5 bg-gradient-to-r from-amber-500 to-orange-500 rounded flex items-center justify-center">
+                <div className="w-5 h-5 bg-gradient-to-r from-purple-500 to-purple-600 rounded flex items-center justify-center">
                   <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
@@ -430,13 +427,13 @@ function DeployedPage({ user, onLogout }) {
         {/* 페이지 헤더 */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-slate-800">배포된 페이지</h2>
-            <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-medium rounded-full">
+            <span className="px-3 py-1 bg-purple-200 text-purple-700 text-sm font-medium rounded-full">
               {deployedPages.length}개
             </span>
           </div>
@@ -447,7 +444,7 @@ function DeployedPage({ user, onLogout }) {
           {pagesLoading ? (
             <div className="text-center py-16">
               <div className="w-16 h-16 mx-auto mb-4">
-                <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
+                <div className="w-16 h-16 border-4 border-purple-300 border-t-purple-600 rounded-full animate-spin"></div>
               </div>
               <p className="text-slate-600 font-medium">페이지를 불러오는 중...</p>
             </div>
@@ -462,7 +459,7 @@ function DeployedPage({ user, onLogout }) {
               <p className="text-slate-600 mb-4">페이지를 만들어서 배포해보세요</p>
               <button
                 onClick={() => navigate('/dashboard')}
-                className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+                className="px-6 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors"
               >
                 대시보드로 돌아가기
               </button>
@@ -473,11 +470,11 @@ function DeployedPage({ user, onLogout }) {
               {mobilePages.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-6">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
                     </svg>
                     <h4 className="text-lg font-bold text-slate-800">모바일 페이지</h4>
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                    <span className="px-2 py-1 bg-pink-100 text-pink-700 text-sm font-medium rounded-full">
                       {mobilePages.length}개
                     </span>
                   </div>
@@ -507,11 +504,11 @@ function DeployedPage({ user, onLogout }) {
               {desktopPages.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-6">
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     <h4 className="text-lg font-bold text-slate-800">데스크톱 페이지</h4>
-                    <span className="px-2 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+                    <span className="px-2 py-1 bg-purple-200 text-purple-700 text-sm font-medium rounded-full">
                       {desktopPages.length}개
                     </span>
                   </div>
@@ -600,7 +597,7 @@ function DeployedPage({ user, onLogout }) {
             {attendanceModal.loading ? (
               <div className="text-center py-16">
                 <div className="w-16 h-16 mx-auto mb-4">
-                  <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                  <div className="w-16 h-16 border-4 border-pink-200 border-t-pink-600 rounded-full animate-spin"></div>
                 </div>
                 <p className="text-slate-600 font-medium">참석 데이터를 불러오는 중...</p>
               </div>
@@ -619,11 +616,11 @@ function DeployedPage({ user, onLogout }) {
                 {attendanceModal.attendanceData.map((componentData, index) => (
                   <div key={componentData.componentId} className="border border-slate-200 rounded-xl p-6">
                     <h4 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                      <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
+                      <span className="w-6 h-6 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center text-sm font-bold">
                         {index + 1}
                       </span>
                       {componentData.componentTitle}
-                      <span className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                      <span className="text-sm bg-pink-100 text-pink-600 px-2 py-1 rounded-full">
                         {componentData.submissions.length}명 참석
                       </span>
                     </h4>
@@ -652,7 +649,7 @@ function DeployedPage({ user, onLogout }) {
                                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                     submission.guestSide === '신부측' 
                                       ? 'bg-pink-100 text-pink-700' 
-                                      : 'bg-blue-100 text-blue-700'
+                                      : 'bg-pink-100 text-pink-700'
                                   }`}>
                                     {submission.guestSide}
                                   </span>
@@ -663,7 +660,7 @@ function DeployedPage({ user, onLogout }) {
                                 <td className="p-3">
                                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                     submission.mealOption === '식사함' 
-                                      ? 'bg-green-100 text-green-700' 
+                                      ? 'bg-purple-200 text-purple-700' 
                                       : submission.mealOption === '식사안함'
                                       ? 'bg-red-100 text-red-700'
                                       : 'bg-gray-100 text-gray-700'
@@ -685,7 +682,7 @@ function DeployedPage({ user, onLogout }) {
                     {componentData.submissions.length > 0 && (
                       <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200">
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-600">
+                          <div className="text-2xl font-bold text-pink-600">
                             {componentData.submissions.length}
                           </div>
                           <div className="text-sm text-slate-600">총 참석자</div>
@@ -697,13 +694,13 @@ function DeployedPage({ user, onLogout }) {
                           <div className="text-sm text-slate-600">신부측</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-600">
+                          <div className="text-2xl font-bold text-pink-600">
                             {componentData.submissions.filter(s => s.guestSide === '신랑측').length}
                           </div>
                           <div className="text-sm text-slate-600">신랑측</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">
+                          <div className="text-2xl font-bold text-purple-600">
                             {componentData.submissions.reduce((sum, s) => sum + (s.attendeeCount || 0) + (s.companionCount || 0), 0)}
                           </div>
                           <div className="text-sm text-slate-600">총 인원</div>

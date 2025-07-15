@@ -61,7 +61,7 @@ function LinkRenderer({ comp, mode = 'editor' }) {
         onChange={e => setEditValue(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        className="w-32 border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+        className="w-32 border-2 border-pink-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
         style={{ fontSize: comp.props.fontSize, whiteSpace: 'pre-wrap' }} // ✅ 줄바꿈 지원
       />
     );

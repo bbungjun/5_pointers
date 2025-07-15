@@ -449,14 +449,18 @@ function DashboardPage({ user, onLogout }) {
             {/* 로고 섹션 */}
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-6">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-700 to-blue-800 bg-clip-text text-transparent">
-                DDUKDDAK
+                <h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+                <img 
+                  src="/ddukddak-logo.png" 
+                  alt="DDUKDDAK" 
+                  style={{ height: '16px', objectFit: 'contain' }} 
+                />
               </h1>
                 <div className="h-6 w-px bg-slate-200"></div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 border border-green-600 shadow-sm"></div>
+                  <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
               <p className="text-slate-600 font-medium text-sm">
-                    <span className="text-blue-600 font-semibold">{user.nickname}</span>님
+                    <span className="text-pink-600 font-semibold">{user.nickname}</span>님
               </p>
                 </div>
               </div>
@@ -466,8 +470,8 @@ function DashboardPage({ user, onLogout }) {
             <div className="flex items-center gap-3">
               {/* 마이페이지 드롭다운 */}
               <div className="relative group">
-                <button className="px-4 py-2 bg-white text-slate-600 hover:text-blue-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-blue-200 flex items-center gap-2 group">
-                  <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded flex items-center justify-center">
+                <button className="px-4 py-2 bg-white text-slate-600 hover:text-gray-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-gray-300 flex items-center gap-2 group">
+                  <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center">
                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -486,7 +490,7 @@ function DashboardPage({ user, onLogout }) {
                       onClick={() => navigate('/dashboard/drafts')}
                       className="w-full px-4 py-3 text-left text-slate-600 hover:text-amber-600 rounded-lg transition-all duration-300 font-medium hover:bg-amber-50 flex items-center gap-3 group"
                     >
-                      <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-purple-300 to-purple-400 rounded-lg flex items-center justify-center">
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
@@ -507,7 +511,7 @@ function DashboardPage({ user, onLogout }) {
                       onClick={() => navigate('/dashboard/deployed')}
                       className="w-full px-4 py-3 text-left text-slate-600 hover:text-emerald-600 rounded-lg transition-all duration-300 font-medium hover:bg-emerald-50 flex items-center gap-3 group"
                     >
-                      <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -551,11 +555,11 @@ function DashboardPage({ user, onLogout }) {
         </div>
 
         {/* 테마 선택 섹션 */}
-        <div className="bg-white rounded-2xl shadow-2xl shadow-pink-200/50 border border-pink-100 p-8 mb-12">
+        <div className="bg-white rounded-2xl shadow-2xl shadow-gray-200/50 border border-gray-200 p-8 mb-12">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-700/10 to-blue-800/10 rounded-xl flex items-center justify-center transform rotate-45">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-700 to-blue-800 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center transform rotate-45" style={{ backgroundColor: '#7483D1' }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#7483D1' }}>
                   <svg className="w-4 h-4 text-white -rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                   </svg>
@@ -578,9 +582,10 @@ function DashboardPage({ user, onLogout }) {
                       onClick={() => setSelectedCategory(category.value)}
                       className={`px-3 py-1.5 rounded-lg transition-all duration-300 font-medium text-sm flex items-center gap-1.5 min-w-[70px] justify-center ${
                         selectedCategory === category.value
-                          ? 'bg-pink-600 text-white shadow-lg'
-                          : 'bg-slate-100 text-slate-600 hover:bg-pink-50 hover:text-pink-600'
+                          ? 'text-white shadow-lg'
+                          : 'bg-slate-100 text-slate-600 hover:bg-pink-50 hover:text-gray-600'
                       }`}
+                      style={selectedCategory === category.value ? { backgroundColor: '#7483D1' } : {}}
                     >
                       {category.value === 'all' && (
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -618,9 +623,10 @@ function DashboardPage({ user, onLogout }) {
                       onClick={() => setSelectedDevice(device.value)}
                       className={`px-3 py-1.5 rounded-lg transition-all duration-300 font-medium text-sm flex items-center gap-1.5 min-w-[70px] justify-center ${
                         selectedDevice === device.value
-                          ? 'bg-pink-500 text-white shadow-lg'
-                          : 'bg-slate-100 text-slate-600 hover:bg-pink-50 hover:text-pink-600'
+                          ? 'text-white shadow-lg'
+                          : 'bg-slate-100 text-slate-600 hover:bg-pink-50 hover:text-gray-600'
                       }`}
+                      style={selectedDevice === device.value ? { backgroundColor: '#7483D1' } : {}}
                     >
                       {device.value === 'mobile' && (
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -650,7 +656,7 @@ function DashboardPage({ user, onLogout }) {
             {loading ? (
               <div className="text-center py-16">
                 <div className="w-16 h-16 mx-auto mb-4">
-                  <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                  <div className="w-16 h-16 border-4 border-pink-200 border-t-pink-600 rounded-full animate-spin"></div>
                 </div>
                 <p className="text-slate-600 font-medium">큐브 템플릿을 불러오는 중...</p>
               </div>
@@ -675,11 +681,11 @@ function DashboardPage({ user, onLogout }) {
                           <div>
                             <div className="flex items-center justify-between mb-6">
                               <div className="flex items-center gap-2">
-                                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
                                 </svg>
                                 <h4 className="text-lg font-bold text-slate-800">모바일 템플릿</h4>
-                                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
                                   {mobileTotalCount}개
                                 </span>
                               </div>
@@ -693,7 +699,7 @@ function DashboardPage({ user, onLogout }) {
                                     className={`p-2 rounded-lg transition-all duration-300 ${
                                       mobileCurrentPage === 1
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-200 shadow-sm'
+                                        : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-gray-600 border border-gray-200 shadow-sm'
                                     }`}
                                   >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -711,7 +717,7 @@ function DashboardPage({ user, onLogout }) {
                                     className={`p-2 rounded-lg transition-all duration-300 ${
                                       mobileCurrentPage === mobileTotalPages
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-200 shadow-sm'
+                                        : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-gray-600 border border-gray-200 shadow-sm'
                                     }`}
                                   >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -726,7 +732,7 @@ function DashboardPage({ user, onLogout }) {
                                 <div
                                   key={template.id}
                                   onClick={() => handleCreateFromTemplate(template)}
-                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
+                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
                                 >
                                   <div className="p-4">
                                     {/* 템플릿 캔버스 미리보기 */}
@@ -741,12 +747,12 @@ function DashboardPage({ user, onLogout }) {
                                       />
                                     </div>
                                     
-                                    <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors">
+                                    <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
                                       {template.name}
                                     </h4>
                                     <div className="flex items-center justify-between">
                                       <div className="flex items-center gap-2">
-                                        <span className="text-sm text-blue-600 font-medium">
+                                        <span className="text-sm text-pink-600 font-medium">
                                           {template.category}
                                         </span>                                        
                                       </div>
@@ -777,11 +783,11 @@ function DashboardPage({ user, onLogout }) {
                           <div>
                             <div className="flex items-center justify-between mb-6">
                               <div className="flex items-center gap-2">
-                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                                 <h4 className="text-lg font-bold text-slate-800">데스크톱 템플릿</h4>
-                                <span className="px-2 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
                                   {desktopTotalCount}개
                                 </span>
                               </div>
@@ -795,7 +801,7 @@ function DashboardPage({ user, onLogout }) {
                                     className={`p-2 rounded-lg transition-all duration-300 ${
                                       desktopCurrentPage === 1
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 hover:bg-green-50 hover:text-green-600 border border-gray-200 shadow-sm'
+                                        : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 shadow-sm'
                                     }`}
                                   >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -813,7 +819,7 @@ function DashboardPage({ user, onLogout }) {
                                     className={`p-2 rounded-lg transition-all duration-300 ${
                                       desktopCurrentPage === desktopTotalPages
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 hover:bg-green-50 hover:text-green-600 border border-gray-200 shadow-sm'
+                                        : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 shadow-sm'
                                     }`}
                                   >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -828,7 +834,7 @@ function DashboardPage({ user, onLogout }) {
                                 <div
                                   key={template.id}
                                   onClick={() => handleCreateFromTemplate(template)}
-                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
+                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
                                 >
                                   <div className="p-4">
                                     {/* 템플릿 캔버스 미리보기 */}
@@ -860,12 +866,12 @@ function DashboardPage({ user, onLogout }) {
                                       )}
                                     </div>
                                     
-                                    <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors">
+                                    <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
                                       {template.name}
                                     </h4>
                                     <div className="flex items-center justify-between">
                                       <div className="flex items-center gap-2">
-                                        <span className="text-sm text-blue-600 font-medium">
+                                        <span className="text-sm text-pink-600 font-medium">
                                           {template.category}
                                         </span>
                                       </div>
@@ -885,21 +891,21 @@ function DashboardPage({ user, onLogout }) {
                           <div className="flex items-center gap-2">
                             {selectedDevice === 'mobile' ? (
                               <>
-                                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
                                 </svg>
                                 <h4 className="text-lg font-bold text-slate-800">모바일 템플릿</h4>
-                                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
                                   {mobileTotalCount}개
                                 </span>
                               </>
                             ) : (
                               <>
-                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                                 <h4 className="text-lg font-bold text-slate-800">데스크톱 템플릿</h4>
-                                <span className="px-2 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
                                   {desktopTotalCount}개
                                 </span>
                               </>
@@ -926,7 +932,7 @@ function DashboardPage({ user, onLogout }) {
                                   (selectedDevice === 'mobile' && mobileCurrentPage === 1) ||
                                   (selectedDevice === 'desktop' && desktopCurrentPage === 1)
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'blue' : 'green'}-50 hover:text-${selectedDevice === 'mobile' ? 'blue' : 'green'}-600 border border-gray-200 shadow-sm`
+                                    : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-50 hover:text-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-600 border border-gray-200 shadow-sm`
                                 }`}
                               >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -957,7 +963,7 @@ function DashboardPage({ user, onLogout }) {
                                   (selectedDevice === 'mobile' && mobileCurrentPage === mobileTotalPages) ||
                                   (selectedDevice === 'desktop' && desktopCurrentPage === desktopTotalPages)
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'blue' : 'green'}-50 hover:text-${selectedDevice === 'mobile' ? 'blue' : 'green'}-600 border border-gray-200 shadow-sm`
+                                    : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-50 hover:text-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-600 border border-gray-200 shadow-sm`
                                 }`}
                               >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -973,7 +979,7 @@ function DashboardPage({ user, onLogout }) {
                           <div
                             key={template.id}
                             onClick={() => handleCreateFromTemplate(template)}
-                            className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
+                            className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
                           >
                             <div className="p-4">
                               {/* 템플릿 캔버스 미리보기 */}
@@ -988,12 +994,12 @@ function DashboardPage({ user, onLogout }) {
                                 />
                               </div>
                               
-                              <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors">
+                              <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
                                 {template.name}
                               </h4>
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm text-blue-600 font-medium">
+                                  <span className="text-sm text-pink-600 font-medium">
                                     {template.category}
                                   </span>
                                 </div>
@@ -1018,8 +1024,8 @@ function DashboardPage({ user, onLogout }) {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-pink-400/20 to-rose-400/20 rounded-xl flex items-center justify-center transform rotate-45">
-                  <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-500 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center transform rotate-45" style={{ backgroundColor: '#7483D1', opacity: 0.1 }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#7483D1' }}>
                     <svg className="w-4 h-4 text-white -rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>

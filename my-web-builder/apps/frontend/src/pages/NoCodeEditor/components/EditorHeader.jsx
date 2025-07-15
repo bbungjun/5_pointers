@@ -5,6 +5,7 @@ import { useDeploy } from '../ComponentLibrary/hooks/useDeploy';
 import DeployModal from './DeployModal';
 import { usePageMembers } from '../../../hooks/usePageMembers';
 import { getUserColor } from '../../../utils/userColors';
+import { colors } from '../../../styles/colors';
 import ddukddakLogo from '/ddukddak-logo.png';
 
 function EditorHeader({
@@ -98,15 +99,11 @@ function EditorHeader({
           className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
           onClick={handleLogoClick}
         >
-
           <img
             src={ddukddakLogo}
-            alt="뚝딱"
-            className="w-13 h-6 object-contain"
+            alt="DDUKDDAK"
+            className="h-4 object-contain"
           />
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent whitespace-nowrap">
-            DDUKDDAK
-          </h1>
         </div>
       </div>
 
@@ -127,7 +124,7 @@ function EditorHeader({
                 border rounded-lg transition-colors
                 ${isFromTemplate 
                   ? 'bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed' 
-                  : 'bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-400 cursor-pointer'
+                  : 'bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-pink-500 hover:border-blue-400 cursor-pointer'
                 }
               `}
               title={isFromTemplate ? '템플릿에서는 편집 기준을 변경할 수 없습니다' : '편집 기준 선택'}
@@ -163,7 +160,7 @@ function EditorHeader({
                     className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${
                       member.status === 'PENDING' 
                         ? 'bg-yellow-50 text-yellow-700' 
-                        : 'bg-blue-50 text-blue-700'
+                        : 'bg-pink-50 text-pink-700'
                     }`}
                   >
                     <span 
@@ -180,7 +177,7 @@ function EditorHeader({
                 {otherMembers.length > 2 && (
                   <button
                     onClick={() => setShowMembersDropdown(!showMembersDropdown)}
-                    className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs hover:bg-blue-100 transition-colors"
+                    className="px-2 py-1 bg-pink-50 text-pink-700 rounded text-xs hover:bg-pink-100 transition-colors"
                   >
                     +{otherMembers.length - 2}
                   </button>
@@ -284,16 +281,32 @@ function EditorHeader({
           미리보기
         </button>
 
-        {/* 뚝딱 게시 버튼 (최우측, 강조 색상) */}
+        {/* 게시 버튼 (최우측, 강조 색상) */}
         <button
           onClick={() => setShowDeployModal(true)}
           disabled={isDeploying || !components || components.length === 0}
-          className="
-            px-4 py-2 bg-gradient-to-r from-pink-500 to-rose-500
-            hover:from-pink-600 hover:to-rose-600 text-white
-            font-medium rounded-lg transition-all duration-200
-            flex items-center whitespace-nowrap text-sm
-          "
+          style={{
+            background: colors.gradient.primary,
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            border: 'none',
+            fontWeight: '500',
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            opacity: isDeploying || !components || components.length === 0 ? 0.6 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (!isDeploying && components && components.length > 0) {
+              e.target.style.background = colors.gradient.dark;
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isDeploying && components && components.length > 0) {
+              e.target.style.background = colors.gradient.primary;
+            }
+          }}
         >
           게시
         </button>

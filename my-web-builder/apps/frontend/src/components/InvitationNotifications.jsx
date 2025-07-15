@@ -209,7 +209,7 @@ function InvitationNotifications() {
 
   if (loading) {
     return (
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-blue-200/30">
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-pink-200/30">
         <div className="flex items-center mb-4">
           <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3">
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,7 +231,7 @@ function InvitationNotifications() {
   }
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-blue-200/30">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-pink-200/30">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3">
