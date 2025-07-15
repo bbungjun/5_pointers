@@ -26,6 +26,7 @@ function Inspector({ selectedComp, onUpdate, viewport }) {
     kakaotalkShare: ComponentEditors.KakaoTalkShareEditor,
     page: ComponentEditors.PageEditor,
     pageButton: ComponentEditors.PageButtonEditor,
+    linkCopy: ComponentEditors.LinkCopyEditor,
   };
 
   const SpecificEditor = editorMap[selectedComp.type];

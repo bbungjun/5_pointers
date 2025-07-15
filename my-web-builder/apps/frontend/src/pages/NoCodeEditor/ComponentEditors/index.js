@@ -19,3 +19,4 @@ export { default as MusicEditor } from "./MusicEditor";
 export { default as KakaoTalkShareEditor} from "./KakaoTalkShareEditor";
 export { default as PageEditor } from "./PageEditor";
 export { default as PageButtonEditor } from "./PageButtonEditor";
+export { default as LinkCopyEditor } from './LinkCopyEditor';
