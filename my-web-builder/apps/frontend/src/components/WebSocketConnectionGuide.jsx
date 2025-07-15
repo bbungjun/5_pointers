@@ -5,7 +5,15 @@ const WebSocketConnectionGuide = ({ wsUrl, onRetry }) => {
 
   const handleCertificateSetup = () => {
     // 새 탭에서 HTTPS 서버 열기
-    window.open(wsUrl.replace('wss://', 'https://'), '_blank');
+    let httpsUrl = wsUrl.replace('wss://', 'https://');
+    
+    // 포트가 1234인 경우 1235로 변경 (SSL 포트)
+    if (httpsUrl.includes(':1234')) {
+      httpsUrl = httpsUrl.replace(':1234', ':1235');
+    }
+    
+    console.log('🔗 인증서 승인 URL:', httpsUrl);
+    window.open(httpsUrl, '_blank');
   };
 
   return (
