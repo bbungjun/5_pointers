@@ -28,16 +28,19 @@ const WebSocketConnectionGuide = ({ wsUrl, onRetry }) => {
             </div>
             <div className="mt-3 flex space-x-2">
               <button
+                onClick={() => {
+                  console.log('🔄 협업 서버 접속 시도...');
+                  onRetry();
+                }}
+                className="bg-green-500 hover:bg-green-600 text-white text-xs font-medium px-4 py-2 rounded transition-colors shadow-sm"
+              >
+                접속하기
+              </button>
+              <button
                 onClick={handleCertificateSetup}
                 className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-xs font-medium px-3 py-1 rounded border border-yellow-300 transition-colors"
               >
                 서버 상태 확인
-              </button>
-              <button
-                onClick={onRetry}
-                className="bg-blue-100 hover:bg-blue-200 text-blue-800 text-xs font-medium px-3 py-1 rounded border border-blue-300 transition-colors"
-              >
-                다시 연결
               </button>
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
