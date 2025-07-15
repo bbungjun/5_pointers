@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom';
 import useAutoSave from '../hooks/useAutoSave';
 import SaveStatusIndicator from '../components/SaveStatusIndicator';
+import { YJS_WEBSOCKET_URL } from '../config';
 
 // 모듈화된 컴포넌트들
 import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
@@ -657,7 +658,7 @@ function NoCodeEditor({ pageId }) {
       {connectionError && (
         <div className="websocket-guide">
           <WebSocketConnectionGuide
-            wsUrl="ws://43.201.125.200:1234"
+            wsUrl={YJS_WEBSOCKET_URL}
             onRetry={() => {
               // 협업 시스템 재연결 시도
               if (collaboration && collaboration.provider) {
