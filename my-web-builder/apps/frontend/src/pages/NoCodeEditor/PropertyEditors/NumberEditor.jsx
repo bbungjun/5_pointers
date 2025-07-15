@@ -8,7 +8,8 @@ function NumberEditor({
   max = 1000, 
   suffix = "",
   presets = null,
-  step = 1
+  step = 1,
+  description = null
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef();
@@ -61,6 +62,16 @@ function NumberEditor({
       }}>
         {label}
       </label>
+      {description && (
+        <div style={{
+          fontSize: '11px',
+          color: '#6b7280',
+          marginBottom: '6px',
+          lineHeight: '1.3'
+        }}>
+          {description}
+        </div>
+      )}
       
       <div style={{ position: 'relative' }} ref={dropdownRef}>
         {/* 통합 버튼 */}

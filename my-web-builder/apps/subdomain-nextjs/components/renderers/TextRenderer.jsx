@@ -122,6 +122,7 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
         textDecoration: textDecoration,
         justifyContent: textAlign === 'left' ? 'flex-start' : 
                        textAlign === 'right' ? 'flex-end' : 'center',
+        zIndex: Math.max(comp.props?.zIndex || 1000, 1000),
         ...(mode === 'live' ? {
           width: '100%',
           fontSize: `clamp(${Math.max(10, (comp.props?.fontSize || 16) * 0.7)}px, ${((comp.props?.fontSize || 16) / 375) * 100}vw, ${comp.props?.fontSize || 16}px)`

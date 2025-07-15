@@ -678,7 +678,7 @@ function CanvasComponent({
         border: selected ? '2px solid #3B4EFF' : '1px solid transparent',
         cursor: isDragging ? 'grabbing' : 'grab',
         background: selected ? 'rgba(59, 78, 255, 0.05)' : 'transparent',
-        zIndex: selected ? 10 : 1,
+        zIndex: selected ? 2000 : (comp.type === 'text' ? Math.max(comp.props?.zIndex || 1000, 1000) : (comp.props?.zIndex || 1)),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
