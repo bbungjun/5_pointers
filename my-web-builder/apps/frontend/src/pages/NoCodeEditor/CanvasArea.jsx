@@ -123,7 +123,7 @@ const CanvasArea = forwardRef(
     ref
   ) => {
     // 협업 객체에서 드래그 상태 관리 함수들 추출
-    const { setComponentDragging, isComponentDragging } = collaboration || {};
+    const { setComponentDragging, isComponentDragging: checkComponentDragging } = collaboration || {};
     
     // 내부 canvasRef 생성 (외부에서 전달된 ref가 없는 경우를 대비)
     const internalCanvasRef = useRef(null);
@@ -144,8 +144,8 @@ const CanvasArea = forwardRef(
       scrollTop: 0,
     });
 
-    // 컴포넌트 드래그 상태 감지
-    const [isComponentDragging, setIsComponentDragging] = useState(false);
+    // 로컬 컴포넌트 드래그 상태 감지 (이름 변경으로 충돌 방지)
+    const [isLocalComponentDragging, setIsLocalComponentDragging] = useState(false);
 
     // 다중 선택 관련 상태
     const [isSelecting, setIsSelecting] = useState(false);
@@ -168,11 +168,11 @@ const CanvasArea = forwardRef(
         e.preventDefault();
         const delta = e.deltaY > 0 ? -10 : 10;
         handleZoom(delta);
-      } else if (isComponentDragging) {
+      } else if (isLocalComponentDragging) {
         // 컴포넌트 드래그 중일 때는 스크롤 차단
         e.preventDefault();
       }
-    }, [isComponentDragging, handleZoom]);
+    }, [isLocalComponentDragging, handleZoom]);
 
     useEffect(() => {
         const element = canvasRefToUse?.current;
@@ -348,7 +348,7 @@ const CanvasArea = forwardRef(
     const handleContainerMouseDown = (e) => {
       if (!ref || !ref.current) return;
       // 컴포넌트 드래그 중이면 패닝하지 않음
-      if (isComponentDragging) {
+      if (isLocalComponentDragging) {
         return;
       }
 
@@ -366,13 +366,13 @@ const CanvasArea = forwardRef(
     };
 
     const handleContainerMouseMove = (e) => {
-      if (isPanning && !isComponentDragging) {
+      if (isPanning && !isLocalComponentDragging) {
         if (!ref || !ref.current) return;
         const dx = e.clientX - panStart.x;
         const dy = e.clientY - panStart.y;
         ref.current.scrollLeft = panStart.scrollLeft - dx;
         ref.current.scrollTop = panStart.scrollTop - dy;
-      } else if (isComponentDragging) {
+      } else if (isLocalComponentDragging) {
         // 컴포넌트 드래그 중이면 패닝 중지
         setIsPanning(false);
       }
@@ -389,7 +389,7 @@ const CanvasArea = forwardRef(
           window.removeEventListener('mouseup', handleContainerMouseUp);
         };
       }
-    }, [isPanning, panStart, isComponentDragging]);
+    }, [isPanning, panStart, isLocalComponentDragging]);
 
     // 컴포넌트 드래그 상태 감지 - 더 강력한 방법
     useEffect(() => {
@@ -398,7 +398,7 @@ const CanvasArea = forwardRef(
           e.target.closest('[data-component-id]') ||
           e.target.closest('.canvas-component');
         if (componentElement) {
-          setIsComponentDragging(true);
+          setIsLocalComponentDragging(true);
 
           // 컨테이너의 모든 스크롤 관련 속성 차단
           if (ref && ref.current) {
@@ -429,7 +429,7 @@ const CanvasArea = forwardRef(
       };
 
       const handleMouseUp = () => {
-        setIsComponentDragging(false);
+        setIsLocalComponentDragging(false);
 
         // 컨테이너의 스크롤을 다시 활성화
         if (ref && ref.current) {
@@ -692,7 +692,7 @@ const CanvasArea = forwardRef(
         onMouseMove={handleContainerMouseMove}
         onMouseUp={handleContainerMouseUp}
         onScroll={(e) => {
-          if (isComponentDragging) {
+          if (isLocalComponentDragging) {
             e.preventDefault();
             e.stopPropagation();
           }
@@ -803,7 +803,7 @@ const CanvasArea = forwardRef(
                     updateCursorPosition={updateCursorPosition} // 협업 커서 위치 업데이트 함수 전달
                     pageId={pageId} // 페이지 ID 전달
                     setComponentDragging={setComponentDragging} // 드래그 상태 설정 함수 전달
-                    isComponentDragging={isComponentDragging} // 드래그 상태 확인 함수 전달
+                    isComponentDragging={checkComponentDragging} // 드래그 상태 확인 함수 전달 (이름 변경)
                   />
                 );
               })}
