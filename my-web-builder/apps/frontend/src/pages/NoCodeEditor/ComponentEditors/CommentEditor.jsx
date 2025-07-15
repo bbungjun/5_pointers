@@ -9,6 +9,7 @@ import {
   SelectEditor, 
   NumberEditor,
   BorderEditor,
+  TextEditor,
 } from '../PropertyEditors';
 
 function CommentEditor({ selectedComp, onUpdate }) {
@@ -45,14 +46,10 @@ function CommentEditor({ selectedComp, onUpdate }) {
         }}>
           제목
         </label>
-        <input
-          type="text"
+        <TextEditor
           value={selectedComp.props.title || ''}
-          onChange={(e) => handlePropChange('title', e.target.value)}
-          style={{
-            width: '100%', padding: '8px 12px', border: '1px solid #ddd',
-            borderRadius: 6, fontSize: 14, outline: 'none'
-          }}
+          onChange={(value) => handlePropChange('title', value)}
+          placeholder="제목을 입력하세요"
         />
       </div>
       
@@ -63,14 +60,10 @@ function CommentEditor({ selectedComp, onUpdate }) {
         }}>
           댓글 입력 안내 문구
         </label>
-        <input
-          type="text"
+        <TextEditor
           value={selectedComp.props.placeholder || ''}
-          onChange={(e) => handlePropChange('placeholder', e.target.value)}
-          style={{
-            width: '100%', padding: '8px 12px', border: '1px solid #ddd',
-            borderRadius: 6, fontSize: 14, outline: 'none'
-          }}
+          onChange={(value) => handlePropChange('placeholder', value)}
+          placeholder="안내 문구를 입력하세요"
         />
       </div>
 

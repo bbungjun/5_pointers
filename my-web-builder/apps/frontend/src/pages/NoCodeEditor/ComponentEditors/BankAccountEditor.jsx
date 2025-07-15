@@ -1,4 +1,5 @@
 import React from 'react';
+import { TextEditor } from '../PropertyEditors';
 
 function BankAccountEditor({ selectedComp, onUpdate }) {
   console.log('BankAccountEditor rendered with:', selectedComp);
@@ -59,38 +60,26 @@ function BankAccountEditor({ selectedComp, onUpdate }) {
         <div style={{ display: 'grid', gap: 8 }}>
           <div>
             <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 4 }}>이름</label>
-            <input
-              type="text"
+            <TextEditor
               value={data.name || ''}
-              onChange={(e) => handlePersonChange(side, person, 'name', e.target.value)}
-              style={{
-                width: '100%', padding: '6px 8px', border: '1px solid #ddd',
-                borderRadius: 4, fontSize: 13, outline: 'none'
-              }}
+              onChange={(value) => handlePersonChange(side, person, 'name', value)}
+              placeholder="이름을 입력하세요"
             />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 4 }}>은행</label>
-            <input
-              type="text"
+            <TextEditor
               value={data.bank || ''}
-              onChange={(e) => handlePersonChange(side, person, 'bank', e.target.value)}
-              style={{
-                width: '100%', padding: '6px 8px', border: '1px solid #ddd',
-                borderRadius: 4, fontSize: 13, outline: 'none'
-              }}
+              onChange={(value) => handlePersonChange(side, person, 'bank', value)}
+              placeholder="은행명을 입력하세요"
             />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 4 }}>계좌번호</label>
-            <input
-              type="text"
+            <TextEditor
               value={data.account || ''}
-              onChange={(e) => handlePersonChange(side, person, 'account', e.target.value)}
-              style={{
-                width: '100%', padding: '6px 8px', border: '1px solid #ddd',
-                borderRadius: 4, fontSize: 13, outline: 'none'
-              }}
+              onChange={(value) => handlePersonChange(side, person, 'account', value)}
+              placeholder="계좌번호를 입력하세요"
             />
           </div>
         </div>
@@ -109,14 +98,10 @@ function BankAccountEditor({ selectedComp, onUpdate }) {
         }}>
           제목
         </label>
-        <input
-          type="text"
+        <TextEditor
           value={selectedComp.props.title || ''}
-          onChange={(e) => handlePropChange('title', e.target.value)}
-          style={{
-            width: '100%', padding: '8px 12px', border: '1px solid #ddd',
-            borderRadius: 6, fontSize: 14, outline: 'none'
-          }}
+          onChange={(value) => handlePropChange('title', value)}
+          placeholder="제목을 입력하세요"
         />
       </div>
       

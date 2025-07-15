@@ -1,6 +1,46 @@
-import React from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 
 function TextAreaEditor({ label, value, onChange, placeholder, rows = 2 }) {
+  const [isComposing, setIsComposing] = useState(false);
+  const [tempValue, setTempValue] = useState(value || '');
+  const textareaRef = useRef(null);
+
+  // 한글 조합 시작
+  const handleCompositionStart = useCallback(() => {
+    setIsComposing(true);
+  }, []);
+
+  // 한글 조합 중
+  const handleCompositionUpdate = useCallback((e) => {
+    setTempValue(e.target.value);
+  }, []);
+
+  // 한글 조합 완료
+  const handleCompositionEnd = useCallback((e) => {
+    setIsComposing(false);
+    const finalValue = e.target.value;
+    setTempValue(finalValue);
+    onChange(finalValue);
+  }, [onChange]);
+
+  // 일반 입력 처리
+  const handleChange = useCallback((e) => {
+    const newValue = e.target.value;
+    setTempValue(newValue);
+    
+    // 한글 조합 중이 아닐 때만 onChange 호출
+    if (!isComposing) {
+      onChange(newValue);
+    }
+  }, [onChange, isComposing]);
+
+  // value prop이 변경되면 tempValue 동기화
+  React.useEffect(() => {
+    if (!isComposing && value !== tempValue) {
+      setTempValue(value || '');
+    }
+  }, [value, isComposing, tempValue]);
+
   return (
     <div style={{ marginBottom: 16 }}>
       <label style={{ 
@@ -13,8 +53,12 @@ function TextAreaEditor({ label, value, onChange, placeholder, rows = 2 }) {
         {label}
       </label>
       <textarea
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
+        ref={textareaRef}
+        value={tempValue}
+        onChange={handleChange}
+        onCompositionStart={handleCompositionStart}
+        onCompositionUpdate={handleCompositionUpdate}
+        onCompositionEnd={handleCompositionEnd}
         placeholder={placeholder}
         rows={rows}
         style={{
