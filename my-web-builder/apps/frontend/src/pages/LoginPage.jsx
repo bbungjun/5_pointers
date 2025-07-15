@@ -62,19 +62,11 @@ function LoginPage({ onLogin }) {
         <div className="text-center mb-8">
           <div className="mb-6">
             <img
-              src={ddukddakLogo}
-              alt="DdukDdak"
+              src="/ddukddak-logo.png" 
+              alt="DDUKDDAK"
               className="w-60 h-60 mx-auto mb-4 object-contain"
             />
           </div>
-
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-3">
-            <img 
-              src="/ddukddak-logo.png" 
-              alt="DDUKDDAK" 
-              style={{ height: '24px', objectFit: 'contain' }} 
-            />
-          </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">

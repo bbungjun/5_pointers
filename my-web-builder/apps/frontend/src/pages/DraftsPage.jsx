@@ -121,10 +121,10 @@ function DraftsPage({ user, onLogout }) {
   const draftPages = myPages.filter((page) => page.status === 'DRAFT');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div
-        className="bg-white border-b border-slate-200 sticky top-0"
+        className="bg-gradient-to-r from-pink-50 to-rose-50 sticky top-0"
         style={{ position: 'relative', zIndex: 30 }}
       >
         <div className="max-w-6xl mx-auto px-4 py-3">
@@ -136,9 +136,9 @@ function DraftsPage({ user, onLogout }) {
                 onClick={() => navigate('/dashboard')}
               >
                 <img
-                  src="/ddukddak-logo.png"
-                  alt="DDUKDDAK"
-                  className="h-6 object-contain transform group-hover:scale-105 transition duration-300"
+                  src="/ddukddak-logo.png" 
+                  alt="DDUKDDAK" 
+                  style={{ height: '16px', objectFit: 'contain' }} 
                 />
               </div>
               <div className="flex items-center gap-6">
@@ -157,7 +157,7 @@ function DraftsPage({ user, onLogout }) {
               {/* 배포된 페이지 버튼 */}
               <button
                 onClick={() => navigate('/dashboard/deployed')}
-                className="px-4 py-2 bg-white text-slate-600 hover:text-emerald-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-emerald-200 flex items-center gap-2 group"
+                className="px-4 py-2 bg-white text-slate-600 hover:text-purple-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-purple-200 flex items-center gap-2 group"
               >
                 <div className="w-5 h-5 bg-gradient-to-r from-purple-300 to-purple-400 rounded flex items-center justify-center">
                   <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,7 +165,7 @@ function DraftsPage({ user, onLogout }) {
                   </svg>
                 </div>
                 배포된 페이지
-                <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
+                <span className="px-2 py-0.5 bg-purple-200 text-purple-800 text-xs font-medium rounded-full">
                   {myPages.filter((page) => page.status === 'DEPLOYED').length}개
                 </span>
               </button>
@@ -186,7 +186,7 @@ function DraftsPage({ user, onLogout }) {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-6 py-8 bg-white">
         {/* 페이지 헤더 */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -204,7 +204,7 @@ function DraftsPage({ user, onLogout }) {
         </div>
 
         {/* 페이지 목록 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white rounded-2xl shadow-xl p-10 border border-gray-200">
           {pagesLoading ? (
             <div className="text-center py-16">
               <div className="w-16 h-16 mx-auto mb-4">
@@ -233,7 +233,7 @@ function DraftsPage({ user, onLogout }) {
               {draftPages.map((page) => (
                 <div
                   key={page.id}
-                  className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-6 hover:from-purple-100 hover:to-purple-200 transition-all duration-300 group flex flex-col"
+                  className="bg-white border border-gray-200 rounded-xl p-6 hover:bg-gray-100 transition-all duration-300 group flex flex-col"
                   style={{ minHeight: '140px' }}
                 >
                   <div className="flex items-start justify-between mb-4 flex-1">
