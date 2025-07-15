@@ -249,6 +249,7 @@ function ImageRenderer({ comp, component, isEditor = false, mode = 'editor', isP
         alt={actualComp?.props?.alt || '이미지'}
         onLoad={handleImageLoad}
         onError={handleImageError}
+        draggable={false}
         style={{
           width: '100%',
           height: '100%',
