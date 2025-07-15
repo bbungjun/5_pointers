@@ -12,8 +12,6 @@ import { Server, Socket } from 'socket.io';
       const allowedOrigins = [
         'https://ddukddak.org',
         'https://www.ddukddak.org',
-        'https://pagecube.net',
-        'https://www.pagecube.net',
         'http://localhost:5173',
         'http://localhost:3000',
         'http://localhost:3001',
@@ -24,7 +22,6 @@ import { Server, Socket } from 'socket.io';
       
       const subdomainPatterns = [
         /^https?:\/\/[^.]+\.ddukddak\.org$/,
-        /^https?:\/\/[^.]+\.pagecube\.net$/,
         /^https?:\/\/[^.]+\.localhost:\d+$/,
         /^http:\/\/127\.0\.0\.1:\d+$/
       ];
