@@ -70,6 +70,8 @@ export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVa
   (isProductionEnvironment() ? 'ws://13.124.221.182:1234' : `ws://${getLocalNetworkIP()}:1234`);
 
 
+
+
 // 소셜 로그인 설정
 export const GOOGLE_CLIENT_ID = getEnvVar('VITE_GOOGLE_CLIENT_ID') || getEnvVar('NEXT_PUBLIC_GOOGLE_CLIENT_ID') || '';
 export const KAKAO_CLIENT_ID = getEnvVar('VITE_KAKAO_CLIENT_ID') || getEnvVar('NEXT_PUBLIC_KAKAO_CLIENT_ID') || '';
