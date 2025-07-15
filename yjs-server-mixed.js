@@ -1,7 +1,7 @@
 /**
- * Y.js WebSocket 서버
+ * Y.js WebSocket 서버 (Mixed HTTP/HTTPS)
  * 
- * 1234 포트에서 HTTP/WS와 WSS를 모두 지원
+ * 1234 포트에서 HTTP와 HTTPS를 모두 지원
  */
 
 const WebSocketServer = require('ws').Server;
@@ -42,19 +42,19 @@ try {
       console.log('✅ 자체 서명 인증서가 생성되었습니다.');
     } catch (error) {
       console.log('❌ 자체 서명 인증서 생성 실패:', error.message);
-      console.log('💡 수동으로 생성하려면: openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 365 -nodes -subj "/C=KR/ST=Seoul/L=Seoul/O=YJS/CN=43.201.125.200"');
     }
   }
 } catch (error) {
   console.log('❌ SSL 설정 오류:', error.message);
 }
 
+// HTTP와 HTTPS 서버를 같은 포트에서 실행
 const server = http.createServer((request, response) => {
   response.writeHead(200, { 'Content-Type': 'text/plain' });
   response.end('Y.js WebSocket Server (HTTP) is running!\n');
 });
 
-// HTTPS 서버도 생성 (SSL 인증서가 있는 경우) - 1234 포트에서 함께 사용
+// HTTPS 서버 (SSL 인증서가 있는 경우)
 let httpsServer = null;
 if (httpsOptions) {
   httpsServer = https.createServer(httpsOptions, (request, response) => {
@@ -63,24 +63,11 @@ if (httpsOptions) {
   });
 }
 
-const wss = new WebSocketServer({ 
-  server: server,
-  verifyClient: (info) => {
-    console.log('🔍 WebSocket 연결 시도:', info.origin);
-    return true; // 모든 연결 허용
-  }
-});
-
-// HTTPS WebSocket 서버도 생성 (SSL 인증서가 있는 경우)
+// WebSocket 서버들
+const wss = new WebSocketServer({ server });
 let httpsWss = null;
 if (httpsServer) {
-  httpsWss = new WebSocketServer({ 
-    server: httpsServer,
-    verifyClient: (info) => {
-      console.log('🔍 WSS 연결 시도:', info.origin);
-      return true; // 모든 연결 허용
-    }
-  });
+  httpsWss = new WebSocketServer({ server: httpsServer });
 }
 
 // 공통 연결 핸들러 함수
@@ -88,38 +75,28 @@ function handleConnection(ws, req, isSecure = false) {
   const protocol = isSecure ? 'https' : 'http';
   const url = new URL(req.url, `${protocol}://${req.headers.host}`);
   
-  // WebsocketProvider는 URL 경로에 룸 이름을 포함합니다
-  // 예: /page:b53b2ee5-0445-47d0-bab8-1ef795fe65c5
   const pathSegments = url.pathname.split('/').filter(segment => segment);
   let roomname = 'default';
   
   if (pathSegments.length > 0) {
-    roomname = pathSegments[pathSegments.length - 1]; // 마지막 세그먼트가 룸 이름
+    roomname = pathSegments[pathSegments.length - 1];
   }
   
   console.log(`🔄 새로운 연결 (${isSecure ? 'WSS' : 'WS'}): Room ${roomname} (${req.socket.remoteAddress})`);
   
-  // 룸별 클라이언트 목록 초기화
   if (!roomClients.has(roomname)) {
     roomClients.set(roomname, new Set());
   }
   
-  // 현재 클라이언트를 해당 룸에 추가
   roomClients.get(roomname).add(ws);
-  
-  // 연결된 클라이언트 수 로깅
   console.log(`📊 Room ${roomname} 현재 연결 수: ${roomClients.get(roomname).size}`);
   
-  // Y.js 문서 가져오기 또는 생성
   if (!docs.has(roomname)) {
     docs.set(roomname, new Y.Doc());
   }
-  const doc = docs.get(roomname);
   
-  // 메시지 핸들러
   ws.on('message', (message) => {
     try {
-      // 같은 룸의 다른 클라이언트들에게만 메시지 브로드캐스트
       const currentRoomClients = roomClients.get(roomname);
       if (currentRoomClients) {
         let broadcastCount = 0;
@@ -130,8 +107,7 @@ function handleConnection(ws, req, isSecure = false) {
           }
         });
         
-        // 디버깅용 로깅 (너무 자주 출력되지 않도록 제한)
-        if (broadcastCount > 0 && Math.random() < 0.01) { // 1% 확률로만 로깅
+        if (broadcastCount > 0 && Math.random() < 0.01) {
           console.log(`📡 Room ${roomname}: ${broadcastCount}개 클라이언트에게 메시지 브로드캐스트`);
         }
       }
@@ -143,14 +119,11 @@ function handleConnection(ws, req, isSecure = false) {
   ws.on('close', () => {
     console.log(`🔌 연결 종료: Room ${roomname} (${req.socket.remoteAddress})`);
     
-    // 클라이언트를 룸에서 제거
     const currentRoomClients = roomClients.get(roomname);
     if (currentRoomClients) {
       currentRoomClients.delete(ws);
-      
       console.log(`📊 Room ${roomname} 남은 연결 수: ${currentRoomClients.size}`);
       
-      // 룸에 클라이언트가 없으면 룸 정리
       if (currentRoomClients.size === 0) {
         roomClients.delete(roomname);
         docs.delete(roomname);
@@ -168,7 +141,6 @@ wss.on('connection', (ws, req) => {
   handleConnection(ws, req, false);
 });
 
-// HTTPS WebSocket 서버 연결 핸들러
 if (httpsWss) {
   httpsWss.on('connection', (ws, req) => {
     handleConnection(ws, req, true);
@@ -178,32 +150,16 @@ if (httpsWss) {
 // HTTP 서버 시작
 server.listen(port, host, () => {
   console.log(`🚀 Y.js WebSocket 서버 (HTTP)가 ${host}:${port}에서 실행 중입니다`);
-  console.log(`🌐 외부 접근 가능: http://43.201.125.200:${port}`);
-  console.log(`🔗 WS 연결: ws://43.201.125.200:${port}`);
-  
-  // 서버 정보 출력
-  const os = require('os');
-  const networkInterfaces = os.networkInterfaces();
-  
-  console.log('\n📡 네트워크 인터페이스 (HTTP):');
-  Object.keys(networkInterfaces).forEach((interfaceName) => {
-    networkInterfaces[interfaceName].forEach((interface) => {
-      if (interface.family === 'IPv4' && !interface.internal) {
-        console.log(`  - ${interfaceName}: ${interface.address}:${port}`);
-      }
-    });
-  });
+  console.log(`🌐 WS 연결: ws://43.201.125.200:${port}`);
 });
 
-// HTTPS 서버를 1234 포트에서 함께 시작 (WSS 지원)
+// HTTPS 서버를 다른 포트에서 시작
 if (httpsServer) {
-  // 1234 포트에서 WSS도 지원하기 위해 별도 포트 사용하지 않고
-  // 클라이언트가 wss://43.201.125.200:1234로 연결할 수 있도록 설정
-  
-  // 실제로는 프록시나 로드밸런서에서 처리하는 것이 일반적이지만
-  // 간단한 해결책으로 클라이언트 설정을 ws://로 변경
-  console.log(`🔒 WSS 지원을 위해 클라이언트에서 wss://43.201.125.200:${port} 연결 가능`);
-  console.log(`💡 브라우저 Mixed Content 정책으로 인해 HTTPS 사이트에서는 WSS 필요`);
+  const httpsPort = 8443; // 임시로 8443 포트 사용
+  httpsServer.listen(httpsPort, host, () => {
+    console.log(`🔒 Y.js WebSocket 서버 (HTTPS)가 ${host}:${httpsPort}에서 실행 중입니다`);
+    console.log(`🌐 WSS 연결: wss://43.201.125.200:${httpsPort}`);
+  });
 }
 
 console.log('🤝 협업 기능 테스트를 시작할 수 있습니다!');
@@ -224,4 +180,4 @@ process.on('SIGINT', () => {
     console.log('✅ 모든 서버가 종료되었습니다.');
     process.exit(0);
   });
-}); 
+});
