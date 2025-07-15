@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 function ImageRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width, height }) {
+  // 컨테이너 크기 기준으로 스케일 팩터 계산
+  const baseWidth = 375; // 기준 너비
+  const actualWidth = comp.width || baseWidth;
+  const scaleFactor = actualWidth / baseWidth;
+  
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -142,20 +147,8 @@ function ImageRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width,
       </div>
     );
   };
-  const [isLiveMode, setIsLiveMode] = useState(false);
   
-  useEffect(() => {
-    if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
-      
-      const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
-      };
-      
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [mode]);
+
 
   const handleImageLoad = () => {
     setIsLoading(false);
@@ -172,7 +165,7 @@ function ImageRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width,
   const finalHeight = comp.height || comp.props?.height || 150;
 
   const containerStyle = {
-    borderRadius: (comp.props?.borderRadius || 0) + 'px',
+    borderRadius: `${(comp.props?.borderRadius || 0) * scaleFactor}px`, // 스케일링 적용
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
@@ -180,10 +173,9 @@ function ImageRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width,
     justifyContent: 'center',
     backgroundColor: '#f9fafb',
     border: isEditor ? '1px solid #e5e7eb' : 'none',
-    ...(isLiveMode ? {
-      width: '100%',
-      maxWidth: `${width}px`,
-      aspectRatio: `${width} / ${height}`
+    ...(mode === 'live' ? {
+      width: '100%', // maxWidth 제거로 확대 허용
+      height: `${finalHeight * scaleFactor}px`, // 높이도 스케일링 적용
     } : {
       width: finalWidth + 'px',
       height: finalHeight + 'px'
@@ -197,11 +189,11 @@ function ImageRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width,
         <div style={{
           textAlign: 'center',
           color: '#9ca3af',
-          fontSize: Math.min(finalWidth, finalHeight) > 100 ? '14px' : '12px'
+          fontSize: `${Math.min(finalWidth, finalHeight) > 100 ? 14 * scaleFactor : 12 * scaleFactor}px` // 스케일링 적용
         }}>
           <div style={{ 
-            fontSize: Math.min(finalWidth, finalHeight) > 100 ? '24px' : '18px', 
-            marginBottom: '8px' 
+            fontSize: `${Math.min(finalWidth, finalHeight) > 100 ? 24 * scaleFactor : 18 * scaleFactor}px`, // 스케일링 적용
+            marginBottom: `${8 * scaleFactor}px` // 스케일링 적용
           }}>
             🖼️
           </div>

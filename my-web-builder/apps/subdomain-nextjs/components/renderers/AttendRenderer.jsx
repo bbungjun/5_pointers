@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
-  console.log('🎯 AttendRenderer props:', { pageId, mode, isEditor, componentId: comp.id });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [attendeeName, setAttendeeName] = useState('');
   const [attendeeCount, setAttendeeCount] = useState(1);
@@ -11,6 +10,41 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
   const [companionCount, setCompanionCount] = useState(0);
   const [mealOption, setMealOption] = useState('');
   const [privacyConsent, setPrivacyConsent] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 375);
+
+  // 실제 화면 크기 기준으로 스케일 팩터 계산
+  const baseWidth = 375; // 기준 너비
+  const actualWidth = windowWidth;
+  const scaleFactor = Math.min(actualWidth / baseWidth, 1.5); // 최대 1.5배까지만 확대
+  
+  // 원본 크기 정보 (더 작은 기본 크기로 설정)
+  const containerWidth = comp.width || 280;
+  const containerHeight = comp.height || 120; // 160 → 120으로 줄임
+  
+  // 화면 크기 변경 시 리렌더링
+  useEffect(() => {
+    if (mode === 'live' && typeof window !== 'undefined') {
+      const handleResize = () => {
+        setWindowWidth(window.innerWidth);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [mode]);
+  
+  console.log('🎯 AttendRenderer props:', { pageId, mode, isEditor, componentId: comp.id });
+  console.log('🔍 AttendRenderer comp.props:', comp.props);
+  console.log('🔍 AttendRenderer dimensions:', { 
+    compWidth: comp.width,
+    compHeight: comp.height,
+    windowWidth,
+    actualWidth,
+    scaleFactor,
+    containerWidth,
+    containerHeight,
+    mode
+  });
 
   const handleSubmit = async () => {
     if (!attendeeName.trim() || !guestSide || !privacyConsent) return;
@@ -86,16 +120,19 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
   };
 
   const containerStyle = {
-    width: '100%',
-    height: '100%',
+    width: mode === 'live' ? '100%' : '100%',
+    height: mode === 'live' ? `${containerHeight * scaleFactor}px` : `${containerHeight}px`,
+    backgroundColor: comp.props?.backgroundColor || '#f8f9fa',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+    textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    padding: '16px',
     fontFamily: '"Playfair Display", serif',
-    backgroundColor: comp.props?.backgroundColor || '#f8f9fa',
-    borderRadius: comp.props?.borderRadius || '8px',
-    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+    boxSizing: 'border-box',
+    borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
+    padding: mode === 'live' ? `${12 * scaleFactor}px` : '12px', // 16px → 12px로 줄임
+    minHeight: mode === 'live' ? `${containerHeight * scaleFactor}px` : `${containerHeight}px`
   };
 
   return (
@@ -103,23 +140,23 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
       {/* 제목 영역 */}
       <div style={{
         textAlign: 'center',
-        marginBottom: '16px',
+        marginBottom: mode === 'live' ? `${12 * scaleFactor}px` : '12px', // 16px → 12px로 줄임
       }}>
         <h3 style={{
-          fontSize: comp.props?.titleFontSize || '18px',
+          fontSize: mode === 'live' ? `${(parseInt(comp.props?.titleFontSize) || 18) * scaleFactor}px` : comp.props?.titleFontSize || '18px',
           fontWeight: '600',
           color: comp.props?.titleColor || '#1f2937',
-          margin: '0 0 8px 0',
+          margin: `0 0 ${mode === 'live' ? 6 * scaleFactor : 6}px 0`, // 8px → 6px로 줄임
           fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
         }}>
           {comp.props?.title || '참석 여부 확인'}
         </h3>
         {comp.props?.description && (
           <p style={{
-            fontSize: comp.props?.descriptionFontSize || '14px',
+            fontSize: mode === 'live' ? `${(parseInt(comp.props?.descriptionFontSize) || 14) * scaleFactor}px` : comp.props?.descriptionFontSize || '14px',
             color: comp.props?.descriptionColor || '#6b7280',
             margin: '0',
-            lineHeight: '1.5',
+            lineHeight: '1.4', // 1.5 → 1.4로 줄임
             fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
           }}>
             {comp.props.description}
@@ -141,12 +178,12 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
           }
         }}
         style={{
-          backgroundColor: comp.props?.buttonColor || '#475569',
-          color: comp.props?.textColor || 'white',
+          backgroundColor: comp.props?.buttonColor || '#9CAF88', // frontend와 동일한 기본값
+          color: comp.props?.buttonTextColor || 'white',
           border: 'none',
-          borderRadius: comp.props?.borderRadius || '8px',
-          padding: '12px 24px',
-          fontSize: comp.props?.fontSize || '16px',
+          borderRadius: mode === 'live' ? `${(parseInt(comp.props?.borderRadius) || 8) * scaleFactor}px` : comp.props?.borderRadius || '8px',
+          padding: mode === 'live' ? `${12 * scaleFactor}px ${24 * scaleFactor}px` : '12px 24px',
+          fontSize: mode === 'live' ? `${(parseInt(comp.props?.fontSize) || 16) * scaleFactor}px` : comp.props?.fontSize || '16px',
           fontWeight: '500',
           fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
           cursor: 'pointer',
@@ -186,10 +223,10 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
           <div
             style={{
               backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '32px',
+              borderRadius: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
+              padding: mode === 'live' ? `${32 * scaleFactor}px` : '32px',
               width: '90%',
-              maxWidth: '400px',
+              maxWidth: mode === 'live' ? `${400 * scaleFactor}px` : '400px',
               maxHeight: '90vh',
               overflow: 'auto',
               position: 'relative',
@@ -198,9 +235,9 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 style={{
-              fontSize: '24px',
+              fontSize: mode === 'live' ? `${24 * scaleFactor}px` : '24px',
               fontWeight: '600',
-              marginBottom: '24px',
+              marginBottom: mode === 'live' ? `${24 * scaleFactor}px` : '24px',
               color: '#1f2937',
               textAlign: 'center',
               fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
@@ -209,11 +246,11 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
             </h2>
 
             {/* 참석자 구분 */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={labelStyle(comp)}>
+            <div style={{ marginBottom: mode === 'live' ? `${20 * scaleFactor}px` : '20px' }}>
+              <label style={labelStyle(comp, scaleFactor, mode)}>
                 참석자 구분 <span style={{ color: '#ef4444' }}>*</span>
               </label>
-              <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ display: 'flex', gap: mode === 'live' ? `${16 * scaleFactor}px` : '16px' }}>
                 {['신부측', '신랑측'].map((side) => (
                   <label key={side} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                     <input
@@ -221,9 +258,9 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
                       value={side}
                       checked={guestSide === side}
                       onChange={(e) => setGuestSide(e.target.value)}
-                      style={{ marginRight: '8px' }}
+                      style={{ marginRight: mode === 'live' ? `${8 * scaleFactor}px` : '8px' }}
                     />
-                    <span style={textStyle(comp)}>{side}</span>
+                    <span style={textStyle(comp, scaleFactor, mode)}>{side}</span>
                   </label>
                 ))}
               </div>
@@ -237,6 +274,8 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
               onChange={setAttendeeName}
               placeholder="성함을 입력해주세요"
               comp={comp}
+              scaleFactor={scaleFactor}
+              mode={mode}
             />
 
             {/* 참석 인원 */}
@@ -246,6 +285,8 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
               value={attendeeCount}
               onChange={(v) => setAttendeeCount(Math.max(1, parseInt(v) || 1))}
               comp={comp}
+              scaleFactor={scaleFactor}
+              mode={mode}
             />
 
             {/* 연락처 */}
@@ -256,6 +297,8 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
               onChange={setContact}
               placeholder="전화번호를 입력해주세요"
               comp={comp}
+              scaleFactor={scaleFactor}
+              mode={mode}
             />
 
             {/* 동행인 수 */}
@@ -266,12 +309,14 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
               onChange={(v) => setCompanionCount(Math.max(0, parseInt(v) || 0))}
               placeholder="동행인 수를 입력해주세요 (0명 = 동행인 없음)"
               comp={comp}
+              scaleFactor={scaleFactor}
+              mode={mode}
             />
 
             {/* 식사 여부 */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={labelStyle(comp)}>식사여부</label>
-              <div style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ marginBottom: mode === 'live' ? `${20 * scaleFactor}px` : '20px' }}>
+              <label style={labelStyle(comp, scaleFactor, mode)}>식사여부</label>
+              <div style={{ display: 'flex', gap: mode === 'live' ? `${16 * scaleFactor}px` : '16px' }}>
                 {['식사함', '식사안함'].map((opt) => (
                   <label key={opt} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                     <input
@@ -279,35 +324,42 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
                       value={opt}
                       checked={mealOption === opt}
                       onChange={(e) => setMealOption(e.target.value)}
-                      style={{ marginRight: '8px' }}
+                      style={{ marginRight: mode === 'live' ? `${8 * scaleFactor}px` : '8px' }}
                     />
-                    <span style={textStyle(comp)}>{opt}</span>
+                    <span style={textStyle(comp, scaleFactor, mode)}>{opt}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {/* 개인정보 수집 동의 */}
-            <div style={{ marginBottom: '32px' }}>
+            <div style={{ marginBottom: mode === 'live' ? `${32 * scaleFactor}px` : '32px' }}>
               <label style={{
                 display: 'flex',
                 alignItems: 'flex-start',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
                 fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
                 color: '#374151',
-                gap: '8px',
+                gap: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
               }}>
                 <input
                   type="checkbox"
                   checked={privacyConsent}
                   onChange={(e) => setPrivacyConsent(e.target.checked)}
-                  style={{ marginTop: '2px' }}
+                  style={{ marginTop: mode === 'live' ? `${2 * scaleFactor}px` : '2px' }}
                 />
                 <div>
-                  <span style={{ fontWeight: '500' }}>개인정보 수집 및 이용 동의</span>
+                  <span style={{ 
+                    fontWeight: '500',
+                    fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px'
+                  }}>개인정보 수집 및 이용 동의</span>
                   <span style={{ color: '#ef4444' }}> *</span>
-                  <div style={{ marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+                  <div style={{ 
+                    marginTop: mode === 'live' ? `${4 * scaleFactor}px` : '4px', 
+                    fontSize: mode === 'live' ? `${12 * scaleFactor}px` : '12px', 
+                    color: '#6b7280' 
+                  }}>
                     참석 관련 업무 처리를 위해 개인정보 수집 및 이용에 동의합니다.
                   </div>
                 </div>
@@ -315,10 +367,10 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
             </div>
 
             {/* 버튼 */}
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: mode === 'live' ? `${12 * scaleFactor}px` : '12px', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => setIsModalOpen(false)}
-                style={buttonStyle('#f3f4f6', '#374151', comp)}
+                style={buttonStyle('#f3f4f6', '#374151', comp, false, scaleFactor, mode)}
               >
                 취소
               </button>
@@ -328,10 +380,12 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
                 style={buttonStyle(
                   (!attendeeName.trim() || !guestSide || !privacyConsent || isSubmitting)
                     ? '#d1d5db'
-                    : (comp.props?.buttonColor || '#475569'),
-                  'white',
+                    : (comp.props?.buttonColor || '#9CAF88'), // frontend와 동일한 기본값
+                  comp.props?.buttonTextColor || 'white',
                   comp,
-                  !attendeeName.trim() || !guestSide || !privacyConsent || isSubmitting
+                  !attendeeName.trim() || !guestSide || !privacyConsent || isSubmitting,
+                  scaleFactor,
+                  mode
                 )}
               >
                 {isSubmitting ? '전송 중...' : '참석 의사 전달'}
@@ -344,36 +398,36 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
   );
 }
 
-const labelStyle = (comp) => ({
+const labelStyle = (comp, scaleFactor = 1, mode = 'editor') => ({
   display: 'block',
-  marginBottom: '8px',
-  fontSize: '16px',
+  marginBottom: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
+  fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
   fontWeight: '500',
   color: '#374151',
   fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
 });
 
-const textStyle = (comp) => ({
-  fontSize: '16px',
+const textStyle = (comp, scaleFactor = 1, mode = 'editor') => ({
+  fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
   fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
 });
 
-const buttonStyle = (bg, color, comp, disabled = false) => ({
-  padding: '12px 24px',
+const buttonStyle = (bg, color, comp, disabled = false, scaleFactor = 1, mode = 'editor') => ({
+  padding: mode === 'live' ? `${12 * scaleFactor}px ${24 * scaleFactor}px` : '12px 24px',
   backgroundColor: bg,
   color,
   border: 'none',
-  borderRadius: '8px',
-  fontSize: '16px',
+  borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
+  fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
   fontWeight: '500',
   cursor: disabled ? 'not-allowed' : 'pointer',
   fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
   transition: 'all 0.2s ease',
 });
 
-const FormInput = ({ label, type = 'text', value, onChange, placeholder, required = false, comp }) => (
-  <div style={{ marginBottom: '20px' }}>
-    <label style={labelStyle(comp)}>
+const FormInput = ({ label, type = 'text', value, onChange, placeholder, required = false, comp, scaleFactor = 1, mode = 'editor' }) => (
+  <div style={{ marginBottom: mode === 'live' ? `${20 * scaleFactor}px` : '20px' }}>
+    <label style={labelStyle(comp, scaleFactor, mode)}>
       {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
     </label>
     <input
@@ -383,10 +437,10 @@ const FormInput = ({ label, type = 'text', value, onChange, placeholder, require
       placeholder={placeholder}
       style={{
         width: '100%',
-        padding: '12px 16px',
+        padding: mode === 'live' ? `${12 * scaleFactor}px ${16 * scaleFactor}px` : '12px 16px',
         border: '1px solid #d1d5db',
-        borderRadius: '8px',
-        fontSize: '16px',
+        borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
+        fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
         fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
         boxSizing: 'border-box',
       }}

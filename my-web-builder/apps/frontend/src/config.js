@@ -69,6 +69,7 @@ export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('VITE_API_BAS
 export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('VITE_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') ||
   (isProductionEnvironment() ? 'ws://43.201.125.200:1234' : `ws://${getLocalNetworkIP()}:1234`);
 
+
 // 소셜 로그인 설정
 export const GOOGLE_CLIENT_ID = getEnvVar('VITE_GOOGLE_CLIENT_ID') || getEnvVar('NEXT_PUBLIC_GOOGLE_CLIENT_ID') || '';
 export const KAKAO_CLIENT_ID = getEnvVar('VITE_KAKAO_CLIENT_ID') || getEnvVar('NEXT_PUBLIC_KAKAO_CLIENT_ID') || '';
