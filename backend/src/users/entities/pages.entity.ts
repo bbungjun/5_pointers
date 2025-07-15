@@ -26,7 +26,7 @@ export class Pages {
   owner: Users;
 
   @Column({ name: 'user_id' })
-  userId: number;
+userId: number;
 
   @Column({ unique: true })
   subdomain: string;

@@ -145,7 +145,7 @@ function AttendEditor({ selectedComp, onUpdate }) {
       />
 
       <ColorPaletteEditor
-        value={selectedComp.props?.buttonColor || '#8b7355'}
+        value={selectedComp.props?.buttonColor || '#9CAF88'}
         onChange={(value) => updateProperty('buttonColor', value)}
         label="버튼 배경색"
       />

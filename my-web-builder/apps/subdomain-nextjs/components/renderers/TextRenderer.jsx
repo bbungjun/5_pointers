@@ -23,14 +23,11 @@ const AVAILABLE_FONTS = [
 ];
 
 function TextRenderer({ comp, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
   
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
       
       const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
       };
       
       window.addEventListener('resize', handleResize);
@@ -125,7 +122,7 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
         textDecoration: textDecoration,
         justifyContent: textAlign === 'left' ? 'flex-start' : 
                        textAlign === 'right' ? 'flex-end' : 'center',
-        ...(isLiveMode ? {
+        ...(mode === 'live' ? {
           width: '100%',
           fontSize: `clamp(${Math.max(10, (comp.props?.fontSize || 16) * 0.7)}px, ${((comp.props?.fontSize || 16) / 375) * 100}vw, ${comp.props?.fontSize || 16}px)`
         } : {

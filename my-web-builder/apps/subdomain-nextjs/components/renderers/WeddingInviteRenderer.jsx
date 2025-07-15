@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
 export default function WeddingInviteRenderer({ comp, mode = 'live', width, height }) {
-    const [isLiveMode, setIsLiveMode] = useState(false);
+    // 컨테이너 크기 기준으로 스케일 팩터 계산
+    const baseWidth = 375; // 기준 너비
+    const actualWidth = comp.width || baseWidth;
+    const scaleFactor = actualWidth / baseWidth;
     
     useEffect(() => {
         if (mode === 'live' && typeof window !== 'undefined') {
-            setIsLiveMode(window.innerWidth <= 768);
             
             const handleResize = () => {
-                setIsLiveMode(window.innerWidth <= 768);
             };
             
             window.addEventListener('resize', handleResize);
@@ -67,12 +68,12 @@ export default function WeddingInviteRenderer({ comp, mode = 'live', width, heig
                 border: '1px solid #BDB5A6',
                 boxShadow: '0 8px 32px rgba(189, 181, 166, 0.15)',
                 width: '100%',
-                height: '100%',
-                ...(isLiveMode ? {
-                    borderRadius: 0,
-                    padding: `clamp(16px, 6vw, 40px)`,
-                    minWidth: `clamp(120px, 40vw, 200px)`,
-                    minHeight: `clamp(80px, 30vw, 120px)`
+                height: mode === 'live' ? `${containerHeight * scaleFactor}px` : '100%',
+                ...(mode === 'live' ? {
+                    borderRadius: `${8 * scaleFactor}px`,
+                    padding: `${40 * scaleFactor}px`,
+                    minWidth: `${200 * scaleFactor}px`,
+                    minHeight: `${containerHeight * scaleFactor}px` // 높이도 스케일링 적용
                 } : {
                     borderRadius: 0,
                     padding: 40,
@@ -85,12 +86,12 @@ export default function WeddingInviteRenderer({ comp, mode = 'live', width, heig
             <div
                 style={{
                     fontFamily: titleFontFamily,
-                    fontSize: isLiveMode ? `clamp(${Math.max(16, titleFontSize * 0.7)}px, ${(titleFontSize / 375) * 100}vw, ${titleFontSize}px)` : toPx(titleFontSize),
+                    fontSize: mode === 'live' ? `${titleFontSize * scaleFactor}px` : toPx(titleFontSize),
                     fontStyle: titleFontStyle,
                     fontWeight: titleFontWeight,
                     textDecoration: titleTextDecoration,
                     color: titleColor,
-                    marginBottom: isLiveMode ? `clamp(14px, 5vw, 28px)` : 28,
+                    marginBottom: mode === 'live' ? `${28 * scaleFactor}px` : 28,
                     textAlign: titleAlign,
                     width: '100%',
                     letterSpacing: 1,
@@ -107,7 +108,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'live', width, heig
             <div
                 style={{
                     fontFamily: contentFontFamily,
-                    fontSize: isLiveMode ? `clamp(${Math.max(12, contentFontSize * 0.7)}px, ${(contentFontSize / 375) * 100}vw, ${contentFontSize}px)` : toPx(contentFontSize),
+                    fontSize: mode === 'live' ? `${contentFontSize * scaleFactor}px` : toPx(contentFontSize),
                     fontWeight: contentFontWeight,
                     fontStyle: contentFontStyle,
                     textDecoration: contentTextDecoration,
@@ -122,7 +123,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'live', width, heig
             >
                 {contentLines.map((line, idx) => (
                     <div key={idx} style={{ 
-                        minHeight: isLiveMode ? `clamp(12px, 4vw, 24px)` : 24, 
+                        minHeight: mode === 'live' ? `${24 * scaleFactor}px` : 24, 
                         whiteSpace: 'pre-wrap' 
                     }}>
                         {line && line.trim().length > 0 ? line : <span style={{ opacity: 0.3 }}>　</span>}
