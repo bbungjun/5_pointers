@@ -220,7 +220,7 @@ function DeployedPage({ user, onLogout }) {
   const PageCard = ({ page, isMobile = false }) => (
     <div
       key={page.id}
-      className={`bg-gradient-to-r from-purple-100 to-purple-200 border border-purple-300 rounded-xl p-6 hover:from-purple-200 hover:to-purple-300 transition-all duration-300 group ${
+      className={`bg-white border border-gray-200 rounded-xl p-6 hover:bg-gray-100 transition-all duration-300 group ${
         isMobile ? 'max-w-xs mx-auto' : ''
       }`}
     >
@@ -287,7 +287,7 @@ function DeployedPage({ user, onLogout }) {
               onChange={(e) => setEditingTitle(e.target.value)}
               onBlur={() => saveEditTitle(page.id)}
               onKeyPress={(e) => e.key === 'Enter' && saveEditTitle(page.id)}
-              className="w-full px-3 py-2 text-lg font-bold border border-purple-400 rounded-lg focus:outline-none focus:border-purple-600 bg-white"
+              className="w-full px-3 py-2 text-lg font-bold border border-sky-300 rounded-lg focus:outline-none focus:border-sky-400 bg-white"
               autoFocus
             />
           ) : (
@@ -298,7 +298,7 @@ function DeployedPage({ user, onLogout }) {
             배포일: {new Date(page.deployedAt || page.updatedAt).toLocaleDateString()}
           </p>
           {page.subdomain && (
-            <p className="text-sm text-purple-600 font-medium">
+            <p className="text-sm text-sky-500 font-medium">
               도메인: {page.subdomain}.ddukddak.org
             </p>
           )}
@@ -306,7 +306,7 @@ function DeployedPage({ user, onLogout }) {
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => startEditTitle(page.id, page.title)}
-            className="p-2 text-purple-600 hover:bg-purple-200 rounded-lg"
+            className="p-2 text-sky-600 hover:bg-sky-100 rounded-lg"
             title="제목 수정"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -330,13 +330,13 @@ function DeployedPage({ user, onLogout }) {
             const viewport = page.editingMode === 'mobile' ? 'mobile' : 'desktop';
             navigate(`/editor/${page.id}?viewport=${viewport}`);
           }}
-          className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
+          className="flex-1 px-4 py-2 bg-sky-200 text-white rounded-lg font-medium hover:bg-sky-600 transition-colors"
         >
           편집하기
         </button>
         <button
           onClick={() => window.open(`http://${page.subdomain}.ddukddak.org`, '_blank')}
-          className="px-4 py-2 bg-white text-purple-600 border border-purple-600 rounded-lg font-medium hover:bg-purple-100 transition-colors"
+          className="px-4 py-2 bg-white text-sky-600 border border-sky-600 rounded-lg font-medium hover:bg-sky-100 transition-colors"
         >
           보기
         </button>
@@ -358,10 +358,10 @@ function DeployedPage({ user, onLogout }) {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div
-        className="bg-white border-b border-slate-200 sticky top-0"
+        className="bg-gradient-to-r from-pink-50 to-rose-50 sticky top-0"
         style={{ position: 'relative', zIndex: 30 }}
       >
         <div className="max-w-6xl mx-auto px-4 py-3">
@@ -373,9 +373,9 @@ function DeployedPage({ user, onLogout }) {
                 onClick={() => navigate('/dashboard')}
               >
                 <img
-                  src="/ddukddak-logo.png"
-                  alt="DDUKDDAK"
-                  className="h-6 object-contain transform group-hover:scale-105 transition duration-300"
+                  src="/ddukddak-logo.png" 
+                  alt="DDUKDDAK" 
+                  style={{ height: '16px', objectFit: 'contain' }} 
                 />
               </div>
               <div className="flex items-center gap-6">
@@ -396,13 +396,13 @@ function DeployedPage({ user, onLogout }) {
                 onClick={() => navigate('/dashboard/drafts')}
                 className="px-4 py-2 bg-white text-slate-600 hover:text-amber-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-amber-200 flex items-center gap-2 group"
               >
-                <div className="w-5 h-5 bg-gradient-to-r from-purple-500 to-purple-600 rounded flex items-center justify-center">
+                <div className="w-5 h-5 bg-gradient-to-r from-sky-200 to-blue-200 rounded flex items-center justify-center">
                   <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </div>
                 임시 저장
-                <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                <span className="px-2 py-0.5 bg-sky-100 text-sky-700 text-xs font-medium rounded-full">
                   {myPages.filter((page) => page.status === 'DRAFT').length}개
                 </span>
               </button>
@@ -427,24 +427,24 @@ function DeployedPage({ user, onLogout }) {
         {/* 페이지 헤더 */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-gradient-to-r from-sky-200 to-blue-200 rounded-xl flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-slate-800">배포된 페이지</h2>
-            <span className="px-3 py-1 bg-purple-200 text-purple-700 text-sm font-medium rounded-full">
+            <span className="px-3 py-1 bg-sky-100 text-sky-800 text-sm font-medium rounded-full">
               {deployedPages.length}개
             </span>
           </div>
         </div>
 
         {/* 페이지 목록 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white rounded-2xl shadow-xl p-10 border border-gray-200">
           {pagesLoading ? (
             <div className="text-center py-16">
               <div className="w-16 h-16 mx-auto mb-4">
-                <div className="w-16 h-16 border-4 border-purple-300 border-t-purple-600 rounded-full animate-spin"></div>
+              <div className="w-16 h-16 border-4 border-sky-200 border-t-blue-300 rounded-full animate-spin"></div>
               </div>
               <p className="text-slate-600 font-medium">페이지를 불러오는 중...</p>
             </div>
@@ -459,7 +459,7 @@ function DeployedPage({ user, onLogout }) {
               <p className="text-slate-600 mb-4">페이지를 만들어서 배포해보세요</p>
               <button
                 onClick={() => navigate('/dashboard')}
-                className="px-6 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors"
+                className="px-6 py-3 bg-gradient-to-r from-sky-200 to-blue-200 text-sky-800 rounded-xl font-medium hover:from-sky-300 hover:to-blue-300 transition-colors"
               >
                 대시보드로 돌아가기
               </button>
@@ -470,15 +470,15 @@ function DeployedPage({ user, onLogout }) {
               {mobilePages.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-6">
-                    <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
                     </svg>
                     <h4 className="text-lg font-bold text-slate-800">모바일 페이지</h4>
-                    <span className="px-2 py-1 bg-pink-100 text-pink-700 text-sm font-medium rounded-full">
+                    <span className="px-2 py-1 bg-sky-100 text-sky-700 text-sm font-medium rounded-full">
                       {mobilePages.length}개
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
                     {mobilePages.map((page) => (
                       <PageCard key={page.id} page={page} isMobile={true} />
                     ))}
@@ -504,11 +504,11 @@ function DeployedPage({ user, onLogout }) {
               {desktopPages.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-6">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     <h4 className="text-lg font-bold text-slate-800">데스크톱 페이지</h4>
-                    <span className="px-2 py-1 bg-purple-200 text-purple-700 text-sm font-medium rounded-full">
+                    <span className="px-2 py-1 bg-sky-100 text-sky-700 text-sm font-medium rounded-full">
                       {desktopPages.length}개
                     </span>
                   </div>

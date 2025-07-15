@@ -148,7 +148,7 @@ const PreviewModal = ({
       const viewportClass = viewMode === "mobile" ? "mobile-viewport" : "desktop-viewport";
       
       rootRef.current.render(
-        React.createElement("div", { className: viewportClass },
+        React.createElement("div", { className: viewportClass, style:{paddingBottom: 32} },
           React.createElement(PreviewRenderer, {
             components: components,
             forcedViewport: viewMode,
