@@ -79,6 +79,7 @@ function CanvasComponent({
     compX: 0,
     compY: 0,
   });
+  const dragUpdateTimeoutRef = useRef(null);
 
   // 줌 레벨에 따른 그리드 크기 계산
   const scale = zoom / 100;
@@ -567,8 +568,25 @@ function CanvasComponent({
       setSnapLines(lines);
     }
 
-    // 🔧 드래그 중에는 로컬 상태만 업데이트 (Y.js 동기화 방지)
-    // 임시 위치를 저장하여 시각적 피드백만 제공
+    // 🔧 실시간 Y.js 동기화 (협업 개선)
+    if (newX !== currentX || newY !== currentY) {
+      // 드래그 중에도 실시간으로 Y.js 동기화
+      const updatedComponent = {
+        ...comp,
+        x: newX,
+        y: newY,
+      };
+      
+      // 쓰로틀링을 적용하여 성능 최적화
+      if (!dragUpdateTimeoutRef.current) {
+        dragUpdateTimeoutRef.current = setTimeout(() => {
+          onUpdate(updatedComponent);
+          dragUpdateTimeoutRef.current = null;
+        }, 16); // 60fps로 제한
+      }
+    }
+    
+    // 임시 위치도 업데이트 (시각적 피드백)
     setDragStart(prev => ({
       ...prev,
       tempX: newX,
@@ -585,13 +603,19 @@ function CanvasComponent({
       setComponentDragging(comp.id, false);
     }
     
+    // 드래그 업데이트 타임아웃 정리
+    if (dragUpdateTimeoutRef.current) {
+      clearTimeout(dragUpdateTimeoutRef.current);
+      dragUpdateTimeoutRef.current = null;
+    }
+    
     // 최종 위치 계산
     const finalX = dragStart.tempX !== undefined ? dragStart.tempX : currentX;
     const finalY = dragStart.tempY !== undefined ? dragStart.tempY : currentY;
     
-    // 🔧 드래그 완료 시에만 Y.js 동기화 수행
+    // 🔧 드래그 완료 시 최종 동기화 (실시간 업데이트와 중복 방지)
     if (finalX !== currentX || finalY !== currentY) {
-      console.log('위치 변경 감지, Y.js 동기화:', comp.id, `(${currentX}, ${currentY}) -> (${finalX}, ${finalY})`);
+      console.log('드래그 완료, 최종 동기화:', comp.id, `(${currentX}, ${currentY}) -> (${finalX}, ${finalY})`);
       
       // 다중 선택된 컴포넌트들과 함께 이동
       if (selectedIds && selectedIds.length > 1 && selectedIds.includes(comp.id)) {
@@ -612,7 +636,7 @@ function CanvasComponent({
         });
       }
 
-      // 메인 컴포넌트 위치 업데이트 (Y.js 동기화)
+      // 메인 컴포넌트 최종 위치 업데이트
       const updatedComponent = {
         ...comp,
         x: finalX,
@@ -662,6 +686,16 @@ function CanvasComponent({
     }
   }, [isDragging, dragStart]);
 
+  // 컴포넌트 정리 시 타임아웃 정리
+  useEffect(() => {
+    return () => {
+      if (dragUpdateTimeoutRef.current) {
+        clearTimeout(dragUpdateTimeoutRef.current);
+        dragUpdateTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
   return (
     <div
       ref={ref}
@@ -678,7 +712,7 @@ function CanvasComponent({
         border: selected ? '2px solid #3B4EFF' : '1px solid transparent',
         cursor: isDragging ? 'grabbing' : 'grab',
         background: selected ? 'rgba(59, 78, 255, 0.05)' : 'transparent',
-        zIndex: selected ? 10 : 1,
+        zIndex: selected ? 2000 : (comp.type === 'text' ? Math.max(comp.props?.zIndex || 1000, 1000) : (comp.props?.zIndex || 1)),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

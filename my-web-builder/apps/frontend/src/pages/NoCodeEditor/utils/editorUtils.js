@@ -142,6 +142,10 @@ export function resolveCollision(draggedComp, otherComponents, getComponentDimen
   
   for (const other of otherComponents) {
     if (other.id === draggedComp.id) continue;
+    
+    // 텍스트 컴포넌트와는 충돌 방지하지 않음
+    if (other.type === 'text' || draggedComp.type === 'text') continue;
+    
     const tempComp = { ...draggedComp, x: resolvedX, y: resolvedY };
     if (checkCollision(tempComp, other, getComponentDimensionsFn)) {
       const otherDimensions = getComponentDimensionsFn(other.type);

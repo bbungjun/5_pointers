@@ -15,6 +15,7 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
   const [pageTitle, setPageTitle] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [canvasHeight, setCanvasHeight] = useState(1080);
+  const [isFromTemplate, setIsFromTemplate] = useState(false); // 템플릿으로부터 생성된 페이지인지 여부
 
   // 자동 저장 훅
   const autoSave = useAutoSave(roomId, components, canvasHeight);
@@ -67,6 +68,21 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
           const pageData = await response.json();
           console.log('📄 페이지 데이터 로딩 성공:', pageData);
 
+          // 페이지의 editingMode를 우선적으로 사용하여 편집 기준 설정
+          if (pageData.editingMode) {
+            console.log('📄 페이지 editingMode 설정:', pageData.editingMode);
+            setDesignMode(pageData.editingMode);
+            
+            // 템플릿으로부터 생성된 페이지인지 판단
+            // editingMode가 설정되어 있고, 컴포넌트가 있는 경우 템플릿으로부터 생성된 것으로 간주
+            if (pageData.content && 
+                ((pageData.content.components && pageData.content.components.length > 0) || 
+                 (Array.isArray(pageData.content) && pageData.content.length > 0))) {
+              setIsFromTemplate(true);
+              console.log('📄 템플릿으로부터 생성된 페이지로 판단됨');
+            }
+          }
+
           // content 구조 처리
           if (pageData.content && typeof pageData.content === 'object') {
             // 새로운 형식: { components: [], canvasSettings: {} }
@@ -79,16 +95,11 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
               setComponents(loadedComponents);
             }
 
-            // designMode 설정 (있는 경우)
-            if (pageData.content.canvasSettings?.designMode) {
-              setDesignMode(pageData.content.canvasSettings.designMode);
-            }
-
             // 캔버스 높이 복원 (있는 경우)
             if (pageData.content.canvasSettings?.canvasHeight) {
               setCanvasHeight(pageData.content.canvasSettings.canvasHeight);
             }
-          } else {
+          } else if (Array.isArray(pageData.content)) {
             // 이전 형식: content가 직접 배열인 경우
             const loadedComponents = pageData.content || [];
             console.log('📄 페이지 데이터에서 로드된 컴포넌트:', loadedComponents.length, '개');
@@ -156,6 +167,7 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
     canvasHeight,
     setCanvasHeight,
     isLoading,
+    isFromTemplate, // 템플릿으로부터 생성된 페이지인지 여부
 
     // 유틸리티
     autoSave,
