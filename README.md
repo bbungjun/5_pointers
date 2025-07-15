@@ -5,11 +5,12 @@
 ## 프로젝트 개요
 5Pointers는 웹페이지 빌더 프로젝트입니다.
 
-## 서버 구성
-- **백엔드 API**: NestJS (13.124.90.104:3001)
-- **프론트엔드 에디터**: React/Vite (3.35.227.214:80)
-- **서브도메인 렌더러**: Next.js (13.209.22.112:3002)
-- **WebSocket 서버**: y-js (3.35.50.227:1234) ✅ **실행 중**
+## 🌐 서비스 접근 URL
+- **서브도메인 서버**: http://52.78.16.212:3001
+- **Y.js WebSocket**: ws://43.201.125.200:1234 ✅ **실행 중**
+- **백엔드 API**: https://ddukddak.org/api (CloudFront → Elastic Beanstalk)
+- **프론트엔드**: https://ddukddak.org (CloudFront → S3)
+
 
 ## 데이터베이스
 - **RDS MySQL**: pointers-mysql-db.chiyuym88mcj.ap-northeast-2.rds.amazonaws.com
@@ -21,9 +22,9 @@
 
 ## 🤝 협업 기능
 ✅ **Y.js WebSocket 서버 정상 작동**
-- 서버 주소: `ws://3.35.50.227:1234`
+- 서버 주소: `ws://43.201.125.200:1234`
 - 다중 기기 간 실시간 협업 지원
 - 룸 기반 격리된 협업 환경
 
 ---
-**최종 업데이트**: 2025-07-10 12:53 KST
+**최종 업데이트**: 2025-07-15 (t3.medium 인스턴스 업그레이드 완료)
