@@ -1,0 +1,193 @@
+/* 핑크-보라 계열 전역 스타일 */
+
+:root {
+  /* 메인 브랜드 색상 */
+  --color-primary-50: #fdf2f8;
+  --color-primary-100: #fce7f3;
+  --color-primary-200: #fbcfe8;
+  --color-primary-300: #f9a8d4;
+  --color-primary-400: #f472b6;
+  --color-primary-500: #ec4899;
+  --color-primary-600: #db2777;
+  --color-primary-700: #be185d;
+  --color-primary-800: #9d174d;
+  --color-primary-900: #831843;
+  
+  /* 보조 보라 색상 */
+  --color-secondary-50: #faf5ff;
+  --color-secondary-100: #f3e8ff;
+  --color-secondary-200: #e9d5ff;
+  --color-secondary-300: #d8b4fe;
+  --color-secondary-400: #c084fc;
+  --color-secondary-500: #a855f7;
+  --color-secondary-600: #9333ea;
+  --color-secondary-700: #7c3aed;
+  --color-secondary-800: #6b21a8;
+  --color-secondary-900: #581c87;
+  
+  /* 그라데이션 */
+  --gradient-primary: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  --gradient-light: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%);
+  --gradient-dark: linear-gradient(135deg, #be185d 0%, #7c3aed 100%);
+}
+
+/* 기본 버튼 스타일 */
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--gradient-dark);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 기본 입력 필드 스타일 */
+.input-primary {
+  border: 2px solid var(--color-primary-200);
+  border-radius: 8px;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.input-primary:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
+}
+
+/* 카드 스타일 */
+.card-primary {
+  background: white;
+  border: 1px solid var(--color-primary-100);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.1);
+  transition: all 0.2s ease;
+}
+
+.card-primary:hover {
+  box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.15);
+  transform: translateY(-2px);
+}
+
+/* 텍스트 그라데이션 */
+.text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 로딩 스피너 */
+.spinner-primary {
+  border: 3px solid var(--color-primary-100);
+  border-top: 3px solid var(--color-primary-500);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 알림/토스트 스타일 */
+.toast-success {
+  background: var(--gradient-light);
+  border-left: 4px solid var(--color-primary-500);
+  color: var(--color-primary-800);
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border-left: 4px solid #ef4444;
+  color: #991b1b;
+}
+
+/* 스크롤바 스타일 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-primary-50);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-400);
+}
+
+/* 선택 영역 스타일 */
+::selection {
+  background: var(--color-primary-200);
+  color: var(--color-primary-800);
+}
+
+/* 링크 스타일 */
+a {
+  color: var(--color-primary-600);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-primary-700);
+  text-decoration: underline;
+}
+
+/* 체크박스/라디오 버튼 스타일 */
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  accent-color: var(--color-primary-500);
+}
+
+/* 진행률 바 */
+.progress-bar {
+  background: var(--color-primary-100);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: var(--gradient-primary);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* 태그/배지 스타일 */
+.badge-primary {
+  background: var(--color-primary-100);
+  color: var(--color-primary-800);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-secondary {
+  background: var(--color-secondary-100);
+  color: var(--color-secondary-800);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}

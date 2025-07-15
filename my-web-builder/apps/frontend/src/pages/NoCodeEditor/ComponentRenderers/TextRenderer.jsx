@@ -111,7 +111,7 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
         onChange={e => setEditValue(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        className="w-32 border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+        className="w-32 border-2 border-pink-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
         style={{ 
           fontSize: actualComp?.props?.fontSize,
           fontFamily: fontFamily,
@@ -129,7 +129,7 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
   return (
     <div 
       ref={textRef}
-      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center transition-all duration-200 ${isSelected && mode === 'editor' ? 'hover:bg-blue-50 cursor-text' : 'hover:opacity-80'}`}
+      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center transition-all duration-200 ${isSelected && mode === 'editor' ? 'hover:bg-pink-50 cursor-text' : 'hover:opacity-80'}`}
       style={{
         color: actualComp?.props?.color, 
         fontSize: actualComp?.props?.fontSize,

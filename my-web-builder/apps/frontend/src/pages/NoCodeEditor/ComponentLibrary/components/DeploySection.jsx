@@ -48,7 +48,7 @@ function DeploySection({ components, roomId }) {
             color: '#1d2129',
             letterSpacing: '0.3px'
           }}>
-            뚝딱 게시
+            게시
           </h4>
           <div style={{
             fontSize: 11,
@@ -141,7 +141,7 @@ function DeploySection({ components, roomId }) {
         ) : (
           <>
             <span style={{ fontSize: 14 }}>🚀</span>
-            뚝딱 게시
+            게시
           </>
         )}
       </button>

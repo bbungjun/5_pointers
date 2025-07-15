@@ -8,7 +8,6 @@ import {
 } from '../config';
 import googleLoginImg from '../assets/web_light_sq_ctn@1x.png';
 import kakaoLoginImg from '../assets/kakao_login_medium_narrow.png';
-const ddukddakLogo = '/ddukddak-logo.png';
 
 function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -70,7 +69,11 @@ function LoginPage({ onLogin }) {
           </div>
 
           <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-3">
-            뚝딱
+            <img 
+              src="/ddukddak-logo.png" 
+              alt="DDUKDDAK" 
+              style={{ height: '24px', objectFit: 'contain' }} 
+            />
           </h1>
         </div>
 

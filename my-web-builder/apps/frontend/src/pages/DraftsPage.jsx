@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
-import ddukddakLogo from '../assets/page-cube-logo.png';
+import { colors } from '../styles/colors';
 
 function DraftsPage({ user, onLogout }) {
   const navigate = useNavigate();
@@ -136,20 +136,17 @@ function DraftsPage({ user, onLogout }) {
                 onClick={() => navigate('/dashboard')}
               >
                 <img
-                  src={ddukddakLogo}
-                  alt="DdukDdak"
-                  className="w-10 h-10 object-contain transform group-hover:scale-105 transition duration-300"
+                  src="/ddukddak-logo.png"
+                  alt="DDUKDDAK"
+                  className="h-6 object-contain transform group-hover:scale-105 transition duration-300"
                 />
               </div>
               <div className="flex items-center gap-6">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  PAGE CUBE
-                </h1>
                 <div className="h-6 w-px bg-slate-200"></div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 border border-green-600 shadow-sm"></div>
+                  <div className="w-2 h-2 rounded-full bg-purple-400 border border-purple-500 shadow-sm"></div>
                   <p className="text-slate-600 font-medium text-sm">
-                    <span className="text-blue-600 font-semibold">{user.nickname}</span>님
+                    <span className="text-pink-600 font-semibold">{user.nickname}</span>님
                   </p>
                 </div>
               </div>
@@ -162,7 +159,7 @@ function DraftsPage({ user, onLogout }) {
                 onClick={() => navigate('/dashboard/deployed')}
                 className="px-4 py-2 bg-white text-slate-600 hover:text-emerald-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-emerald-200 flex items-center gap-2 group"
               >
-                <div className="w-5 h-5 bg-gradient-to-r from-emerald-500 to-green-500 rounded flex items-center justify-center">
+                <div className="w-5 h-5 bg-gradient-to-r from-purple-300 to-purple-400 rounded flex items-center justify-center">
                   <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -193,13 +190,13 @@ function DraftsPage({ user, onLogout }) {
         {/* 페이지 헤더 */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-r from-purple-300 to-purple-400 rounded-xl flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-slate-800">임시 저장된 페이지</h2>
-            <span className="px-3 py-1 bg-amber-100 text-amber-700 text-sm font-medium rounded-full">
+            <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
               {draftPages.length}개
             </span>
           </div>
@@ -211,7 +208,7 @@ function DraftsPage({ user, onLogout }) {
           {pagesLoading ? (
             <div className="text-center py-16">
               <div className="w-16 h-16 mx-auto mb-4">
-                <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin"></div>
+                <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-400 rounded-full animate-spin"></div>
               </div>
               <p className="text-slate-600 font-medium">페이지를 불러오는 중...</p>
             </div>
@@ -226,7 +223,7 @@ function DraftsPage({ user, onLogout }) {
               <p className="text-slate-600 mb-4">새로운 페이지를 만들어보세요</p>
               <button
                 onClick={() => navigate('/dashboard')}
-                className="px-6 py-3 bg-amber-600 text-white rounded-xl font-medium hover:bg-amber-700 transition-colors"
+                className="px-6 py-3 bg-purple-400 text-white rounded-xl font-medium hover:bg-purple-500 transition-colors"
               >
                 대시보드로 돌아가기
               </button>
@@ -236,7 +233,7 @@ function DraftsPage({ user, onLogout }) {
               {draftPages.map((page) => (
                 <div
                   key={page.id}
-                  className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 hover:from-amber-100 hover:to-orange-100 transition-all duration-300 group flex flex-col"
+                  className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-6 hover:from-purple-100 hover:to-purple-200 transition-all duration-300 group flex flex-col"
                   style={{ minHeight: '140px' }}
                 >
                   <div className="flex items-start justify-between mb-4 flex-1">
@@ -248,7 +245,7 @@ function DraftsPage({ user, onLogout }) {
                           onChange={(e) => setEditingTitle(e.target.value)}
                           onBlur={() => saveEditTitle(page.id)}
                           onKeyPress={(e) => e.key === 'Enter' && saveEditTitle(page.id)}
-                          className="w-full px-3 py-2 text-lg font-bold border border-amber-300 rounded-lg focus:outline-none focus:border-amber-500 bg-white"
+                          className="w-full px-3 py-2 text-lg font-bold border border-purple-300 rounded-lg focus:outline-none focus:border-purple-500 bg-white"
                           autoFocus
                         />
                       ) : (
@@ -259,8 +256,8 @@ function DraftsPage({ user, onLogout }) {
                       <div className="flex items-center gap-2 mb-2">
                         <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           page.editingMode === 'mobile' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-green-100 text-green-800'
+                            ? 'bg-pink-100 text-blue-800' 
+                            : 'bg-purple-100 text-purple-800'
                         }`}>
                           {page.editingMode === 'mobile' ? (
                             <>
@@ -287,7 +284,7 @@ function DraftsPage({ user, onLogout }) {
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
                       <button
                         onClick={() => startEditTitle(page.id, page.title)}
-                        className="p-2 text-amber-600 hover:bg-amber-100 rounded-lg"
+                        className="p-2 text-purple-600 hover:bg-purple-100 rounded-lg"
                         title="제목 수정"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,7 +308,7 @@ function DraftsPage({ user, onLogout }) {
                         const viewport = page.editingMode === 'mobile' ? 'mobile' : 'desktop';
                         navigate(`/editor/${page.id}?viewport=${viewport}`);
                       }}
-                      className="w-full px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors"
+                      className="w-full px-4 py-2 bg-purple-400 text-white rounded-lg font-medium hover:bg-purple-500 transition-colors"
                     >
                       편집하기
                     </button>
