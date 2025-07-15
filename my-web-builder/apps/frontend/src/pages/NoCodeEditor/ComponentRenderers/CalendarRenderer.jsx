@@ -8,25 +8,26 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
     noBorder = true,
     borderColor = '#e5e7eb',
     borderWidth = '1px',
-    borderRadius = 0
+    borderRadius = 0,
+    weddingDateLabel = 'Wedding Date:',
   } = comp.props;
-  
+
   // 날짜 파싱
   const targetDate = new Date(weddingDate);
   const currentDate = new Date();
   const year = targetDate.getFullYear();
   const month = targetDate.getMonth();
   const day = targetDate.getDate();
-  
+
   // 달력 생성 로직
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const startDate = new Date(firstDay);
   startDate.setDate(startDate.getDate() - firstDay.getDay());
-  
+
   const weeks = [];
   const currentWeekDate = new Date(startDate);
-  
+
   for (let week = 0; week < 6; week++) {
     const days = [];
     for (let day = 0; day < 7; day++) {
@@ -36,14 +37,14 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
     weeks.push(days);
     if (currentWeekDate > lastDay && currentWeekDate.getDay() === 0) break;
   }
-  
+
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
-  
+
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
+
   return (
     <div style={{
       width: '100%',
@@ -69,7 +70,7 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
           {title}
         </h3>
       )}
-      
+
       {/* 월/년 헤더 */}
       <div style={{ textAlign: 'center', marginBottom: '16px' }}>
         <h4 style={{
@@ -80,7 +81,7 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
           {monthNames[month]} {year}
         </h4>
       </div>
-      
+
       {/* 요일 헤더 */}
       <div style={{
         display: 'grid',
@@ -100,7 +101,7 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
           </div>
         ))}
       </div>
-      
+
       {/* 달력 날짜들 */}
       <div style={{
         display: 'grid',
@@ -113,47 +114,55 @@ function CalendarRenderer({ comp, mode = 'editor' }) {
             const isCurrentMonth = date.getMonth() === month;
             const isWeddingDay = date.getDate() === day && date.getMonth() === month && date.getFullYear() === year;
             const isToday = date.toDateString() === currentDate.toDateString();
-            
+
+            let cellStyle = {
+              height: '40px',
+              width: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
+              borderRadius: borderRadius,
+              cursor: 'pointer',
+              color: !isCurrentMonth ? '#d1d5db' : '#374151',
+              backgroundColor: isWeddingDay ? highlightColor : 'transparent',
+              fontWeight: isWeddingDay || isToday ? 'bold' : 'normal',
+              position: 'relative',
+              border: isToday && !isWeddingDay ? '2px solid #d1d5db' : 'none', // 연한 회색 테두리
+              boxSizing: 'border-box'
+            };
+
             return (
               <div
                 key={`${weekIndex}-${dayIndex}`}
-                style={{
-                  height: '40px',
-                  width: '40px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '14px',
-                  borderRadius: borderRadius,
-                  cursor: 'pointer',
-                  color: !isCurrentMonth ? '#d1d5db' : '#374151',
-                  backgroundColor: isWeddingDay ? highlightColor : 
-                                 isToday ? '#dbeafe' : 'transparent',
-                  fontWeight: isWeddingDay || isToday ? 'bold' : 'normal',
-                  position: 'relative'
-                }}
+                style={cellStyle}
               >
                 {date.getDate()}
                 {isWeddingDay && (
-                  <div style={{
-                    position: 'absolute',
-                    marginTop: '32px',
-                    fontSize: '12px',
-                    textAlign: 'center'
-                  }}>
-                    💒
-                  </div>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      bottom: 2,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      fontSize: '16px',
+                      pointerEvents: 'none'
+                    }}
+                    aria-label="Wedding Day"
+                  >
+                  </span>
                 )}
               </div>
             );
           })
         )}
       </div>
-      
-      {/* 웨딩 날짜 표시 */}
+
+
+      {/* 날짜 표시 */}
       <div style={{ marginTop: '16px', textAlign: 'center' }}>
         <div style={{ fontSize: '14px', color: '#6b7280' }}>
-          Wedding Date: <span style={{ fontWeight: '600', color: highlightColor }}>
+          {weddingDateLabel} <span style={{ fontWeight: '600', color: highlightColor }}>
             {targetDate.toLocaleDateString('en-US')}
           </span>
         </div>

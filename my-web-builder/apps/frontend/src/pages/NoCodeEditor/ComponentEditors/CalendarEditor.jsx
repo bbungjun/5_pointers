@@ -4,7 +4,9 @@ import * as PropertyEditors from '../PropertyEditors';
 function CalendarEditor({ selectedComp, onUpdate }) {
   const {
     weddingDate = '',
+    title = '',
     highlightColor = '#ff6b9d',
+    weddingDateLabel = 'Wedding Date:',
     noBorder = true,
     borderColor = '#e5e7eb',
     borderWidth = '1px',
@@ -30,18 +32,28 @@ function CalendarEditor({ selectedComp, onUpdate }) {
 
   return (
     <div>
+      <PropertyEditors.TextEditor
+        label="달력 제목"
+        value={title}
+        onChange={(value) => handlePropChange('title', value)}
+        placeholder="우리의 결혼식"
+      />
       <PropertyEditors.DateEditor
         label="결혼식 날짜"
         value={weddingDate}
         onChange={(value) => handlePropChange('weddingDate', value)}
       />
-      <PropertyEditors.ColorEditor
+      <PropertyEditors.TextEditor
+        label="날짜 라벨"
+        value={weddingDateLabel}
+        onChange={(value) => handlePropChange('weddingDateLabel', value)}
+        placeholder="Wedding Date:"
+      />
+      <PropertyEditors.ColorPaletteEditor
         label="Highlight Color"
         value={highlightColor}
         onChange={(value) => handlePropChange('highlightColor', value)}
       />
-
-      {/* 테두리 옵션 - BorderEditor로 통합 */}
       <PropertyEditors.BorderEditor
         noBorder={localNoBorder}
         borderColor={borderColor}
