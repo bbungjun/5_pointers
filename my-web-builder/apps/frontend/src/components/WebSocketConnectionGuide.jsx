@@ -4,16 +4,10 @@ const WebSocketConnectionGuide = ({ wsUrl, onRetry }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleCertificateSetup = () => {
-    // 새 탭에서 HTTPS 서버 열기
-    let httpsUrl = wsUrl.replace('wss://', 'https://');
-    
-    // 포트가 1234인 경우 1235로 변경 (SSL 포트)
-    if (httpsUrl.includes(':1234')) {
-      httpsUrl = httpsUrl.replace(':1234', ':1235');
-    }
-    
-    console.log('🔗 인증서 승인 URL:', httpsUrl);
-    window.open(httpsUrl, '_blank');
+    // WS URL을 HTTP URL로 변경
+    const httpUrl = wsUrl.replace('ws://', 'http://');
+    console.log('🔗 서버 확인 URL:', httpUrl);
+    window.open(httpUrl, '_blank');
   };
 
   return (
@@ -27,17 +21,17 @@ const WebSocketConnectionGuide = ({ wsUrl, onRetry }) => {
           </div>
           <div className="ml-3 flex-1">
             <h3 className="text-sm font-medium text-yellow-800">
-              협업 기능 연결 필요
+              협업 서버 연결 확인 필요
             </h3>
             <div className="mt-2 text-sm text-yellow-700">
-              <p>실시간 협업을 위해 보안 인증서 승인이 필요합니다.</p>
+              <p>실시간 협업을 위해 WebSocket 서버 연결을 확인해주세요.</p>
             </div>
             <div className="mt-3 flex space-x-2">
               <button
                 onClick={handleCertificateSetup}
                 className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-xs font-medium px-3 py-1 rounded border border-yellow-300 transition-colors"
               >
-                인증서 승인하기
+                서버 상태 확인
               </button>
               <button
                 onClick={onRetry}
@@ -70,17 +64,15 @@ const WebSocketConnectionGuide = ({ wsUrl, onRetry }) => {
         
         {isExpanded && (
           <div className="mt-4 text-sm text-yellow-700 border-t border-yellow-200 pt-4">
-            <h4 className="font-medium mb-2">📋 인증서 승인 방법:</h4>
+            <h4 className="font-medium mb-2">📋 서버 연결 확인 방법:</h4>
             <ol className="list-decimal list-inside space-y-1 text-xs">
-              <li>"인증서 승인하기" 버튼 클릭</li>
-              <li>새 탭에서 보안 경고 화면이 나타남</li>
-              <li>"고급" 또는 "Advanced" 클릭</li>
-              <li>"안전하지 않음으로 이동" 또는 "Proceed to..." 클릭</li>
-              <li>"Y.js WebSocket Server (HTTPS) is running!" 메시지 확인</li>
-              <li>이 페이지로 돌아와서 "다시 연결" 클릭</li>
+              <li>"서버 상태 확인" 버튼 클릭</li>
+              <li>새 탭에서 "Y.js WebSocket Server is running!" 메시지 확인</li>
+              <li>메시지가 보이면 이 페이지로 돌아와서 "다시 연결" 클릭</li>
+              <li>메시지가 안 보이면 서버 관리자에게 문의</li>
             </ol>
             <div className="mt-3 p-2 bg-yellow-100 rounded text-xs">
-              <strong>💡 팁:</strong> 인증서는 한 번만 승인하면 됩니다. 이후 자동으로 연결됩니다.
+              <strong>💡 팁:</strong> 서버가 정상 작동하면 자동으로 연결됩니다.
             </div>
           </div>
         )}
