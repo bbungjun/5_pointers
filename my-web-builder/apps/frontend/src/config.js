@@ -18,26 +18,33 @@ const getEnvVar = (key, defaultValue = '') => {
 
 // 프로덕션 환경 감지 함수 (API_BASE_URL 설정 전에 정의)
 const isProductionEnvironment = () => {
+  // 2. URL 기반 감지 (브라우저에서 가장 확실한 방법)
+  const currentUrl = typeof window !== 'undefined' ? window.location.hostname : '';
+  const currentPort = typeof window !== 'undefined' ? window.location.port : '';
+  const isLocalhost = currentUrl === 'localhost' || currentUrl === '127.0.0.1';
+  
+  console.log('🔍 환경 감지 상세:', {
+    currentUrl,
+    currentPort,
+    isLocalhost
+  });
+  
+  // localhost인 경우 무조건 개발 환경으로 처리
+  if (isLocalhost) {
+    console.log('✅ 로컬 환경으로 감지됨 - 개발 모드 활성화');
+    return false;
+  }
+  
   // 1. 명시적 환경변수 확인
   const viteMode = getEnvVar('VITE_MODE');
   const nodeEnv = getEnvVar('NODE_ENV');
-  
-  // 2. URL 기반 감지 (브라우저에서 가장 확실한 방법)
-  const currentUrl = typeof window !== 'undefined' ? window.location.hostname : '';
   const isS3Domain = currentUrl.includes('s3-website') || currentUrl.includes('amazonaws.com');
   const isDdukddakDomain = currentUrl.includes('ddukddak.org');
   const isCloudFrontDomain = currentUrl.includes('cloudfront.net');
   
-  console.log('🔍 환경 감지:', {
-    viteMode,
-    nodeEnv,
-    currentUrl,
-    isS3Domain,
-    isDdukddakDomain,
-    isCloudFrontDomain
-  });
-  
-  return viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isDdukddakDomain || isCloudFrontDomain;
+  const isProd = viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isDdukddakDomain || isCloudFrontDomain;
+  console.log('🌍 환경 감지 결과:', isProd ? '프로덕션' : '개발');
+  return isProd;
 };
 
 // 로컬 네트워크 IP 주소 감지 함수
@@ -47,9 +54,9 @@ const getLocalNetworkIP = () => {
     if (typeof window !== 'undefined') {
       const hostname = window.location.hostname;
       
-      // localhost인 경우 localhost 사용 (로컬 협업을 위해)
+      // localhost인 경우 WSL IP 주소 사용 (WSL 환경에서 협업을 위해)
       if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'localhost';
+        return '172.30.74.11'; // WSL IP 주소
       }
       
       // 실제 IP 주소인 경우 그대로 사용
@@ -58,18 +65,38 @@ const getLocalNetworkIP = () => {
   } catch (error) {
     console.warn('로컬 네트워크 IP 감지 실패:', error);
   }
-  return 'localhost'; // 기본값을 localhost로 변경
+  return '172.30.74.11'; // WSL IP 주소로 기본값 변경
 };
 
 // API 서버 설정 - 환경변수 기반
 export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('VITE_API_BASE_URL') || getEnvVar('NEXT_PUBLIC_API_URL') || 
   (isProductionEnvironment() ? 'https://ddukddak.org/' : 'http://localhost:3000/');
 
-// Y.js WebSocket 서버 설정 - 환경변수 기반
-export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('VITE_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') ||
-  (isProductionEnvironment() ? 'wss://43.203.235.108:1235' : `ws://${getLocalNetworkIP()}:1234`);
+// Y.js WebSocket 서버 설정 - 환경별 분기 (명확한 로컬 우선)
+const getWebSocketUrl = () => {
+  // 환경변수가 있으면 우선 사용
+  const envUrl = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('VITE_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL');
+  if (envUrl) {
+    console.log('🔧 환경변수에서 WebSocket URL 사용:', envUrl);
+    return envUrl;
+  }
+  
+  // 현재 호스트 기반으로 결정
+  const currentUrl = typeof window !== 'undefined' ? window.location.hostname : '';
+  const isLocalhost = currentUrl === 'localhost' || currentUrl === '127.0.0.1';
+  
+  if (isLocalhost) {
+    const localUrl = 'wss://localhost:1235';
+    console.log('🏠 로컬 WebSocket URL 사용:', localUrl);
+    return localUrl;
+  } else {
+    const prodUrl = 'wss://43.203.235.108:1235';
+    console.log('🌍 프로덕션 WebSocket URL 사용:', prodUrl);
+    return prodUrl;
+  }
+};
 
-
+export const YJS_WEBSOCKET_URL = getWebSocketUrl();
 
 
 // 소셜 로그인 설정
@@ -109,5 +136,7 @@ export const getDeployedUrl = (subdomain) => {
 console.log('🔧 API 설정:', {
   baseUrl: API_BASE_URL,
   websocketUrl: YJS_WEBSOCKET_URL,
-  frontend: getEnvVar('VITE_FRONTEND_URL') || getEnvVar('NEXT_PUBLIC_FRONTEND_URL') || 'http://localhost:5173'
-}); 
+  frontend: getEnvVar('VITE_FRONTEND_URL') || getEnvVar('NEXT_PUBLIC_FRONTEND_URL') || 'http://localhost:5173',
+  isProduction: isProductionEnvironment(),
+  currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'server'
+}); // Cache bust: Wed Jul 16 05:39:10 KST 2025

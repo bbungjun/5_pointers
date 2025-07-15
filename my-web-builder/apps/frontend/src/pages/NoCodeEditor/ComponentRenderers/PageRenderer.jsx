@@ -90,8 +90,9 @@ const PageRenderer = ({ component, comp, mode = 'editor', onUpdate }) => {
       ? `${pageName} (${navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'}+클릭으로 페이지 이동)` 
       : `${pageName}으로 이동`
   }, [
-    renderThumbnail(),
+    React.createElement('div', { key: 'thumbnail' }, renderThumbnail()),
     React.createElement('div', {
+      key: 'content',
       style: {
         padding: '8px',
         height: '40%',
@@ -127,6 +128,7 @@ const PageRenderer = ({ component, comp, mode = 'editor', onUpdate }) => {
       }, description)
     ]),
     mode === 'editor' && React.createElement('div', {
+      key: 'editor-controls',
       style: {
         position: 'absolute',
         top: '4px',
@@ -161,7 +163,7 @@ const PageRenderer = ({ component, comp, mode = 'editor', onUpdate }) => {
         }
       }, linkedPageId ? '🔗' : '⚠️')
     ])
-  ]);
+  ].filter(Boolean));
 };
 
 export default PageRenderer;

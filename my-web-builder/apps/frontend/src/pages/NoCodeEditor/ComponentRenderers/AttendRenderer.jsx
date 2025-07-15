@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
-  console.log('🎯 AttendRenderer props:', { pageId, mode, isEditor, componentId: comp.id });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [attendeeName, setAttendeeName] = useState('');
   const [attendeeCount, setAttendeeCount] = useState(1);

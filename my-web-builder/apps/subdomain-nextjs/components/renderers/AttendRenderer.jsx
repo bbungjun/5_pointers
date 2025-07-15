@@ -33,18 +33,6 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
     }
   }, [mode]);
   
-  console.log('🎯 AttendRenderer props:', { pageId, mode, isEditor, componentId: comp.id });
-  console.log('🔍 AttendRenderer comp.props:', comp.props);
-  console.log('🔍 AttendRenderer dimensions:', { 
-    compWidth: comp.width,
-    compHeight: comp.height,
-    windowWidth,
-    actualWidth,
-    scaleFactor,
-    containerWidth,
-    containerHeight,
-    mode
-  });
 
   const handleSubmit = async () => {
     if (!attendeeName.trim() || !guestSide || !privacyConsent) return;

@@ -4,8 +4,8 @@ const WebSocketConnectionGuide = ({ wsUrl, onRetry }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleCertificateSetup = () => {
-    // WS URL을 HTTP URL로 변경
-    const httpUrl = wsUrl.replace('ws://', 'http://');
+    // WSS/WS URL을 HTTPS/HTTP URL로 변경
+    let httpUrl = wsUrl.replace('wss://', 'https://').replace('ws://', 'http://');
     console.log('🔗 서버 확인 URL:', httpUrl);
     window.open(httpUrl, '_blank');
   };

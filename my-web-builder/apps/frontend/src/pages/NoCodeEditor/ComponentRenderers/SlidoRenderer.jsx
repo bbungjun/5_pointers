@@ -390,7 +390,7 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
       }}
     >
       {/* CSS 애니메이션 정의 */}
-      <style jsx>{`
+      <style>{`
         @keyframes slideIn {
           0% {
             transform: translateY(-20px) scale(0.9);

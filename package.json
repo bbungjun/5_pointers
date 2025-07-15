@@ -2,7 +2,10 @@
   "name": "5_pointers",
   "version": "1.0.0",
   "scripts": {
-    "subdomain-server": "node subdomain-server.js"
+    "subdomain-server": "node subdomain-server.js",
+    "yjs:local": "NODE_ENV=development HOST=localhost EXTERNAL_IP=localhost node yjs-server.js",
+    "yjs:prod": "NODE_ENV=production HOST=0.0.0.0 EXTERNAL_IP=43.203.235.108 node yjs-server.js",
+    "yjs:dev": "npm run yjs:local"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.844.0",

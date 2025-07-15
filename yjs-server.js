@@ -10,43 +10,73 @@ const https = require('https');
 const fs = require('fs');
 const Y = require('yjs');
 
-// 외부 접근을 위해 0.0.0.0으로 변경
-const host = process.env.HOST || '0.0.0.0';
+// 환경 설정
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const isProduction = NODE_ENV === 'production';
+
+// 환경별 호스트 및 포트 설정
+const host = process.env.HOST || (isProduction ? '0.0.0.0' : 'localhost');
 const port = process.env.PORT || 1234;
+const httpsPort = process.env.HTTPS_PORT || 1235;
+
+// 환경별 외부 IP 설정
+const externalIP = process.env.EXTERNAL_IP || (isProduction ? '43.203.235.108' : 'localhost');
+
+console.log(`🌍 환경: ${NODE_ENV}`);
+console.log(`🏠 호스트: ${host}`);
+console.log(`🌐 외부 IP: ${externalIP}`);
 
 // Y.js 문서 저장소
 const docs = new Map();
 // 룸별 클라이언트 연결 관리
 const roomClients = new Map();
 
-// SSL 인증서 설정 (자체 서명 인증서 생성)
+// SSL 인증서 설정 (환경별 분기)
 let httpsOptions = null;
-try {
-  // 자체 서명 인증서가 있는지 확인
-  if (fs.existsSync('./server.key') && fs.existsSync('./server.crt')) {
-    httpsOptions = {
-      key: fs.readFileSync('./server.key'),
-      cert: fs.readFileSync('./server.crt')
-    };
-    console.log('✅ SSL 인증서 파일을 찾았습니다.');
-  } else {
-    console.log('⚠️  SSL 인증서 파일이 없습니다. 자체 서명 인증서를 생성합니다...');
-    // 자체 서명 인증서 생성 (개발용)
-    const { execSync } = require('child_process');
-    try {
-      execSync(`openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 365 -nodes -subj "/C=KR/ST=Seoul/L=Seoul/O=YJS/CN=43.201.125.200"`);
+
+if (isProduction) {
+  // 프로덕션 환경: SSL 인증서 필수
+  try {
+    if (fs.existsSync('./server.key') && fs.existsSync('./server.crt')) {
       httpsOptions = {
         key: fs.readFileSync('./server.key'),
         cert: fs.readFileSync('./server.crt')
       };
-      console.log('✅ 자체 서명 인증서가 생성되었습니다.');
-    } catch (error) {
-      console.log('❌ 자체 서명 인증서 생성 실패:', error.message);
-      console.log('💡 수동으로 생성하려면: openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 365 -nodes -subj "/C=KR/ST=Seoul/L=Seoul/O=YJS/CN=43.201.125.200"');
+      console.log('✅ SSL 인증서 파일을 찾았습니다.');
+    } else {
+      console.log('⚠️  SSL 인증서 파일이 없습니다. 자체 서명 인증서를 생성합니다...');
+      const { execSync } = require('child_process');
+      try {
+        execSync(`openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 365 -nodes -subj "/C=KR/ST=Seoul/L=Seoul/O=YJS/CN=${externalIP}"`);
+        httpsOptions = {
+          key: fs.readFileSync('./server.key'),
+          cert: fs.readFileSync('./server.crt')
+        };
+        console.log('✅ 자체 서명 인증서가 생성되었습니다.');
+      } catch (error) {
+        console.log('❌ 자체 서명 인증서 생성 실패:', error.message);
+        console.log(`💡 수동으로 생성하려면: openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 365 -nodes -subj "/C=KR/ST=Seoul/L=Seoul/O=YJS/CN=${externalIP}"`);
+      }
     }
+  } catch (error) {
+    console.log('❌ SSL 설정 오류:', error.message);
   }
-} catch (error) {
-  console.log('❌ SSL 설정 오류:', error.message);
+} else {
+  // 로컬 개발 환경: SSL 선택적
+  console.log('🏠 로컬 개발 환경: SSL 인증서는 선택사항입니다.');
+  try {
+    if (fs.existsSync('./server.key') && fs.existsSync('./server.crt')) {
+      httpsOptions = {
+        key: fs.readFileSync('./server.key'),
+        cert: fs.readFileSync('./server.crt')
+      };
+      console.log('✅ SSL 인증서 파일을 찾았습니다. HTTPS도 지원합니다.');
+    } else {
+      console.log('💡 SSL 인증서가 없습니다. HTTP만 사용합니다.');
+    }
+  } catch (error) {
+    console.log('⚠️  SSL 설정 오류 (무시됨):', error.message);
+  }
 }
 
 const server = http.createServer((request, response) => {
@@ -178,8 +208,8 @@ if (httpsWss) {
 // HTTP 서버 시작
 server.listen(port, host, () => {
   console.log(`🚀 Y.js WebSocket 서버 (HTTP)가 ${host}:${port}에서 실행 중입니다`);
-  console.log(`🌐 외부 접근 가능: http://43.203.235.108:${port}`);
-  console.log(`🔗 WS 연결: ws://43.203.235.108:${port}`);
+  console.log(`🌐 외부 접근 가능: http://${externalIP}:${port}`);
+  console.log(`🔗 WS 연결: ws://${externalIP}:${port}`);
   
   // 서버 정보 출력
   const os = require('os');
@@ -193,16 +223,29 @@ server.listen(port, host, () => {
       }
     });
   });
+  
+  if (!isProduction) {
+    console.log(`\n🏠 로컬 개발 환경 접근:`);
+    console.log(`   - HTTP: http://localhost:${port}`);
+    console.log(`   - WS: ws://localhost:${port}`);
+  }
 });
 
-// HTTPS 서버를 동일한 포트에서 시작 (WSS 지원)
+// HTTPS 서버를 별도 포트에서 시작 (WSS 지원)
 if (httpsServer) {
-  // HTTPS 서버를 시작합니다 (동일한 포트 사용)
-  httpsServer.listen(port, host, () => {
-    console.log(`🔒 Y.js WebSocket 서버 (HTTPS)가 ${host}:${port}에서 실행 중입니다`);
-    console.log(`🌐 외부 접근 가능: https://43.203.235.108:${port}`);
-    console.log(`🔗 WSS 연결: wss://43.203.235.108:${port}`);
+  // HTTPS 서버를 별도 포트에서 시작합니다
+  httpsServer.listen(httpsPort, host, () => {
+    console.log(`🔒 Y.js WebSocket 서버 (HTTPS)가 ${host}:${httpsPort}에서 실행 중입니다`);
+    console.log(`🌐 외부 접근 가능: https://${externalIP}:${httpsPort}`);
+    console.log(`🔗 WSS 연결: wss://${externalIP}:${httpsPort}`);
     console.log(`💡 브라우저 Mixed Content 정책으로 인해 HTTPS 사이트에서는 WSS 필요`);
+    
+    if (!isProduction) {
+      console.log(`\n🏠 로컬 개발 환경 HTTPS 접근:`);
+      console.log(`   - HTTPS: https://localhost:${httpsPort}`);
+      console.log(`   - WSS: wss://localhost:${httpsPort}`);
+      console.log(`   ⚠️  자체 서명 인증서 경고가 나타날 수 있습니다.`);
+    }
   });
 }
 
