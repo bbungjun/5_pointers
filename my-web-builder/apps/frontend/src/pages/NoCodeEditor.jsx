@@ -650,7 +650,7 @@ function NoCodeEditor({ pageId }) {
       {connectionError && (
         <div className="websocket-guide">
           <WebSocketConnectionGuide
-            wsUrl="wss://13.124.221.182:1235"
+            wsUrl="wss://43.203.235.108:1235"
 
             onRetry={() => {
               console.log('🔄 WebSocket 재연결 시도...');
