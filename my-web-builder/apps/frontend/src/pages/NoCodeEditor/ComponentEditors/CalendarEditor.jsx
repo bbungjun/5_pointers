@@ -6,6 +6,7 @@ function CalendarEditor({ selectedComp, onUpdate }) {
     weddingDate = '',
     title = '',
     highlightColor = '#ff6b9d',
+    weddingDateLabel = 'Wedding Date:',
     noBorder = true,
     borderColor = '#e5e7eb',
     borderWidth = '1px',
@@ -41,6 +42,12 @@ function CalendarEditor({ selectedComp, onUpdate }) {
         label="결혼식 날짜"
         value={weddingDate}
         onChange={(value) => handlePropChange('weddingDate', value)}
+      />
+      <PropertyEditors.TextEditor
+        label="날짜 라벨"
+        value={weddingDateLabel}
+        onChange={(value) => handlePropChange('weddingDateLabel', value)}
+        placeholder="Wedding Date:"
       />
       <PropertyEditors.ColorPaletteEditor
         label="Highlight Color"
