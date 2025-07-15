@@ -35,14 +35,11 @@ function PersonRow({ name, phone1, phone2, phone3, role, deceased }) {
 }
 
 function WeddingContactRenderer({ comp, mode = 'live', width, height }) {
-  const [isLiveMode, setIsLiveMode] = useState(false);
   
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
-      setIsLiveMode(window.innerWidth <= 768);
       
       const handleResize = () => {
-        setIsLiveMode(window.innerWidth <= 768);
       };
       
       window.addEventListener('resize', handleResize);
@@ -64,7 +61,7 @@ function WeddingContactRenderer({ comp, mode = 'live', width, height }) {
       flexDirection: 'column',
       justifyContent: 'space-between',
       boxSizing: 'border-box',
-      ...(isLiveMode ? {
+      ...(mode === 'live' ? {
         borderRadius: 0,
         padding: `clamp(12px, 4vw, 20px)`,
         minWidth: `clamp(150px, 40vw, 250px)`,

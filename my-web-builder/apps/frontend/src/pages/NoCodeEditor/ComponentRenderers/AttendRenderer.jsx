@@ -91,7 +91,7 @@ function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    padding: '16px',
+    padding: '12px', // 16px → 12px로 줄임
     fontFamily: '"Playfair Display", serif',
     backgroundColor: comp.props?.backgroundColor || '#f8f9fa',
     borderRadius: comp.props?.borderRadius || '8px',
@@ -103,13 +103,13 @@ function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
       {/* 제목 영역 */}
       <div style={{
         textAlign: 'center',
-        marginBottom: '16px',
+        marginBottom: '12px', // 16px → 12px로 줄임
       }}>
         <h3 style={{
           fontSize: comp.props?.titleFontSize || '18px',
           fontWeight: '600',
           color: comp.props?.titleColor || '#1f2937',
-          margin: '0 0 8px 0',
+          margin: '0 0 20px 0', // 8px → 6px로 줄임
           fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
         }}>
           {comp.props?.title || '참석 여부 확인'}
@@ -119,7 +119,7 @@ function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
             fontSize: comp.props?.descriptionFontSize || '14px',
             color: comp.props?.descriptionColor || '#6b7280',
             margin: '0',
-            lineHeight: '1.5',
+            lineHeight: '1.4', // 1.5 → 1.4로 줄임
             fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
           }}>
             {comp.props.description}
@@ -141,11 +141,12 @@ function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
           }
         }}
         style={{
-          backgroundColor: comp.props?.buttonColor || '#475569',
-          color: comp.props?.textColor || 'white',
+          backgroundColor: comp.props?.buttonColor || '#9CAF88', // 세이지 그린으로 변경
+          color: comp.props?.buttonTextColor || 'white', // textColor → buttonTextColor로 변경
           border: 'none',
           borderRadius: comp.props?.borderRadius || '8px',
           padding: '12px 24px',
+          marginBottom : '10px',
           fontSize: comp.props?.fontSize || '16px',
           fontWeight: '500',
           fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',

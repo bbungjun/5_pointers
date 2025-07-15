@@ -137,6 +137,58 @@ export function useCollaboration({
   // 캔버스 설정 동기화를 위한 Y.Map 설정
   const canvasSettingsRef = useRef(null);
 
+  // 템플릿 전용 강제 동기화 함수
+  const forceTemplateSync = useCallback(async () => {
+    if (!ydoc || !componentsArrayRef.current) return;
+    
+    console.log('🎯 템플릿 강제 동기화 시작...');
+    
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/users/pages/room/${safeRoomId}/content`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        let components = [];
+        
+        // content 구조 처리
+        if (data.content && typeof data.content === 'object' && !Array.isArray(data.content)) {
+          components = data.content.components || [];
+        } else if (Array.isArray(data.content)) {
+          components = data.content;
+        } else if (Array.isArray(data.components)) {
+          components = data.components;
+        }
+
+        if (components.length > 0) {
+          const yComponents = componentsArrayRef.current;
+          
+          // 기존 데이터 완전 초기화 후 새 데이터 삽입
+          ydoc.transact(() => {
+            yComponents.delete(0, yComponents.length);
+            yComponents.insert(0, components);
+          });
+          
+          console.log('✅ 템플릿 강제 동기화 완료:', components.length, '개 컴포넌트');
+          
+          // 모든 클라이언트에게 즉시 전파
+          setTimeout(() => {
+            const syncedData = yComponents.toArray();
+            safeOnComponentsUpdate(syncedData);
+            console.log('📡 모든 클라이언트에게 동기화 전파 완료');
+          }, 100);
+          
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error('템플릿 강제 동기화 실패:', error);
+    }
+    
+    return false;
+  }, [ydoc, safeRoomId, safeOnComponentsUpdate]);
+
   // 초기 데이터를 Y.js로 동기화하는 함수
   const syncInitialDataToYjs = useCallback(async () => {
     if (!ydoc || !componentsArrayRef.current || initialSyncRef.current) return;
@@ -227,7 +279,10 @@ export function useCollaboration({
       });
 
       if (uniqueComponents.length !== componentsData.length) {
-        console.log('중복 컴포넌트 제거:', componentsData.length - uniqueComponents.length, '개');
+        // 중복 로그를 줄이기 위해 조건부 로깅
+        if (componentsData.length - uniqueComponents.length > 10) {
+          console.log('중복 컴포넌트 제거:', componentsData.length - uniqueComponents.length, '개');
+        }
         // 중복이 있으면 Y.js 배열을 정리
         ydoc.transact(() => {
           yComponents.delete(0, yComponents.length);
@@ -278,8 +333,8 @@ export function useCollaboration({
     if (isConnected && ydoc && !initialSyncRef.current) {
       console.log('🔗 Y.js 연결 완료, 초기 데이터 동기화 시작...');
       
-      // 템플릿 시작 시에는 즉시 동기화, 일반 시작 시에는 잠시 대기
-      const syncDelay = 100; // 템플릿 시작 시 더 빠른 동기화
+      // 템플릿 시작 시에는 즉시 동기화
+      const syncDelay = 50; // 더 빠른 동기화
       
       setTimeout(() => {
         syncInitialDataToYjs();
@@ -292,19 +347,26 @@ export function useCollaboration({
     if (isConnected && ydoc && componentsArrayRef.current) {
       const yComponents = componentsArrayRef.current;
       
-      // 연결 완료 후 500ms 뒤에 강제 동기화 시도 (더 빠른 동기화)
-      const forceSyncTimer = setTimeout(() => {
+      // 연결 완료 후 템플릿 데이터가 있는지 확인하고 강제 동기화
+      const forceSyncTimer = setTimeout(async () => {
         if (yComponents.length > 0 && !initialSyncRef.current) {
-          console.log('🔄 강제 동기화 시도...');
+          console.log('🔄 기존 데이터 강제 동기화 시도...');
           const componentsData = yComponents.toArray();
           safeOnComponentsUpdate(componentsData);
           initialSyncRef.current = true;
+        } else if (yComponents.length === 0) {
+          // 템플릿 데이터가 없으면 강제로 가져오기 시도
+          console.log('🎯 템플릿 데이터 없음, 강제 동기화 시도...');
+          const synced = await forceTemplateSync();
+          if (synced) {
+            initialSyncRef.current = true;
+          }
         }
-      }, 500);
+      }, 300); // 더 빠른 동기화
       
       return () => clearTimeout(forceSyncTimer);
     }
-  }, [isConnected, ydoc, safeOnComponentsUpdate]);
+  }, [isConnected, ydoc, safeOnComponentsUpdate, forceTemplateSync]);
 
   // Y.js 연결 완료 후 복구 처리 (개선됨)
   useEffect(() => {
@@ -348,10 +410,19 @@ export function useCollaboration({
     }
   }, [connectionError, roomId, restoreFromDatabase]);
 
+  // 드래그 상태 추적 (업데이트 충돌 방지)
+  const dragStateRef = useRef(new Set()); // 현재 드래그 중인 컴포넌트 ID들
+
   // 컴포넌트 업데이트 함수들 (메모이제이션됨, 실시간 동기화 개선)
   const updateComponent = useCallback((componentId, updates) => {
     if (!componentsArrayRef.current) {
       console.warn('Y.js 컴포넌트 배열이 초기화되지 않음');
+      return;
+    }
+
+    // 드래그 중인 컴포넌트는 업데이트 스킵 (충돌 방지)
+    if (dragStateRef.current.has(componentId)) {
+      console.log('드래그 중인 컴포넌트 업데이트 스킵:', componentId);
       return;
     }
 
@@ -373,10 +444,31 @@ export function useCollaboration({
     }
   }, [ydoc]);
 
+  // 드래그 상태 관리 함수들
+  const setComponentDragging = useCallback((componentId, isDragging) => {
+    if (isDragging) {
+      dragStateRef.current.add(componentId);
+      console.log('드래그 시작:', componentId);
+    } else {
+      dragStateRef.current.delete(componentId);
+      console.log('드래그 종료:', componentId);
+    }
+  }, []);
+
+  const isComponentDragging = useCallback((componentId) => {
+    return dragStateRef.current.has(componentId);
+  }, []);
+
   // 컴포넌트 업데이트 함수 (전체 컴포넌트 객체로 업데이트)
   const updateComponentObject = useCallback((updatedComponent) => {
     if (!componentsArrayRef.current) {
       console.warn('Y.js 컴포넌트 배열이 초기화되지 않음');
+      return;
+    }
+
+    // 드래그 중인 컴포넌트는 업데이트 스킵 (충돌 방지)
+    if (dragStateRef.current.has(updatedComponent.id)) {
+      console.log('드래그 중인 컴포넌트 객체 업데이트 스킵:', updatedComponent.id);
       return;
     }
 
@@ -516,6 +608,9 @@ export function useCollaboration({
     redo,
     getHistory,
     setHistory,
+    forceTemplateSync, // 템플릿 강제 동기화 함수 추가
+    setComponentDragging, // 드래그 상태 설정
+    isComponentDragging, // 드래그 상태 확인
     isConnected,
     connectionError,
     ydoc,
@@ -534,6 +629,9 @@ export function useCollaboration({
     redo,
     getHistory,
     setHistory,
+    forceTemplateSync,
+    setComponentDragging,
+    isComponentDragging,
     isConnected,
     connectionError,
     ydoc,

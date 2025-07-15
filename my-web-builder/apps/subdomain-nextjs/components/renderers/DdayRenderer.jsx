@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useResponsive } from '../../hooks/useResponsive';
 
 function DdayRenderer({ comp, isEditor = false, mode = 'live' }) {
-  const { isLiveMode, responsiveWidth, responsiveHeight } = useResponsive(mode, comp.width, comp.height);
+  // 컨테이너 크기 기준으로 스케일 팩터 계산
+  const baseWidth = 375; // 기준 너비
+  const actualWidth = comp.width || baseWidth;
+  const scaleFactor = actualWidth / baseWidth;
+  
   const title = comp.props.title || comp.defaultProps?.title || 'D-Day';
   const targetDate = comp.props.targetDate || comp.defaultProps?.targetDate || '2025-07-26';
   const targetTime = comp.props.targetTime || comp.defaultProps?.targetTime || '14:00';
@@ -54,11 +57,11 @@ function DdayRenderer({ comp, isEditor = false, mode = 'live' }) {
     };
   }, [targetDate, targetTime]);
 
-  // 모던 미니멀 카드 스타일
+  // 모던 미니멀 카드 스타일 - 버블 크기도 스케일링
   const bubbleStyle = {
-    width: '70px',
-    height: '70px',
-    borderRadius: '16px',
+    width: `${70 * scaleFactor}px`,
+    height: `${70 * scaleFactor}px`,
+    borderRadius: `${16 * scaleFactor}px`,
     background: '#ffffff',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
     border: '1px solid rgba(0, 0, 0, 0.06)',
@@ -66,20 +69,20 @@ function DdayRenderer({ comp, isEditor = false, mode = 'live' }) {
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    margin: '0 6px',
+    margin: `0 ${6 * scaleFactor}px`,
     transition: 'all 0.3s ease'
   };
 
-  // 모던 숫자 스타일
+  // 모던 숫자 스타일 - 폰트 크기도 스케일링
   const numberStyle = {
-    fontSize: '24px',
+    fontSize: `${24 * scaleFactor}px`,
     fontWeight: '700',
     lineHeight: '1',
     color: '#1f2937',
     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
   };
 
-  // 모던 라벨 스타일
+  // 모던 라벨 스타일 - 스케일에 따른 간격 조정
   const labelStyle = {
     fontSize: '12px',
     fontWeight: '500',
@@ -87,35 +90,45 @@ function DdayRenderer({ comp, isEditor = false, mode = 'live' }) {
     letterSpacing: '0.8px',
     color: '#6b7280',
     textAlign: 'center',
-    marginTop: '10px',
+    marginTop: `${10 * scaleFactor}px`,
     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
   };
 
-  // 모던 구분자 스타일
+  // 모던 구분자 스타일 - 스케일에 따른 간격 조정
   const separatorStyle = {
-    fontSize: '20px',
+    fontSize: `${20 * scaleFactor}px`,
     fontWeight: '300',
     color: '#d1d5db',
-    margin: '0 4px',
+    margin: `0 ${4 * scaleFactor}px`,
     alignSelf: 'flex-start',
-    marginTop: '25px'
+    marginTop: `${25 * scaleFactor}px`
   };
 
   const getContainerStyle = () => {
+    const baseWidth = comp.width || 340;
+    const baseHeight = comp.height || 150;
+    
     return {
-      width: comp.width || 340,
-      height: comp.height || 150,
-      minHeight: '140px',
+      ...(mode === 'live' ? {
+        width: '100%',
+        maxWidth: `${baseWidth}px`,
+        height: `${baseHeight * scaleFactor}px`, // 높이도 스케일링 적용
+      } : {
+        width: baseWidth,
+        height: baseHeight,
+      }),
+      minHeight: `${140 * scaleFactor}px`, // 최소 높이도 스케일링
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: '20px',
+      padding: `${20 * scaleFactor}px`, // 스케일에 따라 조정
       borderRadius: '0px',
       position: 'relative',
       overflow: 'hidden',
       backgroundColor: backgroundColor,
-      border: '1px solid rgba(0, 0, 0, 0.08)'
+      border: '1px solid rgba(0, 0, 0, 0.08)',
+      fontSize: '16px' // 기준 폰트 크기 설정
     };
   };
 
