@@ -118,9 +118,13 @@ const CanvasArea = forwardRef(
       onPageChange,
       containerRef, // NoCodeEditor로부터 받음
       pageId, // 페이지 ID prop 추가
+      collaboration, // 협업 객체 추가
     },
     ref
   ) => {
+    // 협업 객체에서 드래그 상태 관리 함수들 추출
+    const { setComponentDragging, isComponentDragging } = collaboration || {};
+    
     // 내부 canvasRef 생성 (외부에서 전달된 ref가 없는 경우를 대비)
     const internalCanvasRef = useRef(null);
     const canvasRefToUse = externalCanvasRef || internalCanvasRef;
@@ -798,6 +802,8 @@ const CanvasArea = forwardRef(
                     canvasHeight={canvasHeight} // 확장된 캔버스 높이 전달
                     updateCursorPosition={updateCursorPosition} // 협업 커서 위치 업데이트 함수 전달
                     pageId={pageId} // 페이지 ID 전달
+                    setComponentDragging={setComponentDragging} // 드래그 상태 설정 함수 전달
+                    isComponentDragging={isComponentDragging} // 드래그 상태 확인 함수 전달
                   />
                 );
               })}
