@@ -11,6 +11,7 @@
 - **백엔드 API**: https://ddukddak.org/api (CloudFront → Elastic Beanstalk)
 - **프론트엔드**: https://ddukddak.org (CloudFront → S3)
 
+
 ## 데이터베이스
 - **RDS MySQL**: pointers-mysql-db.chiyuym88mcj.ap-northeast-2.rds.amazonaws.com
 

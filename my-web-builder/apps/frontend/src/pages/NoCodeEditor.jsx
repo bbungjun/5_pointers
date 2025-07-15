@@ -658,6 +658,7 @@ function NoCodeEditor({ pageId }) {
         <div className="websocket-guide">
           <WebSocketConnectionGuide
             wsUrl="ws://43.201.125.200:1234"
+
             onRetry={() => {
               // 협업 시스템 재연결 시도
               if (collaboration && collaboration.provider) {
