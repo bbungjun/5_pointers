@@ -6,7 +6,7 @@
 echo "🚀 EC2 배포 시작..."
 
 # 설정
-EC2_IP="3.35.50.227"  # EC2 IP 주소
+EC2_IP="43.201.125.200"  # EC2 IP 주소
 KEY_PATH="../../../infrastructure/5pointers-key-new.pem"  # SSH 키 경로
 REMOTE_DIR="/home/ec2-user/subdomain-server"  # 원격 서버 디렉토리
 LOCAL_DIR="/home/yjlee/5_pointers/my-web-builder/apps/subdomain-nextjs"
