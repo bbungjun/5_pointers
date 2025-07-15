@@ -15,6 +15,7 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
   const [pageTitle, setPageTitle] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [canvasHeight, setCanvasHeight] = useState(1080);
+  const [isFromTemplate, setIsFromTemplate] = useState(false); // 템플릿으로부터 생성된 페이지인지 여부
 
   // 자동 저장 훅
   const autoSave = useAutoSave(roomId, components, canvasHeight);
@@ -71,6 +72,15 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
           if (pageData.editingMode) {
             console.log('📄 페이지 editingMode 설정:', pageData.editingMode);
             setDesignMode(pageData.editingMode);
+            
+            // 템플릿으로부터 생성된 페이지인지 판단
+            // editingMode가 설정되어 있고, 컴포넌트가 있는 경우 템플릿으로부터 생성된 것으로 간주
+            if (pageData.content && 
+                ((pageData.content.components && pageData.content.components.length > 0) || 
+                 (Array.isArray(pageData.content) && pageData.content.length > 0))) {
+              setIsFromTemplate(true);
+              console.log('📄 템플릿으로부터 생성된 페이지로 판단됨');
+            }
           }
 
           // content 구조 처리
@@ -157,6 +167,7 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
     canvasHeight,
     setCanvasHeight,
     isLoading,
+    isFromTemplate, // 템플릿으로부터 생성된 페이지인지 여부
 
     // 유틸리티
     autoSave,

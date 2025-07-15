@@ -52,7 +52,6 @@ function NoCodeEditor({ pageId }) {
   const initialViewport = 'desktop'; // 기본값만 설정
   
   // 템플릿 정보는 더 이상 URL 파라미터로 전달하지 않음
-  const isFromTemplate = false;
   const templateCategory = null;
   
   const canvasRef = useRef();
@@ -73,6 +72,7 @@ function NoCodeEditor({ pageId }) {
     canvasHeight,
     setCanvasHeight,
     isLoading,
+    isFromTemplate,
     decodeJWTPayload,
   } = usePageDataManager(pageId, initialViewport);
 
@@ -510,7 +510,7 @@ function NoCodeEditor({ pageId }) {
         viewport={interaction.viewport}
         designMode={designMode}
         onViewportChange={interaction.handleViewportChange}
-        onDesignModeChange={interaction.handleDesignModeChange}
+        onDesignModeChange={(newDesignMode) => interaction.handleDesignModeChange(newDesignMode, pageId, isFromTemplate)}
         onPreviewOpen={interaction.handlePreviewOpen}
         onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
         onInviteOpen={interaction.handleInviteOpen}
