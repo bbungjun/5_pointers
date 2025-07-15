@@ -67,7 +67,9 @@ export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('VITE_API_BAS
 
 // Y.js WebSocket 서버 설정 - 환경변수 기반
 export const YJS_WEBSOCKET_URL = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('VITE_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL') ||
+
   (isProductionEnvironment() ? 'wss://13.124.221.182:1235' : `ws://${getLocalNetworkIP()}:1234`);
+
 
 
 // 소셜 로그인 설정

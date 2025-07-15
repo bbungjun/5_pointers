@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom';
 import useAutoSave from '../hooks/useAutoSave';
 import SaveStatusIndicator from '../components/SaveStatusIndicator';
+import { YJS_WEBSOCKET_URL } from '../config';
 
 // 모듈화된 컴포넌트들
 import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
@@ -650,11 +651,23 @@ function NoCodeEditor({ pageId }) {
         <div className="websocket-guide">
           <WebSocketConnectionGuide
             wsUrl="wss://13.124.221.182:1235"
+
             onRetry={() => {
+              console.log('🔄 WebSocket 재연결 시도...');
+              
               // 협업 시스템 재연결 시도
               if (collaboration && collaboration.provider) {
+                console.log('🔗 Y.js Provider 재연결 시도');
                 collaboration.provider.connect();
               }
+              
+              // 페이지 새로고침을 통한 강제 재연결
+              setTimeout(() => {
+                if (!isConnected) {
+                  console.log('🔄 페이지 새로고침을 통한 재연결');
+                  window.location.reload();
+                }
+              }, 3000);
             }}
           />
         </div>
