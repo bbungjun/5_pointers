@@ -3,7 +3,7 @@
 # 원격 y-js 서버 설정 스크립트
 # SSH를 통해 원격 서버에 y-js 서버를 설정합니다.
 
-SERVER_IP="3.35.50.227"
+SERVER_IP="43.201.125.200"
 KEY_PATH="jungle-servers-key.pem"  # SSH 키 경로 (실제 경로로 수정 필요)
 
 echo "🚀 원격 y-js 서버 설정을 시작합니다..."

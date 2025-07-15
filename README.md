@@ -11,6 +11,7 @@
 - **서브도메인 렌더러**: Next.js (13.209.22.112:3001)
 - **WebSocket 서버**: y-js (43.201.125.200:1234/1235) ✅ **SSL 지원**
 
+
 ## 데이터베이스
 - **RDS MySQL**: pointers-mysql-db.chiyuym88mcj.ap-northeast-2.rds.amazonaws.com
 

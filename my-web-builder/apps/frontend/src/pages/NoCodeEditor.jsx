@@ -658,7 +658,9 @@ function NoCodeEditor({ pageId }) {
       {connectionError && (
         <div className="websocket-guide">
           <WebSocketConnectionGuide
+
             wsUrl={YJS_WEBSOCKET_URL}
+
             onRetry={() => {
               // 협업 시스템 재연결 시도
               if (collaboration && collaboration.provider) {
