@@ -9,7 +9,7 @@ import DeployedPage from './pages/DeployedPage';
 import SocialCallbackPage from './pages/SocialCallbackPage';
 import Dashboard from './pages/Dashboard';
 import AppEditor from './pages/AppEditor';
-import NoCodeEditor from './pages/NoCodeEditor';
+import NoCodeEditor from './pages/NoCodeEditorWithRecovery';
 import InvitationHandler from './pages/InvitationHandler';
 import RecoveryTest from './pages/RecoveryTest';
 

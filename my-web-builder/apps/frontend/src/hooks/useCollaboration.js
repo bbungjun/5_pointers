@@ -272,36 +272,13 @@ export function useCollaboration({
     try {
       const componentsData = yComponents.toArray();
 
-      // 중복 ID 제거 (같은 ID를 가진 첫 번째 컴포넌트만 유지)
-      const uniqueComponents = componentsData.filter((comp, index, arr) => {
-        const firstIndex = arr.findIndex((c) => c.id === comp.id);
-        return firstIndex === index;
-      });
-
-      if (uniqueComponents.length !== componentsData.length) {
-        // 중복 로그를 줄이기 위해 조건부 로깅
-        if (componentsData.length - uniqueComponents.length > 10) {
-          console.log('중복 컴포넌트 제거:', componentsData.length - uniqueComponents.length, '개');
-        }
-        // 중복이 있으면 Y.js 배열을 정리
-        ydoc.transact(() => {
-          yComponents.delete(0, yComponents.length);
-          yComponents.insert(0, uniqueComponents);
-        });
-      }
-
       // 초기 로드 시에는 즉시 업데이트, 이후에는 배치 업데이트
       if (!initialLoadRef.current) {
-        console.log('🎨 Y.js 초기 데이터 로드:', uniqueComponents.length, '개 컴포넌트');
-        safeOnComponentsUpdate(uniqueComponents);
+        console.log('🎨 Y.js 초기 데이터 로드:', componentsData.length, '개 컴포넌트');
+        safeOnComponentsUpdate(componentsData);
         initialLoadRef.current = true;
       } else {
-        batchUpdate(uniqueComponents);
-      }
-      
-      // 템플릿 시작 시 모든 사용자에게 즉시 동기화
-      if (isConnected && uniqueComponents.length > 0) {
-        console.log('🔄 컴포넌트 변경을 모든 사용자에게 동기화:', uniqueComponents.length, '개');
+        batchUpdate(componentsData);
       }
     } catch (error) {
       console.error('컴포넌트 데이터 업데이트 중 오류:', error);
@@ -480,7 +457,10 @@ export function useCollaboration({
         yComponents.delete(index, 1);
         yComponents.insert(index, [updatedComponent]);
       });
-      console.log('🔄 컴포넌트 객체 업데이트 동기화:', updatedComponent.id);
+      // 드래그 중이 아닌 경우에만 로그 출력 (스팸 방지)
+      if (!dragStateRef.current.has(updatedComponent.id)) {
+        console.log('🔄 컴포넌트 객체 업데이트 동기화:', updatedComponent.id);
+      }
     } else {
       console.warn('업데이트할 컴포넌트를 찾을 수 없음:', updatedComponent.id);
     }
@@ -528,14 +508,24 @@ export function useCollaboration({
       return;
     }
 
+    // 중복 ID 제거 (같은 ID를 가진 첫 번째 컴포넌트만 유지)
+    const uniqueComponents = newComponents.filter((comp, index, arr) => {
+      const firstIndex = arr.findIndex((c) => c.id === comp.id);
+      return firstIndex === index;
+    });
+
+    if (uniqueComponents.length !== newComponents.length) {
+      console.log('🔧 중복 컴포넌트 제거:', newComponents.length - uniqueComponents.length, '개');
+    }
+
     const yComponents = componentsArrayRef.current;
     
     // Y.js 트랜잭션으로 원자적 전체 업데이트
     ydoc.transact(() => {
       yComponents.delete(0, yComponents.length);
-      yComponents.insert(0, newComponents);
+      yComponents.insert(0, uniqueComponents);
     });
-    console.log('🔄 전체 컴포넌트 업데이트 동기화:', newComponents.length, '개');
+    console.log('🔄 전체 컴포넌트 업데이트 동기화:', uniqueComponents.length, '개');
   }, [ydoc]);
 
   // 캔버스 설정 업데이트

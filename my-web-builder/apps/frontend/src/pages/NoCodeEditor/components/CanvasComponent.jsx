@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import ButtonRenderer from '../ComponentRenderers/ButtonRenderer';
 import TextRenderer from '../ComponentRenderers/TextRenderer';
 import LinkRenderer from '../ComponentRenderers/LinkRenderer';
@@ -375,7 +375,7 @@ function CanvasComponent({
     });
   };
 
-  const handleResize = (e) => {
+  const handleResize = useCallback((e) => {
     if (!isResizing) return;
 
     // 리사이즈 중에도 커서 위치 업데이트
@@ -470,15 +470,15 @@ function CanvasComponent({
 
     // 협업 시스템을 통한 업데이트
     onUpdate(updatedComp);
-  };
+  }, [isResizing, updateCursorPosition, zoom, viewport, resizeStart, currentWidth, currentHeight, setSnapLines, onUpdate]);
 
-  const handleResizeEnd = () => {
+  const handleResizeEnd = useCallback(() => {
     setIsResizing(false);
     // 리사이즈가 끝나면 스냅라인 숨기기
     if (setSnapLines) {
       setSnapLines({ vertical: [], horizontal: [] });
     }
-  };
+  }, [setSnapLines]);
 
   // 드래그 핸들러
   const handleDragStart = (e) => {
@@ -501,7 +501,7 @@ function CanvasComponent({
     });
   };
 
-  const handleDrag = (e) => {
+  const handleDrag = useCallback((e) => {
     if (!isDragging) return;
 
     // 드래그 중에도 커서 위치 업데이트
@@ -592,10 +592,10 @@ function CanvasComponent({
       tempX: newX,
       tempY: newY
     }));
-  };
+  }, [isDragging, updateCursorPosition, zoom, viewport, dragStart, currentX, currentY, setSnapLines, onUpdate, setComponentDragging, comp]);
 
   // 드래그 종료 핸들러 (snapLines 항상 초기화)
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     console.log('드래그 종료:', comp.id);
     
     // 🔧 드래그 상태 해제 (다른 사용자의 업데이트 허용)
@@ -652,7 +652,7 @@ function CanvasComponent({
     if (setSnapLines) {
       setSnapLines({ vertical: [], horizontal: [] });
     }
-  };
+  }, [comp.id, setComponentDragging, dragStart, currentX, currentY, selectedIds, components, onUpdate, onMultiUpdate, setSnapLines]);
 
   // 리사이즈 이벤트 리스너
   useEffect(() => {
@@ -668,7 +668,7 @@ function CanvasComponent({
         window.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isResizing, resizeStart]);
+  }, [isResizing]);
 
   // 드래그 이벤트 리스너
   useEffect(() => {
@@ -684,7 +684,7 @@ function CanvasComponent({
         window.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, dragStart]);
+  }, [isDragging]);
 
   // 컴포넌트 정리 시 타임아웃 정리
   useEffect(() => {
