@@ -651,7 +651,6 @@ function NoCodeEditor({ pageId }) {
         <div className="websocket-guide">
           <WebSocketConnectionGuide
             wsUrl="wss://13.124.221.182:1235"
-
             onRetry={() => {
               console.log('🔄 WebSocket 재연결 시도...');
               
