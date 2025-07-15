@@ -30,9 +30,8 @@ function Dashboard() {
 
       if (response.ok) {
         const newPage = await response.json();
-        // 템플릿의 편집 기준에 따라 뷰포트 설정
-        const viewport = template.editingMode === 'mobile' ? 'mobile' : 'desktop';
-        const url = `/editor/${newPage.id}?viewport=${viewport}`;
+        // URL 파라미터 없이 일반 페이지로 시작
+        const url = `/editor/${newPage.id}`;
         console.log('네비게이션 URL:', url, 'template.editingMode:', template.editingMode);
         navigate(url);
       } else {

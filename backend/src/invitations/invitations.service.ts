@@ -45,7 +45,7 @@ export class InvitationsService {
     createInvitationDto: CreateInvitationDto,
     inviterId: number,
   ) {
-    const { email, role, viewport, fromTemplate } = createInvitationDto;
+    const { email, role } = createInvitationDto;
 
     // 페이지 존재 확인
     const page = await this.pagesRepository.findOne({
@@ -94,8 +94,6 @@ export class InvitationsService {
       status: 'PENDING',
       invitation_token: invitationToken,
       expires_at: expiresAt,
-      viewport,
-      fromTemplate,
     });
 
     await this.pageMembersRepository.save(invitation);
@@ -118,16 +116,7 @@ export class InvitationsService {
     }
 
     // 초대 링크 생성 (이메일 발송 없이)
-    let inviteUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/invite/${invitationToken}`;
-    
-    // viewport와 fromTemplate 파라미터가 있으면 URL에 추가
-    const params = new URLSearchParams();
-    if (viewport) params.append('viewport', viewport);
-    if (fromTemplate) params.append('fromTemplate', fromTemplate);
-    
-    if (params.toString()) {
-      inviteUrl += `?${params.toString()}`;
-    }
+    const inviteUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/invite/${invitationToken}`;
 
       return {
       message: '초대 링크를 성공적으로 생성했습니다.',
@@ -166,8 +155,6 @@ export class InvitationsService {
       role: invitation.role,
       inviterName: invitation.page.owner.nickname,
       email: invitation.email,
-      viewport: invitation.viewport,
-      fromTemplate: invitation.fromTemplate,
     };
   }
 
@@ -257,8 +244,6 @@ export class InvitationsService {
       inviterName: invitation.page.owner.nickname,
       expiresAt: invitation.expires_at,
       createdAt: invitation.createdAt,
-      viewport: invitation.viewport,
-      fromTemplate: invitation.fromTemplate,
     }));
   }
 

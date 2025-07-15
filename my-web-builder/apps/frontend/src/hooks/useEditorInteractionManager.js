@@ -55,8 +55,14 @@ export function useEditorInteractionManager(designMode, setDesignMode) {
 
   // 편집 기준 모드 변경 핸들러
   const handleDesignModeChange = useCallback(
-    async (newDesignMode, roomId) => {
+    async (newDesignMode, roomId, isFromTemplate = false) => {
       if (newDesignMode === designMode) return;
+
+      // 템플릿으로부터 생성된 페이지인 경우 편집 기준 변경 불가
+      if (isFromTemplate) {
+        alert('템플릿으로부터 생성된 페이지에서는 편집 기준을 변경할 수 없습니다.');
+        return;
+      }
 
       // 변경 확인 메시지
       const confirmChange = window.confirm(

@@ -34,12 +34,6 @@ export class PageMembers {
   @Column({ nullable: true })
   expires_at: Date;
 
-  @Column({ nullable: true })
-  viewport: string;
-
-  @Column({ nullable: true })
-  fromTemplate: string;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }

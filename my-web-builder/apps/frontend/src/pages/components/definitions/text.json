@@ -4,6 +4,7 @@
   "defaultProps": {
     "text": "내용을 입력하세요",
     "fontSize": 20,
-    "color": "#222"
+    "color": "#222",
+    "zIndex": 1000
   }
 } 

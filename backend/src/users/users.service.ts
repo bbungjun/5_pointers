@@ -659,7 +659,11 @@ export class UsersService {
     if (!page) {
       throw new Error('Page not found');
     }
-    return { content: page.content || [] };
+    return { 
+      content: page.content || [],
+      editingMode: page.editingMode || 'desktop',
+      title: page.title
+    };
   }
 
   // 페이지 콘텐츠 저장 (Y.js 백업용)

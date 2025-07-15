@@ -141,6 +141,7 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
         textDecoration: textDecoration,
         justifyContent: textAlign === 'left' ? 'flex-start' : 
                        textAlign === 'right' ? 'flex-end' : 'center',
+        zIndex: Math.max(actualComp?.props?.zIndex || 1000, 1000),
         border: isSelected && mode === 'editor' ? '1px dashed #3b82f6' : 'none',
         borderRadius: '4px'
       }}

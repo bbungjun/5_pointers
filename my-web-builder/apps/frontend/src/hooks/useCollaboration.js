@@ -60,7 +60,7 @@ export function useCollaboration({
     batchUpdateRef.current = setTimeout(() => {
       safeOnComponentsUpdate(components);
       batchUpdateRef.current = null;
-    }, 8); // 120fps로 더 빠른 업데이트
+    }, 4); // 240fps로 더 빠른 업데이트
   }, [safeOnComponentsUpdate]);
 
   // DB에서 복구하는 함수 (최적화됨)
@@ -420,10 +420,9 @@ export function useCollaboration({
       return;
     }
 
-    // 드래그 중인 컴포넌트는 업데이트 스킵 (충돌 방지)
+    // 실시간 동기화를 위해 드래그 중에도 업데이트 허용
     if (dragStateRef.current.has(componentId)) {
-      console.log('드래그 중인 컴포넌트 업데이트 스킵:', componentId);
-      return;
+      console.log('드래그 중인 컴포넌트 실시간 업데이트:', componentId);
     }
 
     const yComponents = componentsArrayRef.current;
@@ -466,10 +465,9 @@ export function useCollaboration({
       return;
     }
 
-    // 드래그 중인 컴포넌트는 업데이트 스킵 (충돌 방지)
+    // 실시간 동기화를 위해 드래그 중에도 업데이트 허용
     if (dragStateRef.current.has(updatedComponent.id)) {
-      console.log('드래그 중인 컴포넌트 객체 업데이트 스킵:', updatedComponent.id);
-      return;
+      console.log('드래그 중인 컴포넌트 실시간 업데이트:', updatedComponent.id);
     }
 
     const yComponents = componentsArrayRef.current;
