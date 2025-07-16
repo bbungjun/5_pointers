@@ -37,6 +37,35 @@ function AttendEditor({ selectedComp, onUpdate }) {
         Content
       </div>
 
+      {/* 폼 타입 선택 */}
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ 
+          display: 'block', 
+          marginBottom: '8px', 
+          fontWeight: '500',
+          fontSize: '14px',
+          color: '#374151'
+        }}>
+          폼 타입
+        </label>
+        <select
+          value={selectedComp.props?.formType || 'attendance'}
+          onChange={(e) => updateProperty('formType', e.target.value)}
+          style={{
+            width: '100%',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            border: '1px solid #d1d5db',
+            fontSize: '14px',
+            backgroundColor: 'white',
+            color: '#374151'
+          }}
+        >
+          <option value="attendance">참석 여부</option>
+          <option value="club-registration">동아리 가입</option>
+        </select>
+      </div>
+
       <TextEditor
         value={selectedComp.props?.title || ''}
         onChange={(value) => updateProperty('title', value)}

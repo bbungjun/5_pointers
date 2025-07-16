@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
+function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl, errorMessage }) {
   const [domain, setDomain] = useState('');
 
   if (!isOpen) return null;
@@ -120,7 +120,7 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
                   width: '100%',
                   padding: '12px',
                   borderRadius: '8px',
-                  border: '1px solid #e5e7eb',
+                  border: errorMessage ? '1px solid #dc2626' : '1px solid #e5e7eb',
                   fontSize: '16px',
                 }}
                 onKeyPress={(e) => {
@@ -128,6 +128,20 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
                 }}
                 autoFocus
               />
+              {errorMessage && (
+                <div style={{
+                  marginTop: '8px',
+                  padding: '8px',
+                  backgroundColor: '#fee2e2',
+                  border: '1px solid #fecaca',
+                  borderRadius: '6px',
+                  color: '#dc2626',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  {errorMessage}
+                </div>
+              )}
             </div>
 
             <button

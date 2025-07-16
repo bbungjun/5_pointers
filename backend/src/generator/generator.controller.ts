@@ -33,6 +33,8 @@ export class GeneratorController {
       const result = await this.generatorService.deploy(deployDto);
       return result;
     } catch (error) {
+      console.error('🚨 배포 에러:', error.message);
+      // 에러를 HTTP 응답으로 변환
       throw error;
     }
   }
