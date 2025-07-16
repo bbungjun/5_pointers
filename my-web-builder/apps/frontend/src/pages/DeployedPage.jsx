@@ -14,6 +14,35 @@ function DeployedPage({ user, onLogout }) {
     pageId: null,
     title: '',
   });
+  const [submissions, setSubmissions] = useState({});
+  const [submissionsModal, setSubmissionsModal] = useState({
+    isOpen: false,
+    pageId: null,
+    title: '',
+    data: null,
+  });
+  // 페이지 submissions 데이터 조회
+  const fetchPageSubmissions = async (pageId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      
+      const response = await fetch(`${API_BASE_URL}/users/pages/${pageId}/submissions`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (error) {
+      console.error('Submissions 조회 실패:', error);
+    }
+    return null;
+  };
+
   // 내 페이지 목록 조회
   const fetchMyPages = async () => {
     try {
@@ -39,6 +68,16 @@ function DeployedPage({ user, onLogout }) {
         console.log('🚀 배포된 페이지 필터링:', uniquePages.filter(page => page.status === 'DEPLOYED'));
         
         setMyPages(uniquePages);
+        
+        // 각 페이지의 submissions 데이터 조회
+        const submissionsData = {};
+        for (const page of uniquePages.filter(p => p.status === 'DEPLOYED')) {
+          const pageSubmissions = await fetchPageSubmissions(page.id);
+          if (pageSubmissions) {
+            submissionsData[page.id] = pageSubmissions;
+          }
+        }
+        setSubmissions(submissionsData);
       }
     } catch (error) {
       console.error('페이지 목록 조회 실패:', error);
@@ -88,6 +127,27 @@ function DeployedPage({ user, onLogout }) {
   // 삭제 모달 닫기
   const closeDeleteModal = () => {
     setDeleteModal({ isOpen: false, pageId: null, title: '' });
+  };
+
+  // submissions 모달 열기
+  const openSubmissionsModal = (pageId, title) => {
+    const submissionData = submissions[pageId];
+    setSubmissionsModal({ 
+      isOpen: true, 
+      pageId, 
+      title,
+      data: submissionData 
+    });
+  };
+
+  // submissions 모달 닫기
+  const closeSubmissionsModal = () => {
+    setSubmissionsModal({ 
+      isOpen: false, 
+      pageId: null, 
+      title: '', 
+      data: null 
+    });
   };
   // 페이지 삭제 실행
   const confirmDeletePage = async () => {
@@ -198,6 +258,55 @@ function DeployedPage({ user, onLogout }) {
             <p className="text-sm text-emerald-600 font-medium">
               도메인: {page.subdomain}.ddukddak.org
             </p>
+          )}
+          
+          {/* Submissions 통계 정보 */}
+          {submissions[page.id] && (
+            <div className="mt-3 p-3 bg-white/70 rounded-lg border border-emerald-200">
+              <p className="text-sm font-medium text-slate-700 mb-2">제출된 응답</p>
+              <div className="flex flex-wrap gap-2">
+                {submissions[page.id].typeStats.attendance > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    참석/가입: {submissions[page.id].typeStats.attendance}
+                  </span>
+                )}
+                {submissions[page.id].typeStats.comment > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
+                    </svg>
+                    댓글: {submissions[page.id].typeStats.comment}
+                  </span>
+                )}
+                {submissions[page.id].typeStats.slido > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                    </svg>
+                    의견: {submissions[page.id].typeStats.slido}
+                  </span>
+                )}
+                {submissions[page.id].typeStats.other > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    동아리 가입: {submissions[page.id].typeStats.other}
+                  </span>
+                )}
+              </div>
+              {submissions[page.id].totalCount > 0 && (
+                <button
+                  onClick={() => openSubmissionsModal(page.id, page.title)}
+                  className="mt-2 text-xs text-emerald-600 hover:text-emerald-800 font-medium"
+                >
+                  전체 {submissions[page.id].totalCount}개 응답 보기 →
+                </button>
+              )}
+            </div>
           )}
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -460,6 +569,192 @@ function DeployedPage({ user, onLogout }) {
                 >
                   삭제하기
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Submissions 모달 */}
+      {submissionsModal.isOpen && submissionsModal.data && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-slate-800">
+                  {submissionsModal.title} - 제출된 응답
+                </h3>
+                <button
+                  onClick={closeSubmissionsModal}
+                  className="p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* 통계 요약 */}
+              <div className="mt-4 flex flex-wrap gap-4">
+                <div className="bg-green-50 px-3 py-2 rounded-lg">
+                  <span className="text-sm font-medium text-green-800">
+                    참석/가입: {submissionsModal.data.typeStats.attendance}
+                  </span>
+                </div>
+                <div className="bg-blue-50 px-3 py-2 rounded-lg">
+                  <span className="text-sm font-medium text-blue-800">
+                    댓글: {submissionsModal.data.typeStats.comment}
+                  </span>
+                </div>
+                <div className="bg-purple-50 px-3 py-2 rounded-lg">
+                  <span className="text-sm font-medium text-purple-800">
+                    의견: {submissionsModal.data.typeStats.slido}
+                  </span>
+                </div>
+                <div className="bg-orange-50 px-3 py-2 rounded-lg">
+                  <span className="text-sm font-medium text-orange-800">
+                    동아리 가입: {submissionsModal.data.typeStats.other}
+                  </span>
+                </div>
+                <div className="bg-gray-50 px-3 py-2 rounded-lg">
+                  <span className="text-sm font-medium text-gray-800">
+                    전체: {submissionsModal.data.totalCount}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="overflow-auto max-h-96">
+              <div className="p-6 space-y-4">
+                {submissionsModal.data.submissions.map((submission) => (
+                  <div key={submission.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                          submission.type === 'attendance' ? 'bg-green-100 text-green-700' :
+                          submission.type === 'comment' ? 'bg-blue-100 text-blue-700' :
+                          submission.type === 'slido' ? 'bg-purple-100 text-purple-700' :
+                          submission.type === 'other' ? 'bg-orange-100 text-orange-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {submission.type === 'attendance' ? '참석/가입' :
+                           submission.type === 'comment' ? '댓글' :
+                           submission.type === 'slido' ? '의견' : 
+                           submission.type === 'other' ? '동아리 가입' : '기타'}
+                        </span>
+                        <span className="text-sm text-gray-600">{submission.componentId}</span>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        {new Date(submission.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      {submission.type === 'attendance' && (
+                        <div className="space-y-2">
+                          <p><strong>이름:</strong> {submission.data.attendeeName}</p>
+                          {submission.data.guestSide && (
+                            <p><strong>구분:</strong> {submission.data.guestSide}</p>
+                          )}
+                          {submission.data.attendeeCount && (
+                            <p><strong>참석 인원:</strong> {submission.data.attendeeCount}명</p>
+                          )}
+                          {submission.data.contact && (
+                            <p><strong>연락처:</strong> {submission.data.contact}</p>
+                          )}
+                          {submission.data.studentId && (
+                            <p><strong>학번:</strong> {submission.data.studentId}</p>
+                          )}
+                          {submission.data.major && (
+                            <p><strong>전공:</strong> {submission.data.major}</p>
+                          )}
+                          {submission.data.email && (
+                            <p><strong>이메일:</strong> {submission.data.email}</p>
+                          )}
+                          {submission.data.motivation && (
+                            <p><strong>지원 동기:</strong> {submission.data.motivation}</p>
+                          )}
+                          {submission.data.experience && (
+                            <p><strong>관련 경험:</strong> {submission.data.experience}</p>
+                          )}
+                        </div>
+                      )}
+                      {submission.type === 'comment' && (
+                        <div className="space-y-2">
+                          <p><strong>작성자:</strong> {submission.data.author}</p>
+                          <p><strong>내용:</strong> {submission.data.content}</p>
+                        </div>
+                      )}
+                      {submission.type === 'slido' && (
+                        <div className="space-y-2">
+                          <p><strong>의견:</strong> {submission.data.content}</p>
+                        </div>
+                      )}
+                      {submission.type === 'other' && (
+                        <div className="space-y-2">
+                          <p><strong>이름:</strong> {submission.data.attendeeName}</p>
+                          {submission.data.guestSide && (
+                            <p><strong>학년/구분:</strong> {submission.data.guestSide}</p>
+                          )}
+                          {submission.data.contact && (
+                            <p><strong>연락처:</strong> {submission.data.contact}</p>
+                          )}
+                          {submission.data.studentId && (
+                            <p><strong>학번:</strong> {submission.data.studentId}</p>
+                          )}
+                          {submission.data.major && (
+                            <p><strong>전공:</strong> {submission.data.major}</p>
+                          )}
+                          {submission.data.email && (
+                            <p><strong>이메일:</strong> {submission.data.email}</p>
+                          )}
+                          {submission.data.attendeeCount && (
+                            <p><strong>참석 인원:</strong> {submission.data.attendeeCount}명</p>
+                          )}
+                          {submission.data.companionCount && (
+                            <p><strong>동반 인원:</strong> {submission.data.companionCount}명</p>
+                          )}
+                          {submission.data.mealOption && (
+                            <p><strong>식사 옵션:</strong> {submission.data.mealOption}</p>
+                          )}
+                          {submission.data.privacyConsent && (
+                            <p><strong>개인정보 동의:</strong> {submission.data.privacyConsent ? '동의' : '미동의'}</p>
+                          )}
+                          {submission.data.motivation !== undefined && submission.data.motivation !== null ? (
+                            <div className="mt-3">
+                              <p><strong>지원 동기:</strong></p>
+                              <div className="bg-white p-3 rounded border mt-1">
+                                <p className="text-sm whitespace-pre-wrap">{submission.data.motivation}</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="mt-3">
+                              <p><strong>지원 동기:</strong></p>
+                              <div className="bg-gray-100 p-3 rounded border mt-1">
+                                <p className="text-sm text-gray-500 italic">지원 동기 정보가 없습니다.</p>
+                              </div>
+                            </div>
+                          )}
+                          {submission.data.experience !== undefined && submission.data.experience !== null ? (
+                            <div className="mt-3">
+                              <p><strong>관련 경험:</strong></p>
+                              <div className="bg-white p-3 rounded border mt-1">
+                                <p className="text-sm whitespace-pre-wrap">{submission.data.experience}</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="mt-3">
+                              <p><strong>관련 경험:</strong></p>
+                              <div className="bg-gray-100 p-3 rounded border mt-1">
+                                <p className="text-sm text-gray-500 italic">관련 경험 정보가 없습니다.</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
