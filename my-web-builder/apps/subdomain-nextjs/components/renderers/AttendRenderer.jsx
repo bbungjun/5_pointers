@@ -155,37 +155,42 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
       {/* 버튼 영역 - 맨 아래 배치 */}
       <div style={{ marginTop: 'auto' }}>
         <button
-        onClick={(e) => {
-          e.stopPropagation();
-          // 에디터 모드에서는 알림만 표시, 배포된 사이트나 미리보기에서는 모달 열기
-          if (mode === 'editor' || isEditor === true) {
-            alert('참석 기능은 배포된 사이트에서 사용 가능합니다.');
-          } else {
-            // mode가 'live' (배포된 사이트) 또는 'preview'이고 isEditor가 false인 경우 모달 열기
-            setIsModalOpen(true);
-          }
-        }}
+        onClick={
+          mode === 'editor' 
+            ? undefined
+            : (e) => {
+                e.stopPropagation();
+                setIsModalOpen(true);
+              }
+        }
+        disabled={mode === 'editor'}
         style={{
-          backgroundColor: comp.props?.buttonColor || '#9CAF88', // frontend와 동일한 기본값
-          color: comp.props?.buttonTextColor || 'white',
+          backgroundColor: mode === 'editor' ? '#d1d5db' : (comp.props?.buttonColor || '#9CAF88'),
+          color: mode === 'editor' ? '#9ca3af' : (comp.props?.buttonTextColor || 'white'),
           border: 'none',
           borderRadius: mode === 'live' ? `${(parseInt(comp.props?.borderRadius) || 8) * scaleFactor}px` : comp.props?.borderRadius || '8px',
           padding: mode === 'live' ? `${12 * scaleFactor}px ${24 * scaleFactor}px` : '12px 24px',
           fontSize: mode === 'live' ? `${(parseInt(comp.props?.fontSize) || 16) * scaleFactor}px` : comp.props?.fontSize || '16px',
           fontWeight: '500',
           fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
-          cursor: 'pointer',
+          cursor: mode === 'editor' ? 'not-allowed' : 'pointer',
           transition: 'all 0.2s ease',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           width: '100%',
+          opacity: mode === 'editor' ? 0.5 : 1,
+          ...(mode === 'editor' ? { pointerEvents: 'none' } : {}),
         }}
         onMouseEnter={(e) => {
-          e.target.style.opacity = '0.9';
-          e.target.style.transform = 'translateY(-1px)';
+          if (mode !== 'editor') {
+            e.target.style.opacity = '0.9';
+            e.target.style.transform = 'translateY(-1px)';
+          }
         }}
         onMouseLeave={(e) => {
-          e.target.style.opacity = '1';
-          e.target.style.transform = 'translateY(0)';
+          if (mode !== 'editor') {
+            e.target.style.opacity = '1';
+            e.target.style.transform = 'translateY(0)';
+          }
         }}
       >
         {comp.props.buttonText || '참석 의사 전달'}
