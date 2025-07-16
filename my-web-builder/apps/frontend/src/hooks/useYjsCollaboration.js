@@ -84,7 +84,12 @@ export function useYjsCollaboration(roomId, userInfo) {
     // 환경에 따른 WebSocket URL 설정
     const wsUrl = YJS_WEBSOCKET_URL;
 
-    console.log('🔄 Y.js 서버 연결 시도:', wsUrl, 'Room:', roomName);
+    console.log('🔄 Y.js 서버 연결 시도:', {
+      wsUrl,
+      roomName,
+      YJS_WEBSOCKET_URL,
+      currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'server'
+    });
 
     // WebsocketProvider 초기화
     const provider = new WebsocketProvider(wsUrl, roomName, ydoc, {
