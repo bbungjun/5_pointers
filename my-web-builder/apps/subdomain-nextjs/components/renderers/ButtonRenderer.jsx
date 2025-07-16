@@ -33,7 +33,7 @@ const pxToVw = (px, minPx, maxPx) => {
   return `${vw.toFixed(4)}vw`;
 };
 
-function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPreview = false, editingViewport = 'desktop' }) {
+function ButtonRenderer({ comp, component, mode = 'live', isPreview = false, editingViewport = 'desktop' }) {
   // comp 또는 component 중 하나를 사용 (하위 호환성)
   const actualComp = comp || component;
   const [editing, setEditing] = useState(false);
@@ -86,7 +86,7 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
   const isItalic = actualComp?.props?.fontStyle;
   const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
 
-  if (editing && isEditor && !isPreview) {
+      if (editing && mode === 'editor' && !isPreview) {
     return (
       <input
         ref={inputRef}

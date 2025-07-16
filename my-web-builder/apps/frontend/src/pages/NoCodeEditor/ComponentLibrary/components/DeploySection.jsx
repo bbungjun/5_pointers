@@ -10,6 +10,7 @@ function DeploySection({ components, roomId }) {
     setDomainName,
     isDeploying,
     deployedUrl,
+    errorMessage,
     handleDeploy
   } = useDeploy();
 
@@ -70,7 +71,7 @@ function DeploySection({ components, roomId }) {
             style={{
               width: '100%',
               padding: '10px 12px',
-              border: '1px solid #e1e5e9',
+              border: errorMessage ? '1px solid #dc2626' : '1px solid #e1e5e9',
               borderRadius: 6,
               fontSize: 13,
               outline: 'none',
@@ -90,6 +91,21 @@ function DeploySection({ components, roomId }) {
             }}
             autoFocus
           />
+          {errorMessage && (
+            <div style={{
+              marginTop: 6,
+              padding: '8px',
+              backgroundColor: '#fee2e2',
+              border: '1px solid #fecaca',
+              borderRadius: 4,
+              color: '#dc2626',
+              fontSize: 11,
+              fontWeight: '500',
+              lineHeight: 1.4
+            }}>
+              {errorMessage}
+            </div>
+          )}
           <div style={{ 
             fontSize: 10, 
             color: '#65676b', 

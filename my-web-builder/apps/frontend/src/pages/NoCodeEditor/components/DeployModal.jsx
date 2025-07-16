@@ -1,7 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import QRCode from 'qrcode';
 
-function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
+function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl, errorMessage }) {
   const [domain, setDomain] = useState('');
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
+  const qrCodeRef = useRef(null);
+
+  // QR 코드 생성
+  useEffect(() => {
+    const generateQRCode = async () => {
+      if (deployedUrl) {
+        try {
+          const qrCodeDataURL = await QRCode.toDataURL(deployedUrl, {
+            width: 400,
+            margin: 2,
+            color: {
+              dark: '#000000',
+              light: '#ffffff'
+            }
+          });
+          setQrCodeDataUrl(qrCodeDataURL);
+        } catch (error) {
+          console.error('QR 코드 생성 실패:', error);
+        }
+      }
+    };
+    
+    generateQRCode();
+  }, [deployedUrl]);
 
   if (!isOpen) return null;
 
@@ -18,7 +44,7 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
         left: 0,
         width: '100vw',
         height: '100vh',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
         zIndex: 1000,
         fontFamily: 'Inter, sans-serif',
       }}
@@ -31,12 +57,12 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
           left: '50%',
           transform: 'translate(-50%, -50%)',
           backgroundColor: 'white',
-          borderRadius: '12px',
-          padding: '32px',
-          width: '440px',
-          maxWidth: '90%',
-          minHeight: '300px',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+          borderRadius: '20px',
+          padding: '40px',
+          width: deployedUrl ? '900px' : '600px',
+          maxWidth: '95%',
+          minHeight: deployedUrl ? '600px' : '400px',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -46,13 +72,13 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: '24px',
+            marginBottom: '32px',
           }}
         >
           <h2
             style={{
               margin: 0,
-              fontSize: '24px',
+              fontSize: '32px',
               fontWeight: 'bold',
               color: '#1f2937',
             }}
@@ -64,10 +90,10 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
             style={{
               background: 'none',
               border: 'none',
-              fontSize: '24px',
+              fontSize: '28px',
               cursor: 'pointer',
               color: '#6b7280',
-              padding: '4px',
+              padding: '8px',
             }}
           >
             ✕
@@ -77,40 +103,108 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
         {deployedUrl ? (
           // 성공 메시지
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px' }}>게시 완료!</p>
-            <a href={deployedUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#ec4899', textDecoration: 'underline', wordBreak: 'break-all' }}>
-              {deployedUrl}
-            </a>
-            <div style={{ marginTop: '24px' }}>
-              <button
-                onClick={onClose}
-                style={{
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  background: 'linear-gradient(90deg, #ec4899 0%, #be185d 100%)',
-                  color: '#fff',
+            <p style={{ fontSize: '48px', fontWeight: 600, marginBottom: '24px' }}>게시 완료!</p>
+            
+            {/* QR 코드 중앙 배치 */}
+            <div style={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '40px',
+              padding: '32px',
+              backgroundColor: '#f9fafb',
+              borderRadius: '16px',
+              border: '2px solid #e5e7eb'
+            }}>
+              {qrCodeDataUrl && (
+                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                  <img 
+                    src={qrCodeDataUrl} 
+                    alt="QR Code" 
+                    style={{ 
+                      width: '280px', 
+                      height: '280px',
+                      border: '3px solid #e5e7eb',
+                      borderRadius: '16px',
+                      backgroundColor: '#ffffff'
+                    }} 
+                  />
+                  <p style={{ 
+                    fontSize: '16px', 
+                    color: '#6b7280', 
+                    marginTop: '12px',
+                    margin: 0
+                  }}>
+                    QR 코드로 접속
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* 배포된 URL 정보 */}
+            <div style={{
+              marginBottom: '24px',
+              padding: '16px',
+              backgroundColor: '#f3f4f6',
+              borderRadius: '12px',
+              border: '1px solid #e5e7eb'
+            }}>
+              <p style={{ 
+                fontSize: '36px', 
+                color: '#374151', 
+                marginBottom: '8px',
+                fontWeight: 600
+              }}>
+                배포된 페이지
+              </p>
+              <a 
+                href={deployedUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ 
+                  color: '#ec4899', 
+                  textDecoration: 'underline', 
+                  wordBreak: 'break-all',
+                  fontSize: '36px',
                   fontWeight: 500,
-                  cursor: 'pointer',
+                  display: 'block'
                 }}
               >
-                닫기
-              </button>
+                {deployedUrl}
+              </a>
             </div>
+            
+            <button
+              onClick={onClose}
+              style={{
+                padding: '16px 32px',
+                borderRadius: '12px',
+                background: 'linear-gradient(90deg, #ec4899 0%, #be185d 100%)',
+                color: '#fff',
+                fontWeight: 500,
+                fontSize: '18px',
+                cursor: 'pointer',
+                border: 'none'
+              }}
+            >
+              닫기
+            </button>
           </div>
         ) : (
           <>
             <p
               style={{
-                margin: '0 0 24px 0',
+                margin: '0 0 32px 0',
                 color: '#6b7280',
                 lineHeight: 1.5,
-                fontSize: '14px',
+                fontSize: '18px',
               }}
             >
-              서브도메인을 입력하여 사이트를 배포하세요.<br />예: <code>my-wedding</code>
+              서브도메인을 입력하여 사이트를 배포하세요.<br />예: <code style={{ fontSize: '16px', backgroundColor: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>my-wedding</code>
             </p>
 
-            <div style={{ marginBottom: '24px' }}>
+            <div style={{ marginBottom: '32px' }}>
               <input
                 type="text"
                 placeholder="서브도메인 입력"
@@ -118,16 +212,31 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
                 onChange={(e) => setDomain(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb',
-                  fontSize: '16px',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  border: errorMessage ? '2px solid #dc2626' : '2px solid #e5e7eb',
+                  fontSize: '18px',
+                  boxSizing: 'border-box',
                 }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') handleConfirm();
                 }}
                 autoFocus
               />
+              {errorMessage && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '12px',
+                  backgroundColor: '#fee2e2',
+                  border: '2px solid #fecaca',
+                  borderRadius: '8px',
+                  color: '#dc2626',
+                  fontSize: '16px',
+                  fontWeight: '500'
+                }}>
+                  {errorMessage}
+                </div>
+              )}
             </div>
 
             <button
@@ -135,13 +244,14 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
               disabled={isDeploying || !domain.trim()}
               style={{
                 width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
+                padding: '16px',
+                borderRadius: '12px',
                 background: isDeploying ? '#9ca3af' : 'linear-gradient(90deg, #ec4899 0%, #be185d 100%)',
                 color: 'white',
                 fontWeight: 600,
-                fontSize: '16px',
+                fontSize: '18px',
                 cursor: isDeploying ? 'not-allowed' : 'pointer',
+                border: 'none',
               }}
             >
               {isDeploying ? '게시 중...' : '최종 확정'}
@@ -153,4 +263,4 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl }) {
   );
 }
 
-export default DeployModal; 
+export default DeployModal;

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DeployDto } from './dto/deploy.dto';
@@ -22,7 +22,7 @@ export class GeneratorService {
 
     // 1. projectId 유효성 확인
     if (!projectId) {
-      throw new Error('Project ID is required');
+      throw new BadRequestException('Project ID is required');
     }
 
     // 2. 서브도메인 생성 - 사용자가 입력한 도메인을 우선 사용
@@ -48,7 +48,7 @@ export class GeneratorService {
       if (existingPageBySubdomain) {
         if (existingPageBySubdomain.userId !== numericUserId) {
           // 다른 사용자가 사용 중인 서브도메인인 경우 - 에러 발생
-          throw new Error(`서브도메인 '${requestedSubdomain}'는 이미 사용 중입니다. 다른 서브도메인을 선택해주세요.`);
+          throw new BadRequestException('이미 존재하는 서브도메인입니다');
         }
         // 동일한 사용자가 소유한 서브도메인인 경우 - 해당 페이지를 재사용 (ID 변경 안함)
         page = existingPageBySubdomain;
@@ -70,7 +70,7 @@ export class GeneratorService {
           });
           
           if (!user) {
-            throw new Error('User not found');
+            throw new BadRequestException('User not found');
           }
           
           page = this.pagesRepository.create({
@@ -98,7 +98,7 @@ export class GeneratorService {
       if (dbError.message.includes('서브도메인')) {
         throw dbError; // 서브도메인 중복 에러는 그대로 전달
       }
-      throw new Error(`데이터베이스 저장 실패: ${dbError.message}`);
+      throw new BadRequestException(`데이터베이스 저장 실패: ${dbError.message}`);
     }
 
     // 5. 최종 배포 URL 생성 (프로덕션에서는 실제 서브도메인 사용)
@@ -134,7 +134,7 @@ export class GeneratorService {
       return { url };
     } catch (saveError) {
       console.error('❌ 배포 저장 실패:', saveError);
-      throw new Error(`컴포넌트 저장 실패: ${saveError.message}`);
+      throw new BadRequestException(`컴포넌트 저장 실패: ${saveError.message}`);
     }
   }
 

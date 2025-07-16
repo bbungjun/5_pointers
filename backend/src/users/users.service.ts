@@ -427,12 +427,26 @@ export class UsersService {
   }
 
   async deployPage(
+    userId: number,
     pageId: string,
     components: any[],
     domain: string,
   ): Promise<any> {
-    const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+    const page = await this.pagesRepository.findOne({ 
+      where: { id: pageId },
+      relations: ['owner']
+    });
     if (!page) throw new Error('Page not found');
+
+    // 서브도메인 중복 검사
+    const existingPage = await this.pagesRepository.findOne({
+      where: { subdomain: domain },
+      relations: ['owner']
+    });
+
+    if (existingPage && existingPage.owner.id !== userId) {
+      throw new Error('이미 존재하는 서브도메인입니다');
+    }
 
     // HTML 생성
     const html = this.generateHTML(components);
@@ -445,6 +459,12 @@ export class UsersService {
     }
 
     fs.writeFileSync(path.join(deployDir, 'index.html'), html);
+
+    // 페이지 테이블에 서브도메인과 배포 상태 업데이트
+    page.subdomain = domain;
+    page.status = PageStatus.DEPLOYED;
+    page.deployedAt = new Date();
+    await this.pagesRepository.save(page);
 
     // submissions 테이블에 배포 데이터 저장
     const submissionsRepository =
@@ -1079,6 +1099,99 @@ export class UsersService {
     };
   }
 
+  // 페이지 전체 submissions 조회 (Dashboard용)
+  async getPageSubmissions(
+    pageId: string,
+    componentType?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<any> {
+    const queryBuilder = this.submissionsRepository
+      .createQueryBuilder('submission')
+      .where('submission.pageId = :pageId OR submission.component_id = :pageId', { pageId })
+      .orderBy('submission.createdAt', 'DESC');
+
+    // 컴포넌트 타입별 필터링
+    if (componentType) {
+      switch (componentType) {
+        case 'comment':
+          queryBuilder.andWhere('submission.component_id LIKE :pattern', { pattern: 'comment_%' });
+          break;
+        case 'slido':
+          queryBuilder.andWhere('submission.component_id LIKE :pattern', { pattern: 'slido_%' });
+          break;
+        case 'attendance':
+          queryBuilder.andWhere('submission.component_id LIKE :pattern', { pattern: 'attend_%' });
+          break;
+      }
+    }
+
+    if (limit) {
+      queryBuilder.limit(limit);
+    }
+    if (offset) {
+      queryBuilder.offset(offset);
+    }
+
+    const submissions = await queryBuilder.getMany();
+    
+    // 총 개수 조회
+    const totalCount = await this.submissionsRepository
+      .createQueryBuilder('submission')
+      .where('submission.pageId = :pageId OR submission.component_id = :pageId', { pageId })
+      .getCount();
+
+    // 타입별 통계 조회
+    const typeStats = await this.submissionsRepository
+      .createQueryBuilder('submission')
+      .select('submission.component_id', 'componentId')
+      .addSelect('COUNT(*)', 'count')
+      .where('submission.pageId = :pageId OR submission.component_id = :pageId', { pageId })
+      .groupBy('submission.component_id')
+      .getRawMany();
+
+    const stats = {
+      attendance: 0,
+      comment: 0,
+      slido: 0,
+      other: 0,
+    };
+
+    typeStats.forEach((stat) => {
+      const componentId = stat.componentId;
+      const count = parseInt(stat.count);
+      if (componentId.startsWith('attend_')) {
+        stats.attendance += count;
+      } else if (componentId.startsWith('comment_')) {
+        stats.comment += count;
+      } else if (componentId.startsWith('slido_')) {
+        stats.slido += count;
+      } else {
+        stats.other += count;
+      }
+    });
+
+    return {
+      submissions: submissions.map((submission) => ({
+        id: submission.id,
+        componentId: submission.component_id,
+        type: this.getSubmissionType(submission.component_id),
+        data: submission.data,
+        createdAt: submission.createdAt,
+      })),
+      totalCount,
+      typeStats: stats,
+    };
+  }
+
+  private getSubmissionType(componentId: string): string {
+    if (componentId.startsWith('comment_')) return 'comment';
+    if (componentId.startsWith('slido_')) return 'slido';
+    if (componentId.startsWith('attend_')) return 'attendance';
+    if (componentId.startsWith('deploy_')) return 'deploy';
+    return 'other';
+  }
+
   // 참석 의사 조회
   async getAttendance(pageId: string, componentId: string): Promise<any[]> {
     const submissions = await this.submissionsRepository.find({
@@ -1113,6 +1226,12 @@ export class UsersService {
       companionCount: number;
       mealOption: string;
       privacyConsent: boolean;
+      motivation?: string;
+      experience?: string;
+      studentId?: string;
+      major?: string;
+      email?: string;
+      formType?: string;
     },
   ): Promise<any> {
     const page = await this.pagesRepository.findOne({ where: { id: pageId } });
@@ -1130,6 +1249,12 @@ export class UsersService {
         companionCount: attendanceData.companionCount,
         mealOption: attendanceData.mealOption,
         privacyConsent: attendanceData.privacyConsent,
+        motivation: attendanceData.motivation,
+        experience: attendanceData.experience,
+        studentId: attendanceData.studentId,
+        major: attendanceData.major,
+        email: attendanceData.email,
+        formType: attendanceData.formType,
       },
     });
 
@@ -1142,6 +1267,13 @@ export class UsersService {
       contact: saved.data.contact,
       companionCount: saved.data.companionCount,
       mealOption: saved.data.mealOption,
+      privacyConsent: saved.data.privacyConsent,
+      motivation: saved.data.motivation,
+      experience: saved.data.experience,
+      studentId: saved.data.studentId,
+      major: saved.data.major,
+      email: saved.data.email,
+      formType: saved.data.formType,
       createdAt: saved.createdAt,
     };
   }

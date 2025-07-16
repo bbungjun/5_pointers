@@ -42,6 +42,7 @@ export function useDeploy() {
   const [domainName, setDomainName] = useState('');
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleDeploy = async (components, roomId, domainOverride = null, editingMode = 'desktop', onDeploySuccess = null) => {
     const domainToUse = domainOverride ? domainOverride.trim() : domainName.trim();
@@ -59,6 +60,7 @@ export function useDeploy() {
     }
     
     setIsDeploying(true);
+    setErrorMessage(''); // 에러 메시지 초기화
     
     try {
       const token = localStorage.getItem('token');
@@ -120,18 +122,43 @@ export function useDeploy() {
           onDeploySuccess(deployedUrl);
         }
       } else {
-        const errorData = await response.text();
-        console.error('배포 실패 응답:', response.status, errorData);
+        let errorMessage = '배포 실패';
+        
+        try {
+          // JSON 응답인지 확인
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorData.error || errorMessage;
+          } else {
+            const errorData = await response.text();
+            errorMessage = errorData || errorMessage;
+          }
+        } catch (parseError) {
+          console.error('에러 파싱 실패:', parseError);
+        }
+        
+        console.error('배포 실패 응답:', response.status, errorMessage);
         
         if (response.status === 401) {
           throw new Error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
         } else {
-          throw new Error(`배포 실패: ${response.status} - ${errorData}`);
+          throw new Error(errorMessage);
         }
       }
     } catch (error) {
       console.error('배포 실패:', error);
       console.error('Deploy error', error);
+      
+      // 에러 메시지를 상태에 저장
+      console.log('🔍 에러 메시지 검사:', error.message);
+      
+      if (error.message.includes('이미 존재하는 서브도메인입니다') || 
+          error.message.includes('이미 사용 중입니다')) {
+        setErrorMessage('다른 사용자가 사용중인 서브도메인입니다. 다른 서브도메인을 입력해주세요.');
+      } else {
+        setErrorMessage(`배포 중 오류가 발생했습니다: ${error.message}`);
+      }
     } finally {
       setIsDeploying(false);
     }
@@ -144,10 +171,12 @@ export function useDeploy() {
     setDomainName,
     isDeploying,
     deployedUrl,
+    errorMessage,
     handleDeploy,
     resetDeploy: () => {
       setDeployedUrl('');
       setDomainName('');
+      setErrorMessage('');
     }
   };
 }
