@@ -691,6 +691,12 @@ const CanvasArea = forwardRef(
         onMouseDown={handleContainerMouseDown}
         onMouseMove={handleContainerMouseMove}
         onMouseUp={handleContainerMouseUp}
+        onClick={(e) => {
+          // 캔버스 밖 영역 클릭 시 선택 해제
+          if (onClick) {
+            onClick(e);
+          }
+        }}
         onScroll={(e) => {
           if (isLocalComponentDragging) {
             e.preventDefault();
