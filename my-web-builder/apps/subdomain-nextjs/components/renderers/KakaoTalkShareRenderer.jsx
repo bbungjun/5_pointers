@@ -1,18 +1,18 @@
 import React, { useEffect, useRef } from "react";
 
-export default function KakaoTalkShareRenderer({ comp, isEditor = false, mode = 'live' }) {
+export default function KakaoTalkShareRenderer({ comp, mode = 'live' }) {
   const { title, description, imageUrl, buttonTitle } = comp.props;
   const isInitialized = useRef(false);
 
-  // 디버깅: isEditor 값 확인 (SSR 안전)
+  // 디버깅: mode 값 확인 (SSR 안전)
   useEffect(() => {
-    console.log('KakaoTalkShareRenderer - isEditor:', isEditor);
+    console.log('KakaoTalkShareRenderer - mode:', mode);
     console.log('KakaoTalkShareRenderer - window.location.href:', window.location.href);
-  }, [isEditor]);
+  }, [mode]);
 
   useEffect(() => {
     // 배포 환경(Next.js)에서만 카카오 SDK 초기화
-    if (!isEditor && typeof window !== "undefined" && window.Kakao && !isInitialized.current) {
+    if (mode !== 'editor' && typeof window !== "undefined" && window.Kakao && !isInitialized.current) {
       //const KAKAO_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY || 'abf280bb54e158e4414d83da34cfbd83';
       const KAKAO_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY || '37e5ce2cc5212815fd433917a0994f89';
 
@@ -24,13 +24,13 @@ export default function KakaoTalkShareRenderer({ comp, isEditor = false, mode = 
       }
       isInitialized.current = true;
     }
-  }, [isEditor]);
+  }, [mode]);
 
   const handleShare = () => {
-    console.log('handleShare 클릭 - isEditor:', isEditor);
+    console.log('handleShare 클릭 - mode:', mode);
 
-    // 명시적으로 true인 경우만 에디터로 판단
-    if (isEditor === true) {
+    // 명시적으로 editor인 경우만 에디터로 판단
+    if (mode === 'editor') {
       alert("카카오톡 공유는 배포된 페이지에서만 사용할 수 있습니다.");
       return;
     }

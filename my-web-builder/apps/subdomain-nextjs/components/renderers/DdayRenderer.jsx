@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function DdayRenderer({ comp, isEditor = false, mode = 'live' }) {
+function DdayRenderer({ comp, mode = 'live' }) {
   // 컨테이너 크기 기준으로 스케일 팩터 계산
   const baseWidth = 375; // 기준 너비
   const actualWidth = comp.width || baseWidth;
