@@ -8,6 +8,7 @@ import {
   Get,
   Res,
   Delete,
+  Query,
   Put,
   Patch,
   UseInterceptors,
@@ -323,6 +324,17 @@ export class UsersController {
     return this.usersService.updateDesignMode(pageId, body.designMode);
   }
 
+  // 페이지 전체 submissions 조회 (Dashboard용)
+  @Get('pages/:pageId/submissions')
+  async getPageSubmissions(
+    @Param('pageId') pageId: string,
+    @Query('componentType') componentType?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+  ) {
+    return this.usersService.getPageSubmissions(pageId, componentType, limit, offset);
+  }
+
   // 참석 의사 조회
   @Get('pages/:pageId/attendance/:componentId')
   async getAttendance(
@@ -345,13 +357,22 @@ export class UsersController {
       companionCount: number;
       mealOption: string;
       privacyConsent: boolean;
+      motivation?: string;
+      experience?: string;
+      studentId?: string;
+      major?: string;
+      email?: string;
+      formType?: string;
     },
   ) {
     console.log('🎯 Attendance API Request received:', { 
       pageId, 
       componentId, 
       attendeeName: attendanceData.attendeeName,
-      guestSide: attendanceData.guestSide 
+      guestSide: attendanceData.guestSide,
+      motivation: attendanceData.motivation,
+      experience: attendanceData.experience,
+      formType: attendanceData.formType
     });
     try {
       const result = await this.usersService.createAttendance(pageId, componentId, attendanceData);
