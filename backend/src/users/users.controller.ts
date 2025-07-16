@@ -194,12 +194,14 @@ export class UsersController {
     return `${baseUrl}/uploads/images/${year}/${month}/${day}/${filename}`;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('pages/:pageId/deploy')
   async deployPage(
+    @Request() req,
     @Body() body: { components: any[]; domain: string },
     @Param('pageId') pageId: string,
   ) {
-    return this.usersService.deployPage(pageId, body.components, body.domain);
+    return this.usersService.deployPage(req.user.userId, pageId, body.components, body.domain);
   }
 
   

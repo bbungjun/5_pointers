@@ -36,6 +36,7 @@ function EditorHeader({
     handleDeploy,
     isDeploying,
     deployedUrl,
+    errorMessage,
     resetDeploy,
   } = useDeploy();
 
@@ -317,6 +318,7 @@ function EditorHeader({
         onClose={() => { setShowDeployModal(false); resetDeploy(); }}
         isDeploying={isDeploying}
         deployedUrl={deployedUrl}
+        errorMessage={errorMessage}
         onDeploy={(domain) => {
           handleDeploy(components, roomId, domain, designMode);
         }}

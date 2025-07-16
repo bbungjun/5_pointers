@@ -427,12 +427,26 @@ export class UsersService {
   }
 
   async deployPage(
+    userId: number,
     pageId: string,
     components: any[],
     domain: string,
   ): Promise<any> {
-    const page = await this.pagesRepository.findOne({ where: { id: pageId } });
+    const page = await this.pagesRepository.findOne({ 
+      where: { id: pageId },
+      relations: ['owner']
+    });
     if (!page) throw new Error('Page not found');
+
+    // 서브도메인 중복 검사
+    const existingPage = await this.pagesRepository.findOne({
+      where: { subdomain: domain },
+      relations: ['owner']
+    });
+
+    if (existingPage && existingPage.owner.id !== userId) {
+      throw new Error('이미 존재하는 서브도메인입니다');
+    }
 
     // HTML 생성
     const html = this.generateHTML(components);
@@ -445,6 +459,12 @@ export class UsersService {
     }
 
     fs.writeFileSync(path.join(deployDir, 'index.html'), html);
+
+    // 페이지 테이블에 서브도메인과 배포 상태 업데이트
+    page.subdomain = domain;
+    page.status = PageStatus.DEPLOYED;
+    page.deployedAt = new Date();
+    await this.pagesRepository.save(page);
 
     // submissions 테이블에 배포 데이터 저장
     const submissionsRepository =
