@@ -12,7 +12,7 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl, erro
       if (deployedUrl) {
         try {
           const qrCodeDataURL = await QRCode.toDataURL(deployedUrl, {
-            width: 300,
+            width: 600,
             margin: 2,
             color: {
               dark: '#000000',
@@ -124,8 +124,8 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl, erro
                     src={qrCodeDataUrl} 
                     alt="QR Code" 
                     style={{ 
-                      width: '220px', 
-                      height: '220px',
+                      width: '280px', 
+                      height: '280px',
                       border: '3px solid #e5e7eb',
                       borderRadius: '16px',
                       backgroundColor: '#ffffff'
