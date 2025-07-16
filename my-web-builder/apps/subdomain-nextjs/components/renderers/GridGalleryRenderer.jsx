@@ -18,14 +18,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-function GridGalleryRenderer({
-  comp,
-  isEditor = false,
-  onUpdate,
-  mode = 'live',
-  width,
-  height,
-}) {
+function GridGalleryRenderer({ comp, onUpdate, mode = 'live', width, height }) {
   // 컨테이너 크기 기준으로 스케일 팩터 계산
   const baseWidth = 375; // 기준 너비
   const actualWidth = comp.width || baseWidth;
@@ -214,7 +207,7 @@ function GridGalleryRenderer({
     } else {
       slots.push(
         <div key={`empty-${i}`} style={emptySlotStyle}>
-          {isEditor ? '+' : ''}
+          {mode === 'editor' ? '+' : ''}
         </div>
       );
     }
