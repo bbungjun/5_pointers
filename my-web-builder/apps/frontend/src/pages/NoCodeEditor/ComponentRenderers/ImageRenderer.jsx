@@ -166,12 +166,14 @@ function ImageRenderer({ comp, component, isEditor = false, mode = 'editor', isP
     height: '100%',
     borderRadius: `${borderRadius}px`,
     overflow: 'hidden',
-    position: 'relative',
+    //position: 'relative',
+    position: 'absolute',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f9fafb',
-    border: isEditor ? '1px solid #e5e7eb' : 'none'
+    border: isEditor ? '1px solid #e5e7eb' : 'none',
+    zIndex: actualComp?.props?.zIndex || 1000 
   };
 
   // 이미지가 없는 경우 플레이스홀더
