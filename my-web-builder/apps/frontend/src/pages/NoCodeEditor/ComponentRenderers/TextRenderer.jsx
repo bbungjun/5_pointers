@@ -104,6 +104,8 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
 
   if (editing && mode === 'editor'  && !isPreview) {
 
+    const calcWidth = Math.max(80, (editValue.length + 1) * (actualComp?.props?.fontSize ? parseInt(actualComp.props.fontSize) : 16)) + 'px';
+
     return (
       <input
         ref={inputRef}
@@ -113,6 +115,7 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
         onKeyDown={handleKeyDown}
         className="w-32 border-2 border-pink-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
         style={{ 
+          width: calcWidth,
           fontSize: actualComp?.props?.fontSize,
           fontFamily: fontFamily,
           textAlign: textAlign,
