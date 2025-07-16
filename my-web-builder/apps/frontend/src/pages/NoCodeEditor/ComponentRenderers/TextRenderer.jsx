@@ -54,7 +54,7 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
 
   const handleClick = (e) => {
     e.stopPropagation();
-    if (mode === 'editor' && !isPreview && isSelected && !editing) {
+    if (mode === 'editor' && !isPreview && !editing) {
       setEditing(true);
       setEditValue(actualComp?.props?.text || '');
     }
