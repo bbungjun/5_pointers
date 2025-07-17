@@ -608,6 +608,7 @@ export function useCollaboration({
     otherCursors,
     otherSelections,
     updateCursorPosition,
+    updateSelection, // 선택 상태 업데이트 함수 추가
     addComponent,
     updateComponent,
     updateComponentObject,
@@ -630,6 +631,7 @@ export function useCollaboration({
     otherCursors,
     otherSelections,
     updateCursorPosition,
+    updateSelection, // 선택 상태 업데이트 함수 추가
     addComponent,
     updateComponent,
     updateComponentObject,

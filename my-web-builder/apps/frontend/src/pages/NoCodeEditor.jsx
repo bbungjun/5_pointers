@@ -150,6 +150,7 @@ function NoCodeEditor({ pageId }) {
     otherCursors = [],
     otherSelections = [],
     updateCursorPosition = () => {},
+    updateSelection = () => {},
     addComponent = () => {},
     updateComponent = () => {},
     updateComponentObject = () => {},
@@ -314,6 +315,8 @@ function NoCodeEditor({ pageId }) {
       if (e.key === 'Escape') {
         setSelectedIds([]);
         interaction.setSelectedId(null);
+        // 협업 시스템에 선택 해제 알림
+        updateSelection([], interaction.viewport);
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -364,7 +367,9 @@ function NoCodeEditor({ pageId }) {
     } else {
       interaction.setSelectedId(null);
     }
-  }, [interaction.setSelectedId]);
+    // 협업 시스템에 다중 선택 알림
+    updateSelection(ids, interaction.viewport);
+  }, [interaction.setSelectedId, interaction.viewport, updateSelection]);
 
   // 컴포넌트 선택 핸들러 (Ctrl+클릭 지원)
   const handleSelect = useCallback((id, isCtrlPressed = false) => {
@@ -372,6 +377,8 @@ function NoCodeEditor({ pageId }) {
       // 빈 영역 클릭 시 선택 해제
       setSelectedIds([]);
       interaction.setSelectedId(null);
+      // 협업 시스템에 선택 해제 알림
+      updateSelection([], interaction.viewport);
       return;
     }
 
@@ -383,8 +390,12 @@ function NoCodeEditor({ pageId }) {
         setSelectedIds(newSelectedIds);
         if (newSelectedIds.length === 1) {
           interaction.setSelectedId(newSelectedIds[0]);
+          // 협업 시스템에 단일 선택 알림
+          updateSelection(newSelectedIds, interaction.viewport);
         } else if (newSelectedIds.length === 0) {
           interaction.setSelectedId(null);
+          // 협업 시스템에 선택 해제 알림
+          updateSelection([], interaction.viewport);
         }
       } else {
         // 새로운 컴포넌트를 다중 선택에 추가
@@ -393,13 +404,17 @@ function NoCodeEditor({ pageId }) {
         if (newSelectedIds.length === 1) {
           interaction.setSelectedId(id);
         }
+        // 협업 시스템에 다중 선택 알림
+        updateSelection(newSelectedIds, interaction.viewport);
       }
     } else {
       // 일반 클릭 시 단일 선택 (기존 다중 선택 해제)
       setSelectedIds([id]);
       interaction.setSelectedId(id);
+      // 협업 시스템에 단일 선택 알림
+      updateSelection([id], interaction.viewport);
     }
-  }, [selectedIds, interaction.setSelectedId]);
+  }, [selectedIds, interaction.setSelectedId, interaction.viewport, updateSelection]);
 
   // 자동저장 훅 (컴포넌트 변경 시에만 저장)
   const { isSaving, lastSaved, saveError, saveCount, saveNow } = useAutoSave(
