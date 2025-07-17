@@ -307,7 +307,11 @@ export function useCollaboration({
     const handleCanvasSettingsChange = () => {
       try {
         const settings = yCanvasSettings.toJSON();
-        console.log('🔄 캔버스 설정 동기화:', settings);
+        
+        // 빈 객체가 아닐 때만 로그 출력
+        if (Object.keys(settings).length > 0) {
+          console.log('🔄 캔버스 설정 동기화:', settings);
+        }
         
         // 캔버스 높이 변경사항을 부모 컴포넌트에 알림
         if (settings.canvasHeight !== undefined) {
@@ -320,9 +324,11 @@ export function useCollaboration({
       }
     };
 
-    // 초기 데이터 로드 (즉시 실행)
-    handleComponentsChange();
-    handleCanvasSettingsChange();
+    // 초기 데이터 로드 (즉시 실행) - 중복 방지
+    if (!initialLoadRef.current) {
+      handleComponentsChange();
+      handleCanvasSettingsChange();
+    }
 
     try {
       yComponents.observe(handleComponentsChange);
@@ -360,14 +366,14 @@ export function useCollaboration({
     if (isConnected && ydoc && componentsArrayRef.current) {
       const yComponents = componentsArrayRef.current;
       
-      // 연결 완료 후 템플릿 데이터가 있는지 확인하고 강제 동기화
+      // 연결 완료 후 템플릿 데이터가 있는지 확인하고 강제 동기화 (중복 방지)
       const forceSyncTimer = setTimeout(async () => {
-        if (yComponents.length > 0 && !initialSyncRef.current) {
+        if (yComponents.length > 0 && !initialSyncRef.current && !initialLoadRef.current) {
           console.log('🔄 기존 데이터 강제 동기화 시도...');
           const componentsData = yComponents.toArray();
           safeOnComponentsUpdate(componentsData);
           initialSyncRef.current = true;
-        } else if (yComponents.length === 0) {
+        } else if (yComponents.length === 0 && !initialSyncRef.current) {
           // 템플릿 데이터가 없으면 강제로 가져오기 시도
           console.log('🎯 템플릿 데이터 없음, 강제 동기화 시도...');
           const synced = await forceTemplateSync();
@@ -381,38 +387,38 @@ export function useCollaboration({
     }
   }, [isConnected, ydoc, safeOnComponentsUpdate, forceTemplateSync]);
 
-  // 채팅 메시지 처리
-  useEffect(() => {
-    if (!awareness) return;
+  // 채팅 메시지 처리 (useChat 훅에서 처리하므로 여기서는 제거)
+  // useEffect(() => {
+  //   if (!awareness) return;
 
-    const handleAwarenessChange = () => {
-      const states = awareness.getStates();
-      const now = Date.now();
+  //   const handleAwarenessChange = () => {
+  //     const states = awareness.getStates();
+  //     const now = Date.now();
 
-      states.forEach((state, clientId) => {
-        // 자신의 상태는 제외
-        if (clientId === awareness.clientID) return;
+  //     states.forEach((state, clientId) => {
+  //       // 자신의 상태는 제외
+  //       if (clientId === awareness.clientID) return;
 
-        const { chatMessage } = state;
+  //       const { chatMessage } = state;
 
-        // 채팅 메시지 처리 (최근 1초 내 데이터만)
-        if (chatMessage && (now - chatMessage.timestamp) < 1000) {
-          handleChatMessageReceived(chatMessage);
+  //       // 채팅 메시지 처리 (최근 1초 내 데이터만)
+  //       if (chatMessage && (now - chatMessage.timestamp) < 1000) {
+  //         handleChatMessageReceived(chatMessage);
           
-          // 메시지 처리 후 Awareness에서 제거
-          setTimeout(() => {
-            awareness.setLocalStateField('chatMessage', null);
-          }, 100);
-        }
-      });
-    };
+  //         // 메시지 처리 후 Awareness에서 제거
+  //         setTimeout(() => {
+  //           awareness.setLocalStateField('chatMessage', null);
+  //         }, 100);
+  //       }
+  //     });
+  //   };
 
-    awareness.on('change', handleAwarenessChange);
+  //   awareness.on('change', handleAwarenessChange);
 
-    return () => {
-      awareness.off('change', handleAwarenessChange);
-    };
-  }, [awareness, handleChatMessageReceived]);
+  //   return () => {
+  //     awareness.off('change', handleAwarenessChange);
+  //   };
+  // }, [awareness, handleChatMessageReceived]);
 
   // Y.js 연결 완료 후 복구 처리 (개선됨)
   useEffect(() => {
@@ -429,16 +435,19 @@ export function useCollaboration({
     } else {
       console.log('🔗 Y.js 연결 완료, 기존 데이터 있음:', yComponents.length, '개 컴포넌트');
       hasRestoredRef.current = true;
-      // 기존 데이터가 있으면 즉시 로드
-      const componentsData = yComponents.toArray();
-      safeOnComponentsUpdate(componentsData);
+      // 기존 데이터가 있으면 즉시 로드 (중복 방지)
+      if (!initialLoadRef.current) {
+        const componentsData = yComponents.toArray();
+        safeOnComponentsUpdate(componentsData);
+      }
       
-      // 템플릿 시작 시 모든 사용자에게 즉시 동기화
-      if (isConnected) {
+      // 템플릿 시작 시 모든 사용자에게 즉시 동기화 (한 번만)
+      if (isConnected && !initialSyncRef.current) {
         setTimeout(() => {
           console.log('🔄 기존 데이터를 모든 사용자에게 동기화...');
           const currentData = yComponents.toArray();
           safeOnComponentsUpdate(currentData);
+          initialSyncRef.current = true;
         }, 200);
       }
     }
