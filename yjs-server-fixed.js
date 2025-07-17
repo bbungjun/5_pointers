@@ -1,5 +1,5 @@
 /**
- * Y.js WebSocket 서버
+ * Y.js WebSocket 서버 (y-websocket 호환 버전)
  * 
  * 1234 포트에서 HTTP/WS와 WSS를 모두 지원
  */
@@ -44,6 +44,8 @@ console.log(`🌐 외부 IP: ${externalIP}`);
 const docs = new Map();
 // 룸별 클라이언트 연결 관리
 const roomClients = new Map();
+// 클라이언트별 룸 정보 저장
+const clientRooms = new Map();
 
 // SSL 인증서 설정 (환경별 분기)
 let httpsOptions = null;
@@ -107,6 +109,7 @@ if (httpsOptions) {
   });
 }
 
+// WebSocket 서버 설정
 const wss = new WebSocketServer({ 
   server: server,
   verifyClient: (info) => {
@@ -127,44 +130,53 @@ if (httpsServer) {
   });
 }
 
-// 공통 연결 핸들러 함수
-function handleConnection(ws, req, isSecure = false) {
+// y-websocket 호환 함수 (setupWSConnection)
+const setupWSConnection = (ws, req, isSecure = false) => {
   const protocol = isSecure ? 'https' : 'http';
   const url = new URL(req.url, `${protocol}://${req.headers.host}`);
   
-  // WebsocketProvider는 URL 경로에 룸 이름을 포함합니다
-  // 예: /page:b53b2ee5-0445-47d0-bab8-1ef795fe65c5
+  // URL에서 룸 이름 추출
   const pathSegments = url.pathname.split('/').filter(segment => segment);
-  let roomname = 'default';
+  let roomName = 'default';
   
   if (pathSegments.length > 0) {
-    roomname = pathSegments[pathSegments.length - 1]; // 마지막 세그먼트가 룸 이름
+    roomName = pathSegments[pathSegments.length - 1]; // 마지막 세그먼트가 룸 이름
   }
   
-  console.log(`🔄 새로운 연결 (${isSecure ? 'WSS' : 'WS'}): Room ${roomname} (${req.socket.remoteAddress})`);
+  // URL 파라미터 파싱
+  const params = {};
+  url.searchParams.forEach((value, key) => {
+    params[key] = value;
+  });
+  
+  console.log(`🔄 새로운 연결 (${isSecure ? 'WSS' : 'WS'}): Room ${roomName} (${req.socket.remoteAddress})`);
+  console.log(`📝 파라미터:`, params);
   
   // 룸별 클라이언트 목록 초기화
-  if (!roomClients.has(roomname)) {
-    roomClients.set(roomname, new Set());
+  if (!roomClients.has(roomName)) {
+    roomClients.set(roomName, new Set());
   }
   
   // 현재 클라이언트를 해당 룸에 추가
-  roomClients.get(roomname).add(ws);
+  roomClients.get(roomName).add(ws);
+  
+  // 클라이언트와 룸 연결 정보 저장
+  clientRooms.set(ws, roomName);
   
   // 연결된 클라이언트 수 로깅
-  console.log(`📊 Room ${roomname} 현재 연결 수: ${roomClients.get(roomname).size}`);
+  console.log(`📊 Room ${roomName} 현재 연결 수: ${roomClients.get(roomName).size}`);
   
   // Y.js 문서 가져오기 또는 생성
-  if (!docs.has(roomname)) {
-    docs.set(roomname, new Y.Doc());
+  if (!docs.has(roomName)) {
+    docs.set(roomName, new Y.Doc());
   }
-  const doc = docs.get(roomname);
+  const doc = docs.get(roomName);
   
   // 메시지 핸들러
   ws.on('message', (message) => {
     try {
       // 같은 룸의 다른 클라이언트들에게만 메시지 브로드캐스트
-      const currentRoomClients = roomClients.get(roomname);
+      const currentRoomClients = roomClients.get(roomName);
       if (currentRoomClients) {
         let broadcastCount = 0;
         currentRoomClients.forEach((client) => {
@@ -176,7 +188,7 @@ function handleConnection(ws, req, isSecure = false) {
         
         // 디버깅용 로깅 (너무 자주 출력되지 않도록 제한)
         if (broadcastCount > 0 && Math.random() < 0.01) { // 1% 확률로만 로깅
-          console.log(`📡 Room ${roomname}: ${broadcastCount}개 클라이언트에게 메시지 브로드캐스트`);
+          console.log(`📡 Room ${roomName}: ${broadcastCount}개 클라이언트에게 메시지 브로드캐스트`);
         }
       }
     } catch (error) {
@@ -185,37 +197,48 @@ function handleConnection(ws, req, isSecure = false) {
   });
   
   ws.on('close', () => {
-    console.log(`🔌 연결 종료: Room ${roomname} (${req.socket.remoteAddress})`);
+    console.log(`🔌 연결 종료: Room ${roomName} (${req.socket.remoteAddress})`);
     
     // 클라이언트를 룸에서 제거
-    const currentRoomClients = roomClients.get(roomname);
+    const currentRoomClients = roomClients.get(roomName);
     if (currentRoomClients) {
       currentRoomClients.delete(ws);
       
-      console.log(`📊 Room ${roomname} 남은 연결 수: ${currentRoomClients.size}`);
+      console.log(`📊 Room ${roomName} 남은 연결 수: ${currentRoomClients.size}`);
       
       // 룸에 클라이언트가 없으면 룸 정리
       if (currentRoomClients.size === 0) {
-        roomClients.delete(roomname);
-        docs.delete(roomname);
-        console.log(`🧹 Room ${roomname} 정리됨`);
+        roomClients.delete(roomName);
+        docs.delete(roomName);
+        console.log(`🧹 Room ${roomName} 정리됨`);
       }
     }
+    
+    // 클라이언트-룸 연결 정보 삭제
+    clientRooms.delete(ws);
   });
   
   ws.on('error', (error) => {
-    console.error(`❌ WebSocket 오류 (Room ${roomname}):`, error);
+    console.error(`❌ WebSocket 오류 (Room ${roomName}):`, error);
   });
-}
+  
+  // 연결 성공 응답
+  ws.send(JSON.stringify({
+    type: 'connection-established',
+    roomName: roomName,
+    params: params
+  }));
+};
 
+// HTTP WebSocket 서버 연결 핸들러
 wss.on('connection', (ws, req) => {
-  handleConnection(ws, req, false);
+  setupWSConnection(ws, req, false);
 });
 
 // HTTPS WebSocket 서버 연결 핸들러
 if (httpsWss) {
   httpsWss.on('connection', (ws, req) => {
-    handleConnection(ws, req, true);
+    setupWSConnection(ws, req, true);
   });
 }
 
@@ -281,4 +304,4 @@ process.on('SIGINT', () => {
     console.log('✅ 모든 서버가 종료되었습니다.');
     process.exit(0);
   });
-}); 
+});
