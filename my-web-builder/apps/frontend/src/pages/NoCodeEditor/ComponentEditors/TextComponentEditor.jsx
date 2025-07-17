@@ -62,7 +62,7 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
       />
 
       <TextAlignEditor
-        value={selectedComp.props?.textAlign || 'left'}
+        value={selectedComp.props?.textAlign || 'center'}
         onChange={(value) => updateProperty('textAlign', value)}
         label="텍스트 정렬"
       />
