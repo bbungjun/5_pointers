@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { useYjsCollaboration } from './useYjsCollaboration';
 import { useLiveCursors } from './useLiveCursors';
+import { useChat } from './useChat';
 import { API_BASE_URL } from '../config';
 
 /**
@@ -45,6 +46,19 @@ export function useCollaboration({
     updateSelection,
     updateCursorPosition,
   } = useLiveCursors(awareness, safeCanvasRef);
+
+  // 채팅 관리
+  const {
+    chatMessages,
+    isChatInputOpen,
+    chatInputPosition,
+    cursorPosition,
+    sendChatMessage,
+    openChatInput,
+    closeChatInput,
+    removeChatMessage,
+    handleChatMessageReceived,
+  } = useChat(awareness, safeUserInfo);
 
   // DB 복구 상태 추적
   const hasRestoredRef = useRef(false);
@@ -367,6 +381,39 @@ export function useCollaboration({
     }
   }, [isConnected, ydoc, safeOnComponentsUpdate, forceTemplateSync]);
 
+  // 채팅 메시지 처리
+  useEffect(() => {
+    if (!awareness) return;
+
+    const handleAwarenessChange = () => {
+      const states = awareness.getStates();
+      const now = Date.now();
+
+      states.forEach((state, clientId) => {
+        // 자신의 상태는 제외
+        if (clientId === awareness.clientID) return;
+
+        const { chatMessage } = state;
+
+        // 채팅 메시지 처리 (최근 1초 내 데이터만)
+        if (chatMessage && (now - chatMessage.timestamp) < 1000) {
+          handleChatMessageReceived(chatMessage);
+          
+          // 메시지 처리 후 Awareness에서 제거
+          setTimeout(() => {
+            awareness.setLocalStateField('chatMessage', null);
+          }, 100);
+        }
+      });
+    };
+
+    awareness.on('change', handleAwarenessChange);
+
+    return () => {
+      awareness.off('change', handleAwarenessChange);
+    };
+  }, [awareness, handleChatMessageReceived]);
+
   // Y.js 연결 완료 후 복구 처리 (개선됨)
   useEffect(() => {
     if (!ydoc || hasRestoredRef.current) return;
@@ -623,6 +670,15 @@ export function useCollaboration({
     forceTemplateSync, // 템플릿 강제 동기화 함수 추가
     setComponentDragging, // 드래그 상태 설정
     isComponentDragging, // 드래그 상태 확인
+    // 채팅 관련 함수들
+    chatMessages,
+    isChatInputOpen,
+    chatInputPosition,
+    cursorPosition,
+    sendChatMessage,
+    openChatInput,
+    closeChatInput,
+    removeChatMessage,
     isConnected,
     connectionError,
     ydoc,
@@ -646,6 +702,15 @@ export function useCollaboration({
     forceTemplateSync,
     setComponentDragging,
     isComponentDragging,
+    // 채팅 관련 의존성
+    chatMessages,
+    isChatInputOpen,
+    chatInputPosition,
+    cursorPosition,
+    sendChatMessage,
+    openChatInput,
+    closeChatInput,
+    removeChatMessage,
     isConnected,
     connectionError,
     ydoc,

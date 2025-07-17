@@ -15,6 +15,8 @@ import InviteModal from './NoCodeEditor/components/InviteModal';
 import CanvasComponent from './NoCodeEditor/components/CanvasComponent';
 import UserCursor from './NoCodeEditor/components/UserCursor';
 import WebSocketConnectionGuide from '../components/WebSocketConnectionGuide';
+import ChatBubble from '../components/collaboration/ChatBubble';
+import ChatInput from '../components/collaboration/ChatInput';
 
 // 훅들
 import { usePageDataManager } from '../hooks/usePageDataManager';
@@ -161,6 +163,16 @@ function NoCodeEditor({ pageId }) {
     redo = () => {},
     getHistory = () => ({ canUndo: false, canRedo: false }),
     setHistory = () => {},
+    // 채팅 관련 기본값
+    chatMessages = [],
+    isChatInputOpen = false,
+    chatInputPosition = { x: 0, y: 0 },
+    cursorPosition = { x: 0, y: 0 },
+    sendChatMessage = () => {},
+    openChatInput = () => {},
+    closeChatInput = () => {},
+    resetAutoCloseTimer = () => {},
+    removeChatMessage = () => {},
     isConnected = false,
     connectionError = null,
   } = collaboration || {};
@@ -205,6 +217,8 @@ function NoCodeEditor({ pageId }) {
       throttledUpdateCursorPositionRef.current(...args);
     }
   }, []);
+
+
 
   // 컴포넌트 선택 시 스크롤 이동
   useEffect(() => {
@@ -317,6 +331,13 @@ function NoCodeEditor({ pageId }) {
         interaction.setSelectedId(null);
         // 협업 시스템에 선택 해제 알림
         updateSelection([], interaction.viewport);
+      }
+
+      // '/': 채팅 입력 열기
+      if (e.key === '/') {
+        e.preventDefault();
+        // 현재 커서 위치를 사용하여 채팅 입력 열기
+        openChatInput(cursorPosition.x, cursorPosition.y);
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -601,6 +622,7 @@ function NoCodeEditor({ pageId }) {
                 interaction.zoom
               )
             }
+            openChatInput={openChatInput}
           />
         </div>
 
@@ -645,6 +667,37 @@ function NoCodeEditor({ pageId }) {
           }
         }}
       />
+
+      {/* 채팅 UI */}
+      {/* 채팅 메시지 버블들 */}
+      {chatMessages.map((msg) => (
+        <ChatBubble
+          key={msg.id}
+          x={msg.position?.x || 0}
+          y={msg.position?.y || 0}
+          user={msg.user}
+          message={msg.message}
+          timestamp={msg.timestamp}
+          onClose={() => removeChatMessage(msg.id)}
+          isOwnMessage={msg.user?.id === userInfo?.id}
+          followCursor={false}
+        />
+      ))}
+
+      {/* 채팅 입력 UI */}
+      {isChatInputOpen && (
+        <ChatInput
+          x={cursorPosition.x}
+          y={cursorPosition.y}
+          user={userInfo}
+          onSend={(message) => {
+            sendChatMessage(message, cursorPosition);
+          }}
+          onCancel={closeChatInput}
+          onInput={resetAutoCloseTimer}
+          followCursor={true}
+        />
+      )}
 
       {/* WebSocket 연결 안내 UI */}
       {connectionError && (
