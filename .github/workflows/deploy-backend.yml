@@ -47,6 +47,7 @@ jobs:
           echo "GOOGLE_CALLBACK_URL=https://ddukddak.org/social-callback?provider=google" >> .env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_REST_API_KEY }}" >> .env
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
+          echo "KAKAO_JS_KEY=${{ secrets.KAKAO_JS_KEY }}" >> .env
           echo "KAKAO_CALLBACK_URL=https://ddukddak.org/social-callback?provider=kakao" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "JWT_EXPIRES_IN=1d" >> .env
