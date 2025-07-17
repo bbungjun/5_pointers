@@ -329,7 +329,6 @@ export function useCollaboration({
       handleComponentsChange();
       handleCanvasSettingsChange();
     }
-
     try {
       yComponents.observe(handleComponentsChange);
       yCanvasSettings.observe(handleCanvasSettingsChange);
