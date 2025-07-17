@@ -241,7 +241,6 @@ function GridGalleryRenderer({ comp, onUpdate, mode = 'live', width, height }) {
           }}
           onClick={() => setModalOpen(false)}
         >
-
           <div
             style={{
               position: 'fixed',
@@ -385,45 +384,10 @@ function GridGalleryRenderer({ comp, onUpdate, mode = 'live', width, height }) {
                     opacity: 0.7,
                   }}
                 >
-                  ›
-                </button>
-              </>
-            )}
-
-            {/* 캡션 */}
-            {showCaption && images[currentImageIndex]?.caption && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "-40px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  color: "white",
-                  fontSize: "14px",
-                  textAlign: "center",
-                  maxWidth: "80%"
-                }}
-              >
-                {images[currentImageIndex].caption}
-              </div>
-            )}
-
-            {/* 카운터 */}
-            {images.length > 1 && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "-70px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  color: "white",
-                  fontSize: "12px",
-                  opacity: 0.7
-                }}
-              >
-                {currentImageIndex + 1} / {images.length}
-              </div>
-            )}
+                  {currentImageIndex + 1} / {images.length}
+                </div>
+              )}
+            </div>
           </div>
         </div>,
         document.body
