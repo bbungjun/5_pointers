@@ -84,7 +84,7 @@ const DynamicPageRenderer = ({
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [scaleFactor, setScaleFactor] = useState(1);
-  const containerRef = useRef(null); // 컨테이너 참조 추가
+  const containerRef = useRef<HTMLDivElement>(null); // 컨테이너 참조 추가
 
   useEffect(() => {
     setIsMounted(true);
