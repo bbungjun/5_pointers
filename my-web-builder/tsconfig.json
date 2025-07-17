@@ -20,6 +20,13 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["packages/*/src"],
-  "exclude": ["node_modules", "**/node_modules", "dist", "**/dist", ".next", "**/.next"]
+  "include": ["apps/**/*"],
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "dist",
+    "**/dist",
+    ".next",
+    "**/.next"
+  ]
 }

@@ -87,12 +87,10 @@ const DynamicPageRenderer = ({
 }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
-  const [scaleFactor, setScaleFactor] = useState(1);
   const [mobileScale, setMobileScale] = useState(1);
   const [desktopScale, setDesktopScale] = useState(1);
   const BASE_DESKTOP_WIDTH = 1920;
   const BASE_MOBILE_WIDTH = 375;
-  const containerRef = useRef(null); // 컨테이너 참조 추가
 
   useEffect(() => {
     setIsMounted(true);
@@ -140,52 +138,6 @@ const DynamicPageRenderer = ({
     );
   }
 
-  // 모바일에서 행 기반 레이아웃 사용
-  const groupComponentsIntoRows = (components: ComponentData[]) => {
-    if (!components || components.length === 0) return [];
-
-    const sortedComponents = [...components].sort(
-      (a, b) => (a.y || 0) - (b.y || 0)
-    );
-    const rows: ComponentData[][] = [];
-
-    for (const component of sortedComponents) {
-      const compTop = component.y || 0;
-      const compBottom =
-        compTop +
-        (component.height || getComponentDefaultSize(component.type).height);
-
-      let targetRow = null;
-
-      for (const row of rows) {
-        const hasOverlap = row.some((existingComp) => {
-          const existingTop = existingComp.y || 0;
-          const existingBottom =
-            existingTop +
-            (existingComp.height ||
-              getComponentDefaultSize(existingComp.type).height);
-          return (
-            Math.max(compTop, existingTop) <
-            Math.min(compBottom, existingBottom)
-          );
-        });
-
-        if (hasOverlap) {
-          targetRow = row;
-          break;
-        }
-      }
-
-      if (targetRow) {
-        targetRow.push(component);
-      } else {
-        rows.push([component]);
-      }
-    }
-
-    return rows.map((row) => [...row].sort((a, b) => (a.x || 0) - (b.x || 0)));
-  };
-
   const getComponentDefaultSize = (componentType: string) => {
     const defaultSizes: { [key: string]: { width: number; height: number } } = {
       slido: { width: 400, height: 300 },
@@ -199,11 +151,6 @@ const DynamicPageRenderer = ({
     };
     return defaultSizes[componentType] || defaultSizes.default;
   };
-
-  const rows = isMobileView ? groupComponentsIntoRows(components) : null;
-  const sortedComponents = !isMobileView
-    ? [...components].sort((a, b) => (a.y || 0) - (b.y || 0))
-    : null;
 
   // 3. renderDesktopLayout 함수 정의
   const renderDesktopLayout = () => {
@@ -282,11 +229,13 @@ const DynamicPageRenderer = ({
   };
 
   // ✅ 스케일링 전용 렌더링 함수: 이제 인자를 받도록 수정
-  const renderMobileScalingLayout = (componentsToRender) => {
+  const renderMobileScalingLayout = (componentsToRender: ComponentData[]) => {
     const contentHeight =
       Math.max(
         0,
-        ...componentsToRender.map((c) => (c.y || 0) + (c.height || 0))
+        ...componentsToRender.map(
+          (c: ComponentData) => (c.y || 0) + (c.height || 0)
+        )
       ) + 50;
 
     return (
@@ -301,7 +250,7 @@ const DynamicPageRenderer = ({
             transformOrigin: 'top left',
           }}
         >
-          {componentsToRender.map((comp) => {
+          {componentsToRender.map((comp: ComponentData) => {
             const RendererComponent = getRendererByType(comp.type);
             if (!RendererComponent) return null;
             return (
@@ -344,18 +293,23 @@ const DynamicPageRenderer = ({
 
       const repositionedComponents = [];
       let currentY = 0; // ❗️ 상단 여백을 0으로 시작합니다. 필요하다면 나중에 추가합니다.
-      
+
       // ❗️ 패딩 없이 캔버스 너비를 꽉 채웁니다.
       const mobileCanvasContentWidth = BASE_MOBILE_WIDTH;
 
       for (const comp of sortedComponents) {
-        const originalWidth = comp.width || getComponentDefaultSize(comp.type).width;
-        const originalHeight = comp.height || getComponentDefaultSize(comp.type).height;
-        
+        const originalWidth =
+          comp.width || getComponentDefaultSize(comp.type).width;
+        const originalHeight =
+          comp.height || getComponentDefaultSize(comp.type).height;
+
         // 비율에 맞게 새 높이 계산
         const aspectRatio = originalHeight / originalWidth;
         // originalWidth가 0인 경우를 방지
-        const newHeight = originalWidth > 0 ? mobileCanvasContentWidth * aspectRatio : originalHeight;
+        const newHeight =
+          originalWidth > 0
+            ? mobileCanvasContentWidth * aspectRatio
+            : originalHeight;
 
         repositionedComponents.push({
           ...comp,
@@ -691,7 +645,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     // 컴포넌트 크기 데이터 확인
     console.log(
       '🔧 API에서 받은 컴포넌트 데이터:',
-      pageData.components.map((comp) => ({
+      pageData.components.map((comp: ComponentData) => ({
         id: comp.id,
         type: comp.type,
         width: comp.width,
