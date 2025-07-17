@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 function AttendRenderer({ comp, mode = 'live', pageId }) {
   const formType = comp.props?.formType || 'attendance';
@@ -59,28 +60,7 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
   useEffect(() => {
     setFormData(getInitialFormData());
   }, [formType]);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 375);
 
-  // 실제 화면 크기 기준으로 스케일 팩터 계산
-  const baseWidth = 375; // 기준 너비
-  const actualWidth = windowWidth;
-  const scaleFactor = Math.min(actualWidth / baseWidth, 1.5); // 최대 1.5배까지만 확대
-
-  // 원본 크기 정보 (더 작은 기본 크기로 설정)
-  const containerWidth = comp.width || 280;
-  const containerHeight = comp.height || 120; // 160 → 120으로 줄임
-
-  // 화면 크기 변경 시 리렌더링
-  useEffect(() => {
-    if (mode === 'live' && typeof window !== 'undefined') {
-      const handleResize = () => {
-        setWindowWidth(window.innerWidth);
-      };
-
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [mode]);
 
   const handleSubmit = async () => {
     // 필수 필드 검증
@@ -187,64 +167,48 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
   };
 
   const containerStyle = {
-    width: mode === 'live' ? '100%' : '100%',
-    height:
-      mode === 'live'
-        ? `${containerHeight * scaleFactor}px`
-        : `${containerHeight}px`,
-    backgroundColor: comp.props?.backgroundColor || '#f8f9fa',
-    boxShadow:
-      '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-    textAlign: 'center',
+
+    width: '100%',
+    height: '100%',
+
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    padding: '12px', // 16px → 12px로 줄임
     fontFamily: '"Playfair Display", serif',
-    boxSizing: 'border-box',
-    borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
-    padding: mode === 'live' ? `${12 * scaleFactor}px` : '12px', // 16px → 12px로 줄임
-    minHeight:
-      mode === 'live'
-        ? `${containerHeight * scaleFactor}px`
-        : `${containerHeight}px`,
+
+    backgroundColor: comp.props?.backgroundColor || '#f8f9fa',
+    borderRadius: comp.props?.borderRadius || '8px',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+
   };
 
   return (
     <div style={containerStyle}>
       {/* 제목 영역 */}
-      <div
-        style={{
-          textAlign: 'center',
-          marginBottom: mode === 'live' ? `${12 * scaleFactor}px` : '12px', // 16px → 12px로 줄임
-        }}
-      >
-        <h3
-          style={{
-            fontSize:
-              mode === 'live'
-                ? `${(parseInt(comp.props?.titleFontSize) || 18) * scaleFactor}px`
-                : comp.props?.titleFontSize || '18px',
-            fontWeight: '600',
-            color: comp.props?.titleColor || '#1f2937',
-            margin: `0 0 ${mode === 'live' ? 6 * scaleFactor : 6}px 0`, // 8px → 6px로 줄임
-            fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
-          }}
-        >
+
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '12px', // 16px → 12px로 줄임
+      }}>
+        <h3 style={{
+          fontSize: comp.props?.titleFontSize || '18px',
+          fontWeight: '600',
+          color: comp.props?.titleColor || '#1f2937',
+          margin: '0 0 20px 0', // 8px → 6px로 줄임
+          fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+        }}>
           {comp.props?.title || '참석 여부 확인'}
         </h3>
         {comp.props?.description && (
-          <p
-            style={{
-              fontSize:
-                mode === 'live'
-                  ? `${(parseInt(comp.props?.descriptionFontSize) || 14) * scaleFactor}px`
-                  : comp.props?.descriptionFontSize || '14px',
-              color: comp.props?.descriptionColor || '#6b7280',
-              margin: '0',
-              lineHeight: '1.4', // 1.5 → 1.4로 줄임
-              fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
-            }}
-          >
+          <p style={{
+            fontSize: comp.props?.descriptionFontSize || '14px',
+            color: comp.props?.descriptionColor || '#6b7280',
+            margin: '0',
+            lineHeight: '1.4', // 1.5 → 1.4로 줄임
+            fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+          }}>
+
             {comp.props.description}
           </p>
         )}
@@ -254,38 +218,39 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
       <div style={{ marginTop: 'auto' }}>
         <button
         onClick={
-          mode === 'editor' 
+          mode === 'editor' || isEditor === true
             ? undefined
             : (e) => {
                 e.stopPropagation();
                 setIsModalOpen(true);
               }
         }
-        disabled={mode === 'editor'}
+        disabled={mode === 'editor' || isEditor === true}
         style={{
-          backgroundColor: mode === 'editor' ? '#d1d5db' : (comp.props?.buttonColor || '#9CAF88'),
-          color: mode === 'editor' ? '#9ca3af' : (comp.props?.buttonTextColor || 'white'),
+          backgroundColor: (mode === 'editor' || isEditor === true) ? '#d1d5db' : (comp.props?.buttonColor || '#9CAF88'),
+          color: (mode === 'editor' || isEditor === true) ? '#9ca3af' : (comp.props?.buttonTextColor || 'white'),
           border: 'none',
-          borderRadius: mode === 'live' ? `${(parseInt(comp.props?.borderRadius) || 8) * scaleFactor}px` : comp.props?.borderRadius || '8px',
-          padding: mode === 'live' ? `${12 * scaleFactor}px ${24 * scaleFactor}px` : '12px 24px',
-          fontSize: mode === 'live' ? `${(parseInt(comp.props?.fontSize) || 16) * scaleFactor}px` : comp.props?.fontSize || '16px',
+          borderRadius: comp.props?.borderRadius || '8px',
+          padding: '12px 24px',
+          marginBottom : '10px',
+          fontSize: comp.props?.fontSize || '16px',
           fontWeight: '500',
           fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
-          cursor: mode === 'editor' ? 'not-allowed' : 'pointer',
+          cursor: (mode === 'editor' || isEditor === true) ? 'not-allowed' : 'pointer',
           transition: 'all 0.2s ease',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           width: '100%',
-          opacity: mode === 'editor' ? 0.5 : 1,
-          ...(mode === 'editor' ? { pointerEvents: 'none' } : {}),
+          opacity: (mode === 'editor' || isEditor === true) ? 0.5 : 1,
+          pointerEvents: (mode === 'editor' || isEditor === true) ? 'none' : 'auto',
         }}
         onMouseEnter={(e) => {
-          if (mode !== 'editor') {
+          if (!(mode === 'editor' || isEditor === true)) {
             e.target.style.opacity = '0.9';
             e.target.style.transform = 'translateY(-1px)';
           }
         }}
         onMouseLeave={(e) => {
-          if (mode !== 'editor') {
+          if (!(mode === 'editor' || isEditor === true)) {
             e.target.style.opacity = '1';
             e.target.style.transform = 'translateY(0)';
           }
@@ -295,7 +260,7 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
       </button>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && typeof document !== 'undefined' && createPortal(
         <div
           style={{
             position: 'fixed',
@@ -303,33 +268,34 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 1000,
+            zIndex: 99999999,
           }}
           onClick={() => setIsModalOpen(false)}
         >
           <div
             style={{
               backgroundColor: 'white',
-              borderRadius: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
-              padding: mode === 'live' ? `${32 * scaleFactor}px` : '32px',
+              borderRadius: '12px',
+              padding: '32px',
               width: '90%',
-              maxWidth: mode === 'live' ? `${400 * scaleFactor}px` : '400px',
+              maxWidth: '400px',
               maxHeight: '90vh',
               overflow: 'auto',
               position: 'relative',
-              boxShadow:
-                '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+              zIndex: 99999999,
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <h2 style={{
-              fontSize: mode === 'live' ? `${24 * scaleFactor}px` : '24px',
+              fontSize: '24px',
               fontWeight: '600',
-              marginBottom: mode === 'live' ? `${24 * scaleFactor}px` : '24px',
+              marginBottom: '24px',
               color: '#1f2937',
               textAlign: 'center',
               fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
@@ -339,13 +305,13 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
 
             {/* 동적 필드 렌더링 */}
             {currentConfig.fields.map((field) => (
-              <div key={field.name} style={{ marginBottom: mode === 'live' ? `${20 * scaleFactor}px` : '20px' }}>
+              <div key={field.name} style={{ marginBottom: '20px' }}>
                 {field.type === 'radio' ? (
                   <>
-                    <label style={labelStyle(comp, scaleFactor, mode)}>
+                    <label style={labelStyle(comp)}>
                       {field.label} {field.required && <span style={{ color: '#ef4444' }}>*</span>}
                     </label>
-                    <div style={{ display: 'flex', gap: mode === 'live' ? `${16 * scaleFactor}px` : '16px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                       {field.options.map((option) => (
                         <label key={option} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                           <input
@@ -353,16 +319,16 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
                             value={option}
                             checked={formData[field.name] === option}
                             onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
-                            style={{ marginRight: mode === 'live' ? `${8 * scaleFactor}px` : '8px' }}
+                            style={{ marginRight: '8px' }}
                           />
-                          <span style={textStyle(comp, scaleFactor, mode)}>{option}</span>
+                          <span style={textStyle(comp)}>{option}</span>
                         </label>
                       ))}
                     </div>
                   </>
                 ) : field.type === 'textarea' ? (
                   <>
-                    <label style={labelStyle(comp, scaleFactor, mode)}>
+                    <label style={labelStyle(comp)}>
                       {field.label} {field.required && <span style={{ color: '#ef4444' }}>*</span>}
                     </label>
                     <textarea
@@ -371,20 +337,20 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
                       placeholder={field.placeholder}
                       style={{
                         width: '100%',
-                        padding: mode === 'live' ? `${12 * scaleFactor}px ${16 * scaleFactor}px` : '12px 16px',
+                        padding: '12px 16px',
                         border: '1px solid #d1d5db',
-                        borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
-                        fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
+                        borderRadius: '8px',
+                        fontSize: '16px',
                         fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
                         boxSizing: 'border-box',
-                        minHeight: mode === 'live' ? `${80 * scaleFactor}px` : '80px',
+                        minHeight: '80px',
                         resize: 'vertical',
                       }}
                     />
                   </>
                 ) : (
                   <>
-                    <label style={labelStyle(comp, scaleFactor, mode)}>
+                    <label style={labelStyle(comp)}>
                       {field.label} {field.required && <span style={{ color: '#ef4444' }}>*</span>}
                     </label>
                     <input
@@ -400,10 +366,10 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
                       placeholder={field.placeholder}
                       style={{
                         width: '100%',
-                        padding: mode === 'live' ? `${12 * scaleFactor}px ${16 * scaleFactor}px` : '12px 16px',
+                        padding: '12px 16px',
                         border: '1px solid #d1d5db',
-                        borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
-                        fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
+                        borderRadius: '8px',
+                        fontSize: '16px',
                         fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
                         boxSizing: 'border-box',
                       }}
@@ -414,77 +380,50 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
             ))}
 
             {/* 개인정보 수집 동의 */}
-            <div
-              style={{
-                marginBottom:
-                  mode === 'live' ? `${32 * scaleFactor}px` : '32px',
-              }}
-            >
-              <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  cursor: 'pointer',
-                  fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
-                  fontFamily:
-                    comp.props?.fontFamily || '"Playfair Display", serif',
-                  color: '#374151',
-                  gap: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
-                }}
-              >
+
+            <div style={{ marginBottom: '32px' }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+                color: '#374151',
+                gap: '8px',
+              }}>
+
                 <input
                   type="checkbox"
                   checked={privacyConsent}
                   onChange={(e) => setPrivacyConsent(e.target.checked)}
-                  style={{
-                    marginTop: mode === 'live' ? `${2 * scaleFactor}px` : '2px',
-                  }}
+
+                  style={{ marginTop: '2px' }}
                 />
                 <div>
-                  <span
-                    style={{
-                      fontWeight: '500',
-                      fontSize:
-                        mode === 'live' ? `${14 * scaleFactor}px` : '14px',
-                    }}
-                  >
-                    개인정보 수집 및 이용 동의
-                  </span>
+                  <span style={{ 
+                    fontWeight: '500',
+                    fontSize: '14px'
+                  }}>개인정보 수집 및 이용 동의</span>
                   <span style={{ color: '#ef4444' }}> *</span>
-                  <div
-                    style={{
-                      marginTop:
-                        mode === 'live' ? `${4 * scaleFactor}px` : '4px',
-                      fontSize:
-                        mode === 'live' ? `${12 * scaleFactor}px` : '12px',
-                      color: '#6b7280',
-                    }}
-                  >
-                    참석 관련 업무 처리를 위해 개인정보 수집 및 이용에
-                    동의합니다.
+                  <div style={{ 
+                    marginTop: '4px', 
+                    fontSize: '12px', 
+                    color: '#6b7280' 
+                  }}>
+                    참석 관련 업무 처리를 위해 개인정보 수집 및 이용에 동의합니다.
+
                   </div>
                 </div>
               </label>
             </div>
 
             {/* 버튼 */}
-            <div
-              style={{
-                display: 'flex',
-                gap: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
-                justifyContent: 'flex-end',
-              }}
-            >
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => setIsModalOpen(false)}
-                style={buttonStyle(
-                  '#f3f4f6',
-                  '#374151',
-                  comp,
-                  false,
-                  scaleFactor,
-                  mode
-                )}
+                style={buttonStyle('#f3f4f6', '#374151', comp)}
+
               >
                 취소
               </button>
@@ -502,69 +441,60 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
                     const missingFields = requiredFields.filter(field => !formData[field.name] || formData[field.name].toString().trim() === '');
                     return (missingFields.length > 0 || !privacyConsent || isSubmitting)
                       ? '#d1d5db'
-                      : (comp.props?.buttonColor || '#9CAF88');
+                      : (comp.props?.buttonColor || '#475569');
                   })(),
-                  comp.props?.buttonTextColor || 'white',
+                  'white',
                   comp,
                   (() => {
                     const requiredFields = currentConfig.fields.filter(field => field.required);
                     const missingFields = requiredFields.filter(field => !formData[field.name] || formData[field.name].toString().trim() === '');
                     return missingFields.length > 0 || !privacyConsent || isSubmitting;
-                  })(),
-                  scaleFactor,
-                  mode
+                  })()
                 )}
               >
 {isSubmitting ? '전송 중...' : currentConfig.buttonText}
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
 }
 
-const labelStyle = (comp, scaleFactor = 1, mode = 'editor') => ({
+const labelStyle = (comp) => ({
   display: 'block',
-  marginBottom: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
-  fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
+  marginBottom: '8px',
+  fontSize: '16px',
   fontWeight: '500',
   color: '#374151',
   fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
 });
 
-const textStyle = (comp, scaleFactor = 1, mode = 'editor') => ({
-  fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
+const textStyle = (comp) => ({
+  fontSize: '16px',
   fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
 });
 
-const buttonStyle = (
-  bg,
-  color,
-  comp,
-  disabled = false,
-  scaleFactor = 1,
-  mode = 'editor'
-) => ({
-  padding:
-    mode === 'live'
-      ? `${12 * scaleFactor}px ${24 * scaleFactor}px`
-      : '12px 24px',
+
+const buttonStyle = (bg, color, comp, disabled = false) => ({
+  padding: '12px 24px',
+
   backgroundColor: bg,
   color,
   border: 'none',
-  borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
-  fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
+  borderRadius: '8px',
+  fontSize: '16px',
   fontWeight: '500',
   cursor: disabled ? 'not-allowed' : 'pointer',
   fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
   transition: 'all 0.2s ease',
 });
 
-const DynamicFormInput = ({ field, value, onChange, comp, scaleFactor = 1, mode = 'editor' }) => (
+const DynamicFormInput = ({ field, value, onChange, comp }) => (
   <>
-    <label style={labelStyle(comp, scaleFactor, mode)}>
+    <label style={labelStyle(comp)}>
       {field.label} {field.required && <span style={{ color: '#ef4444' }}>*</span>}
     </label>
     <input
@@ -580,10 +510,10 @@ const DynamicFormInput = ({ field, value, onChange, comp, scaleFactor = 1, mode 
       placeholder={field.placeholder}
       style={{
         width: '100%',
-        padding: mode === 'live' ? `${12 * scaleFactor}px ${16 * scaleFactor}px` : '12px 16px',
+        padding: '12px 16px',
         border: '1px solid #d1d5db',
-        borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
-        fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
+        borderRadius: '8px',
+        fontSize: '16px',
         fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
         boxSizing: 'border-box',
       }}
@@ -591,9 +521,9 @@ const DynamicFormInput = ({ field, value, onChange, comp, scaleFactor = 1, mode 
   </>
 );
 
-const FormInput = ({ label, type = 'text', value, onChange, placeholder, required = false, comp, scaleFactor = 1, mode = 'editor' }) => (
-  <div style={{ marginBottom: mode === 'live' ? `${20 * scaleFactor}px` : '20px' }}>
-    <label style={labelStyle(comp, scaleFactor, mode)}>
+const FormInput = ({ label, type = 'text', value, onChange, placeholder, required = false, comp }) => (
+  <div style={{ marginBottom: '20px' }}>
+    <label style={labelStyle(comp)}>
       {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
     </label>
     <input
@@ -603,13 +533,12 @@ const FormInput = ({ label, type = 'text', value, onChange, placeholder, require
       placeholder={placeholder}
       style={{
         width: '100%',
-        padding:
-          mode === 'live'
-            ? `${12 * scaleFactor}px ${16 * scaleFactor}px`
-            : '12px 16px',
+
+        padding: '12px 16px',
+
         border: '1px solid #d1d5db',
-        borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
-        fontSize: mode === 'live' ? `${16 * scaleFactor}px` : '16px',
+        borderRadius: '8px',
+        fontSize: '16px',
         fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
         boxSizing: 'border-box',
       }}

@@ -15,8 +15,10 @@
  * - enableModal: 모달 활성화 여부
  */
 
-import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+
 
 function GridGalleryRenderer({ comp, onUpdate, mode = 'live', width, height }) {
   // 컨테이너 크기 기준으로 스케일 팩터 계산
@@ -221,10 +223,25 @@ function GridGalleryRenderer({ comp, onUpdate, mode = 'live', width, height }) {
       </div>
 
       {/* 모달 */}
-      {modalOpen &&
-        images.length > 0 &&
-        typeof document !== 'undefined' &&
-        createPortal(
+
+      {modalOpen && images.length > 0 && typeof document !== 'undefined' && createPortal(
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 99999998,
+            padding: "20px"
+          }}
+          onClick={() => setModalOpen(false)}
+        >
+
           <div
             style={{
               position: 'fixed',
@@ -368,13 +385,50 @@ function GridGalleryRenderer({ comp, onUpdate, mode = 'live', width, height }) {
                     opacity: 0.7,
                   }}
                 >
-                  {currentImageIndex + 1} / {images.length}
-                </div>
-              )}
-            </div>
-          </div>,
-          document.body
-        )}
+                  ›
+                </button>
+              </>
+            )}
+
+            {/* 캡션 */}
+            {showCaption && images[currentImageIndex]?.caption && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "-40px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  color: "white",
+                  fontSize: "14px",
+                  textAlign: "center",
+                  maxWidth: "80%"
+                }}
+              >
+                {images[currentImageIndex].caption}
+              </div>
+            )}
+
+            {/* 카운터 */}
+            {images.length > 1 && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "-70px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  color: "white",
+                  fontSize: "12px",
+                  opacity: 0.7
+                }}
+              >
+                {currentImageIndex + 1} / {images.length}
+              </div>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+
     </>
   );
 }
