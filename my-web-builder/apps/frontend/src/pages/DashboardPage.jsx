@@ -482,30 +482,26 @@ function DashboardPage({ user, onLogout }) {
         className="bg-gradient-to-r from-pink-50 to-rose-50 sticky top-0"
         style={{ position: 'relative', zIndex: 30 }}
       >
-        <div className="max-w-6xl mx-auto px-4 py-3">
+        <div className="max-w-7xl mx-auto px-7 py-3">
           <div className="flex justify-between items-center">
-            {/* 로고 섹션 */}
+            {/* 좌측: 로고와 사용자명 */}
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-6">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
-                <img 
-                  src="/ddukddak-logo.png" 
-                  alt="DDUKDDAK" 
-                  style={{ height: '16px', objectFit: 'contain' }} 
-                />
-              </h1>
-                <div className="h-6 w-px bg-slate-200"></div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
-              <p className="text-slate-600 font-medium text-sm">
-                    <span className="text-pink-600 font-semibold">{user.nickname}</span>님
-              </p>
-                </div>
-              </div>
+              <img 
+                src="/ddukddak-logo.png" 
+                alt="DDUKDDAK" 
+                style={{ height: '16px', objectFit: 'contain' }} 
+              />
+              
             </div>
 
-            {/* 우측 버튼 그룹 */}
-            <div className="flex items-center gap-3">
+            {/* 우측: 마이페이지, 알림, 로그아웃 */}
+            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
+                <p className="text-slate-600 font-medium text-lg">
+                  <span className="text-pink-600 font-semibold">{user.nickname}</span>님
+                </p>
+              </div>
               {/* 마이페이지 드롭다운 */}
               <div className="relative group">
                 <button className="px-4 py-2 bg-white text-slate-600 hover:text-gray-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-gray-300 flex items-center gap-2 group">
