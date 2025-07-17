@@ -254,11 +254,11 @@ function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 1000,
+            zIndex: 999999,
           }}
           onClick={() => setIsModalOpen(false)}
         >

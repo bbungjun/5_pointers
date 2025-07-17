@@ -16,6 +16,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', width, height }) {
   // 컨테이너 크기 기준으로 스케일 팩터 계산
@@ -207,7 +208,7 @@ function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
       </div>
 
       {/* 모달 */}
-      {modalOpen && images.length > 0 && (
+      {modalOpen && images.length > 0 && typeof document !== 'undefined' && createPortal(
         <div
           style={{
             position: "fixed",
@@ -215,11 +216,11 @@ function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            zIndex: 1000,
+            zIndex: 99999998,
             padding: "20px"
           }}
           onClick={() => setModalOpen(false)}
@@ -355,7 +356,8 @@ function GridGalleryRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
