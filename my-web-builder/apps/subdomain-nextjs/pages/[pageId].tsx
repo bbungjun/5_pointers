@@ -84,7 +84,7 @@ const DynamicPageRenderer = ({
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [scaleFactor, setScaleFactor] = useState(1);
-  const containerRef = useRef<HTMLDivElement>(null); // 컨테이너 참조 추가
+  const containerRef = useRef(null); // 컨테이너 참조 추가
 
   useEffect(() => {
     setIsMounted(true);
@@ -261,7 +261,6 @@ const DynamicPageRenderer = ({
                         const scaleFactor = screenWidth / baseWidth;
                         
                         // 화면에 꽉 차도록 컴포넌트 크기 조정
-                        const defaultSize = getComponentDefaultSize(comp.type);
                         const originalWidth = screenWidth;
                         const originalHeight = comp.height || defaultSize.height;
                         
@@ -648,7 +647,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 
     // 컴포넌트 크기 데이터 확인
-    console.log('🔧 API에서 받은 컴포넌트 데이터:', pageData.components.map((comp: ComponentData) => ({
+    console.log('🔧 API에서 받은 컴포넌트 데이터:', pageData.components.map(comp => ({
       id: comp.id,
       type: comp.type,
       width: comp.width,
