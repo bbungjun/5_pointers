@@ -2,9 +2,6 @@
 const nextConfig = {
   reactStrictMode: false,
   transpilePackages: ['@my-project/ui'],
-  experimental: {
-    esmExternals: false
-  },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
