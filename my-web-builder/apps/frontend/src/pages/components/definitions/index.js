@@ -21,9 +21,6 @@ import pageButtonDef from "./pageButton.json";
 import linkcopyDef from './linkcopy.json';
 
 export const ComponentList = [
-  pageDef,          // 페이지 (최상단 배치)
-  pageButtonDef,    // 페이지 버튼 (네비게이션 버튼)
-  
   // 상단 우선순위 컴포넌트들
   mapDef,           // 지도
   imageDef,         // 이미지
@@ -47,7 +44,10 @@ export const ComponentList = [
   // 하단 기본 컴포넌트들
   buttonDef,        // 버튼
   textDef,          // 텍스트
-  linkDef           // 링크
+  linkDef,           // 링크
+
+  pageDef,          // 페이지 (최상단 배치)
+  pageButtonDef,    // 페이지 버튼 (네비게이션 버튼)
 ];
 
 // 기존 코드와의 호환성을 위해 ComponentDefinitions도 export
