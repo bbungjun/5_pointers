@@ -329,13 +329,8 @@ export function useCollaboration({
       handleComponentsChange();
       handleCanvasSettingsChange();
     }
-    // 초기 데이터 로드 (즉시 실행)
-    handleComponentsChange();
-    handleCanvasSettingsChange();
-
     try {
       yComponents.observe(handleComponentsChange);
-      yCanvasSettings.observe(handleCanvasSettingsChange);
       yCanvasSettings.observe(handleCanvasSettingsChange);
     } catch (error) {
       console.error('Y.js 리스너 등록 실패:', error);
