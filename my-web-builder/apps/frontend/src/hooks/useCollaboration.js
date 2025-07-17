@@ -334,7 +334,6 @@ export function useCollaboration({
       yCanvasSettings.observe(handleCanvasSettingsChange);
     } catch (error) {
       console.error('Y.js 리스너 등록 실패:', error);
-      console.error('Y.js 리스너 등록 실패:', error);
     }
 
     return () => {
