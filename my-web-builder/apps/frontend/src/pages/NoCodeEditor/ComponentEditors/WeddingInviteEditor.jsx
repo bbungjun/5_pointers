@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   TextEditor,
   NumberEditor,
@@ -43,13 +43,20 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
   } = selectedComp.props;
 
   const [localNoBorder, setLocalNoBorder] = useState(noBorder);
+  const [localContent, setLocalContent] = useState('');
 
   useEffect(() => {
     setLocalNoBorder(selectedComp.props?.noBorder !== undefined ? !!selectedComp.props.noBorder : true);
   }, [selectedComp.props?.noBorder]);
 
+  // content 초기화 및 동기화
+  useEffect(() => {
+    const contentString = Array.isArray(content) ? content.join('\n') : (content || '');
+    setLocalContent(contentString);
+  }, [content]);
+
   // 속성 업데이트 함수
-  const updateProperty = (key, value) => {
+  const updateProperty = useCallback((key, value) => {
     onUpdate({
       ...selectedComp,
       props: {
@@ -58,11 +65,12 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
       }
     });
     if (key === 'noBorder') setLocalNoBorder(!!value);
-  };
+  }, [selectedComp, onUpdate]);
 
-  // 본문 textarea 입력값을 배열로 변환
-  const handleContentChange = (value) => {
-    updateProperty('content', value.split('\n'));
+  // textarea 입력 처리
+  const handleTextareaChange = (e) => {
+    setLocalContent(e.target.value);
+    updateProperty('content', e.target.value);
   };
 
   // 구분선 스타일
@@ -98,13 +106,11 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
           onChange={v => updateProperty('titleFontFamily', v)}
           label="제목 폰트"
         />
-        {/* 텍스트 정렬 */}
         <TextAlignEditor
           value={titleAlign}
           onChange={v => updateProperty('titleAlign', v)}
           label="제목 정렬"
         />
-        {/* 스타일: 굵기, 기울임, 밑줄 */}
         <TextStyleEditor
           label="제목 스타일"
           boldValue={titleFontWeight === 'bold'}
@@ -136,8 +142,8 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
           본문
         </label>
         <textarea
-          value={Array.isArray(content) ? content.join('\n') : content}
-          onChange={e => handleContentChange(e.target.value)}
+          value={localContent}
+          onChange={handleTextareaChange}
           placeholder="여러 줄을 입력하세요"
           rows={7}
           style={{
@@ -167,13 +173,11 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
           onChange={v => updateProperty('contentFontFamily', v)}
           label="본문 폰트"
         />
-        {/* 본문 정렬 */}
         <TextAlignEditor
           value={contentAlign}
           onChange={v => updateProperty('contentAlign', v)}
           label="본문 정렬"
         />
-        {/* 본문 스타일 */}
         <TextStyleEditor
           label="본문 스타일"
           boldValue={contentFontWeight === 'bold'}
@@ -202,7 +206,7 @@ function WeddingInviteEditor({ selectedComp, onUpdate }) {
         />
       </div>
 
-      {/* 테두리 옵션 - BorderEditor로 통합 */}
+      {/* 테두리 옵션 */}
       <BorderEditor
         noBorder={localNoBorder}
         borderColor={borderColor}

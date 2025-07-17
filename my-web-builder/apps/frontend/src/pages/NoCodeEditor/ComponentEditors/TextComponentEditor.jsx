@@ -15,10 +15,11 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
     onUpdate(updatedComp);
   }, [selectedComp, onUpdate]);
 
-  // 텍스트 업데이트를 위한 최적화된 함수 (한글 입력 고려)
-  const updateTextProperty = useMemo(() => {
-    return debounceKorean((value) => updateProperty('text', value), 150);
-  }, [updateProperty]);
+  // 텍스트 업데이트를 위한 함수 (디바운스 제거)
+  const updateTextProperty = useCallback(
+    (value) => updateProperty('text', value),
+    [updateProperty]
+  );
 
   return (
     <div>

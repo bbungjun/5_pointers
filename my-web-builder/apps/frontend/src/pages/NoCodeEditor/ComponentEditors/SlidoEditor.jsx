@@ -1,12 +1,51 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 
 function SlidoEditor({ selectedComp, onUpdate }) {
-  const handlePropChange = (propName, value) => {
+  // 로컬 상태로 입력값 관리
+  const [localQuestion, setLocalQuestion] = useState(selectedComp.props?.question || '');
+  const [localPlaceholder, setLocalPlaceholder] = useState(selectedComp.props?.placeholder || '');
+  const [localBackgroundColor, setLocalBackgroundColor] = useState(selectedComp.props?.backgroundColor || '#ffffff');
+  const [isComposing, setIsComposing] = useState(false);
+
+  // 외부 props가 변경될 때만 로컬 상태 동기화
+  React.useEffect(() => {
+    if (!isComposing) {
+      setLocalQuestion(selectedComp.props?.question || '');
+      setLocalPlaceholder(selectedComp.props?.placeholder || '');
+      setLocalBackgroundColor(selectedComp.props?.backgroundColor || '#ffffff');
+    }
+  }, [selectedComp.props, isComposing]);
+
+  // 속성 업데이트 함수 - 즉시 실행
+  const handlePropChange = useCallback((propName, value) => {
+    // IME 조합 중이 아닐 때만 상위로 전달
+    if (!isComposing) {
+      onUpdate({
+        ...selectedComp,
+        props: {
+          ...selectedComp.props,
+          [propName]: value
+        }
+      });
+    }
+  }, [selectedComp, onUpdate, isComposing]);
+
+  // Composition 이벤트 핸들러
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = () => {
+    setIsComposing(false);
+    
+    // 조합 완료 후 상위로 전달
     onUpdate({
       ...selectedComp,
       props: {
         ...selectedComp.props,
-        [propName]: value
+        question: localQuestion,
+        placeholder: localPlaceholder,
+        backgroundColor: localBackgroundColor
       }
     });
   };
@@ -47,8 +86,15 @@ function SlidoEditor({ selectedComp, onUpdate }) {
         </label>
         <input
           type="text"
-          value={selectedComp.props?.question || ''}
-          onChange={(e) => handlePropChange('question', e.target.value)}
+          value={localQuestion}
+          onChange={(e) => {
+            setLocalQuestion(e.target.value);
+            if (!isComposing) {
+              handlePropChange('question', e.target.value);
+            }
+          }}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
           placeholder="여러분의 의견을 들려주세요"
           style={{
             width: '100%',
@@ -77,8 +123,15 @@ function SlidoEditor({ selectedComp, onUpdate }) {
         </label>
         <input
           type="text"
-          value={selectedComp.props?.placeholder || ''}
-          onChange={(e) => handlePropChange('placeholder', e.target.value)}
+          value={localPlaceholder}
+          onChange={(e) => {
+            setLocalPlaceholder(e.target.value);
+            if (!isComposing) {
+              handlePropChange('placeholder', e.target.value);
+            }
+          }}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
           placeholder="의견을 입력하세요..."
           style={{
             width: '100%',
@@ -108,8 +161,11 @@ function SlidoEditor({ selectedComp, onUpdate }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <input
             type="color"
-            value={selectedComp.props?.backgroundColor || '#ffffff'}
-            onChange={(e) => handlePropChange('backgroundColor', e.target.value)}
+            value={localBackgroundColor}
+            onChange={(e) => {
+              setLocalBackgroundColor(e.target.value);
+              handlePropChange('backgroundColor', e.target.value);
+            }}
             style={{
               width: 40,
               height: 32,
@@ -120,8 +176,15 @@ function SlidoEditor({ selectedComp, onUpdate }) {
           />
           <input
             type="text"
-            value={selectedComp.props?.backgroundColor || '#ffffff'}
-            onChange={(e) => handlePropChange('backgroundColor', e.target.value)}
+            value={localBackgroundColor}
+            onChange={(e) => {
+              setLocalBackgroundColor(e.target.value);
+              if (!isComposing) {
+                handlePropChange('backgroundColor', e.target.value);
+              }
+            }}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
             style={{
               flex: 1,
               padding: '6px 8px',
@@ -148,7 +211,9 @@ function SlidoEditor({ selectedComp, onUpdate }) {
           <input
             type="checkbox"
             checked={selectedComp.props?.animation ?? true}
-            onChange={(e) => handlePropChange('animation', e.target.checked)}
+            onChange={(e) => {
+              handlePropChange('animation', e.target.checked);
+            }}
             style={{ cursor: 'pointer' }}
           />
           새 의견 애니메이션 효과
