@@ -113,6 +113,7 @@ export class AuthService {
 
     console.log('Google OAuth 설정 (백엔드):', {
       clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ? '***설정됨***' : '❌ 설정되지 않음',
       callbackUrl,
       environment: process.env.NODE_ENV || 'development',
       isProduction,
@@ -141,25 +142,40 @@ export class AuthService {
     } catch (error) {
       console.error(
         'Google OAuth 에러:',
-        error.response?.data || error.message,
+        {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          config: {
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            callbackUrl,
+            environment: process.env.NODE_ENV
+          }
+        }
       );
       throw error;
     }
   }
 
   private async getKakaoProfile(code: string) {
+    // 환경에 따른 콜백 URL 설정
+    const isProduction = process.env.NODE_ENV === 'production';
+    const callbackUrl = isProduction
+      ? 'https://ddukddak.org/social-callback?provider=kakao'
+      : 'http://localhost:5173/social-callback?provider=kakao';
+
     console.log('getKakaoProfile called!');
     console.log({
       client_id: process.env.KAKAO_CLIENT_ID,
-      client_secret: process.env.KAKAO_CLIENT_SECRET,
-      redirect_uri: process.env.KAKAO_CALLBACK_URL,
-      code,
+      client_secret: process.env.KAKAO_CLIENT_SECRET ? '***설정됨***' : '❌ 설정되지 않음',
+      redirect_uri: callbackUrl,
+      code: code?.substring(0, 10) + '...',
     });
 
     const params = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: process.env.KAKAO_CLIENT_ID,
-      redirect_uri: process.env.KAKAO_CALLBACK_URL,
+      redirect_uri: callbackUrl,
       code,
     });
 
@@ -167,11 +183,29 @@ export class AuthService {
       params.append('client_secret', process.env.KAKAO_CLIENT_SECRET);
     }
 
-    const tokenRes = await axios.post(
-      'https://kauth.kakao.com/oauth/token',
-      params,
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-    );
+    let tokenRes;
+    try {
+      tokenRes = await axios.post(
+        'https://kauth.kakao.com/oauth/token',
+        params,
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+      );
+    } catch (error) {
+      console.error(
+        'Kakao OAuth 에러:',
+        {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          config: {
+            clientId: process.env.KAKAO_CLIENT_ID,
+            callbackUrl,
+            environment: process.env.NODE_ENV
+          }
+        }
+      );
+      throw error;
+    }
     const accessToken = (tokenRes.data as { access_token: string })
       .access_token;
 
