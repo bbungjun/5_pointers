@@ -147,7 +147,7 @@ function NoCodeEditor({ pageId }) {
     }
   }, [isFromTemplate, pageId, isLoading, collaboration.isConnected, components.length, collaboration.updateAllComponents, hasInitialSync]);
 
-  // collaboration이 undefined일 수 있으므로 기본값 제공
+        // collaboration이 undefined일 수 있으므로 기본값 제공
   const {
     otherCursors = [],
     otherSelections = [],
@@ -173,6 +173,9 @@ function NoCodeEditor({ pageId }) {
     closeChatInput = () => {},
     resetAutoCloseTimer = () => {},
     removeChatMessage = () => {},
+    cursorChatMessages = {},
+    startTyping = () => {},
+    stopTyping = () => {},
     isConnected = false,
     connectionError = null,
   } = collaboration || {};
@@ -623,6 +626,7 @@ function NoCodeEditor({ pageId }) {
               )
             }
             openChatInput={openChatInput}
+            cursorChatMessages={cursorChatMessages}
           />
         </div>
 
@@ -695,6 +699,8 @@ function NoCodeEditor({ pageId }) {
           }}
           onCancel={closeChatInput}
           onInput={resetAutoCloseTimer}
+          onStartTyping={startTyping}
+          onStopTyping={stopTyping}
           followCursor={true}
         />
       )}

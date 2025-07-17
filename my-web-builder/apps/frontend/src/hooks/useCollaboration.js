@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { useYjsCollaboration } from './useYjsCollaboration';
 import { useLiveCursors } from './useLiveCursors';
 import { useChat } from './useChat';
@@ -47,18 +47,34 @@ export function useCollaboration({
     updateCursorPosition,
   } = useLiveCursors(awareness, safeCanvasRef);
 
+  // 채팅 메시지를 커서에 반영하는 상태
+  const [cursorChatMessages, setCursorChatMessages] = useState({});
+
+  // 커서 채팅 업데이트 콜백
+  const handleCursorChatUpdate = useCallback((userId, message) => {
+    console.log('🔄 커서 채팅 업데이트:', userId, message);
+    setCursorChatMessages(prev => {
+      const newState = {
+        ...prev,
+        [userId]: message
+      };
+      console.log('📝 cursorChatMessages 상태 업데이트:', newState);
+      return newState;
+    });
+  }, []);
+
   // 채팅 관리
   const {
-    chatMessages,
     isChatInputOpen,
     chatInputPosition,
     cursorPosition,
     sendChatMessage,
     openChatInput,
     closeChatInput,
-    removeChatMessage,
-    handleChatMessageReceived,
-  } = useChat(awareness, safeUserInfo);
+    startTyping,
+    stopTyping,
+    resetAutoCloseTimer,
+  } = useChat(awareness, safeUserInfo, handleCursorChatUpdate);
 
   // DB 복구 상태 추적
   const hasRestoredRef = useRef(false);
@@ -680,14 +696,16 @@ export function useCollaboration({
     setComponentDragging, // 드래그 상태 설정
     isComponentDragging, // 드래그 상태 확인
     // 채팅 관련 함수들
-    chatMessages,
     isChatInputOpen,
     chatInputPosition,
     cursorPosition,
     sendChatMessage,
     openChatInput,
     closeChatInput,
-    removeChatMessage,
+    startTyping,
+    stopTyping,
+    resetAutoCloseTimer,
+    cursorChatMessages, // 커서 채팅 메시지 추가
     isConnected,
     connectionError,
     ydoc,
@@ -712,14 +730,16 @@ export function useCollaboration({
     setComponentDragging,
     isComponentDragging,
     // 채팅 관련 의존성
-    chatMessages,
     isChatInputOpen,
     chatInputPosition,
     cursorPosition,
     sendChatMessage,
     openChatInput,
     closeChatInput,
-    removeChatMessage,
+    startTyping,
+    stopTyping,
+    resetAutoCloseTimer,
+    cursorChatMessages, // 커서 채팅 메시지 의존성 추가
     isConnected,
     connectionError,
     ydoc,

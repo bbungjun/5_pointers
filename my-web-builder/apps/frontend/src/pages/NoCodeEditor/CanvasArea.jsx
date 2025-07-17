@@ -120,6 +120,7 @@ const CanvasArea = forwardRef(
       pageId, // 페이지 ID prop 추가
       collaboration, // 협업 객체 추가
       openChatInput, // 채팅 입력 열기 함수
+      cursorChatMessages = {}, // 커서 채팅 메시지 추가
     },
     ref
   ) => {
@@ -935,6 +936,7 @@ const CanvasArea = forwardRef(
               cursors={otherCursors}
               zoom={localZoom}
               viewport={viewport}
+              cursorChatMessages={cursorChatMessages}
             />
 
             {/* 협업 기능: 다른 사용자 선택 영역 */}
