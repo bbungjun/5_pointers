@@ -19,10 +19,7 @@ function loadKakaoMapsScript() {
       return;
     }
     const script = document.createElement('script');
-    const KAKAO_JS_KEY = (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_KAKAO_JS_KEY) || 
-                         (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_KAKAO_JS_KEY) || 
-                         '37e5ce2cc5212815fd433917a0994f89';
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&autoload=false&libraries=services`;
+            script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_JS_KEY || '37e5ce2cc5212815fd433917a0994f89'}&autoload=false&libraries=services`;
     script.onload = () => {
       window.kakao.maps.load(() => {
         resolve();

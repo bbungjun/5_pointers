@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from 'react';
 export default function MusicRenderer({ comp, isEditor = false, mode = 'editor' }) {
     const audioRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const isEditorMode = isEditor || mode === 'editor';
 
     const props = comp?.props || {};
     const {
@@ -20,12 +19,12 @@ export default function MusicRenderer({ comp, isEditor = false, mode = 'editor' 
     }, [volume]);
 
     useEffect(() => {
-        if (autoPlay && musicData && audioRef.current && !isEditorMode) {
+        if (autoPlay && musicData && audioRef.current && !isEditor) {
             setTimeout(() => {
                 audioRef.current.play().catch(() => {});
             }, 500);
         }
-    }, [musicData, autoPlay, isEditorMode]);
+    }, [musicData, autoPlay, isEditor]);
 
     // 재생/일시정지 토글
     const togglePlay = () => {

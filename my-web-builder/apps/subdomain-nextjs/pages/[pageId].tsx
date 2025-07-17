@@ -96,9 +96,8 @@ const DynamicPageRenderer = ({
       // 모바일 화면 + 모바일 편집 페이지인 경우에만 스케일링 적용
       if (isMobile && editingMode === 'mobile') {
         // 실제 컨테이너 너비 측정
-        const containerElement = containerRef.current;
-        const actualWidth = containerElement && containerElement.offsetWidth 
-          ? containerElement.offsetWidth 
+        const actualWidth = containerRef.current 
+          ? containerRef.current.offsetWidth 
           : window.innerWidth;
         
         const baseWidth = 375;

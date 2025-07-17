@@ -13,6 +13,7 @@ export default function KakaoTalkShareRenderer({ comp, mode = 'live' }) {
   useEffect(() => {
     // 배포 환경(Next.js)에서만 카카오 SDK 초기화
     if (mode !== 'editor' && typeof window !== "undefined" && window.Kakao && !isInitialized.current) {
+      //const KAKAO_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY || 'abf280bb54e158e4414d83da34cfbd83';
       const KAKAO_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY || '37e5ce2cc5212815fd433917a0994f89';
 
       console.log('카카오 SDK 초기화 시도 - KAKAO_JS_KEY:', KAKAO_JS_KEY);

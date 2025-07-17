@@ -28,12 +28,6 @@ jobs:
           rm -rf node_modules package-lock.json
           npm install --force
 
-      - name: Clean install Next.js dependencies
-        run: |
-          cd my-web-builder/apps/subdomain-nextjs
-          rm -rf node_modules package-lock.json
-          npm install --force
-
       - name: Create production environment file
         run: |
           cd my-web-builder/apps/frontend
@@ -49,40 +43,10 @@ jobs:
           echo "Created .env.production:"
           cat .env.production
 
-      - name: Create Next.js environment file
-        run: |
-          cd my-web-builder/apps/subdomain-nextjs
-          rm -f .env.production
-          echo "NEXT_PUBLIC_API_URL=https://ddukddak.org/api" > .env.production
-          echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.production
-          echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.KAKAO_JAVASCRIPT_KEY }}" >> .env.production
-          echo "NEXT_PUBLIC_KAKAO_JS_KEY=${{ secrets.KAKAO_JS_KEY }}" >> .env.production
-          echo "NEXT_PUBLIC_FRONTEND_URL=https://ddukddak.org" >> .env.production
-          echo "Created Next.js .env.production:"
-          cat .env.production
-
-      - name: Build frontend application
+      - name: Build application for production
         run: |
           cd my-web-builder/apps/frontend
           npm run build:production
-
-      - name: Build Next.js application
-        run: |
-          cd my-web-builder/apps/subdomain-nextjs
-          npm run build
-          
-      - name: Verify Next.js build output
-        run: |
-          cd my-web-builder/apps/subdomain-nextjs
-          echo "Checking if out/ directory exists..."
-          ls -la
-          if [ -d "out" ]; then
-            echo "✅ out/ directory found"
-            ls -la out/
-          else
-            echo "❌ out/ directory not found"
-            exit 1
-          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -92,24 +56,13 @@ jobs:
           # aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ap-northeast-2
 
-      - name: Deploy frontend to S3
+      - name: Deploy to S3
         run: |
           cd my-web-builder/apps/frontend
           aws s3 sync dist/ s3://jungle-frontend-5 --delete
 
-      - name: Deploy Next.js to S3
-        run: |
-          cd my-web-builder/apps/subdomain-nextjs
-          aws s3 sync out/ s3://jungle-subdomain-5 --delete
-
-      - name: Invalidate CloudFront (Frontend)
+      - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
-
-      - name: Invalidate CloudFront (Subdomain)
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_SUBDOMAIN_DISTRIBUTION_ID }} \
             --paths "/*"

@@ -2,10 +2,8 @@
 const nextConfig = {
   reactStrictMode: false,
   transpilePackages: ['@my-project/ui'],
-  output: 'export',
-  trailingSlash: true,
-  images: {
-    unoptimized: true
+  experimental: {
+    esmExternals: false
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
