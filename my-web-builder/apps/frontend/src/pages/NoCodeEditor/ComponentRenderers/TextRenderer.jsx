@@ -54,7 +54,7 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
 
   const handleClick = (e) => {
     e.stopPropagation();
-    if (mode === 'editor' && !isPreview && isSelected && !editing) {
+    if (editing && mode === 'editor'  && !isPreview) {
       setEditing(true);
       setEditValue(actualComp?.props?.text || '');
     }
@@ -104,6 +104,8 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
 
   if (editing && mode === 'editor'  && !isPreview) {
 
+    const calcWidth = Math.max(80, (editValue.length + 1) * (actualComp?.props?.fontSize ? parseInt(actualComp.props.fontSize) : 16)) + 'px';
+
     return (
       <input
         ref={inputRef}
@@ -113,6 +115,7 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
         onKeyDown={handleKeyDown}
         className="w-32 border-2 border-pink-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
         style={{ 
+          width: calcWidth,
           fontSize: actualComp?.props?.fontSize,
           fontFamily: fontFamily,
           textAlign: textAlign,
@@ -131,6 +134,7 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
       ref={textRef}
       className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center transition-all duration-200 ${isSelected && mode === 'editor' ? 'hover:bg-pink-50 cursor-text' : 'hover:opacity-80'}`}
       style={{
+        position: 'absolute', 
         color: actualComp?.props?.color, 
         fontSize: actualComp?.props?.fontSize,
         fontFamily: fontFamily,
@@ -141,7 +145,8 @@ function TextRenderer({ comp, component, mode = 'editor', isPreview = false, isS
         textDecoration: textDecoration,
         justifyContent: textAlign === 'left' ? 'flex-start' : 
                        textAlign === 'right' ? 'flex-end' : 'center',
-        zIndex: Math.max(actualComp?.props?.zIndex || 1000, 1000),
+        //zIndex: Math.max(actualComp?.props?.zIndex || 1000, 1000),
+        zIndex: isSelected ? 9999 : (actualComp?.props?.zIndex || 2000),
         border: isSelected && mode === 'editor' ? '1px dashed #3b82f6' : 'none',
         borderRadius: '4px'
       }}

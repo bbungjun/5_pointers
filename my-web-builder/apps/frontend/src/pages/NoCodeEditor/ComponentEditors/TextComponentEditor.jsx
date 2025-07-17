@@ -43,10 +43,10 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
 
       {/* 폰트 섹션 */}
       <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
-      <div style={{ 
-        fontSize: 12, 
-        color: '#65676b', 
-        fontWeight: 600, 
+      <div style={{
+        fontSize: 12,
+        color: '#65676b',
+        fontWeight: 600,
         marginBottom: 12,
         textTransform: 'uppercase',
         letterSpacing: '0.5px'
@@ -79,25 +79,21 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
       />
 
       <TextStyleEditor
-        value={{
-          fontWeight: selectedComp.props?.fontWeight || false,
-          fontStyle: selectedComp.props?.fontStyle || false,
-          textDecoration: selectedComp.props?.textDecoration || false
-        }}
-        onChange={(styles) => {
-          updateProperty('fontWeight', styles.fontWeight);
-          updateProperty('fontStyle', styles.fontStyle);
-          updateProperty('textDecoration', styles.textDecoration);
-        }}
         label="스타일"
+        boldValue={selectedComp.props?.fontWeight || false}
+        italicValue={selectedComp.props?.fontStyle || false}
+        underlineValue={selectedComp.props?.textDecoration || false}
+        onBoldChange={value => updateProperty('fontWeight', value)}
+        onItalicChange={value => updateProperty('fontStyle', value)}
+        onUnderlineChange={value => updateProperty('textDecoration', value)}
       />
 
       {/* 색상 섹션 */}
       <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
-      <div style={{ 
-        fontSize: 12, 
-        color: '#65676b', 
-        fontWeight: 600, 
+      <div style={{
+        fontSize: 12,
+        color: '#65676b',
+        fontWeight: 600,
         marginBottom: 12,
         textTransform: 'uppercase',
         letterSpacing: '0.5px'
@@ -113,10 +109,10 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
 
       {/* 레이어 섹션 */}
       <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
-      <div style={{ 
-        fontSize: 12, 
-        color: '#65676b', 
-        fontWeight: 600, 
+      <div style={{
+        fontSize: 12,
+        color: '#65676b',
+        fontWeight: 600,
         marginBottom: 12,
         textTransform: 'uppercase',
         letterSpacing: '0.5px'
