@@ -119,6 +119,7 @@ const CanvasArea = forwardRef(
       containerRef, // NoCodeEditor로부터 받음
       pageId, // 페이지 ID prop 추가
       collaboration, // 협업 객체 추가
+      openChatInput, // 채팅 입력 열기 함수
     },
     ref
   ) => {
@@ -530,8 +531,8 @@ const CanvasArea = forwardRef(
           e.preventDefault();
           document.body.style.cursor = 'grab';
         }
-        // G 키로 그리드 토글
-        if (e.code === 'KeyG') {
+        // Ctrl+G 키로 그리드 토글
+        if (e.code === 'KeyG' && (e.ctrlKey || e.metaKey)) {
           e.preventDefault();
           setShowGrid(prev => !prev);
         }
@@ -782,6 +783,13 @@ const CanvasArea = forwardRef(
               
               if (onClick) {
                 onClick(e);
+              }
+            }}
+            onContextMenu={(e) => {
+              // 우클릭 시 채팅 입력 열기
+              e.preventDefault();
+              if (openChatInput) {
+                openChatInput(e.clientX, e.clientY);
               }
             }}
             onMouseDown={(e) => {

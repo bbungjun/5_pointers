@@ -15,6 +15,8 @@ import InviteModal from './NoCodeEditor/components/InviteModal';
 import CanvasComponent from './NoCodeEditor/components/CanvasComponent';
 import UserCursor from './NoCodeEditor/components/UserCursor';
 import WebSocketConnectionGuide from '../components/WebSocketConnectionGuide';
+import ChatBubble from '../components/collaboration/ChatBubble';
+import ChatInput from '../components/collaboration/ChatInput';
 
 // 훅들
 import { usePageDataManager } from '../hooks/usePageDataManager';
@@ -120,6 +122,12 @@ function NoCodeEditor({ pageId }) {
     canvasRef,
     selectedComponentId: interaction.selectedId,
     onComponentsUpdate: setComponents,
+    onCanvasSettingsUpdate: (settings) => {
+      if (settings.canvasHeight !== undefined && settings.canvasHeight !== canvasHeight) {
+        console.log('협업을 통해 캔버스 높이 동기화:', settings.canvasHeight);
+        setCanvasHeight(settings.canvasHeight);
+      }
+    },
     viewport: interaction.viewport,
   });
 
@@ -144,6 +152,7 @@ function NoCodeEditor({ pageId }) {
     otherCursors = [],
     otherSelections = [],
     updateCursorPosition = () => {},
+    updateSelection = () => {},
     addComponent = () => {},
     updateComponent = () => {},
     updateComponentObject = () => {},
@@ -154,6 +163,16 @@ function NoCodeEditor({ pageId }) {
     redo = () => {},
     getHistory = () => ({ canUndo: false, canRedo: false }),
     setHistory = () => {},
+    // 채팅 관련 기본값
+    chatMessages = [],
+    isChatInputOpen = false,
+    chatInputPosition = { x: 0, y: 0 },
+    cursorPosition = { x: 0, y: 0 },
+    sendChatMessage = () => {},
+    openChatInput = () => {},
+    closeChatInput = () => {},
+    resetAutoCloseTimer = () => {},
+    removeChatMessage = () => {},
     isConnected = false,
     connectionError = null,
   } = collaboration || {};
@@ -199,6 +218,8 @@ function NoCodeEditor({ pageId }) {
     }
   }, []);
 
+
+
   // 컴포넌트 선택 시 스크롤 이동
   useEffect(() => {
     if (!interaction.selectedId || !canvasRef.current || !containerRef.current)
@@ -232,31 +253,7 @@ function NoCodeEditor({ pageId }) {
     }
   }, [connectionError, isConnected]);
 
-  // 협업 시스템에서 캔버스 설정 동기화
-  useEffect(() => {
-    if (!collaboration.ydoc) return;
 
-    const yCanvasSettings = collaboration.ydoc.getMap('canvasSettings');
-    if (!yCanvasSettings) return;
-
-    const handleCanvasSettingsChange = () => {
-      const settings = yCanvasSettings.toJSON();
-      if (settings.canvasHeight && settings.canvasHeight !== canvasHeight) {
-        console.log('협업을 통해 캔버스 높이 동기화:', settings.canvasHeight);
-        setCanvasHeight(settings.canvasHeight);
-      }
-    };
-
-    // 초기 설정 로드
-    handleCanvasSettingsChange();
-
-    // 설정 변화 감지
-    yCanvasSettings.observe(handleCanvasSettingsChange);
-
-    return () => {
-      yCanvasSettings.unobserve(handleCanvasSettingsChange);
-    };
-  }, [collaboration.ydoc, canvasHeight, setCanvasHeight]);
 
   // 키보드 단축키 처리 (Delete, Ctrl+C, Ctrl+V)
   useEffect(() => {
@@ -332,6 +329,15 @@ function NoCodeEditor({ pageId }) {
       if (e.key === 'Escape') {
         setSelectedIds([]);
         interaction.setSelectedId(null);
+        // 협업 시스템에 선택 해제 알림
+        updateSelection([], interaction.viewport);
+      }
+
+      // '/': 채팅 입력 열기
+      if (e.key === '/') {
+        e.preventDefault();
+        // 현재 커서 위치를 사용하여 채팅 입력 열기
+        openChatInput(cursorPosition.x, cursorPosition.y);
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -382,7 +388,9 @@ function NoCodeEditor({ pageId }) {
     } else {
       interaction.setSelectedId(null);
     }
-  }, [interaction.setSelectedId]);
+    // 협업 시스템에 다중 선택 알림
+    updateSelection(ids, interaction.viewport);
+  }, [interaction.setSelectedId, interaction.viewport, updateSelection]);
 
   // 컴포넌트 선택 핸들러 (Ctrl+클릭 지원)
   const handleSelect = useCallback((id, isCtrlPressed = false) => {
@@ -390,6 +398,8 @@ function NoCodeEditor({ pageId }) {
       // 빈 영역 클릭 시 선택 해제
       setSelectedIds([]);
       interaction.setSelectedId(null);
+      // 협업 시스템에 선택 해제 알림
+      updateSelection([], interaction.viewport);
       return;
     }
 
@@ -401,8 +411,12 @@ function NoCodeEditor({ pageId }) {
         setSelectedIds(newSelectedIds);
         if (newSelectedIds.length === 1) {
           interaction.setSelectedId(newSelectedIds[0]);
+          // 협업 시스템에 단일 선택 알림
+          updateSelection(newSelectedIds, interaction.viewport);
         } else if (newSelectedIds.length === 0) {
           interaction.setSelectedId(null);
+          // 협업 시스템에 선택 해제 알림
+          updateSelection([], interaction.viewport);
         }
       } else {
         // 새로운 컴포넌트를 다중 선택에 추가
@@ -411,13 +425,17 @@ function NoCodeEditor({ pageId }) {
         if (newSelectedIds.length === 1) {
           interaction.setSelectedId(id);
         }
+        // 협업 시스템에 다중 선택 알림
+        updateSelection(newSelectedIds, interaction.viewport);
       }
     } else {
       // 일반 클릭 시 단일 선택 (기존 다중 선택 해제)
       setSelectedIds([id]);
       interaction.setSelectedId(id);
+      // 협업 시스템에 단일 선택 알림
+      updateSelection([id], interaction.viewport);
     }
-  }, [selectedIds, interaction.setSelectedId]);
+  }, [selectedIds, interaction.setSelectedId, interaction.viewport, updateSelection]);
 
   // 자동저장 훅 (컴포넌트 변경 시에만 저장)
   const { isSaving, lastSaved, saveError, saveCount, saveNow } = useAutoSave(
@@ -604,6 +622,7 @@ function NoCodeEditor({ pageId }) {
                 interaction.zoom
               )
             }
+            openChatInput={openChatInput}
           />
         </div>
 
@@ -648,6 +667,37 @@ function NoCodeEditor({ pageId }) {
           }
         }}
       />
+
+      {/* 채팅 UI */}
+      {/* 채팅 메시지 버블들 */}
+      {chatMessages.map((msg) => (
+        <ChatBubble
+          key={msg.id}
+          x={msg.position?.x || 0}
+          y={msg.position?.y || 0}
+          user={msg.user}
+          message={msg.message}
+          timestamp={msg.timestamp}
+          onClose={() => removeChatMessage(msg.id)}
+          isOwnMessage={msg.user?.id === userInfo?.id}
+          followCursor={false}
+        />
+      ))}
+
+      {/* 채팅 입력 UI */}
+      {isChatInputOpen && (
+        <ChatInput
+          x={cursorPosition.x}
+          y={cursorPosition.y}
+          user={userInfo}
+          onSend={(message) => {
+            sendChatMessage(message, cursorPosition);
+          }}
+          onCancel={closeChatInput}
+          onInput={resetAutoCloseTimer}
+          followCursor={true}
+        />
+      )}
 
       {/* WebSocket 연결 안내 UI */}
       {connectionError && (
