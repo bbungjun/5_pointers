@@ -7,10 +7,13 @@ const ChatInput = ({
   onSend, 
   onCancel,
   onInput,
+  onStartTyping,
+  onStopTyping,
   followCursor = false 
 }) => {
   const [message, setMessage] = useState('');
   const inputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
     // 컴포넌트가 마운트되면 자동으로 포커스
@@ -24,6 +27,10 @@ const ChatInput = ({
     if (message.trim()) {
       onSend(message.trim());
       setMessage('');
+      // 메시지 전송 시 타이핑 중지
+      if (onStopTyping) {
+        onStopTyping();
+      }
     }
   };
 
@@ -35,13 +42,56 @@ const ChatInput = ({
       if (message.trim()) {
         onSend(message.trim());
         setMessage('');
+        // 메시지 전송 시 타이핑 중지
+        if (onStopTyping) {
+          onStopTyping();
+        }
       }
     }
   };
 
+  const handleInputChange = (e) => {
+    const newValue = e.target.value;
+    setMessage(newValue);
+    
+    // 타이핑 시작 알림
+    if (onStartTyping) {
+      onStartTyping();
+    }
+    
+    // 입력이 있을 때 타이머 리셋
+    if (onInput) {
+      onInput();
+    }
+    
+    // 타이핑 중지 타이머 설정 (1초 후 타이핑 중지로 간주)
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      if (onStopTyping) {
+        onStopTyping();
+      }
+    }, 1000);
+  };
+
   const handleCancel = () => {
+    // 타이핑 중지
+    if (onStopTyping) {
+      onStopTyping();
+    }
     onCancel();
   };
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div
@@ -78,13 +128,7 @@ const ChatInput = ({
           ref={inputRef}
           type="text"
           value={message}
-          onChange={(e) => {
-            setMessage(e.target.value);
-            // 입력이 있을 때 타이머 리셋
-            if (onInput) {
-              onInput();
-            }
-          }}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder="메시지를 입력하세요..."
           style={{

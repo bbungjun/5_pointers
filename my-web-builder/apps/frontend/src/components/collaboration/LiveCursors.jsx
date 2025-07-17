@@ -4,7 +4,8 @@ import { addUserColor } from '../../utils/userColors';
 /**
  * 성능 최적화된 실시간 커서 컴포넌트
  */
-export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'desktop' }) => {
+export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'desktop', cursorChatMessages = {} }) => {
+  console.log('🎯 LiveCursors props 받음:', { cursorChatMessages, cursorsLength: cursors.length });
   const scale = zoom / 100;
   
   // 커서 데이터 메모이제이션
@@ -31,6 +32,21 @@ export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'd
   // 커서 렌더링 함수 메모이제이션
   const renderCursor = useCallback((cursorData) => {
     const { userWithColor, displayX, displayY, key } = cursorData;
+    const chatMessage = cursorChatMessages[userWithColor.id] || cursorChatMessages[String(userWithColor.id)];
+    
+    // 디버깅 로그
+    console.log('🔍 LiveCursors 렌더링:', {
+      userId: userWithColor.id,
+      userName: userWithColor.name,
+      chatMessage,
+      allCursorChatMessages: cursorChatMessages,
+      cursorChatMessagesKeys: Object.keys(cursorChatMessages),
+      cursorChatMessagesValues: Object.values(cursorChatMessages),
+      hasKey: userWithColor.id in cursorChatMessages,
+      directAccess: cursorChatMessages[userWithColor.id],
+      userIdType: typeof userWithColor.id,
+      keysTypes: Object.keys(cursorChatMessages).map(key => typeof key)
+    });
     
     return (
       <div
@@ -63,7 +79,7 @@ export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'd
           />
         </svg>
         
-        {/* 사용자 이름표 */}
+        {/* 사용자 이름표 또는 채팅 메시지 */}
         <div
           style={{
             position: 'absolute',
@@ -77,14 +93,23 @@ export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'd
             fontWeight: '500',
             whiteSpace: 'nowrap',
             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            animation: 'fadeIn 0.2s ease-out'
+            animation: 'fadeIn 0.2s ease-out',
+            maxWidth: '200px',
+            wordWrap: 'break-word'
           }}
         >
-          {userWithColor.name || '사용자'}
+          {chatMessage ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <span style={{ fontWeight: 'bold', fontSize: '13px' }}>{userWithColor.name}</span>
+              <span style={{ fontSize: '16px' }}>{chatMessage}</span>
+            </div>
+          ) : (
+            userWithColor.name || '사용자'
+          )}
         </div>
       </div>
     );
-  }, []);
+  }, [cursorChatMessages]);
   
   return (
     <>
