@@ -12,7 +12,8 @@ export function useChat(awareness, userInfo) {
   const sendChatMessage = useCallback((message, position) => {
     if (!awareness || !message.trim()) return;
 
-    const messageId = `msg_${Date.now()}_${messageIdCounter.current++}`;
+    // 더 고유한 ID 생성 (타임스탬프 + 랜덤 + 카운터)
+    const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}_${messageIdCounter.current++}`;
     const chatMessage = {
       id: messageId,
       message: message.trim(),
@@ -28,8 +29,14 @@ export function useChat(awareness, userInfo) {
     // Awareness를 통해 다른 사용자에게 메시지 브로드캐스트
     awareness.setLocalStateField('chatMessage', chatMessage);
 
-    // 로컬 상태에 메시지 추가
-    setChatMessages(prev => [...prev, chatMessage]);
+    // 로컬 상태에 메시지 추가 (중복 방지)
+    setChatMessages(prev => {
+      // 같은 ID가 이미 있는지 확인
+      if (prev.some(msg => msg.id === messageId)) {
+        return prev;
+      }
+      return [...prev, chatMessage];
+    });
 
     // 입력창 닫기
     setIsChatInputOpen(false);
@@ -84,7 +91,13 @@ export function useChat(awareness, userInfo) {
   const handleChatMessageReceived = useCallback((message) => {
     if (message.user?.id === userInfo?.id) return; // 자신의 메시지는 무시
 
-    setChatMessages(prev => [...prev, message]);
+    setChatMessages(prev => {
+      // 같은 ID가 이미 있는지 확인
+      if (prev.some(msg => msg.id === message.id)) {
+        return prev;
+      }
+      return [...prev, message];
+    });
 
     // 5초 후 메시지 제거
     setTimeout(() => {
@@ -101,6 +114,39 @@ export function useChat(awareness, userInfo) {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  // Awareness 변경 감지 (다른 사용자의 채팅 메시지 수신)
+  useEffect(() => {
+    if (!awareness) return;
+
+    const handleAwarenessChange = () => {
+      const states = awareness.getStates();
+      const now = Date.now();
+
+      states.forEach((state, clientId) => {
+        // 자신의 상태는 제외
+        if (clientId === awareness.clientID) return;
+
+        const { chatMessage } = state;
+
+        // 채팅 메시지 처리 (최근 1초 내 데이터만)
+        if (chatMessage && (now - chatMessage.timestamp) < 1000) {
+          handleChatMessageReceived(chatMessage);
+          
+          // 메시지 처리 후 Awareness에서 제거
+          setTimeout(() => {
+            awareness.setLocalStateField('chatMessage', null);
+          }, 100);
+        }
+      });
+    };
+
+    awareness.on('change', handleAwarenessChange);
+
+    return () => {
+      awareness.off('change', handleAwarenessChange);
+    };
+  }, [awareness, handleChatMessageReceived]);
 
   return {
     chatMessages,

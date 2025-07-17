@@ -38,10 +38,10 @@ const ChatBubble = ({
     <div
       ref={bubbleRef}
       style={{
-        position: 'absolute',
+        position: 'fixed', // absolute 대신 fixed 사용
         left: x + 20, // 커서 오른쪽에 위치
         top: y - 40, // 커서 위에 위치
-        backgroundColor: isOwnMessage ? '#3B4EFF' : user?.color || '#ffffff',
+        backgroundColor: user?.color || '#3B4EFF',
         color: isOwnMessage ? '#ffffff' : '#ffffff',
         padding: '8px 12px',
         borderRadius: '12px',
@@ -51,9 +51,9 @@ const ChatBubble = ({
         wordWrap: 'break-word',
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
         border: isOwnMessage ? 'none' : '1px solid rgba(255,255,255,0.2)',
-        zIndex: 10000,
+        zIndex: 99999,
         animation: followCursor ? 'none' : 'chatBubbleIn 0.3s ease-out',
-        transform: 'translateZ(0)', // GPU 가속
+        transform: followCursor ? 'translateZ(0)' : 'none', // GPU 가속 (필요할 때만)
         transition: followCursor ? 'all 0.1s ease-out' : 'none',
       }}
     >

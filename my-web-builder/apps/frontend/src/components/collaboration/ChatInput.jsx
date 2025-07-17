@@ -46,7 +46,7 @@ const ChatInput = ({
   return (
     <div
       style={{
-        position: 'absolute',
+        position: 'fixed', // absolute 대신 fixed 사용
         left: x + 20, // 커서 오른쪽에 위치
         top: y - 40, // 커서 위에 위치
         backgroundColor: user?.color || '#3B4EFF',
@@ -54,9 +54,9 @@ const ChatInput = ({
         borderRadius: '12px',
         padding: '8px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        zIndex: 10001,
+        zIndex: 99999,
         animation: followCursor ? 'none' : 'chatInputIn 0.3s ease-out',
-        transform: 'translateZ(0)', // GPU 가속
+        transform: followCursor ? 'translateZ(0)' : 'none', // GPU 가속 (필요할 때만)
         minWidth: '200px',
         transition: followCursor ? 'all 0.1s ease-out' : 'none',
       }}
