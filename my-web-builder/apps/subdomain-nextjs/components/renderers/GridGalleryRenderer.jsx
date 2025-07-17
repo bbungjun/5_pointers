@@ -221,6 +221,10 @@ function GridGalleryRenderer({ comp, onUpdate, mode = 'live', width, height }) {
       </div>
 
       {/* 모달 */}
+      {modalOpen &&
+        images.length > 0 &&
+        typeof document !== 'undefined' &&
+        createPortal(
       {modalOpen && images.length > 0 && typeof document !== 'undefined' && createPortal(
         <div
           style={{
@@ -245,162 +249,145 @@ function GridGalleryRenderer({ comp, onUpdate, mode = 'live', width, height }) {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              backgroundColor: 'rgba(0, 0, 0, 0.9)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              zIndex: 99999998,
+              zIndex: 99999,
               padding: '20px',
             }}
             onClick={() => setModalOpen(false)}
           >
             <div
               style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                position: 'relative',
+                maxWidth: '90vw',
+                maxHeight: '90vh',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                zIndex: 99999,
-                padding: '20px',
               }}
-              onClick={() => setModalOpen(false)}
+              onClick={(e) => e.stopPropagation()}
             >
+              {/* 현재 이미지 */}
               <div
                 style={{
-                  position: 'relative',
-                  maxWidth: '90vw',
-                  maxHeight: '90vh',
+                  width: 'min(800px, 90vw)',
+                  height: 'min(600px, 80vh)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
                 }}
-                onClick={(e) => e.stopPropagation()}
               >
-                {/* 현재 이미지 */}
+                <img
+                  src={images[currentImageIndex]?.src}
+                  alt={images[currentImageIndex]?.alt}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    borderRadius: '8px',
+                  }}
+                />
+              </div>
+
+              {/* 닫기 버튼 */}
+              <button
+                onClick={() => setModalOpen(false)}
+                style={{
+                  position: 'absolute',
+                  top: '-40px',
+                  right: '0',
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  padding: '8px',
+                }}
+              >
+                ×
+              </button>
+
+              {/* 네비게이션 버튼 */}
+              {showNavigation && images.length > 1 && (
+                <>
+                  <button
+                    onClick={goToPrevious}
+                    style={{
+                      position: 'absolute',
+                      left: '-50px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      border: 'none',
+                      color: 'white',
+                      fontSize: '24px',
+                      cursor: 'pointer',
+                      padding: '12px 16px',
+                      borderRadius: '50%',
+                    }}
+                  >
+                    ‹
+                  </button>
+                  <button
+                    onClick={goToNext}
+                    style={{
+                      position: 'absolute',
+                      right: '-50px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      border: 'none',
+                      color: 'white',
+                      fontSize: '24px',
+                      cursor: 'pointer',
+                      padding: '12px 16px',
+                      borderRadius: '50%',
+                    }}
+                  >
+                    ›
+                  </button>
+                </>
+              )}
+
+              {/* 캡션 */}
+              {showCaption && images[currentImageIndex]?.caption && (
                 <div
                   style={{
-                    width: 'min(800px, 90vw)',
-                    height: 'min(600px, 80vh)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
+                    position: 'absolute',
+                    bottom: '-40px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    color: 'white',
+                    fontSize: '14px',
+                    textAlign: 'center',
+                    maxWidth: '80%',
                   }}
                 >
-                  <img
-                    src={images[currentImageIndex]?.src}
-                    alt={images[currentImageIndex]?.alt}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                      borderRadius: '8px',
-                    }}
-                  />
+                  {images[currentImageIndex].caption}
                 </div>
+              )}
 
-                {/* 닫기 버튼 */}
-                <button
-                  onClick={() => setModalOpen(false)}
+              {/* 카운터 */}
+              {images.length > 1 && (
+                <div
                   style={{
                     position: 'absolute',
-                    top: '-40px',
-                    right: '0',
-                    background: 'none',
-                    border: 'none',
+                    bottom: '-70px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
                     color: 'white',
-                    fontSize: '24px',
-                    cursor: 'pointer',
-                    padding: '8px',
+                    fontSize: '12px',
+                    opacity: 0.7,
                   }}
                 >
-                  ×
-                </button>
-
-                {/* 네비게이션 버튼 */}
-                {showNavigation && images.length > 1 && (
-                  <>
-                    <button
-                      onClick={goToPrevious}
-                      style={{
-                        position: 'absolute',
-                        left: '-50px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'rgba(255, 255, 255, 0.2)',
-                        border: 'none',
-                        color: 'white',
-                        fontSize: '24px',
-                        cursor: 'pointer',
-                        padding: '12px 16px',
-                        borderRadius: '50%',
-                      }}
-                    >
-                      ‹
-                    </button>
-                    <button
-                      onClick={goToNext}
-                      style={{
-                        position: 'absolute',
-                        right: '-50px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'rgba(255, 255, 255, 0.2)',
-                        border: 'none',
-                        color: 'white',
-                        fontSize: '24px',
-                        cursor: 'pointer',
-                        padding: '12px 16px',
-                        borderRadius: '50%',
-                      }}
-                    >
-                      ›
-                    </button>
-                  </>
-                )}
-
-                {/* 캡션 */}
-                {showCaption && images[currentImageIndex]?.caption && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '-40px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      color: 'white',
-                      fontSize: '14px',
-                      textAlign: 'center',
-                      maxWidth: '80%',
-                    }}
-                  >
-                    {images[currentImageIndex].caption}
-                  </div>
-                )}
-
-                {/* 카운터 */}
-                {images.length > 1 && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '-70px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      color: 'white',
-                      fontSize: '12px',
-                      opacity: 0.7,
-                    }}
-                  >
-                    {currentImageIndex + 1} / {images.length}
-                  </div>
-                )}
-              </div>
+                  {currentImageIndex + 1} / {images.length}
+                </div>
+              )}
             </div>
           </div>,
           document.body

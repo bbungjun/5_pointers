@@ -46,7 +46,11 @@ const ChatInput = ({
   return (
     <div
       style={{
+<<<<<<< Updated upstream
         position: 'fixed', // absolute 대신 fixed 사용
+=======
+        position: 'absolute',
+>>>>>>> Stashed changes
         left: x + 20, // 커서 오른쪽에 위치
         top: y - 40, // 커서 위에 위치
         backgroundColor: user?.color || '#3B4EFF',
@@ -54,9 +58,15 @@ const ChatInput = ({
         borderRadius: '12px',
         padding: '8px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+<<<<<<< Updated upstream
         zIndex: 99999,
         animation: followCursor ? 'none' : 'chatInputIn 0.3s ease-out',
         transform: followCursor ? 'translateZ(0)' : 'none', // GPU 가속 (필요할 때만)
+=======
+        zIndex: 10001,
+        animation: followCursor ? 'none' : 'chatInputIn 0.3s ease-out',
+        transform: 'translateZ(0)', // GPU 가속
+>>>>>>> Stashed changes
         minWidth: '200px',
         transition: followCursor ? 'all 0.1s ease-out' : 'none',
       }}

@@ -284,7 +284,13 @@ export function useCollaboration({
     const handleComponentsChange = () => {
       if (isProcessingRef.current) return;
       isProcessingRef.current = true;
+    // 컴포넌트 변화 감지 및 React 상태 업데이트 (최적화됨)
+    const handleComponentsChange = () => {
+      if (isProcessingRef.current) return;
+      isProcessingRef.current = true;
 
+      try {
+        const componentsData = yComponents.toArray();
       try {
         const componentsData = yComponents.toArray();
 
@@ -300,6 +306,23 @@ export function useCollaboration({
         console.error('컴포넌트 데이터 업데이트 중 오류:', error);
       } finally {
         isProcessingRef.current = false;
+      }
+    };
+
+    // 캔버스 설정 변화 감지 및 동기화
+    const handleCanvasSettingsChange = () => {
+      try {
+        const settings = yCanvasSettings.toJSON();
+        console.log('🔄 캔버스 설정 동기화:', settings);
+        
+        // 캔버스 높이 변경사항을 부모 컴포넌트에 알림
+        if (settings.canvasHeight !== undefined) {
+          // 부모 컴포넌트에서 캔버스 높이를 업데이트할 수 있도록 콜백 호출
+          safeOnCanvasSettingsUpdate(settings);
+          console.log('📏 캔버스 높이 동기화:', settings.canvasHeight);
+        }
+      } catch (error) {
+        console.error('캔버스 설정 업데이트 중 오류:', error);
       }
     };
 
@@ -329,11 +352,16 @@ export function useCollaboration({
       handleComponentsChange();
       handleCanvasSettingsChange();
     }
+    // 초기 데이터 로드 (즉시 실행)
+    handleComponentsChange();
+    handleCanvasSettingsChange();
 
     try {
       yComponents.observe(handleComponentsChange);
       yCanvasSettings.observe(handleCanvasSettingsChange);
+      yCanvasSettings.observe(handleCanvasSettingsChange);
     } catch (error) {
+      console.error('Y.js 리스너 등록 실패:', error);
       console.error('Y.js 리스너 등록 실패:', error);
     }
 
