@@ -120,6 +120,12 @@ function NoCodeEditor({ pageId }) {
     canvasRef,
     selectedComponentId: interaction.selectedId,
     onComponentsUpdate: setComponents,
+    onCanvasSettingsUpdate: (settings) => {
+      if (settings.canvasHeight !== undefined && settings.canvasHeight !== canvasHeight) {
+        console.log('협업을 통해 캔버스 높이 동기화:', settings.canvasHeight);
+        setCanvasHeight(settings.canvasHeight);
+      }
+    },
     viewport: interaction.viewport,
   });
 
@@ -232,31 +238,7 @@ function NoCodeEditor({ pageId }) {
     }
   }, [connectionError, isConnected]);
 
-  // 협업 시스템에서 캔버스 설정 동기화
-  useEffect(() => {
-    if (!collaboration.ydoc) return;
 
-    const yCanvasSettings = collaboration.ydoc.getMap('canvasSettings');
-    if (!yCanvasSettings) return;
-
-    const handleCanvasSettingsChange = () => {
-      const settings = yCanvasSettings.toJSON();
-      if (settings.canvasHeight && settings.canvasHeight !== canvasHeight) {
-        console.log('협업을 통해 캔버스 높이 동기화:', settings.canvasHeight);
-        setCanvasHeight(settings.canvasHeight);
-      }
-    };
-
-    // 초기 설정 로드
-    handleCanvasSettingsChange();
-
-    // 설정 변화 감지
-    yCanvasSettings.observe(handleCanvasSettingsChange);
-
-    return () => {
-      yCanvasSettings.unobserve(handleCanvasSettingsChange);
-    };
-  }, [collaboration.ydoc, canvasHeight, setCanvasHeight]);
 
   // 키보드 단축키 처리 (Delete, Ctrl+C, Ctrl+V)
   useEffect(() => {

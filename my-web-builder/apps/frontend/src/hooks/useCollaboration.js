@@ -20,6 +20,7 @@ export function useCollaboration({
   canvasRef,
   selectedComponentId,
   onComponentsUpdate,
+  onCanvasSettingsUpdate,
   viewport = 'desktop',
 }) {
   // 기본값 보장 - 모든 매개변수가 안전한 값을 가지도록 보장
@@ -28,6 +29,7 @@ export function useCollaboration({
   const safeCanvasRef = canvasRef || { current: null };
   const safeSelectedComponentId = selectedComponentId || null;
   const safeOnComponentsUpdate = onComponentsUpdate || (() => {});
+  const safeOnCanvasSettingsUpdate = onCanvasSettingsUpdate || (() => {});
   const safeViewport = viewport || 'desktop';
   
   // Y.js 기본 인프라 설정 (항상 호출)
@@ -264,46 +266,66 @@ export function useCollaboration({
     if (!yCanvasSettings) return;
     canvasSettingsRef.current = yCanvasSettings;
 
-      // 컴포넌트 변화 감지 및 React 상태 업데이트 (최적화됨)
-  const handleComponentsChange = () => {
-    if (isProcessingRef.current) return;
-    isProcessingRef.current = true;
+    // 컴포넌트 변화 감지 및 React 상태 업데이트 (최적화됨)
+    const handleComponentsChange = () => {
+      if (isProcessingRef.current) return;
+      isProcessingRef.current = true;
 
-    try {
-      const componentsData = yComponents.toArray();
+      try {
+        const componentsData = yComponents.toArray();
 
-      // 초기 로드 시에는 즉시 업데이트, 이후에는 배치 업데이트
-      if (!initialLoadRef.current) {
-        console.log('🎨 Y.js 초기 데이터 로드:', componentsData.length, '개 컴포넌트');
-        safeOnComponentsUpdate(componentsData);
-        initialLoadRef.current = true;
-      } else {
-        batchUpdate(componentsData);
+        // 초기 로드 시에는 즉시 업데이트, 이후에는 배치 업데이트
+        if (!initialLoadRef.current) {
+          console.log('🎨 Y.js 초기 데이터 로드:', componentsData.length, '개 컴포넌트');
+          safeOnComponentsUpdate(componentsData);
+          initialLoadRef.current = true;
+        } else {
+          batchUpdate(componentsData);
+        }
+      } catch (error) {
+        console.error('컴포넌트 데이터 업데이트 중 오류:', error);
+      } finally {
+        isProcessingRef.current = false;
       }
-    } catch (error) {
-      console.error('컴포넌트 데이터 업데이트 중 오류:', error);
-    } finally {
-      isProcessingRef.current = false;
-    }
-  };
+    };
+
+    // 캔버스 설정 변화 감지 및 동기화
+    const handleCanvasSettingsChange = () => {
+      try {
+        const settings = yCanvasSettings.toJSON();
+        console.log('🔄 캔버스 설정 동기화:', settings);
+        
+        // 캔버스 높이 변경사항을 부모 컴포넌트에 알림
+        if (settings.canvasHeight !== undefined) {
+          // 부모 컴포넌트에서 캔버스 높이를 업데이트할 수 있도록 콜백 호출
+          safeOnCanvasSettingsUpdate(settings);
+          console.log('📏 캔버스 높이 동기화:', settings.canvasHeight);
+        }
+      } catch (error) {
+        console.error('캔버스 설정 업데이트 중 오류:', error);
+      }
+    };
 
     // 초기 데이터 로드 (즉시 실행)
     handleComponentsChange();
+    handleCanvasSettingsChange();
 
     try {
       yComponents.observe(handleComponentsChange);
+      yCanvasSettings.observe(handleCanvasSettingsChange);
     } catch (error) {
-      console.error('Y.js 컴포넌트 리스너 등록 실패:', error);
+      console.error('Y.js 리스너 등록 실패:', error);
     }
 
     return () => {
       try {
         yComponents.unobserve(handleComponentsChange);
+        yCanvasSettings.unobserve(handleCanvasSettingsChange);
       } catch (error) {
-        console.error('Y.js 컴포넌트 리스너 해제 실패:', error);
+        console.error('Y.js 리스너 해제 실패:', error);
       }
     };
-  }, [ydoc, batchUpdate, safeOnComponentsUpdate]);
+  }, [ydoc, batchUpdate, safeOnComponentsUpdate, safeOnCanvasSettingsUpdate]);
 
   // Y.js 연결 완료 후 초기 데이터 동기화
   useEffect(() => {
@@ -591,6 +613,7 @@ export function useCollaboration({
     updateComponentObject,
     removeComponent,
     updateAllComponents,
+    updateCanvasSettings, // 캔버스 설정 업데이트 함수 추가
     getActiveUsers,
     undo,
     redo,
@@ -612,6 +635,7 @@ export function useCollaboration({
     updateComponentObject,
     removeComponent,
     updateAllComponents,
+    updateCanvasSettings, // 캔버스 설정 업데이트 함수 추가
     getActiveUsers,
     undo,
     redo,
