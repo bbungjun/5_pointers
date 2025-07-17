@@ -57,8 +57,9 @@ function DashboardPage({ user, onLogout }) {
   const categories = [
     { value: 'all', label: '전체' },
     { value: 'wedding', label: '웨딩' },
-    { value: 'events', label: '이벤트' },
-    { value: 'portfolio', label: '포트폴리오' },
+    { value: 'birthday', label: '생일' },
+    { value: 'dol', label: '돌잔치' },
+    { value: 'pet', label: '반려동물' },
   ];
 
   const deviceTypes = [
@@ -590,100 +591,86 @@ function DashboardPage({ user, onLogout }) {
 
         {/* 테마 선택 섹션 */}
         <div className="bg-white rounded-2xl shadow-2xl shadow-gray-200/50 border border-gray-200 p-8 mb-12">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center transform rotate-45" style={{ backgroundColor: '#7483D1' }}>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#7483D1' }}>
-                  <svg className="w-4 h-4 text-white -rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                  </svg>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-slate-800">이벤트 템플릿</h3>
+          {/* 필터 버튼들 - 테마/기기 선택을 상단으로 이동 */}
+          <div className="flex flex-col gap-4 mb-8">
+            {/* 테마 카테고리 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-slate-700 min-w-fit">테마</span>
+              <div className="flex gap-2">
+                {categories.map((category) => (
+                  <button
+                    key={category.value}
+                    onClick={() => setSelectedCategory(category.value)}
+                    className={`px-3 py-1.5 rounded-lg transition-all duration-300 font-medium text-sm flex items-center gap-1.5 min-w-[70px] justify-center ${
+                      selectedCategory === category.value
+                        ? 'text-white shadow-lg'
+                        : 'bg-slate-100 text-slate-600 hover:bg-pink-50 hover:text-gray-600'
+                    }`}
+                    style={selectedCategory === category.value ? { backgroundColor: '#7483D1' } : {}}
+                  >
+                    {category.value === 'all' && (
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                      </svg>
+                    )}
+                    {category.value === 'wedding' && (
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    )}
+                    {category.value === 'birthday' && (
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                      </svg>
+                    )}
+                    {category.value === 'dol' && (
+                      <img src="/icons/baby-icon.svg" alt="아기" className="w-3 h-3" />
+                    )}
+                    {category.value === 'pet' && (
+                      <img src="/icons/dog2.svg" alt="반려동물" className="w-3 h-3" />
+                    )}
+                    {category.label}
+                  </button>
+                ))}
               </div>
             </div>
-
-            {/* 필터 버튼들 */}
-            <div className="flex flex-col gap-4">
-              {/* 테마 카테고리 */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-slate-700 min-w-fit">테마</span>
-                <div className="flex gap-2">
-                  {categories.map((category) => (
-                    <button
-                      key={category.value}
-                      onClick={() => setSelectedCategory(category.value)}
-                      className={`px-3 py-1.5 rounded-lg transition-all duration-300 font-medium text-sm flex items-center gap-1.5 min-w-[70px] justify-center ${
-                        selectedCategory === category.value
-                          ? 'text-white shadow-lg'
-                          : 'bg-slate-100 text-slate-600 hover:bg-pink-50 hover:text-gray-600'
-                      }`}
-                      style={selectedCategory === category.value ? { backgroundColor: '#7483D1' } : {}}
-                    >
-                      {category.value === 'all' && (
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                        </svg>
-                      )}
-                      {category.value === 'wedding' && (
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                      )}
-                      {category.value === 'events' && (
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      )}
-                      {category.value === 'portfolio' && (
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 01-2 2H10a2 2 0 01-2-2V6m8 0H8" />
-                        </svg>
-                      )}
-                      {category.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 디바이스 타입 */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-slate-700 min-w-fit">기기</span>
-                <div className="flex gap-2">
-                  {deviceTypes.map((device) => (
-                    <button
-                      key={device.value}
-                      onClick={() => setSelectedDevice(device.value)}
-                      className={`px-3 py-1.5 rounded-lg transition-all duration-300 font-medium text-sm flex items-center gap-1.5 min-w-[70px] justify-center ${
-                        selectedDevice === device.value
-                          ? 'text-white shadow-lg'
-                          : 'bg-slate-100 text-slate-600 hover:bg-pink-50 hover:text-gray-600'
-                      }`}
-                      style={selectedDevice === device.value ? { backgroundColor: '#7483D1' } : {}}
-                    >
-                      {device.value === 'mobile' && (
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
-                        </svg>
-                      )}
-                      {device.value === 'desktop' && (
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                      )}
-                      {device.value === 'all' && (
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z" />
-                        </svg>
-                      )}
-                      {device.label}
-                    </button>
-                  ))}
-                </div>
+            {/* 디바이스 타입 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-slate-700 min-w-fit">기기</span>
+              <div className="flex gap-2">
+                {deviceTypes.map((device) => (
+                  <button
+                    key={device.value}
+                    onClick={() => setSelectedDevice(device.value)}
+                    className={`px-3 py-1.5 rounded-lg transition-all duration-300 font-medium text-sm flex items-center gap-1.5 min-w-[70px] justify-center ${
+                      selectedDevice === device.value
+                        ? 'text-white shadow-lg'
+                        : 'bg-slate-100 text-slate-600 hover:bg-pink-50 hover:text-gray-600'
+                    }`}
+                    style={selectedDevice === device.value ? { backgroundColor: '#7483D1' } : {}}
+                  >
+                    {device.value === 'mobile' && (
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
+                      </svg>
+                    )}
+                    {device.value === 'desktop' && (
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                    {device.value === 'all' && (
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z" />
+                      </svg>
+                    )}
+                    {device.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
+          
 
           {/* 템플릿 리스트 */}
           <div className="relative">
@@ -722,6 +709,11 @@ function DashboardPage({ user, onLogout }) {
                                 <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
                                   {mobileTotalCount}개
                                 </span>
+                                {selectedCategory !== 'all' && (
+                                  <span className="px-2 py-1 bg-pink-100 text-pink-700 text-sm font-medium rounded-full">
+                                    {categories.find(cat => cat.value === selectedCategory)?.label}
+                                  </span>
+                                )}
                               </div>
                               
                               {/* 모바일 템플릿 페이지네이션 화살표 */}
@@ -769,6 +761,18 @@ function DashboardPage({ user, onLogout }) {
                                   className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
                                 >
                                   <div className="p-4">
+                                    {/* 기기 타입과 테마 표시 */}
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-blue-800">
+                                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z" clipRule="evenodd"></path>
+                                        </svg>
+                                        모바일
+                                      </div>
+                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {categories.find(cat => cat.value === template.category)?.label}
+                                      </div>
+                                    </div>
                                     {/* 템플릿 캔버스 미리보기 */}
                                     <div className={`relative rounded-lg overflow-hidden mb-4 ${
                                       template.editingMode === 'mobile' 
@@ -784,13 +788,6 @@ function DashboardPage({ user, onLogout }) {
                                     <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
                                       {template.name}
                                     </h4>
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-sm text-pink-600 font-medium">
-                                          {template.category}
-                                        </span>                                        
-                                      </div>
-                                    </div>
                                   </div>
                                 </div>
                               ))}
@@ -802,12 +799,6 @@ function DashboardPage({ user, onLogout }) {
                         {mobileTemplates.length > 0 && desktopTemplates.length > 0 && (
                           <div className="flex items-center gap-4 py-4">
                             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full">
-                              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                              </svg>
-                              <span className="text-sm font-medium text-slate-600">데스크톱 템플릿</span>
-                            </div>
                             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
                           </div>
                         )}
@@ -824,6 +815,11 @@ function DashboardPage({ user, onLogout }) {
                                 <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
                                   {desktopTotalCount}개
                                 </span>
+                                {selectedCategory !== 'all' && (
+                                  <span className="px-2 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
+                                    {categories.find(cat => cat.value === selectedCategory)?.label}
+                                  </span>
+                                )}
                               </div>
                               
                               {/* 데스크톱 템플릿 페이지네이션 화살표 */}
@@ -871,6 +867,18 @@ function DashboardPage({ user, onLogout }) {
                                   className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
                                 >
                                   <div className="p-4">
+                                    {/* 기기 타입과 테마 표시 */}
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd"></path>
+                                        </svg>
+                                        데스크톱
+                                      </div>
+                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {categories.find(cat => cat.value === template.category)?.label}
+                                      </div>
+                                    </div>
                                     {/* 템플릿 캔버스 미리보기 */}
                                     <div className="relative rounded-lg overflow-hidden mb-4">
                                       {template.editingMode === 'mobile' ? (
@@ -903,13 +911,6 @@ function DashboardPage({ user, onLogout }) {
                                     <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
                                       {template.name}
                                     </h4>
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-sm text-pink-600 font-medium">
-                                          {template.category}
-                                        </span>
-                                      </div>
-                                    </div>
                                   </div>
                                 </div>
                               ))}
@@ -1024,6 +1025,26 @@ function DashboardPage({ user, onLogout }) {
                             className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
                           >
                             <div className="p-4">
+                              {/* 기기 타입과 테마 표시 */}
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                  template.editingMode === 'mobile' 
+                                    ? 'bg-pink-100 text-pink-800' 
+                                    : 'bg-purple-100 text-purple-800'
+                                }`}>
+                                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    {template.editingMode === 'mobile' ? (
+                                      <path fillRule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z" clipRule="evenodd"></path>
+                                    ) : (
+                                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd"></path>
+                                    )}
+                                  </svg>
+                                  {template.editingMode === 'mobile' ? '모바일' : '데스크톱'}
+                                </div>
+                                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  {categories.find(cat => cat.value === template.category)?.label}
+                                </div>
+                              </div>
                               {/* 템플릿 캔버스 미리보기 */}
                               <div className={`relative rounded-lg overflow-hidden mb-4 ${
                                 template.editingMode === 'mobile' 
@@ -1040,11 +1061,6 @@ function DashboardPage({ user, onLogout }) {
                                 {template.name}
                               </h4>
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm text-pink-600 font-medium">
-                                    {template.category}
-                                  </span>
-                                </div>
                                 <span className="text-sm text-slate-500">
                                   {template.usageCount}회 사용
                                 </span>

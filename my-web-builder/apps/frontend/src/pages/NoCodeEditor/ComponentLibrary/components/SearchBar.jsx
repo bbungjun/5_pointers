@@ -66,7 +66,7 @@ function SearchBar({ searchTerm, onSearchChange }) {
         
         <input
           type="text"
-          placeholder="컴포넌트 검색..."
+          placeholder="컴포넌트 검색"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           style={{

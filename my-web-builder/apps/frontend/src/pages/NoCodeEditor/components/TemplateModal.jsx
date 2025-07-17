@@ -71,8 +71,9 @@ function TemplateModal({
             }}
           >
             <option value="wedding">웨딩</option>
-            <option value="events">이벤트</option>
-            <option value="portfolio">포트폴리오</option>
+            <option value="birthday">생일</option>
+            <option value="dol">돌잔치</option>
+            <option value="pet">반려동물</option>
           </select>
         </div>
         
