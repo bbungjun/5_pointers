@@ -10,24 +10,16 @@ const PREVIEW_CSS = `
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    overflow-y: auto;
-    overflow-x: hidden;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
+    overflow-x: hidden;
   }
   #preview-root {
     width: 100%;
     height: 100%;
-    overflow-y: auto;
     overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
+    margin: 0;
+    padding: 0;
   }
   .mobile-viewport {
     width: 375px;
@@ -35,51 +27,29 @@ const PREVIEW_CSS = `
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    align-self: flex-start;
+    margin: 0;
+    padding: 0;
   }
   .desktop-viewport {
     width: 100%;
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
   }
   
-  /* 모든 스크롤바 완전히 숨기기 */
-  html::-webkit-scrollbar,
-  body::-webkit-scrollbar,
-  #preview-root::-webkit-scrollbar,
-  .mobile-viewport::-webkit-scrollbar,
-  .desktop-viewport::-webkit-scrollbar,
-  *::-webkit-scrollbar {
+  /* 모바일 모드에서만 스크롤바 숨기기 */
+  .mobile-viewport::-webkit-scrollbar {
     width: 0px;
     height: 0px;
     background: transparent;
     display: none;
   }
   
-  html,
-  body,
-  #preview-root,
-  .mobile-viewport,
-  .desktop-viewport,
-  * {
+  .mobile-viewport {
     -ms-overflow-style: none;
     scrollbar-width: none;
-  }
-  
-  /* 추가 스크롤바 제거 */
-  ::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-  }
-  
-  ::-webkit-scrollbar-track {
-    display: none !important;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    display: none !important;
   }
 `;
 
@@ -148,7 +118,7 @@ const PreviewModal = ({
       const viewportClass = viewMode === "mobile" ? "mobile-viewport" : "desktop-viewport";
       
       rootRef.current.render(
-        React.createElement("div", { className: viewportClass, style:{paddingBottom: 32} },
+        React.createElement("div", { className: viewportClass },
           React.createElement(PreviewRenderer, {
             components: components,
             forcedViewport: viewMode,
@@ -189,12 +159,30 @@ const PreviewModal = ({
     const availableWidth = containerRect.width;
     const availableHeight = containerRect.height;
 
-    // iframe을 컨테이너 크기에 맞게 설정
-    iframe.style.width = `${availableWidth}px`;
-    iframe.style.height = `${availableHeight}px`;
+    if (viewMode === 'mobile') {
+      // 모바일 모드는 고정 크기
+      iframe.style.width = '375px';
+      iframe.style.height = '100%';
+      iframe.style.transform = 'none';
+    } else {
+      // 데스크톱 모드: 1920px 캔버스를 컨테이너에 맞게 스케일링
+      const canvasWidth = 1920;
+      const scale = Math.min(availableWidth / canvasWidth, 1); // 최대 1배까지만 스케일링
+      
+      iframe.style.width = `${canvasWidth}px`;
+      iframe.style.height = '100%';
+      iframe.style.transform = `scale(${scale})`;
+      iframe.style.transformOrigin = 'top center';
+      iframe.style.overflowY = 'auto';
+      iframe.style.overflowX = 'hidden';
+    }
+    
     iframe.style.border = 'none';
     iframe.style.display = 'block';
     iframe.style.backgroundColor = '#ffffff';
+    iframe.style.margin = '0';
+    iframe.style.padding = '0';
+    iframe.style.boxSizing = 'border-box';
   }, [viewMode, isOpen]);
 
   // ESC 키로 모달 닫기
@@ -340,17 +328,24 @@ const PreviewModal = ({
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 40px;
+        padding: 20px;
         background: #f8fafc;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
       }
 
       .preview-iframe.desktop {
-        width: 100%;
-        height: 100%;
         border: none;
         border-radius: 8px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         background: #fff;
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box;
       }
 
       .preview-iframe.mobile {

@@ -88,78 +88,54 @@ const ComponentRenderer = ({ component, editingViewport, pageId }) => {
   }
 };
 
-// 컴포넌트들의 실제 영역 계산
-const calculateActualDimensions = (components) => {
-  if (!components || components.length === 0) {
-    return { width: 400, height: 300, offsetX: 0, offsetY: 0 };
-  }
-
-  let maxX = 0;
-  let maxY = 0;
-  let minX = Infinity;
-  let minY = Infinity;
-
-  components.forEach((component) => {
-    const x = component.x || 0;
-    const y = component.y || 0;
-    const width =
-      component.width || getComponentDimensions(component.type).defaultWidth;
-    const height =
-      component.height || getComponentDimensions(component.type).defaultHeight;
-
-    minX = Math.min(minX, x);
-    minY = Math.min(minY, y);
-    maxX = Math.max(maxX, x + width);
-    maxY = Math.max(maxY, y + height);
-  });
-
-  const actualWidth = Math.max(400, maxX - minX + 40); // 최소 400px + 여백 40px
-  const actualHeight = Math.max(300, maxY - minY + 40); // 최소 300px + 여백 40px
-
-  return {
-    width: actualWidth,
-    height: actualHeight,
-    offsetX: Math.max(0, minX - 20), // 왼쪽 여백 20px
-    offsetY: Math.max(0, minY - 20), // 위쪽 여백 20px
-  };
-};
-
 const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewport = 'desktop', pageId }) => {
   const [scale, setScale] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const containerRef = useRef(null);
   const [actualCanvasWidth, setActualCanvasWidth] = useState(375);
-  const canvasWidth = forcedViewport === 'mobile' ? actualCanvasWidth : 1920;
-  const canvasHeight = forcedViewport === 'mobile' ? 667 : 1080;
   const isMobileView = forcedViewport === 'mobile';
+  
+  // 컴포넌트들의 실제 영역을 기반으로 캔버스 크기 계산
+  const calculateCanvasSize = () => {
+    if (isMobileView) {
+      return { width: 375, height: 667 }; // 모바일은 고정 크기
+    }
+    
+    // Desktop 모드에서는 에디터와 동일한 크기 사용
+    const editorCanvasWidth = 1920; // 에디터와 동일한 크기
+    
+    if (!components || components.length === 0) {
+      return { width: editorCanvasWidth, height: 1080 };
+    }
 
-  // 데스크톱 모드에서만 스케일 계산
+    let maxY = 0;
+
+    components.forEach((component) => {
+      const y = component.y || 0;
+      const height = component.height || getComponentDimensions(component.type).defaultHeight;
+      maxY = Math.max(maxY, y + height);
+    });
+
+    // 에디터와 동일한 최소 높이 보장
+    const actualHeight = Math.max(1080, maxY + 20);
+
+    return { width: editorCanvasWidth, height: actualHeight };
+  };
+
+  const canvasSize = calculateCanvasSize();
+  const canvasWidth = canvasSize.width;
+  const canvasHeight = canvasSize.height;
+
+  // 데스크톱 모드에서는 스케일 계산 제거 (원본 크기로 표시)
   useEffect(() => {
-    if (isMobileView || !containerRef.current) {
+    // 모바일 모드에서는 스케일 계산 불필요
+    if (isMobileView) {
+      setScale(1);
       return;
     }
 
-    const calculateScale = () => {
-      const parentElement = containerRef.current.parentElement;
-      if (!parentElement) return;
-
-      const availableWidth = parentElement.clientWidth;
-      const availableHeight = parentElement.clientHeight;
-
-      const scaleX = availableWidth / canvasWidth;
-      const scaleY = availableHeight / canvasHeight;
-
-      setScale(Math.min(scaleX, scaleY));
-    };
-
-    calculateScale();
-
-    const iframeWindow = containerRef.current.ownerDocument.defaultView;
-    iframeWindow.addEventListener('resize', calculateScale);
-
-    return () => {
-      iframeWindow.removeEventListener('resize', calculateScale);
-    };
+    // 데스크톱 모드에서도 스케일 1로 고정 (원본 크기)
+    setScale(1);
   }, [isMobileView, canvasWidth, canvasHeight]);
 
   // 데스크톱 편집 기준 → 모바일 미리보기: 재배치 적용
@@ -231,15 +207,18 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
   const containerStyle = {
     background: '#ffffff',
     transformOrigin: 'top left',
-    width: isMobileView ? `${canvasWidth}px` : `${canvasWidth}px`,
+    width: isMobileView ? `${canvasWidth}px` : `${canvasWidth}px`, // 고정 픽셀 크기 사용
     height: isMobileView ? 'auto' : `${canvasHeight}px`,
-    minHeight: isMobileView ? '812px' : 'auto',   // mobile-viewport 높이에 맞춤    transform: isModalOpen ? 'none' : `scale(${isMobileView ? 1 : scale})`,
-    overflow: isMobileView ? 'auto' : 'visible',
+    minHeight: isMobileView ? '812px' : `${canvasHeight}px`,
+    maxWidth: isMobileView ? `${canvasWidth}px` : `${canvasWidth}px`, // 최대 너비도 고정
+    // Desktop 모드에서는 스케일링 제거하여 원본 크기로 표시
+    transform: isMobileView ? 'none' : 'none',
+    overflow: 'hidden', // 모든 오버플로우 숨김
     position: 'relative',
-    margin: 0,
+    margin: '0 auto', // 중앙 정렬
     padding: 0,
     boxSizing: 'border-box',
-    display: isMobileView ? 'block' : undefined,
+    display: 'block',
   };
 
   return (
@@ -248,25 +227,27 @@ const PreviewRenderer = ({ components = [], forcedViewport = null, editingViewpo
       className="page-container"
       style={containerStyle}
     >
-      {components.map((component) => (
-        <div
-          key={component.id}
-          className="desktop-absolute-wrapper"
-          style={{
-            position: 'absolute',
-            left: component.x || 0,
-            top: component.y || 0,
-            width:
-              component.width ||
-              getComponentDimensions(component.type).defaultWidth,
-            height:
-              component.height ||
-              getComponentDimensions(component.type).defaultHeight,
-          }}
-        >
-          <ComponentRenderer component={component} editingViewport={editingViewport} pageId={pageId} setModalOpen={setIsModalOpen} />
-        </div>
-      ))}
+      {components.map((component) => {
+        // 에디터와 동일한 컴포넌트 크기 계산
+        const componentWidth = component.width || getComponentDimensions(component.type).defaultWidth;
+        const componentHeight = component.height || getComponentDimensions(component.type).defaultHeight;
+        
+        return (
+          <div
+            key={component.id}
+            className="desktop-absolute-wrapper"
+            style={{
+              position: 'absolute',
+              left: component.x || 0, // 에디터와 동일한 위치 사용
+              top: component.y || 0,
+              width: componentWidth,
+              height: componentHeight,
+            }}
+          >
+            <ComponentRenderer component={component} editingViewport={editingViewport} pageId={pageId} setModalOpen={setIsModalOpen} />
+          </div>
+        );
+      })}
     </div>
   );
 };
