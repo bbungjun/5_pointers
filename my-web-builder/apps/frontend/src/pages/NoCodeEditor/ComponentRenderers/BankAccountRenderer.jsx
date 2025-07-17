@@ -198,7 +198,8 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
       ref={ref}
       style={{
         width: '100%',
-        padding: '12px',
+        height: '200px',
+        padding: '18px 0',
         borderRadius: 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
@@ -206,7 +207,8 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
         minHeight: '150px',
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative'
+        position: 'relative',
+        boxSizing: 'border-box'
       }}
     >
       {title && (
@@ -215,7 +217,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
             fontSize: '18px',
             fontWeight: '600',
             textAlign: 'center',
-            marginBottom: '16px',
+            marginBottom: '8px',
             color: '#4A4A4A',
             whiteSpace: 'pre-wrap',
             fontFamily: 'Playfair Display, serif'
@@ -225,11 +227,11 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
         </h3>
       )}
 
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: '8px' }}>
         <button
           style={{
             width: '100%',
-            padding: '16px 24px',
+            padding: '12px 24px',
             background: '#87CEEB',
             color: '#FFFFFF',
             borderRadius: '8px',
@@ -266,11 +268,11 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
         </button>
       </div>
 
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: '0px' }}>
         <button
           style={{
             width: '100%',
-            padding: '16px 24px',
+            padding: '12px 24px',
             background: '#F4C2C2',
             color: '#FFFFFF',
             borderRadius: '8px',
