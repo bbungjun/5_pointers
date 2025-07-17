@@ -61,28 +61,6 @@ function Dashboard() {
     fetchTemplates();
   }, []);
 
-  return (
-    <div style={{
-      minHeight: '100vh', width: '100vw',
-      display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
-      background: '#f5f6fa', gap: 20
-    }}>
-      <h1 style={{ fontSize: 32, color: '#333', marginBottom: 40, fontWeight: 'bold' }}>모바일 이벤트 페이지 빌더</h1>
-      
-      <button
-        onClick={handleCreateNewPage}
-        style={{
-          fontSize: 18, padding: '16px 32px',
-          background: 'linear-gradient(135deg, #ff6b35, #f7931e)', color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer',
-          marginBottom: 12, fontWeight: 'bold', boxShadow: '0 4px 15px rgba(255, 107, 53, 0.3)'
-        }}
-      >
-페이지 만들기
-      </button>
-      
-
-    </div>
-  );
 }
 
 export default Dashboard;
