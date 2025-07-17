@@ -88,35 +88,28 @@ const DynamicPageRenderer = ({
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [scaleFactor, setScaleFactor] = useState(1);
-  const [desktopScale, setDesktopScale] = useState(1); // 1. 상태 추가
-  const BASE_DESKTOP_WIDTH = 1920; // 1. 상수 추가
+  const [mobileScale, setMobileScale] = useState(1);
+  const [desktopScale, setDesktopScale] = useState(1);
+  const BASE_DESKTOP_WIDTH = 1920;
+  const BASE_MOBILE_WIDTH = 375;
   const containerRef = useRef(null); // 컨테이너 참조 추가
 
   useEffect(() => {
     setIsMounted(true);
 
     const checkViewport = () => {
-      const isMobile = window.innerWidth <= 768;
+      const currentWidth = window.innerWidth;
+      const isMobile = currentWidth <= 768;
       setIsMobileView(isMobile);
 
-      // 모바일 화면 + 모바일 편집 페이지인 경우에만 스케일링 적용
-      if (isMobile && editingMode === 'mobile') {
-        // 실제 컨테이너 너비 측정
-        const actualWidth = containerRef.current
-          ? containerRef.current.offsetWidth
-          : window.innerWidth;
-
-        const baseWidth = 375;
-        const newScaleFactor = actualWidth / baseWidth;
-        setScaleFactor(newScaleFactor);
+      if (isMobile) {
+        const newScale = currentWidth / BASE_MOBILE_WIDTH;
+        setMobileScale(newScale);
       } else {
-        setScaleFactor(1);
-      }
-
-      // 2. 데스크톱 스케일 계산 로직 추가
-      if (!isMobile && editingMode === 'desktop') {
-        const newScale = window.innerWidth / BASE_DESKTOP_WIDTH;
-        setDesktopScale(newScale);
+        if (editingMode === 'desktop') {
+          const newScale = currentWidth / BASE_DESKTOP_WIDTH;
+          setDesktopScale(newScale);
+        }
       }
     };
 
@@ -288,60 +281,98 @@ const DynamicPageRenderer = ({
     );
   };
 
-  // 4. renderMobileLayout 함수 정의 (수직 재배치 로직으로 개선)
-  const renderMobileLayout = () => {
-    const sortedComponents = [...components].sort(
-      (a, b) => (a.y || 0) - (b.y || 0) || (a.x || 0) - (b.x || 0)
-    );
-    let currentY = 20;
-    const totalHeight = sortedComponents.reduce(
-      (h, comp) =>
-        h + (comp.height || getComponentDefaultSize(comp.type).height) + 20,
-      20
-    );
+  // ✅ 스케일링 전용 렌더링 함수: 이제 인자를 받도록 수정
+  const renderMobileScalingLayout = (componentsToRender) => {
+    const contentHeight =
+      Math.max(
+        0,
+        ...componentsToRender.map((c) => (c.y || 0) + (c.height || 0))
+      ) + 50;
 
     return (
       <div
-        style={{
-          width: '100%',
-          height: `${totalHeight}px`,
-          position: 'relative',
-        }}
+        style={{ width: '100%', height: `${contentHeight * mobileScale}px` }}
       >
-        {sortedComponents.map((comp) => {
-          const RendererComponent = getRendererByType(comp.type);
-          if (!RendererComponent) return null;
-
-          const compHeight =
-            comp.height || getComponentDefaultSize(comp.type).height;
-          const compTop = currentY;
-          currentY += compHeight + 20;
-
-          return (
-            <div
-              key={comp.id}
-              style={{
-                position: 'absolute',
-                top: `${compTop}px`,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '90%',
-                maxWidth: '500px',
-                height: `${compHeight}px`,
-              }}
-            >
-              <RendererComponent
-                {...comp.props}
-                comp={{ ...comp, width: '100%', height: compHeight }}
-                mode="live"
-                isEditor={false}
-                pageId={pageId}
-              />
-            </div>
-          );
-        })}
+        <div
+          style={{
+            width: `${BASE_MOBILE_WIDTH}px`,
+            height: `${contentHeight}px`,
+            transform: `scale(${mobileScale})`,
+            transformOrigin: 'top left',
+          }}
+        >
+          {componentsToRender.map((comp) => {
+            const RendererComponent = getRendererByType(comp.type);
+            if (!RendererComponent) return null;
+            return (
+              <div
+                key={comp.id}
+                style={{
+                  position: 'absolute',
+                  left: `${comp.x || 0}px`,
+                  top: `${comp.y || 0}px`,
+                  width: `${comp.width}px`,
+                  height: `${comp.height}px`,
+                }}
+              >
+                <RendererComponent
+                  {...comp.props}
+                  comp={{ ...comp }}
+                  mode="live"
+                  isEditor={false}
+                  pageId={pageId}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
+  };
+
+  // ✅ 메인 모바일 렌더링 함수: 데이터 변환 후 스케일링 함수를 호출하는 역할
+  const renderMobileLayout = () => {
+    if (editingMode === 'mobile') {
+      // 시나리오 1: mobile 편집 -> mobile 뷰. 원본 데이터 그대로 스케일링
+      return renderMobileScalingLayout(components);
+    } else {
+      // 시나리오 2: desktop 편집 -> mobile 뷰.
+      // 1. 먼저 데이터를 모바일용으로 재배치합니다.
+      const sortedComponents = [...components].sort(
+        (a, b) => (a.y || 0) - (b.y || 0) || (a.x || 0) - (b.x || 0)
+      );
+
+      const repositionedComponents = [];
+      let currentY = 0; // ❗️ 상단 여백을 0으로 시작합니다. 필요하다면 나중에 추가합니다.
+      
+      // ❗️ 패딩 없이 캔버스 너비를 꽉 채웁니다.
+      const mobileCanvasContentWidth = BASE_MOBILE_WIDTH;
+
+      for (const comp of sortedComponents) {
+        const originalWidth = comp.width || getComponentDefaultSize(comp.type).width;
+        const originalHeight = comp.height || getComponentDefaultSize(comp.type).height;
+        
+        // 비율에 맞게 새 높이 계산
+        const aspectRatio = originalHeight / originalWidth;
+        // originalWidth가 0인 경우를 방지
+        const newHeight = originalWidth > 0 ? mobileCanvasContentWidth * aspectRatio : originalHeight;
+
+        repositionedComponents.push({
+          ...comp,
+          // ❗️ x 좌표를 0으로 설정하여 왼쪽에 붙입니다.
+          x: 0,
+          y: currentY,
+          width: mobileCanvasContentWidth,
+          height: newHeight,
+        });
+
+        // ❗️ 루프 안에서 currentY를 다음 컴포넌트 높이만큼 누적합니다. (겹침 문제 해결)
+        currentY += newHeight;
+      }
+
+      // 2. 재배치된 새로운 데이터를 스케일링 함수에 전달하여 렌더링합니다.
+      return renderMobileScalingLayout(repositionedComponents);
+    }
   };
 
   return (
