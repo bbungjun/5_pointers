@@ -85,6 +85,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
                 : '0 2px 8px rgba(135, 206, 235, 0.3)',
               transition: 'all 0.2s ease',
               cursor: 'pointer',
+            userSelect: 'none',
               whiteSpace: 'nowrap',
               flexShrink: 0
             }}
@@ -170,6 +171,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
               background: 'none',
               border: 'none',
               cursor: 'pointer',
+            userSelect: 'none',
               padding: 0
             }} onClick={() => setIsOpen(false)}>
               <svg style={{ width: 'clamp(20px, 5vw, 24px)', height: 'clamp(20px, 5vw, 24px)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,7 +201,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
       style={{
         width: '100%',
         height: '200px',
-        padding: '18px 0',
+        padding: '18px 12px',
         borderRadius: 0,
         border: '1px solid #e5e7eb',
         backgroundColor,
@@ -231,7 +233,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
         <button
           style={{
             width: '100%',
-            padding: '12px 24px',
+            padding: '16px 24px',
             background: '#87CEEB',
             color: '#FFFFFF',
             borderRadius: '8px',
@@ -243,7 +245,8 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            userSelect: 'none'
           }}
           onClick={(e) => {
             e.preventDefault();
@@ -264,7 +267,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
           <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
-          <span style={{ whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '600', background: 'none', WebkitBackgroundClip: 'unset', WebkitTextFillColor: 'unset' }}>신랑 측 계좌번호</span>
+          <span style={{ whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '600', userSelect: 'none' }}>신랑 측 계좌번호</span>
         </button>
       </div>
 
@@ -272,7 +275,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
         <button
           style={{
             width: '100%',
-            padding: '12px 24px',
+            padding: '16px 24px',
             background: '#F4C2C2',
             color: '#FFFFFF',
             borderRadius: '8px',
@@ -284,7 +287,8 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            userSelect: 'none'
           }}
           onClick={(e) => {
             e.preventDefault();
@@ -305,7 +309,7 @@ function BankAccountRenderer({ comp, isEditor = false, onUpdate, mode = 'live', 
           <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
-          <span style={{ whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '600', background: 'none', WebkitBackgroundClip: 'unset', WebkitTextFillColor: 'unset' }}>신부 측 계좌번호</span>
+          <span style={{ whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif', fontWeight: '600', userSelect: 'none' }}>신부 측 계좌번호</span>
         </button>
       </div>
 
