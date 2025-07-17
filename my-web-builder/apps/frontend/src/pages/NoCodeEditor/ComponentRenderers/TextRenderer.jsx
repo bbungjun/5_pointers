@@ -106,7 +106,7 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
 
   // 폰트 관련 속성들
   const fontFamily = comp?.props?.fontFamily || 'Playfair Display, serif';
-  const textAlign = comp?.props?.textAlign || 'left';
+  const textAlign = comp?.props?.textAlign || 'center';
   const lineHeight = comp?.props?.lineHeight || 1.2;
   const letterSpacing = comp?.props?.letterSpacing || 0;
   const fontWeight = comp?.props?.fontWeight ? 'bold' : 'normal';
