@@ -70,6 +70,19 @@ jobs:
         run: |
           cd my-web-builder/apps/subdomain-nextjs
           npm run build
+          
+      - name: Verify Next.js build output
+        run: |
+          cd my-web-builder/apps/subdomain-nextjs
+          echo "Checking if out/ directory exists..."
+          ls -la
+          if [ -d "out" ]; then
+            echo "✅ out/ directory found"
+            ls -la out/
+          else
+            echo "❌ out/ directory not found"
+            exit 1
+          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
