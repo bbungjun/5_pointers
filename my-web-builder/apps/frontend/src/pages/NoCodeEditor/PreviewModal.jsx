@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import { createRoot } from "react-dom/client";
-import PreviewRenderer from "./PreviewRenderer";
+import React, { useState, useEffect, useRef } from 'react';
+import { createRoot } from 'react-dom/client';
+import PreviewRenderer from './PreviewRenderer';
 
 const PREVIEW_CSS = `
   * {
@@ -11,12 +11,11 @@ const PREVIEW_CSS = `
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     width: 100%;
-    height: 100%;
     overflow-x: hidden;
   }
   #preview-root {
     width: 100%;
-    height: 100%;
+    min-height: 100%;
     overflow-x: hidden;
     margin: 0;
     padding: 0;
@@ -53,13 +52,13 @@ const PREVIEW_CSS = `
   }
 `;
 
-const PreviewModal = ({ 
-  isOpen, 
-  onClose, 
-  components = [], 
-  editingViewport = "desktop",
+const PreviewModal = ({
+  isOpen,
+  onClose,
+  components = [],
+  editingViewport = 'desktop',
   templateCategory,
-  pageId 
+  pageId,
 }) => {
   const [viewMode, setViewMode] = useState(editingViewport);
   const iframeRef = useRef(null);
@@ -104,7 +103,7 @@ const PreviewModal = ({
     `);
     iframeDocument.close();
 
-    const rootElement = iframeDocument.getElementById("preview-root");
+    const rootElement = iframeDocument.getElementById('preview-root');
     if (rootElement) {
       rootRef.current = createRoot(rootElement);
     }
@@ -115,20 +114,23 @@ const PreviewModal = ({
     if (!isOpen || !rootRef.current) return;
 
     try {
-      const viewportClass = viewMode === "mobile" ? "mobile-viewport" : "desktop-viewport";
-      
+      const viewportClass =
+        viewMode === 'mobile' ? 'mobile-viewport' : 'desktop-viewport';
+
       rootRef.current.render(
-        React.createElement("div", { className: viewportClass },
+        React.createElement(
+          'div',
+          { className: viewportClass },
           React.createElement(PreviewRenderer, {
             components: components,
             forcedViewport: viewMode,
             editingViewport: editingViewport,
-            pageId: pageId
+            pageId: pageId,
           })
         )
       );
     } catch (error) {
-      console.error("Failed to render preview:", error);
+      console.error('Failed to render preview:', error);
     }
   }, [isOpen, components, viewMode, editingViewport]);
 
@@ -140,124 +142,142 @@ const PreviewModal = ({
           rootRef.current.unmount();
           rootRef.current = null;
         } catch (error) {
-          console.warn("Failed to unmount preview:", error);
+          console.warn('Failed to unmount preview:', error);
         }
       }, 0);
       return () => clearTimeout(timeoutId);
     }
   }, [isOpen]);
 
-  // iframe 크기 조정 (단순화)
+  // iframe 크기 조정 (수정)
   useEffect(() => {
-    if (!iframeRef.current || !iframeContainerRef.current) return;
-
+    if (!iframeRef.current) return;
     const iframe = iframeRef.current;
-    const container = iframeContainerRef.current;
-
-    // 컨테이너 크기 가져오기
-    const containerRect = container.getBoundingClientRect();
-    const availableWidth = containerRect.width;
-    const availableHeight = containerRect.height;
 
     if (viewMode === 'mobile') {
-      // 모바일 모드는 고정 크기
       iframe.style.width = '375px';
       iframe.style.height = '100%';
       iframe.style.transform = 'none';
     } else {
-      // 데스크톱 모드: 1920px 캔버스를 컨테이너에 맞게 스케일링
-      const canvasWidth = 1920;
-      const scale = Math.min(availableWidth / canvasWidth, 1); // 최대 1배까지만 스케일링
-      
-      iframe.style.width = `${canvasWidth}px`;
+      // 데스크톱 모드
+      iframe.style.width = '100%';
       iframe.style.height = '100%';
-      iframe.style.transform = `scale(${scale})`;
-      iframe.style.transformOrigin = 'top center';
-      iframe.style.overflowY = 'auto';
-      iframe.style.overflowX = 'hidden';
+      iframe.style.transform = 'none'; // ❗️ 스케일링 제거
     }
-    
+
     iframe.style.border = 'none';
     iframe.style.display = 'block';
     iframe.style.backgroundColor = '#ffffff';
     iframe.style.margin = '0';
     iframe.style.padding = '0';
     iframe.style.boxSizing = 'border-box';
+    iframe.style.overflowY = 'auto'; // iframe 자체에 스크롤 허용
+    iframe.style.overflowX = 'hidden';
   }, [viewMode, isOpen]);
 
   // ESC 키로 모달 닫기
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === 'Escape' && isOpen) {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  return React.createElement("div", { className: "modal-overlay" },
+  return React.createElement(
+    'div',
+    { className: 'modal-overlay' },
     // 헤더
-    React.createElement("div", { className: "modal-header" },
-      React.createElement("div", { className: "viewport-controls" },
+    React.createElement(
+      'div',
+      { className: 'modal-header' },
+      React.createElement(
+        'div',
+        { className: 'viewport-controls' },
         //데스크톱 버튼 : 편집모드가 데스크톱일 때만 표시
-        editingViewport === "desktop" && React.createElement("button", {
-          onClick: () => setViewMode("desktop"),
-          className: `viewport-btn ${viewMode === "desktop" ? "active" : ""}`
-        }, "Desktop"),
+        editingViewport === 'desktop' &&
+          React.createElement(
+            'button',
+            {
+              onClick: () => setViewMode('desktop'),
+              className: `viewport-btn ${viewMode === 'desktop' ? 'active' : ''}`,
+            },
+            'Desktop'
+          ),
         //모바일 버튼: 항상 표시
-        React.createElement("button", {
-          onClick: () => setViewMode("mobile"),
-          className: `viewport-btn ${viewMode === "mobile" ? "active" : ""}`
-        }, "Mobile")
-        ),
-      React.createElement("button", {
-        onClick: onClose,
-        className: "close-btn"
-      }, "✕")
+        React.createElement(
+          'button',
+          {
+            onClick: () => setViewMode('mobile'),
+            className: `viewport-btn ${viewMode === 'mobile' ? 'active' : ''}`,
+          },
+          'Mobile'
+        )
+      ),
+      React.createElement(
+        'button',
+        {
+          onClick: onClose,
+          className: 'close-btn',
+        },
+        '✕'
+      )
     ),
 
     // 프리뷰 영역
-    React.createElement("div", { className: "preview-container", ref: iframeContainerRef },
-      viewMode === "mobile" ? 
-        React.createElement("div", { className: "iphone-wrapper" },
-          React.createElement("div", { className: "iphone-frame" },
-            React.createElement("div", { className: "iphone-notch" }),
-            React.createElement("div", { className: "iphone-screen" },
-              React.createElement("iframe", {
-                ref: iframeRef,
-                className: "preview-iframe mobile",
-                title: "Mobile Preview",
-                style: {
-                  scrollbarWidth: "none",
-                  msOverflowStyle: "none",
-                  width: "375px",
-                  height: "100%"
-                }
-              })
-            ),
-            React.createElement("div", { className: "iphone-home-indicator" })
+    React.createElement(
+      'div',
+      { className: 'preview-container', ref: iframeContainerRef },
+      viewMode === 'mobile'
+        ? React.createElement(
+            'div',
+            { className: 'iphone-wrapper' },
+            React.createElement(
+              'div',
+              { className: 'iphone-frame' },
+              React.createElement('div', { className: 'iphone-notch' }),
+              React.createElement(
+                'div',
+                { className: 'iphone-screen' },
+                React.createElement('iframe', {
+                  ref: iframeRef,
+                  className: 'preview-iframe mobile',
+                  title: 'Mobile Preview',
+                  style: {
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    width: '375px',
+                    height: '100%',
+                  },
+                })
+              ),
+              React.createElement('div', { className: 'iphone-home-indicator' })
+            )
           )
-        ) :
-        React.createElement("iframe", {
-          ref: iframeRef,
-          className: "preview-iframe desktop",
-          title: "Desktop Preview"
-        })
+        : React.createElement('iframe', {
+            ref: iframeRef,
+            className: 'preview-iframe desktop',
+            title: 'Desktop Preview',
+          })
     ),
 
     // Styles
-    React.createElement("style", null, `
+    React.createElement(
+      'style',
+      null,
+      `
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -465,7 +485,8 @@ const PreviewModal = ({
           transform: scale(0.6);
         }
       }
-    `)
+    `
+    )
   );
 };
 
