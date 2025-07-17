@@ -6,6 +6,24 @@ export default function MusicEditor({ selectedComp, onUpdate }) {
     const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
     const [previewMusicId, setPreviewMusicId] = useState(null);
 
+    useEffect(() => {
+        if (!selectedComp.props.selectedMusicId) {
+            const defaultMusic = musicLibrary.find(m => m.id === 1);
+            if (defaultMusic && typeof onUpdate === 'function') {
+                onUpdate({
+                    ...selectedComp,
+                    props: {
+                        ...selectedComp.props,
+                        selectedMusicId: defaultMusic.id,
+                        musicData: defaultMusic.data,
+                        musicTitle: defaultMusic.title,
+                        showTitle: false
+                    }
+                });
+            }
+        }
+    }, [selectedComp, onUpdate]);
+
     // 음악 선택 핸들러
     const selectMusic = (music) => {
         const updatedComp = {
