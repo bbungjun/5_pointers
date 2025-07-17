@@ -22,7 +22,8 @@ const PREVIEW_CSS = `
   }
   .mobile-viewport {
     width: 375px;
-    height: 812px;
+    min-height: 812px;
+    height: auto;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
@@ -375,6 +376,7 @@ const PreviewModal = ({
         background: #fff;
         scrollbar-width: none;
         -ms-overflow-style: none;
+        overflow: auto;
       }
 
       .preview-iframe.mobile::-webkit-scrollbar {
@@ -391,7 +393,7 @@ const PreviewModal = ({
         align-items: center;
         justify-content: center;
         transform: scale(0.8);
-        transform-origin: top center; /* 위쪽 중앙 기준으로 축소 */
+        transform-origin: center center; /* 중앙 기준으로 축소 */
       }
 
       .iphone-frame {
@@ -435,7 +437,7 @@ const PreviewModal = ({
         width: 100%;
         height: 100%;
         border-radius: 32px;
-        overflow: hidden;
+        overflow: auto;
         position: relative;
         background: #fff;
         display: block;
@@ -456,35 +458,7 @@ const PreviewModal = ({
         opacity: 0.8;
       }
 
-      @media (max-width: 768px) {
-        .preview-container {
-          padding: 20px;
-        }
-        
-        .iphone-wrapper {
-          transform: scale(0.8);
-          transform-origin: top center;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .modal-header {
-          padding: 12px 16px;
-        }
-        
-        .viewport-btn {
-          padding: 6px 12px;
-          font-size: 13px;
-        }
-        
-        .preview-container {
-          padding: 10px;
-        }
-        
-        .iphone-wrapper {
-          transform: scale(0.6);
-        }
-      }
+      /* 모바일 미리보기는 고정 크기로 설정 - 반응형 제거 */
     `
     )
   );
