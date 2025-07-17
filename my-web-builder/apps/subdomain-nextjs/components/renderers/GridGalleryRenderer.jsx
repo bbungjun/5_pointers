@@ -221,11 +221,23 @@ function GridGalleryRenderer({ comp, onUpdate, mode = 'live', width, height }) {
       </div>
 
       {/* 모달 */}
-
-      {modalOpen &&
-        images.length > 0 &&
-        typeof document !== 'undefined' &&
-        createPortal(
+      {modalOpen && images.length > 0 && typeof document !== 'undefined' && createPortal(
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 99999998,
+            padding: "20px"
+          }}
+          onClick={() => setModalOpen(false)}
+        >
           <div
             style={{
               position: 'fixed',

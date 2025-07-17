@@ -423,7 +423,12 @@ export function useComponentActions(
       setCanvasHeight(newHeight);
       
       // 협업 시스템을 통해 캔버스 높이 동기화
-      updateCanvasSettings({ canvasHeight: newHeight });
+      if (updateCanvasSettings) {
+        updateCanvasSettings({ canvasHeight: newHeight });
+        console.log('🔄 협업 시스템을 통해 캔버스 높이 동기화 요청:', newHeight);
+      } else {
+        console.warn('⚠️ updateCanvasSettings 함수가 없습니다. 협업 동기화가 불가능합니다.');
+      }
       
       console.log('섹션 추가:', { 기존높이: canvasHeight, 새높이: newHeight });
     },
