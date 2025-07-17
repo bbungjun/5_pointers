@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-function AttendRenderer({ comp, mode = 'live', pageId }) {
+function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
   const formType = comp.props?.formType || 'attendance';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
