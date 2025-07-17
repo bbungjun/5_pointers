@@ -1,4 +1,3 @@
-
 // 환경변수 접근 방식 통합 (Vite + Next.js 호환)
 const getEnvVar = (key, defaultValue = '') => {
   try {
@@ -41,8 +40,9 @@ const isProductionEnvironment = () => {
   const isS3Domain = currentUrl.includes('s3-website') || currentUrl.includes('amazonaws.com');
   const isDdukddakDomain = currentUrl.includes('ddukddak.org');
   const isCloudFrontDomain = currentUrl.includes('cloudfront.net');
+  const isProductionIP = currentUrl === '3.35.227.214'; // 프론트엔드 배포 IP
   
-  const isProd = viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isDdukddakDomain || isCloudFrontDomain;
+  const isProd = viteMode === 'production' || nodeEnv === 'production' || isS3Domain || isDdukddakDomain || isCloudFrontDomain || isProductionIP;
   console.log('🌍 환경 감지 결과:', isProd ? '프로덕션' : '개발');
   return isProd;
 };
@@ -83,15 +83,28 @@ const getWebSocketUrl = () => {
   
   // 현재 호스트 기반으로 결정
   const currentUrl = typeof window !== 'undefined' ? window.location.hostname : '';
+  const currentProtocol = typeof window !== 'undefined' ? window.location.protocol : 'http:';
   const isLocalhost = currentUrl === 'localhost' || currentUrl === '127.0.0.1';
+  const isHttps = currentProtocol === 'https:';
+  
+  console.log('🔍 환경 감지:', {
+    currentUrl,
+    currentProtocol,
+    isLocalhost,
+    isHttps
+  });
   
   if (isLocalhost) {
-    const localUrl = 'wss://localhost:1235';
-    console.log('🏠 로컬 WebSocket URL 사용:', localUrl);
+    // 로컬 환경: 항상 ws://localhost:1234 사용 (문제 해결을 위해)
+    const localUrl = 'ws://localhost:1234';
+    console.log('🏠 로컬 WebSocket URL 강제 설정:', localUrl);
     return localUrl;
   } else {
-    const prodUrl = 'wss://43.203.235.108:1235';
-    console.log('🌍 프로덕션 WebSocket URL 사용:', prodUrl);
+    // 배포 환경: AWS EC2 WebSocket 서버 사용
+    // HTTPS면 1235, HTTP면 1234
+    const EC2_WEBSOCKET_IP = '43.203.235.108'; // WebSocket 서버 IP
+    const prodUrl = isHttps ? `wss://${EC2_WEBSOCKET_IP}:1235` : `ws://${EC2_WEBSOCKET_IP}:1234`;
+    console.log('🌍 배포 WebSocket URL 사용:', prodUrl, `(EC2 WebSocket 서버)`);
     return prodUrl;
   }
 };
@@ -139,4 +152,12 @@ console.log('🔧 API 설정:', {
   frontend: getEnvVar('VITE_FRONTEND_URL') || getEnvVar('NEXT_PUBLIC_FRONTEND_URL') || 'http://localhost:5173',
   isProduction: isProductionEnvironment(),
   currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'server'
+});
+
+// WebSocket URL 디버깅을 위한 추가 로깅
+console.log('🔍 WebSocket URL 디버깅:', {
+  YJS_WEBSOCKET_URL,
+  getWebSocketUrl: getWebSocketUrl(),
+  currentUrl: typeof window !== 'undefined' ? window.location.hostname : 'server',
+  isLocalhost: typeof window !== 'undefined' ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') : false
 }); // Cache bust: Wed Jul 16 05:39:10 KST 2025

@@ -233,6 +233,11 @@ const CanvasArea = forwardRef(
       // });
       
       if (e.button === 0 && !e.ctrlKey && !e.metaKey && !isClickOnComponent) {
+        // 빈 공간 클릭 시 선택 해제
+        if (onSelect) {
+          onSelect(null);
+        }
+        
         const rect = canvasRefToUse.current.getBoundingClientRect();
         const scale = localZoom / 100;
         const x = (e.clientX - rect.left) / scale;
@@ -350,6 +355,26 @@ const CanvasArea = forwardRef(
       // 컴포넌트 드래그 중이면 패닝하지 않음
       if (isLocalComponentDragging) {
         return;
+      }
+
+      // 캔버스 밖 영역 클릭 시 선택 해제
+      if (e.button === 0 && !e.ctrlKey && !e.metaKey) {
+        const canvasElement = canvasRefToUse.current;
+        if (canvasElement) {
+          const canvasRect = canvasElement.getBoundingClientRect();
+          const clickX = e.clientX;
+          const clickY = e.clientY;
+          
+          // 클릭 위치가 캔버스 영역 밖인지 확인
+          if (clickX < canvasRect.left || clickX > canvasRect.right || 
+              clickY < canvasRect.top || clickY > canvasRect.bottom) {
+            // 캔버스 밖 클릭 시 선택 해제
+            if (onSelect) {
+              onSelect(null);
+            }
+            return;
+          }
+        }
       }
 
       // 중간 버튼이나 스페이스바와 함께 클릭한 경우에만 패닝
@@ -691,6 +716,29 @@ const CanvasArea = forwardRef(
         onMouseDown={handleContainerMouseDown}
         onMouseMove={handleContainerMouseMove}
         onMouseUp={handleContainerMouseUp}
+        onClick={(e) => {
+          // 캔버스 밖 영역 클릭 시 선택 해제
+          const canvasElement = canvasRefToUse.current;
+          if (canvasElement) {
+            const canvasRect = canvasElement.getBoundingClientRect();
+            const clickX = e.clientX;
+            const clickY = e.clientY;
+            
+            // 클릭 위치가 캔버스 영역 밖인지 확인
+            if (clickX < canvasRect.left || clickX > canvasRect.right || 
+                clickY < canvasRect.top || clickY > canvasRect.bottom) {
+              // 캔버스 밖 클릭 시 선택 해제
+              if (onSelect) {
+                onSelect(null);
+              }
+              return;
+            }
+          }
+          
+          if (onClick) {
+            onClick(e);
+          }
+        }}
         onScroll={(e) => {
           if (isLocalComponentDragging) {
             e.preventDefault();
@@ -722,7 +770,20 @@ const CanvasArea = forwardRef(
             style={getCanvasStyles()}
             onDrop={handleDrop}
             onDragOver={onDragOver}
-            onClick={onClick}
+            onClick={(e) => {
+              // 컴포넌트 위에서 클릭한 경우가 아니라면 선택 해제
+              const isClickOnComponent = 
+                e.target.closest('[data-component-id]') !== null ||
+                e.target.closest('.canvas-component') !== null;
+              
+              if (!isClickOnComponent && onSelect) {
+                onSelect(null);
+              }
+              
+              if (onClick) {
+                onClick(e);
+              }
+            }}
             onMouseDown={(e) => {
               // console.log('캔버스 마우스 다운:', e.target.className);
               handleMouseDown(e);

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function LinkRenderer({ comp, isEditor = false, mode = 'live', width, height }) {
+function LinkRenderer({ comp, mode = 'live', width, height }) {
   
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
@@ -24,7 +24,7 @@ function LinkRenderer({ comp, isEditor = false, mode = 'live', width, height }) 
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    if (isEditor) {
+    if (mode === 'editor') {
       setEditing(true);
       setEditValue(comp.props.text);
     }
@@ -32,7 +32,7 @@ function LinkRenderer({ comp, isEditor = false, mode = 'live', width, height }) 
 
   const handleClick = (e) => {
     e.stopPropagation();
-    if (!isEditor && comp.props.href) {
+    if (mode !== 'editor' && comp.props.href) {
       const url = comp.props.href;
       // URL 형식 확인 및 보정
       if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -64,7 +64,7 @@ function LinkRenderer({ comp, isEditor = false, mode = 'live', width, height }) 
     }
   };
 
-  if (editing && isEditor) {
+      if (editing && mode === 'editor') {
     return (
       <input
         ref={inputRef}
@@ -80,7 +80,7 @@ function LinkRenderer({ comp, isEditor = false, mode = 'live', width, height }) 
 
   return (
     <div 
-      className={`${isEditor ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
+        className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
       style={{
         color: comp.props.color || '#D8BFD8', 
         fontSize: mode === 'live' ? `clamp(${Math.max(10, (comp.props.fontSize || 16) * 0.7)}px, ${((comp.props.fontSize || 16) / 375) * 100}vw, ${comp.props.fontSize || 16}px)` : comp.props.fontSize || '16px',

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
+function AttendRenderer({ comp, mode = 'live', pageId }) {
   const formType = comp.props?.formType || 'attendance';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,7 +60,7 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
   useEffect(() => {
     setFormData(getInitialFormData());
   }, [formType]);
-  
+
 
   const handleSubmit = async () => {
     // 필수 필드 검증
@@ -73,13 +73,17 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
     try {
       // pageId를 prop으로 받거나 comp에서 가져오기, 에디터에서는 URL에서 추출
       let targetPageId = pageId || comp.pageId;
-      console.log('🔍 Initial pageId:', { pageId, compPageId: comp.pageId, initialTarget: targetPageId });
-      
+      console.log('🔍 Initial pageId:', {
+        pageId,
+        compPageId: comp.pageId,
+        initialTarget: targetPageId,
+      });
+
       // pageId가 없거나 임시 roomId인 경우 URL에서 실제 페이지 ID 추출
       if (!targetPageId || targetPageId.startsWith('room-')) {
-        const pathParts = window.location.pathname.split('/').filter(p => p);
+        const pathParts = window.location.pathname.split('/').filter((p) => p);
         console.log('🔍 URL pathParts:', pathParts);
-        
+
         // 배포된 사이트: /{pageId} 형태 (Next.js 동적 라우팅)
         // 에디터: /editor/{pageId} 형태
         const editorIndex = pathParts.indexOf('editor');
@@ -92,7 +96,7 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
         }
         console.log('🔍 Extracted pageId from URL:', targetPageId);
       }
-      
+
       // API 기본 URL 동적 설정 (배포된 사이트와 에디터 구분)
       const apiBaseUrl = typeof window !== 'undefined' && window.API_BASE_URL 
         ? window.API_BASE_URL 
@@ -163,21 +167,26 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
   };
 
   const containerStyle = {
+
     width: '100%',
     height: '100%',
+
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
     padding: '12px', // 16px → 12px로 줄임
     fontFamily: '"Playfair Display", serif',
+
     backgroundColor: comp.props?.backgroundColor || '#f8f9fa',
     borderRadius: comp.props?.borderRadius || '8px',
     boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+
   };
 
   return (
     <div style={containerStyle}>
       {/* 제목 영역 */}
+
       <div style={{
         textAlign: 'center',
         marginBottom: '12px', // 16px → 12px로 줄임
@@ -199,6 +208,7 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
             lineHeight: '1.4', // 1.5 → 1.4로 줄임
             fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
           }}>
+
             {comp.props.description}
           </p>
         )}
@@ -278,6 +288,7 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
               position: 'relative',
               zIndex: 99999999,
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -369,6 +380,7 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
             ))}
 
             {/* 개인정보 수집 동의 */}
+
             <div style={{ marginBottom: '32px' }}>
               <label style={{
                 display: 'flex',
@@ -379,10 +391,12 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
                 color: '#374151',
                 gap: '8px',
               }}>
+
                 <input
                   type="checkbox"
                   checked={privacyConsent}
                   onChange={(e) => setPrivacyConsent(e.target.checked)}
+
                   style={{ marginTop: '2px' }}
                 />
                 <div>
@@ -397,21 +411,25 @@ function AttendRenderer({ comp, mode = 'live', pageId, isEditor = false }) {
                     color: '#6b7280' 
                   }}>
                     참석 관련 업무 처리를 위해 개인정보 수집 및 이용에 동의합니다.
+
                   </div>
                 </div>
               </label>
             </div>
 
             {/* 버튼 */}
+
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => setIsModalOpen(false)}
                 style={buttonStyle('#f3f4f6', '#374151', comp)}
+
               >
                 취소
               </button>
               <button
                 onClick={handleSubmit}
+
                 disabled={(() => {
                   const requiredFields = currentConfig.fields.filter(field => field.required);
                   const missingFields = requiredFields.filter(field => !formData[field.name] || formData[field.name].toString().trim() === '');
@@ -459,8 +477,10 @@ const textStyle = (comp) => ({
   fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
 });
 
+
 const buttonStyle = (bg, color, comp, disabled = false) => ({
   padding: '12px 24px',
+
   backgroundColor: bg,
   color,
   border: 'none',
@@ -513,7 +533,9 @@ const FormInput = ({ label, type = 'text', value, onChange, placeholder, require
       placeholder={placeholder}
       style={{
         width: '100%',
+
         padding: '12px 16px',
+
         border: '1px solid #d1d5db',
         borderRadius: '8px',
         fontSize: '16px',
