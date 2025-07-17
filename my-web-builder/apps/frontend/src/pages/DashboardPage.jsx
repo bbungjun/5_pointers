@@ -42,8 +42,15 @@ function DashboardPage({ user, onLogout }) {
   const [desktopTotalPages, setDesktopTotalPages] = useState(1);
   const [desktopTotalCount, setDesktopTotalCount] = useState(0);
   
+  // 특정 기기 선택 시 페이지네이션 상태
+  const [specificCurrentPage, setSpecificCurrentPage] = useState(1);
+  const [specificTotalPages, setSpecificTotalPages] = useState(1);
+  const [specificTotalCount, setSpecificTotalCount] = useState(0);
+  const [allSpecificTemplates, setAllSpecificTemplates] = useState([]);
+  
   const mobileItemsPerPage = 4;
   const desktopItemsPerPage = 8;
+  const specificItemsPerPage = 8;
 
 
 
@@ -205,7 +212,17 @@ function DashboardPage({ user, onLogout }) {
           
           setTemplates([]); // 기존 templates는 비움
         } else {
-          setTemplates(uniqueTemplates);
+          // 특정 기기 선택 시 페이지네이션 처리
+          setAllSpecificTemplates(uniqueTemplates);
+          setSpecificTotalCount(uniqueTemplates.length);
+          setSpecificTotalPages(Math.ceil(uniqueTemplates.length / specificItemsPerPage));
+          
+          // 첫 페이지 데이터 설정
+          const startIndex = 0;
+          const endIndex = specificItemsPerPage;
+          const pagedData = uniqueTemplates.slice(startIndex, endIndex);
+          setTemplates(pagedData);
+          
           setMobileTemplates([]);
           setDesktopTemplates([]);
         }
@@ -252,6 +269,7 @@ function DashboardPage({ user, onLogout }) {
     // 필터가 변경되면 첫 페이지로 리셋
     setMobileCurrentPage(1);
     setDesktopCurrentPage(1);
+    setSpecificCurrentPage(1);
     fetchTemplates(selectedCategory, selectedDevice);
     fetchMyPages();
   }, [selectedCategory, selectedDevice]);
@@ -285,8 +303,28 @@ function DashboardPage({ user, onLogout }) {
     // 페이지 변경
     if (deviceType === 'mobile') {
       setMobileCurrentPage(newPage);
-    } else {
+      
+      // 모바일 템플릿 데이터 업데이트
+      const startIndex = (newPage - 1) * mobileItemsPerPage;
+      const endIndex = startIndex + mobileItemsPerPage;
+      const mobilePagedData = allMobileTemplates.slice(startIndex, endIndex);
+      setMobileTemplates(mobilePagedData);
+    } else if (deviceType === 'desktop') {
       setDesktopCurrentPage(newPage);
+      
+      // 데스크톱 템플릿 데이터 업데이트
+      const startIndex = (newPage - 1) * desktopItemsPerPage;
+      const endIndex = startIndex + desktopItemsPerPage;
+      const desktopPagedData = allDesktopTemplates.slice(startIndex, endIndex);
+      setDesktopTemplates(desktopPagedData);
+    } else if (deviceType === 'specific') {
+      setSpecificCurrentPage(newPage);
+      
+      // 특정 기기 템플릿 데이터 업데이트
+      const startIndex = (newPage - 1) * specificItemsPerPage;
+      const endIndex = startIndex + specificItemsPerPage;
+      const specificPagedData = allSpecificTemplates.slice(startIndex, endIndex);
+      setTemplates(specificPagedData);
     }
     
     // 다음 프레임에서 스크롤 위치 복원
@@ -920,13 +958,16 @@ function DashboardPage({ user, onLogout }) {
                                 onClick={() => {
                                   if (selectedDevice === 'mobile') {
                                     handlePageChange('mobile', Math.max(1, mobileCurrentPage - 1));
-                                  } else {
+                                  } else if (selectedDevice === 'desktop') {
                                     handlePageChange('desktop', Math.max(1, desktopCurrentPage - 1));
+                                  } else {
+                                    handlePageChange('specific', Math.max(1, specificCurrentPage - 1));
                                   }
                                 }}
                                 disabled={
                                   (selectedDevice === 'mobile' && mobileCurrentPage === 1) ||
-                                  (selectedDevice === 'desktop' && desktopCurrentPage === 1)
+                                  (selectedDevice === 'desktop' && desktopCurrentPage === 1) ||
+                                  (selectedDevice !== 'all' && specificCurrentPage === 1)
                                 }
                                 className={`p-2 rounded-lg transition-all duration-300 ${
                                   (selectedDevice === 'mobile' && mobileCurrentPage === 1) ||
@@ -943,7 +984,9 @@ function DashboardPage({ user, onLogout }) {
                               <span className="text-sm text-gray-600 min-w-[60px] text-center">
                                 {selectedDevice === 'mobile' ? 
                                   `${mobileCurrentPage} / ${mobileTotalPages}` : 
-                                  `${desktopCurrentPage} / ${desktopTotalPages}`
+                                  selectedDevice === 'desktop' ?
+                                  `${desktopCurrentPage} / ${desktopTotalPages}` :
+                                  `${specificCurrentPage} / ${specificTotalPages}`
                                 }
                               </span>
                               
@@ -951,13 +994,16 @@ function DashboardPage({ user, onLogout }) {
                                 onClick={() => {
                                   if (selectedDevice === 'mobile') {
                                     handlePageChange('mobile', Math.min(mobileTotalPages, mobileCurrentPage + 1));
-                                  } else {
+                                  } else if (selectedDevice === 'desktop') {
                                     handlePageChange('desktop', Math.min(desktopTotalPages, desktopCurrentPage + 1));
+                                  } else {
+                                    handlePageChange('specific', Math.min(specificTotalPages, specificCurrentPage + 1));
                                   }
                                 }}
                                 disabled={
                                   (selectedDevice === 'mobile' && mobileCurrentPage === mobileTotalPages) ||
-                                  (selectedDevice === 'desktop' && desktopCurrentPage === desktopTotalPages)
+                                  (selectedDevice === 'desktop' && desktopCurrentPage === desktopTotalPages) ||
+                                  (selectedDevice !== 'all' && specificCurrentPage === specificTotalPages)
                                 }
                                 className={`p-2 rounded-lg transition-all duration-300 ${
                                   (selectedDevice === 'mobile' && mobileCurrentPage === mobileTotalPages) ||
