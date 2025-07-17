@@ -19,12 +19,12 @@ export default function MusicRenderer({ comp, mode = 'live' }) {
   }, [volume]);
 
   useEffect(() => {
-    if (autoPlay && musicData && audioRef.current && !isEditor) {
+    if (autoPlay && musicData && audioRef.current && mode !== 'editor') {
       setTimeout(() => {
         audioRef.current.play().catch(() => {});
       }, 500);
     }
-  }, [musicData, autoPlay, isEditor]);
+  }, [musicData, autoPlay, mode]);
 
   // 재생/일시정지 토글
   const togglePlay = () => {
