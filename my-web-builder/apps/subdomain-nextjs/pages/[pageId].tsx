@@ -96,8 +96,9 @@ const DynamicPageRenderer = ({
       // 모바일 화면 + 모바일 편집 페이지인 경우에만 스케일링 적용
       if (isMobile && editingMode === 'mobile') {
         // 실제 컨테이너 너비 측정
-        const actualWidth = containerRef.current 
-          ? containerRef.current.offsetWidth 
+        const containerElement = containerRef.current;
+        const actualWidth = containerElement && containerElement.offsetWidth 
+          ? containerElement.offsetWidth 
           : window.innerWidth;
         
         const baseWidth = 375;
@@ -261,6 +262,7 @@ const DynamicPageRenderer = ({
                         const scaleFactor = screenWidth / baseWidth;
                         
                         // 화면에 꽉 차도록 컴포넌트 크기 조정
+                        const defaultSize = getComponentDefaultSize(comp.type);
                         const originalWidth = screenWidth;
                         const originalHeight = comp.height || defaultSize.height;
                         
@@ -647,7 +649,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 
     // 컴포넌트 크기 데이터 확인
-    console.log('🔧 API에서 받은 컴포넌트 데이터:', pageData.components.map(comp => ({
+    console.log('🔧 API에서 받은 컴포넌트 데이터:', pageData.components.map((comp: ComponentData) => ({
       id: comp.id,
       type: comp.type,
       width: comp.width,
