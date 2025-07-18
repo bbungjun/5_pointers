@@ -2,38 +2,33 @@ import React from 'react';
 
 function SearchBar({ searchTerm, onSearchChange }) {
   return (
-    <div style={{ 
-      padding: '16px 24px', 
-      borderBottom: '1px solid #e1e5e9',
-      backgroundColor: '#f8f9fa'
-    }}>
-      <div style={{
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center'
-      }}>
+    <div
+      style={{
+        padding: '12px 24px',
+        borderBottom: '1px solid #e1e5e9',
+        backgroundColor: '#ffffff',
+      }}
+    >
+      <div
+        style={{
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
         {/* 검색 아이콘 */}
-        <div style={{
-          position: 'absolute',
-          left: '12px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          zIndex: 1
-        }}>
-          <span style={{ color: '#6b7280', fontSize: '16px' }}>
-            🔍
-          </span>
-        </div>
-        
+
         {/* 검색어가 있을 때 지우기 버튼 (오른쪽) */}
         {searchTerm && (
-          <div style={{
-            position: 'absolute',
-            right: '12px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 1
-          }}>
+          <div
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 1,
+            }}
+          >
             <button
               onClick={() => onSearchChange('')}
               style={{
@@ -48,7 +43,7 @@ function SearchBar({ searchTerm, onSearchChange }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: '16px',
-                height: '16px'
+                height: '16px',
               }}
               onMouseEnter={(e) => {
                 e.target.style.color = '#6b7280';
@@ -63,7 +58,7 @@ function SearchBar({ searchTerm, onSearchChange }) {
             </button>
           </div>
         )}
-        
+
         <input
           type="text"
           placeholder="컴포넌트 검색"
@@ -71,7 +66,7 @@ function SearchBar({ searchTerm, onSearchChange }) {
           onChange={(e) => onSearchChange(e.target.value)}
           style={{
             width: '100%',
-            padding: '12px 40px 12px 40px',
+            padding: '6px 20px 6px 12px',
             border: '2px solid #e5e7eb',
             borderRadius: '8px',
             fontSize: '14px',
@@ -79,11 +74,11 @@ function SearchBar({ searchTerm, onSearchChange }) {
             boxSizing: 'border-box',
             backgroundColor: '#ffffff',
             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
           }}
           onFocus={(e) => {
-            e.target.style.borderColor = '#3B4EFF';
-            e.target.style.boxShadow = '0 0 0 3px rgba(59, 78, 255, 0.1)';
+            e.target.style.borderColor = '#0ea5e9';
+            e.target.style.boxShadow = '0 0 0 3px rgba(14, 165, 233, 0.1)';
           }}
           onBlur={(e) => {
             e.target.style.borderColor = '#e5e7eb';

@@ -6,7 +6,14 @@ import ToggleButton from './ComponentLibrary/components/ToggleButton';
 import SearchBar from './ComponentLibrary/components/SearchBar';
 import ComponentGrid from './ComponentLibrary/components/ComponentGrid';
 
-function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onToggle, isReady }) {
+function ComponentLibrary({
+  onDragStart,
+  components,
+  roomId,
+  isOpen = true,
+  onToggle,
+  isReady,
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isResizing, setIsResizing] = useState(false);
   const [libraryWidth, setLibraryWidth] = useState(320); // 기본 너비
@@ -22,7 +29,8 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
   const handleMouseMove = (e) => {
     if (isResizing) {
       const newWidth = e.clientX;
-      if (newWidth > 200 && newWidth < 600) { // 최소 200px, 최대 600px
+      if (newWidth > 200 && newWidth < 600) {
+        // 최소 200px, 최대 600px
         setLibraryWidth(newWidth);
       }
     }
@@ -56,11 +64,11 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
           style={{
             position: 'absolute',
             left: '0',
-            top: '20px',
+            top: '10px',
             width: '28px',
-            height: '76px',
+            height: '48px',
             backgroundColor: '#ffffff',
-            border: '2px solid #f9a8d4',
+            border: '2px solid #e0f2fe',
             borderLeft: 'none',
             borderTopRightRadius: '8px',
             borderBottomRightRadius: '8px',
@@ -68,23 +76,23 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '2px 0 8px rgba(236, 72, 153, 0.2)',
+            boxShadow: 'none',
             zIndex: 5,
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = '#fdf2f8';
-            e.target.style.borderColor = '#ec4899';
-            e.target.style.boxShadow = '2px 0 12px rgba(236, 72, 153, 0.3)';
+            e.target.style.backgroundColor = '#f0f9ff';
+            e.target.style.borderColor = '#38bdf8';
+            e.target.style.boxShadow = 'none';
           }}
           onMouseLeave={(e) => {
             e.target.style.backgroundColor = '#ffffff';
-            e.target.style.borderColor = '#f9a8d4';
-            e.target.style.boxShadow = '2px 0 8px rgba(236, 72, 153, 0.2)';
+            e.target.style.borderColor = '#e0f2fe';
+            e.target.style.boxShadow = 'none';
           }}
           title="컴포넌트 라이브러리 열기"
         >
-          <span style={{ fontSize: '14px', color: '#ec4899' }}>▶</span>
+          <span style={{ fontSize: '14px', color: '#38bdf8' }}>▶</span>
         </button>
       </div>
     );
@@ -93,11 +101,11 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
   return (
     <aside
       className="bg-white transition-all duration-300 ease-in-out border-r border-gray-200 flex flex-col"
-      style={{ 
+      style={{
         width: `${libraryWidth}px`,
         minWidth: '200px',
         maxWidth: '600px',
-        position: 'relative'
+        position: 'relative',
       }}
     >
       {/* 연결 안 됐을 때 오버레이 */}
@@ -111,13 +119,16 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
       )}
 
       {/* 고정 검색바 */}
-      <SearchBar
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-      />
+      <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
       {/* 스크롤 가능한 컴포넌트 그리드 */}
-      <div className="flex-1 overflow-y-auto">
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'var(--color-primary-100) var(--color-primary-50)',
+        }}
+      >
         <ComponentGrid
           components={ComponentList}
           searchTerm={searchTerm}
@@ -126,18 +137,18 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
       </div>
 
       {/* 배포 섹션 제거됨 */}
-      
-      {/* 토글 버튼 - 라이브러리 우측 밖에 위치 */}
+
+      {/* 토글 버튼 - 검색바 높이에 맞춰 위치 */}
       <button
         onClick={onToggle}
         style={{
           position: 'absolute',
-          right: '-12px',
-          top: '0',
+          right: '-28px',
+          top: '10px',
           width: '28px',
-          height: '76px',
+          height: '48px',
           backgroundColor: '#ffffff',
-          border: '2px solid #f9a8d4',
+          border: '2px solid #e0f2fe',
           borderLeft: 'none',
           borderTopRightRadius: '8px',
           borderBottomRightRadius: '8px',
@@ -145,26 +156,26 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '2px 0 8px rgba(236, 72, 153, 0.2)',
+          boxShadow: 'none',
           zIndex: 5,
           transition: 'all 0.2s ease',
-          color: '#ec4899'
+          color: '#0ea5e9',
         }}
         onMouseEnter={(e) => {
-          e.target.style.backgroundColor = '#fdf2f8';
-          e.target.style.borderColor = '#ec4899';
-          e.target.style.boxShadow = '2px 0 12px rgba(236, 72, 153, 0.3)';
+          e.target.style.backgroundColor = '#f0f9ff';
+          e.target.style.borderColor = '#0ea5e9';
+          e.target.style.boxShadow = 'none';
         }}
         onMouseLeave={(e) => {
           e.target.style.backgroundColor = '#ffffff';
-          e.target.style.borderColor = '#f9a8d4';
-          e.target.style.boxShadow = '2px 0 8px rgba(236, 72, 153, 0.2)';
+          e.target.style.borderColor = '#7dd3fc';
+          e.target.style.boxShadow = 'none';
         }}
         title="컴포넌트 라이브러리 토글"
       >
-        <span style={{ fontSize: '14px' }}>◀</span>
+        <span style={{ fontSize: '14px', color: '#38bdf8' }}>◀</span>
       </button>
-      
+
       {/* 리사이즈 핸들 */}
       <div
         ref={resizeRef}
@@ -176,7 +187,7 @@ function ComponentLibrary({ onDragStart, components, roomId, isOpen = true, onTo
           width: '8px',
           cursor: 'col-resize',
           backgroundColor: 'transparent',
-          zIndex: 10
+          zIndex: 10,
         }}
         onMouseEnter={() => {
           if (resizeRef.current) {
