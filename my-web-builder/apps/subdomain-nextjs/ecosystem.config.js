@@ -7,7 +7,7 @@ module.exports = {
     env: {
       NODE_ENV: 'production',
       PORT: 3001,
-      API_BASE_URL: 'http://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com/api'
+      API_BASE_URL: 'https://ddukddak.org/api'
     },
     instances: 1,
     exec_mode: 'fork',

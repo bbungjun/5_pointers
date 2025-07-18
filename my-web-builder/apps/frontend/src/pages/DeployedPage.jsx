@@ -352,7 +352,7 @@ function DeployedPage({ user, onLogout }) {
   
         </button>
         <button
-          onClick={() => window.open(`http://${page.subdomain}.ddukddak.org`, '_blank')}
+          onClick={() => window.open(`https://${page.subdomain}.ddukddak.org`, '_blank')}
           className="px-4 py-2 bg-white text-emerald-600 border border-emerald-600 rounded-lg font-medium hover:bg-emerald-50 transition-colors"
         >
           보기
