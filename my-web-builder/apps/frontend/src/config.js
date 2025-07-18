@@ -74,7 +74,7 @@ export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('VITE_API_BAS
 
 // Y.js WebSocket 서버 설정 - 환경별 분기 (명확한 로컬 우선)
 const getWebSocketUrl = () => {
-  // 환경변수가 있으면 우선 사용
+  // 환경변수가 있으면 우선 사용 (도메인 기반 우선)
   const envUrl = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('VITE_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL');
   if (envUrl) {
     console.log('🔧 환경변수에서 WebSocket URL 사용:', envUrl);
@@ -162,5 +162,14 @@ console.log('🔍 WebSocket URL 디버깅:', {
   YJS_WEBSOCKET_URL,
   getWebSocketUrl: getWebSocketUrl(),
   currentUrl: typeof window !== 'undefined' ? window.location.hostname : 'server',
-  isLocalhost: typeof window !== 'undefined' ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') : false
-}); // Cache bust: Wed Jul 16 05:39:10 KST 2025
+  isLocalhost: typeof window !== 'undefined' ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') : false,
+  // 환경변수 직접 확인
+  VITE_YJS_WEBSOCKET_URL: getEnvVar('VITE_YJS_WEBSOCKET_URL'),
+  VITE_WEBSOCKET_URL: getEnvVar('VITE_WEBSOCKET_URL'),
+  NEXT_PUBLIC_YJS_WEBSOCKET_URL: getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL'),
+  // 모든 환경변수 확인 (개발용)
+  allEnvVars: typeof window !== 'undefined' ? Object.keys(window).filter(key => key.startsWith('VITE_')).reduce((acc, key) => {
+    acc[key] = window[key];
+    return acc;
+  }, {}) : 'server-side'
+}); // Cache bust: Fri Jul 18 19:00:00 KST 2025 - Force deployment

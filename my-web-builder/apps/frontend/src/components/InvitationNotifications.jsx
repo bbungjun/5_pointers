@@ -134,11 +134,22 @@ function InvitationNotifications() {
     }
   };
 
-  // WebSocket 연결 설정
+  // WebSocket 연결 설정 (임시 비활성화)
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
+    // 초기 데이터 로드
+    fetchInvitations();
+
+    // 폴링으로 주기적 업데이트 (60초마다)
+    const interval = setInterval(fetchInvitations, 60000);
+
+    return () => {
+      clearInterval(interval);
+    };
+
+    /* Socket.IO 연결 코드 (임시 주석 처리)
     // JWT 토큰에서 userId 추출
     const decodeJWTPayload = (token) => {
       try {
@@ -166,9 +177,9 @@ function InvitationNotifications() {
     
     if (!userId) return;
 
-    // WebSocket 연결
+    // WebSocket 연결 - API_BASE_URL에서 /api 제거하고 WebSocket 프로토콜로 변경
     const baseUrl = API_BASE_URL.replace('/api', '');
-    const socketUrl = API_BASE_URL.replace('https://', 'wss://').replace('http://', 'ws://');
+    const socketUrl = baseUrl.replace('https://', 'wss://').replace('http://', 'ws://');
     const newSocket = io(`${socketUrl}/invite`, {
       query: { userId },
       transports: ['websocket', 'polling'],
@@ -193,19 +204,14 @@ function InvitationNotifications() {
 
     setSocket(newSocket);
 
-    // 초기 데이터 로드
-    fetchInvitations();
-
-    // WebSocket 연결이 실패할 경우를 대비해 폴링도 함께 사용 (60초마다)
-    const interval = setInterval(fetchInvitations, 60000);
-
     return () => {
       if (newSocket) {
         newSocket.disconnect();
       }
       clearInterval(interval);
     };
-  }, []);
+    */
+  }, []); // useEffect 의존성 배열 추가
 
   if (loading) {
     return (
