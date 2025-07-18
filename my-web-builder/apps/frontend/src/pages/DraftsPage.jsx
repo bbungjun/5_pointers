@@ -28,7 +28,7 @@ function DraftsPage({ user, onLogout }) {
         const data = await response.json();
         // 중복된 ID 제거 (같은 ID를 가진 첫 번째 항목만 유지)
         const uniquePages = data.filter((page, index, arr) => {
-          const firstIndex = arr.findIndex(p => p.id === page.id);
+          const firstIndex = arr.findIndex((p) => p.id === page.id);
           return firstIndex === index;
         });
         setMyPages(uniquePages);
@@ -115,7 +115,7 @@ function DraftsPage({ user, onLogout }) {
           <div className="flex justify-between items-center">
             {/* 로고 섹션 */}
             <div className="flex items-center gap-6">
-              <div 
+              <div
                 className="relative group cursor-pointer"
                 onClick={() => navigate('/dashboard')}
               >
@@ -133,7 +133,13 @@ function DraftsPage({ user, onLogout }) {
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 border border-green-600 shadow-sm"></div>
                   <p className="text-slate-600 font-medium text-sm">
-                    <span className="text-blue-600 font-semibold">{user.nickname}</span>님
+                    <span
+                      className="font-semibold"
+                      style={{ color: '#212455' }}
+                    >
+                      {user.nickname}
+                    </span>
+                    님
                   </p>
                 </div>
               </div>
@@ -146,13 +152,24 @@ function DraftsPage({ user, onLogout }) {
                 className="px-4 py-2 bg-white text-slate-600 hover:text-emerald-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-emerald-200 flex items-center gap-2 group"
               >
                 <div className="w-5 h-5 bg-gradient-to-r from-emerald-500 to-green-500 rounded flex items-center justify-center">
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-3 h-3 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
                 배포된 페이지
                 <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
-                  {myPages.filter((page) => page.status === 'DEPLOYED').length}개
+                  {myPages.filter((page) => page.status === 'DEPLOYED').length}
+                  개
                 </span>
               </button>
               {/* 로그아웃 버튼 */}
@@ -160,8 +177,18 @@ function DraftsPage({ user, onLogout }) {
                 onClick={onLogout}
                 className="px-4 py-2 bg-white text-slate-600 hover:text-red-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-red-200 flex items-center gap-2 group"
               >
-                <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                <svg
+                  className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
                 </svg>
                 로그아웃
               </button>
@@ -175,16 +202,30 @@ function DraftsPage({ user, onLogout }) {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              <svg
+                className="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
               </svg>
             </div>
-            <h2 className="text-3xl font-bold text-slate-800">임시 저장된 페이지</h2>
+            <h2 className="text-3xl font-bold text-slate-800">
+              임시 저장된 페이지
+            </h2>
             <span className="px-3 py-1 bg-amber-100 text-amber-700 text-sm font-medium rounded-full">
               {draftPages.length}개
             </span>
           </div>
-          <p className="text-slate-600">아직 완성되지 않은 페이지들을 관리하세요</p>
+          <p className="text-slate-600">
+            아직 완성되지 않은 페이지들을 관리하세요
+          </p>
         </div>
         {/* 페이지 목록 */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -193,17 +234,33 @@ function DraftsPage({ user, onLogout }) {
               <div className="w-16 h-16 mx-auto mb-4">
                 <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin"></div>
               </div>
-              <p className="text-slate-600 font-medium">페이지를 불러오는 중...</p>
+              <p className="text-slate-600 font-medium">
+                페이지를 불러오는 중...
+              </p>
             </div>
           ) : draftPages.length === 0 ? (
             <div className="text-center py-16 rounded-xl border-2 border-dashed border-slate-200">
               <div className="w-12 h-12 mx-auto mb-4 bg-slate-100 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                <svg
+                  className="w-6 h-6 text-slate-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
                 </svg>
               </div>
-              <p className="font-medium text-slate-800 mb-2">임시 저장된 페이지가 없습니다</p>
-              <p className="text-slate-600 mb-4">새로운 페이지를 만들어보세요</p>
+              <p className="font-medium text-slate-800 mb-2">
+                임시 저장된 페이지가 없습니다
+              </p>
+              <p className="text-slate-600 mb-4">
+                새로운 페이지를 만들어보세요
+              </p>
               <button
                 onClick={() => navigate('/dashboard')}
                 className="px-6 py-3 bg-amber-600 text-white rounded-xl font-medium hover:bg-amber-700 transition-colors"
@@ -227,41 +284,64 @@ function DraftsPage({ user, onLogout }) {
                           value={editingTitle}
                           onChange={(e) => setEditingTitle(e.target.value)}
                           onBlur={() => saveEditTitle(page.id)}
-                          onKeyPress={(e) => e.key === 'Enter' && saveEditTitle(page.id)}
+                          onKeyPress={(e) =>
+                            e.key === 'Enter' && saveEditTitle(page.id)
+                          }
                           className="w-full px-3 py-2 text-lg font-bold border border-amber-300 rounded-lg focus:outline-none focus:border-amber-500 bg-white"
                           autoFocus
                         />
                       ) : (
-                        <h3 className="text-lg font-bold text-slate-800 mb-2 line-clamp-2">{page.title || '제목 없음'}</h3>
+                        <h3 className="text-lg font-bold text-slate-800 mb-2 line-clamp-2">
+                          {page.title || '제목 없음'}
+                        </h3>
                       )}
-                      
+
                       {/* 뷰포트 표시 */}
                       <div className="flex items-center gap-2 mb-2">
-                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          page.editingMode === 'mobile' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-green-100 text-green-800'
-                        }`}>
+                        <div
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            page.editingMode === 'mobile'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}
+                        >
                           {page.editingMode === 'mobile' ? (
                             <>
-                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z" clipRule="evenodd" />
+                              <svg
+                                className="w-3 h-3 mr-1"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
                               모바일
                             </>
                           ) : (
                             <>
-                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
+                              <svg
+                                className="w-3 h-3 mr-1"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
                               데스크톱
                             </>
                           )}
                         </div>
                       </div>
-                      
+
                       <p className="text-sm text-slate-600">
-                        마지막 수정: {new Date(page.updatedAt).toLocaleDateString()}
+                        마지막 수정:{' '}
+                        {new Date(page.updatedAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
@@ -270,8 +350,18 @@ function DraftsPage({ user, onLogout }) {
                         className="p-2 text-amber-600 hover:bg-amber-100 rounded-lg"
                         title="제목 수정"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
                         </svg>
                       </button>
                       <button
@@ -279,8 +369,18 @@ function DraftsPage({ user, onLogout }) {
                         className="p-2 text-red-600 hover:bg-red-100 rounded-lg"
                         title="삭제"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
                         </svg>
                       </button>
                     </div>
@@ -288,23 +388,13 @@ function DraftsPage({ user, onLogout }) {
                   <div className="flex gap-2 mt-auto">
                     <button
                       onClick={() => {
-                        const viewport = page.editingMode === 'mobile' ? 'mobile' : 'desktop';
+                        const viewport =
+                          page.editingMode === 'mobile' ? 'mobile' : 'desktop';
                         navigate(`/editor/${page.id}?viewport=${viewport}`);
                       }}
                       className="w-full px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors"
                     >
-                      편집하기
-
-    
-          
-            
-    
-
-          
-          Expand Down
-    
-    
-  
+                      편집하기 Expand Down
                     </button>
                   </div>
                 </div>
@@ -367,4 +457,4 @@ function DraftsPage({ user, onLogout }) {
     </div>
   );
 }
-export default DraftsPage; 
+export default DraftsPage;

@@ -524,6 +524,8 @@ function DashboardPage({ user, onLogout }) {
                 src="/ddukddak-logo.png"
                 alt="DDUKDDAK"
                 style={{ height: '36px', objectFit: 'contain' }}
+                className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                onClick={() => navigate('/dashboard')}
               />
             </div>
 
@@ -533,7 +535,10 @@ function DashboardPage({ user, onLogout }) {
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
                   <p className="text-slate-600 font-medium text-lg">
-                    <span className="text-pink-600 font-semibold">
+                    <span
+                      className="font-semibold"
+                      style={{ color: '#212455' }}
+                    >
                       {user.nickname}
                     </span>
                     님
