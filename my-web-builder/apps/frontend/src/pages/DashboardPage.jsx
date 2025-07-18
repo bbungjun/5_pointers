@@ -500,17 +500,12 @@ function DashboardPage({ user, onLogout }) {
             <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
                 <p className="text-slate-600 font-medium text-lg">
-                  <span className="text-pink-600 font-semibold">{user.nickname}</span>님
+                  <span className="text-black font-semibold">{user.nickname}</span>님
                 </p>
               </div>
               {/* 마이페이지 드롭다운 */}
               <div className="relative group">
                 <button className="px-4 py-2 bg-white text-slate-600 hover:text-gray-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-gray-300 flex items-center gap-2 group">
-                  <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
                   마이페이지
                   <svg className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -518,44 +513,24 @@ function DashboardPage({ user, onLogout }) {
                 </button>
                 
                 {/* 드롭다운 메뉴 */}
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                  <div className="p-2">
+                <div className="absolute top-full right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <div className="p-2 flex flex-col gap-1"> {/* gap-1로 간격 최소화 */}
                     {/* 임시 저장 페이지 버튼 */}
                     <button
                       onClick={() => navigate('/dashboard/drafts')}
-                      className="w-full px-4 py-3 text-left text-slate-600 hover:text-amber-600 rounded-lg transition-all duration-300 font-medium hover:bg-amber-50 flex items-center gap-3 group"
+                      className="w-full px-3 py-2 text-left text-slate-500 hover:text-black rounded-lg transition-all duration-300 font-medium hover:bg-blue-50 flex items-center gap-2 text-sm whitespace-nowrap"
                     >
-                      <div className="w-8 h-8 bg-gradient-to-r from-purple-300 to-purple-400 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium">제작 중</div>
-                      </div>
-                      <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
-                        {myPages.filter((page) => page.status === 'DRAFT').length}개
+                      <span className="truncate flex-1">
+                        임시 저장
                       </span>
                     </button>
-
-                    {/* 구분선 */}
-                    <div className="h-px bg-slate-200 my-2"></div>
-
                     {/* 배포된 페이지 버튼 */}
                     <button
                       onClick={() => navigate('/dashboard/deployed')}
-                      className="w-full px-4 py-3 text-left text-slate-600 hover:text-emerald-600 rounded-lg transition-all duration-300 font-medium hover:bg-emerald-50 flex items-center gap-3 group"
+                      className="w-full px-3 py-2 text-left text-slate-500 hover:text-black rounded-lg transition-all duration-300 font-medium hover:bg-blue-50 flex items-center gap-2 text-sm whitespace-nowrap"
                     >
-                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium">배포된 페이지</div>
-                      </div>
-                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
-                        {myPages.filter((page) => page.status === 'DEPLOYED').length}개
+                      <span className="truncate flex-1">
+                        배포된 페이지
                       </span>
                     </button>
                   </div>
@@ -568,7 +543,7 @@ function DashboardPage({ user, onLogout }) {
               {/* 로그아웃 버튼 */}
               <button
                 onClick={onLogout}
-                className="px-4 py-2 bg-white border border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 group"
+                className="px-4 py-2 border border-pink-200 hover:border-pink-300 text-pink-500 hover:text-pink-600 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 group bg-white"
               >
                 <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
