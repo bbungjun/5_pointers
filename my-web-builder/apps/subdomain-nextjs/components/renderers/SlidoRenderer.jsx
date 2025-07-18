@@ -862,7 +862,7 @@ function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
           >
             <div>
               <div style={{ fontSize: '16px', fontWeight: '500' }}>
-                첫 번째 의견을 기다리고 있어요
+                첫 번째 v 기다리고 있어요
               </div>
             </div>
           </div>
