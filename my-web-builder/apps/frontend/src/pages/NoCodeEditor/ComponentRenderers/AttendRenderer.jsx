@@ -213,8 +213,8 @@ function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
         }
         disabled={mode === 'editor' || isEditor === true}
         style={{
-          backgroundColor: (mode === 'editor' || isEditor === true) ? '#d1d5db' : (comp.props?.buttonColor || '#9CAF88'),
-          color: (mode === 'editor' || isEditor === true) ? '#9ca3af' : (comp.props?.buttonTextColor || 'white'),
+          backgroundColor: comp.props?.buttonColor || '#9CAF88',
+          color: comp.props?.buttonTextColor || 'white',
           border: 'none',
           borderRadius: 0,
           padding: '12px 24px',

@@ -54,7 +54,7 @@ const ChatBubble = ({
         zIndex: 99999,
         animation: followCursor ? 'none' : 'chatBubbleIn 0.3s ease-out',
         transform: followCursor ? 'translateZ(0)' : 'none', // GPU 가속 (필요할 때만)
-        transition: followCursor ? 'all 0.1s ease-out' : 'none',
+        transition: followCursor ? 'none' : 'none',
       }}
     >
       {/* 사용자 이름 */}

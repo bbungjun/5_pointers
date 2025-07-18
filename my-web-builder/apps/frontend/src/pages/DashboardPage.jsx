@@ -685,73 +685,23 @@ function DashboardPage({ user, onLogout }) {
                 </button>
 
                 {/* 드롭다운 메뉴 */}
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                  <div className="p-2">
+                <div className="absolute top-full right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <div className="p-2 flex flex-col gap-1">
+                    {' '}
+                    {/* gap-1로 간격 최소화 */}
                     {/* 임시 저장 페이지 버튼 */}
                     <button
                       onClick={() => navigate('/dashboard/drafts')}
-                      className="w-full px-4 py-3 text-left text-slate-600 hover:text-amber-600 rounded-lg transition-all duration-300 font-medium hover:bg-amber-50 flex items-center gap-3 group"
+                      className="w-full px-3 py-2 text-left text-slate-500 hover:text-black rounded-lg transition-all duration-300 font-medium hover:bg-blue-50 flex items-center gap-2 text-sm whitespace-nowrap"
                     >
-                      <div className="w-8 h-8 bg-gradient-to-r from-purple-300 to-purple-400 rounded-lg flex items-center justify-center">
-                        <svg
-                          className="w-4 h-4 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                          />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium">제작 중</div>
-                      </div>
-                      <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
-                        {
-                          myPages.filter((page) => page.status === 'DRAFT')
-                            .length
-                        }
-                        개
-                      </span>
+                      <span className="truncate flex-1">임시 저장</span>
                     </button>
-
-                    {/* 구분선 */}
-                    <div className="h-px bg-slate-200 my-2"></div>
-
                     {/* 배포된 페이지 버튼 */}
                     <button
                       onClick={() => navigate('/dashboard/deployed')}
-                      className="w-full px-4 py-3 text-left text-slate-600 hover:text-emerald-600 rounded-lg transition-all duration-300 font-medium hover:bg-emerald-50 flex items-center gap-3 group"
+                      className="w-full px-3 py-2 text-left text-slate-500 hover:text-black rounded-lg transition-all duration-300 font-medium hover:bg-blue-50 flex items-center gap-2 text-sm whitespace-nowrap"
                     >
-                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <svg
-                          className="w-4 h-4 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium">배포된 페이지</div>
-                      </div>
-                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
-                        {
-                          myPages.filter((page) => page.status === 'DEPLOYED')
-                            .length
-                        }
-                        개
-                      </span>
+                      <span className="truncate flex-1">배포된 페이지</span>
                     </button>
                   </div>
                 </div>
