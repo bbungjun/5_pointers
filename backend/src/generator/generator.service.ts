@@ -104,7 +104,7 @@ export class GeneratorService {
     // 5. 최종 배포 URL 생성 (프로덕션에서는 실제 서브도메인 사용)
     const isProduction = process.env.NODE_ENV === 'production';
     const url = isProduction
-      ? `http://${subdomain}.ddukddak.org`
+      ? `https://${subdomain}.ddukddak.org`
       : `http://${subdomain}.localhost:3001`;
 
 
@@ -160,8 +160,8 @@ export class GeneratorService {
         {
           deployedUrl:
             process.env.NODE_ENV === 'production'
-              ? `http://${page.subdomain}.ddukddak.org`
-              : `http://localhost:3001/${page.subdomain}`,
+              ? `https://${page.subdomain}.ddukddak.org`
+              : `https://${page.subdomain}.localhost:3001`,
           deployedAt: page.updatedAt,
           subdomain: page.subdomain,
           projectId: page.id,

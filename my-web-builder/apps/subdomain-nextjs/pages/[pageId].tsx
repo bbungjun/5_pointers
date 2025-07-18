@@ -6,7 +6,7 @@ import Head from 'next/head';
 const API_BASE_URL =
   process.env.API_BASE_URL ||
   (process.env.NODE_ENV === 'production'
-    ? 'http://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com/api'
+    ? 'https://ddukddak.org/api'
     : 'http://localhost:3000/api');
 
 // 실제 프론트엔드 컴포넌트들을 import
