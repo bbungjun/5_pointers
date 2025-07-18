@@ -5,8 +5,16 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
   const baseWidth = 375; // 기준 너비
   const actualWidth = comp.width || baseWidth;
   const scaleFactor = actualWidth / baseWidth;
-  
-  const { title, placeholder, backgroundColor } = comp.props;
+
+  const {
+    title,
+    placeholder,
+    backgroundColor,
+    noBorder = true,
+    borderColor = '#e5e7eb',
+    borderWidth = '1px',
+    borderRadius = 0,
+  } = comp.props;
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
     author: '',
@@ -19,17 +27,18 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
   // 댓글 목록 조회
   const fetchComments = async () => {
     const actualPageId = pageId || comp.pageId;
-    const actualApiBaseUrl = typeof window !== 'undefined' ? window.API_BASE_URL : null;
-    
+    const actualApiBaseUrl =
+      typeof window !== 'undefined' ? window.API_BASE_URL : null;
+
     if (!actualPageId || !actualApiBaseUrl) {
       return;
     }
 
     try {
       const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
-      
+
       const response = await fetch(apiUrl);
-      
+
       if (response.ok) {
         const data = await response.json();
         setComments(data);
@@ -48,8 +57,9 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
     }
 
     const actualPageId = pageId || comp.pageId;
-    const actualApiBaseUrl = typeof window !== 'undefined' ? window.API_BASE_URL : null;
-    
+    const actualApiBaseUrl =
+      typeof window !== 'undefined' ? window.API_BASE_URL : null;
+
     if (!actualPageId || !actualApiBaseUrl) {
       alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
       return;
@@ -57,7 +67,7 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
 
     try {
       const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
-      
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -69,7 +79,9 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
         await fetchComments();
         // alert('댓글이 성공적으로 등록되었습니다.');
       } else {
-        alert(`댓글 등록에 실패했습니다. (${response.status}: ${response.statusText})`);
+        alert(
+          `댓글 등록에 실패했습니다. (${response.status}: ${response.statusText})`
+        );
       }
     } catch (error) {
       alert(`댓글 등록에 실패했습니다. 네트워크 오류: ${error.message}`);
@@ -83,7 +95,8 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       return;
     }
 
-    const actualApiBaseUrl = typeof window !== 'undefined' ? window.API_BASE_URL : null;
+    const actualApiBaseUrl =
+      typeof window !== 'undefined' ? window.API_BASE_URL : null;
 
     try {
       const response = await fetch(
@@ -125,9 +138,12 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
     <div
       style={{
         width: mode === 'live' ? '100%' : `${comp?.width || 300}px`,
-        height: mode === 'live' ? `${(comp?.height || 400) * scaleFactor}px` : `${comp?.height || 200}px`,
-        borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : 0,
-        border: '1px solid #e5e7eb',
+        height:
+          mode === 'live'
+            ? `${(comp?.height || 400) * scaleFactor}px`
+            : `${comp?.height || 200}px`,
+        borderRadius: borderRadius,
+        border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`,
         backgroundColor,
         display: 'flex',
         flexDirection: 'column',
@@ -180,10 +196,14 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               setNewComment({ ...newComment, author: e.target.value })
             }
             style={{
-              padding: mode === 'live' ? `${8 * scaleFactor}px ${12 * scaleFactor}px` : '8px 12px',
+              padding:
+                mode === 'live'
+                  ? `${8 * scaleFactor}px ${12 * scaleFactor}px`
+                  : '8px 12px',
               border: '1px solid #d1d5db',
               borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
               fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
+              fontFamily: fontFamily,
               outline: 'none',
             }}
           />
@@ -195,7 +215,10 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               setNewComment({ ...newComment, password: e.target.value })
             }
             style={{
-              padding: mode === 'live' ? `${8 * scaleFactor}px ${12 * scaleFactor}px` : '8px 12px',
+              padding:
+                mode === 'live'
+                  ? `${8 * scaleFactor}px ${12 * scaleFactor}px`
+                  : '8px 12px',
               border: '1px solid #d1d5db',
               borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
               fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
@@ -211,15 +234,19 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
           }
           style={{
             width: '100%',
-            padding: mode === 'live' ? `${8 * scaleFactor}px ${12 * scaleFactor}px` : '8px 12px',
+            padding:
+              mode === 'live'
+                ? `${8 * scaleFactor}px ${12 * scaleFactor}px`
+                : '8px 12px',
             border: '1px solid #d1d5db',
             borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
             fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
+            fontFamily: fontFamily,
             outline: 'none',
             resize: 'none',
             minHeight: mode === 'live' ? `${80 * scaleFactor}px` : '80px',
             whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
           }}
           rows="3"
         />
@@ -227,7 +254,10 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
           type="submit"
           style={{
             marginTop: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
-            padding: mode === 'live' ? `${8 * scaleFactor}px ${16 * scaleFactor}px` : '8px 16px',
+            padding:
+              mode === 'live'
+                ? `${8 * scaleFactor}px ${16 * scaleFactor}px`
+                : '8px 16px',
             borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
             fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
             border: 'none',
@@ -243,7 +273,13 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       </form>
 
       {/* 댓글 목록 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: mode === 'live' ? `${12 * scaleFactor}px` : '12px' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
+        }}
+      >
         {comments.length === 0 ? (
           <div
             style={{
@@ -285,7 +321,12 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               >
                 ×
               </button>
-              <div style={{ paddingRight: mode === 'live' ? `${32 * scaleFactor}px` : '32px' }}>
+              <div
+                style={{
+                  paddingRight:
+                    mode === 'live' ? `${32 * scaleFactor}px` : '32px',
+                }}
+              >
                 <div
                   style={{
                     fontWeight: fontWeight === 'bold' ? 'bold' : '500',
@@ -296,7 +337,8 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                     letterSpacing: `${letterSpacing * scaleFactor}px`,
                     textDecoration: textDecoration,
                     transform: italicTransform,
-                    fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
+                    fontSize:
+                      mode === 'live' ? `${14 * scaleFactor}px` : '14px',
                   }}
                 >
                   {comment.author}
@@ -304,7 +346,8 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                 <div
                   style={{
                     color: comp.props?.color || '#4b5563',
-                    fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
+                    fontSize:
+                      mode === 'live' ? `${14 * scaleFactor}px` : '14px',
                     lineHeight: lineHeight,
                     whiteSpace: 'pre-wrap',
                     fontFamily: fontFamily,
@@ -318,7 +361,8 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                 </div>
                 <div
                   style={{
-                    fontSize: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
+                    fontSize:
+                      mode === 'live' ? `${12 * scaleFactor}px` : '12px',
                     color: '#9ca3af',
                     marginTop: mode === 'live' ? `${8 * scaleFactor}px` : '8px',
                   }}
@@ -359,7 +403,8 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               style={{
                 fontSize: mode === 'live' ? 'clamp(16px, 4vw, 18px)' : '18px',
                 fontWeight: '600',
-                marginBottom: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
+                marginBottom:
+                  mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
                 whiteSpace: 'pre-wrap',
               }}
             >
@@ -368,7 +413,8 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
             <p
               style={{
                 color: '#4b5563',
-                marginBottom: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
+                marginBottom:
+                  mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
                 whiteSpace: 'pre-wrap',
               }}
             >
@@ -381,13 +427,17 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               onChange={(e) => setDeletePassword(e.target.value)}
               style={{
                 width: '100%',
-                padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)' : '8px 12px',
+                padding:
+                  mode === 'live'
+                    ? 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)'
+                    : '8px 12px',
                 border: '1px solid #d1d5db',
                 borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
-                marginBottom: mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
+                marginBottom:
+                  mode === 'live' ? 'clamp(12px, 3vw, 16px)' : '16px',
                 outline: 'none',
                 fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
               }}
               onKeyPress={(e) => e.key === 'Enter' && handleDeleteComment()}
             />
@@ -401,10 +451,14 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                 onClick={handleDeleteComment}
                 style={{
                   flex: 1,
-                  padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
+                  padding:
+                    mode === 'live'
+                      ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)'
+                      : '8px 16px',
                   backgroundColor: '#dc2626',
                   color: '#ffffff',
-                  borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
+                  borderRadius:
+                    mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',
@@ -421,10 +475,14 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                 }}
                 style={{
                   flex: 1,
-                  padding: mode === 'live' ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)' : '8px 16px',
+                  padding:
+                    mode === 'live'
+                      ? 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)'
+                      : '8px 16px',
                   backgroundColor: '#d1d5db',
                   color: '#374151',
-                  borderRadius: mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
+                  borderRadius:
+                    mode === 'live' ? 'clamp(4px, 1vw, 6px)' : '6px',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',

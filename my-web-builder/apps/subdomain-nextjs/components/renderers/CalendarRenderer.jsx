@@ -6,7 +6,15 @@ function CalendarRenderer({ comp, mode = 'live' }) {
   const actualWidth = comp.width || baseWidth;
   const scaleFactor = actualWidth / baseWidth;
   
-  const { weddingDate, title, highlightColor } = comp.props;
+  const { 
+    weddingDate, 
+    title, 
+    highlightColor,
+    noBorder = true,
+    borderColor = '#e5e7eb',
+    borderWidth = '1px',
+    borderRadius = 0,
+  } = comp.props;
   
   // 날짜 파싱
   const targetDate = new Date(weddingDate);
@@ -46,7 +54,8 @@ function CalendarRenderer({ comp, mode = 'live' }) {
       width: mode === 'live' ? '100%' : `${comp?.width || 300}px`,
       height: mode === 'live' ? `${(comp?.height || 300) * scaleFactor}px` : `${comp?.height || 200}px`,
       backgroundColor: 'white',
-      borderRadius: mode === 'live' ? `${12 * scaleFactor}px` : 0,
+      border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`,
+      borderRadius: borderRadius,
       boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
       display: 'flex',
       flexDirection: 'column',

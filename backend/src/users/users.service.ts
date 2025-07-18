@@ -910,8 +910,8 @@ export class UsersService {
 
   generateSlidoHTML(comp: any): string {
     const style = `position: absolute; left: ${comp.x}px; top: ${comp.y}px;`;
-    const question = comp.props.question || '여러분의 의견을 들려주세요';
-    const placeholder = comp.props.placeholder || '의견을 입력하세요...';
+    const question = comp.props.question || '오늘 어떠셨나요?';
+    const placeholder = comp.props.placeholder || '의견을 입력해보세요!';
     const backgroundColor = comp.props.backgroundColor || '#ffffff';
 
     return `
