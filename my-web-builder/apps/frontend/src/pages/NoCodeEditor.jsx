@@ -688,6 +688,30 @@ function NoCodeEditor({ pageId }) {
         />
       ))}
 
+      {/* 커서 채팅 메시지들 (자신과 다른 사용자 모두) */}
+      {Object.entries(cursorChatMessages).map(([userId, message]) => {
+        if (!message) return null;
+        
+        // 자신의 메시지인지 확인
+        const isOwnMessage = userId === userInfo?.id || userId === String(userInfo?.id);
+        
+        return (
+          <ChatBubble
+            key={`cursor-chat-${userId}-${message}`}
+            x={cursorPosition.x}
+            y={cursorPosition.y}
+            user={isOwnMessage ? userInfo : { id: userId, name: '사용자', color: '#3B4EFF' }}
+            message={message}
+            timestamp={Date.now()}
+            onClose={() => {
+              // 메시지 제거는 useChat에서 자동으로 처리됨
+            }}
+            isOwnMessage={isOwnMessage}
+            followCursor={true}
+          />
+        );
+      })}
+
       {/* 채팅 입력 UI */}
       {isChatInputOpen && (
         <ChatInput

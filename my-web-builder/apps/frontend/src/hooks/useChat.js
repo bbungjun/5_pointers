@@ -29,7 +29,7 @@ export function useChat(awareness, userInfo, onCursorChatUpdate) {
     // Awareness를 통해 다른 사용자에게 메시지 브로드캐스트
     awareness.setLocalStateField('chatMessage', chatMessage);
 
-    // 커서에 채팅 메시지 표시
+    // 커서에 채팅 메시지 표시 (자신의 메시지도 표시)
     if (onCursorChatUpdate) {
       console.log('💬 채팅 메시지 전송 - 커서 업데이트:', userInfo.id, chatMessage.message);
       onCursorChatUpdate(userInfo.id, chatMessage.message);

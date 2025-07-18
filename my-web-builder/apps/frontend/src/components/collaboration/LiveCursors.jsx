@@ -2,6 +2,26 @@ import React, { useEffect, useMemo, useCallback } from 'react';
 import { addUserColor } from '../../utils/userColors';
 
 /**
+ * 채팅 메시지 컴포넌트 - 메모이제이션으로 깜빡임 방지
+ */
+const ChatMessage = React.memo(({ userWithColor, message }) => {
+  if (!message) {
+    return (
+      <span>{userWithColor.name || '사용자'}</span>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+      <span style={{ fontWeight: 'bold', fontSize: '13px' }}>{userWithColor.name}</span>
+      <span style={{ fontSize: '16px' }}>{message}</span>
+    </div>
+  );
+});
+
+ChatMessage.displayName = 'ChatMessage';
+
+/**
  * 성능 최적화된 실시간 커서 컴포넌트
  */
 export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'desktop', cursorChatMessages = {} }) => {
@@ -18,35 +38,22 @@ export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'd
         const userWithColor = addUserColor(cursor.user);
         const displayX = cursor.x * scale;
         const displayY = cursor.y * scale;
+        const chatMessage = cursorChatMessages[userWithColor.id] || cursorChatMessages[String(userWithColor.id)];
         
         return {
           ...cursor,
           userWithColor,
           displayX,
           displayY,
+          chatMessage,
           key: `cursor-${cursor.user.id || index}-${index}`
         };
       });
-  }, [cursors, scale]);
+  }, [cursors, scale, cursorChatMessages]);
   
-  // 커서 렌더링 함수 메모이제이션
+  // 커서 렌더링 함수 메모이제이션 - cursorChatMessages 의존성 제거
   const renderCursor = useCallback((cursorData) => {
-    const { userWithColor, displayX, displayY, key } = cursorData;
-    const chatMessage = cursorChatMessages[userWithColor.id] || cursorChatMessages[String(userWithColor.id)];
-    
-    // 디버깅 로그
-    console.log('🔍 LiveCursors 렌더링:', {
-      userId: userWithColor.id,
-      userName: userWithColor.name,
-      chatMessage,
-      allCursorChatMessages: cursorChatMessages,
-      cursorChatMessagesKeys: Object.keys(cursorChatMessages),
-      cursorChatMessagesValues: Object.values(cursorChatMessages),
-      hasKey: userWithColor.id in cursorChatMessages,
-      directAccess: cursorChatMessages[userWithColor.id],
-      userIdType: typeof userWithColor.id,
-      keysTypes: Object.keys(cursorChatMessages).map(key => typeof key)
-    });
+    const { userWithColor, displayX, displayY, chatMessage, key } = cursorData;
     
     return (
       <div
@@ -79,7 +86,7 @@ export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'd
           />
         </svg>
         
-        {/* 사용자 이름표 또는 채팅 메시지 */}
+        {/* 사용자 이름표 - 항상 표시 */}
         <div
           style={{
             position: 'absolute',
@@ -93,40 +100,19 @@ export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'd
             fontWeight: '500',
             whiteSpace: 'nowrap',
             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            animation: 'fadeIn 0.2s ease-out',
             maxWidth: '200px',
             wordWrap: 'break-word'
           }}
         >
-          {chatMessage ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <span style={{ fontWeight: 'bold', fontSize: '13px' }}>{userWithColor.name}</span>
-              <span style={{ fontSize: '16px' }}>{chatMessage}</span>
-            </div>
-          ) : (
-            userWithColor.name || '사용자'
-          )}
+          <ChatMessage userWithColor={userWithColor} message={chatMessage} />
         </div>
       </div>
     );
-  }, [cursorChatMessages]);
+  }, []); // cursorChatMessages 의존성 제거
   
   return (
     <>
       {processedCursors.map(renderCursor)}
-      
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(4px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </>
   );
 });
