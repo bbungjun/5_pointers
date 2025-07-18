@@ -23,8 +23,6 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
 
   return (
     <div>
-
-
       {/* 텍스트 전용 에디터들 */}
       <TextEditor
         value={selectedComp.props?.text || ''}
