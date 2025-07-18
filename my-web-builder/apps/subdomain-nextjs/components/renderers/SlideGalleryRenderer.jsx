@@ -357,25 +357,6 @@ function SlideGalleryRenderer({
             {currentImage.caption}
           </div>
         )}
-
-        {/* 자동 재생 표시 */}
-        {isAutoPlaying && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '12px',
-              right: '12px',
-              backgroundColor: 'rgba(59, 78, 255, 0.9)',
-              color: 'white',
-              padding: '4px 8px',
-              borderRadius: '8px',
-              fontSize: '10px',
-              fontWeight: '500',
-            }}
-          >
-            AUTO
-          </div>
-        )}
       </div>
 
       {/* 썸네일 영역 */}
