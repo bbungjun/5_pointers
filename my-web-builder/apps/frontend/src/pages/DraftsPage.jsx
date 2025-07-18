@@ -175,7 +175,8 @@ function DraftsPage({ user, onLogout }) {
               {/* 로그아웃 버튼 */}
               <button
                 onClick={onLogout}
-                className="px-4 py-2 bg-white text-slate-600 hover:text-red-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-red-200 flex items-center gap-2 group"
+                className="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 font-medium rounded-lg transition-all duration-300 flex items-center gap-2 group"
+                style={{ color: '#212455' }}
               >
                 <svg
                   className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90"
