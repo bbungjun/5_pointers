@@ -2,7 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../config';
 
 function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
-  const { question, placeholder, backgroundColor } = comp.props;
+  const {
+    question,
+    placeholder,
+    backgroundColor,
+    textColor,
+    border,
+    borderRadius,
+  } = comp.props;
   const [opinions, setOpinions] = useState([]);
   const [newOpinion, setNewOpinion] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -432,8 +439,8 @@ function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
     <div
       ref={containerRef}
       style={{
-        borderRadius: 0,
-        border: mode === 'editor' ? '2px dashed #3b82f6' : '2px solid #e5e7eb',
+        borderRadius: borderRadius || 0,
+        border: border === 'none' ? 'none' : border || '2px solid #e5e7eb',
         backgroundColor: backgroundColor || '#ffffff',
         display: 'flex',
         flexDirection: 'column',
@@ -555,16 +562,12 @@ function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
               : '20px',
           fontWeight: '700',
           marginBottom: mode === 'live' ? `clamp(12px, 3vw, 20px)` : '20px',
-          color: '#1f2937',
+          color: textColor || '#000000',
           textAlign: 'center',
           whiteSpace: 'pre-wrap',
-          background: '#E91E63',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
         }}
       >
-        💭 {question || '여러분의 의견을 들려주세요'}
+        {question || '오늘 어떠셨나요?'}
       </div>
 
       {/* 의견 입력 폼 */}

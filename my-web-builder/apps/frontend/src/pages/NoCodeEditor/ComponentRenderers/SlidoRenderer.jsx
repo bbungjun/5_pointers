@@ -2,7 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../../config';
 
 function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
-  const { question, placeholder, backgroundColor } = comp.props;
+  const {
+    question,
+    placeholder,
+    backgroundColor,
+    textColor,
+    border,
+    borderRadius,
+  } = comp.props;
   const [opinions, setOpinions] = useState([]);
   const [newOpinion, setNewOpinion] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -436,8 +443,8 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
         height: '100%',
         minHeight: '400px',
         padding: '20px',
-        borderRadius: 0,
-        border: '1px solid #000000',
+        borderRadius: borderRadius || 0,
+        border: border === 'none' ? 'none' : border || '1px solid #000000',
         backgroundColor: backgroundColor || '#ffffff',
         display: 'flex',
         flexDirection: 'column',
@@ -546,16 +553,12 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
           fontSize: '20px',
           fontWeight: '700',
           marginBottom: '20px',
-          color: '#1f2937',
+          color: textColor || '#000000',
           textAlign: 'center',
           whiteSpace: 'pre-wrap',
-          background: '#E91E63',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
         }}
       >
-        💭 {question || '여러분의 의견을 들려주세요'}
+        {question || '오늘 어떠셨나요?'}
       </div>
 
       {/* 의견 입력 폼 */}
