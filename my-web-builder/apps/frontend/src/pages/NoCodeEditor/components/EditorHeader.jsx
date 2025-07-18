@@ -41,7 +41,13 @@ function EditorHeader({
   } = useDeploy();
 
   // 페이지 멤버 정보 가져오기
-  const { members, otherMembers, currentUser, loading: membersLoading, refetch: refetchMembers } = usePageMembers(pageId);
+  const {
+    members,
+    otherMembers,
+    currentUser,
+    loading: membersLoading,
+    refetch: refetchMembers,
+  } = usePageMembers(pageId);
 
   // 배포 모달 상태
   const [showDeployModal, setShowDeployModal] = useState(false);
@@ -51,7 +57,10 @@ function EditorHeader({
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (membersDropdownRef.current && !membersDropdownRef.current.contains(event.target)) {
+      if (
+        membersDropdownRef.current &&
+        !membersDropdownRef.current.contains(event.target)
+      ) {
         setShowMembersDropdown(false);
       }
     };
@@ -123,14 +132,21 @@ function EditorHeader({
               className={`
                 px-3 py-2 text-sm
                 border rounded-lg transition-colors
-                ${isFromTemplate 
-                  ? 'bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed' 
-                  : 'bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-pink-500 hover:border-blue-400 cursor-pointer'
+                ${
+                  isFromTemplate
+                    ? 'bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed'
+                    : 'bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-pink-500 hover:border-blue-400 cursor-pointer'
                 }
               `}
-              title={isFromTemplate ? '템플릿에서는 편집 기준을 변경할 수 없습니다' : '편집 기준 선택'}
+              title={
+                isFromTemplate
+                  ? '템플릿에서는 편집 기준을 변경할 수 없습니다'
+                  : '편집 기준 선택'
+              }
             >
-              {templateCategory !== 'wedding' && <option value="desktop">💻 데스크탑</option>}
+              {templateCategory !== 'wedding' && (
+                <option value="desktop">💻 데스크탑</option>
+              )}
               <option value="mobile">📱 모바일</option>
             </select>
           </div>
@@ -145,35 +161,37 @@ function EditorHeader({
               <div className="flex items-center gap-2">
                 {/* 현재 사용자 표시 */}
                 <div className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded text-xs">
-                  <span 
+                  <span
                     className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: currentUser ? getUserColor(currentUser.id) : '#10B981' }}
+                    style={{
+                      backgroundColor: currentUser
+                        ? getUserColor(currentUser.id)
+                        : '#10B981',
+                    }}
                   ></span>
                   <span className="max-w-16 truncate">
                     {currentUser?.nickname || '나'}
                   </span>
                 </div>
-                
+
                 {/* 다른 멤버들 표시 (최대 2명까지) */}
                 {otherMembers.slice(0, 2).map((member) => (
                   <div
                     key={member.id}
                     className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${
-                      member.status === 'PENDING' 
-                        ? 'bg-yellow-50 text-yellow-700' 
+                      member.status === 'PENDING'
+                        ? 'bg-yellow-50 text-yellow-700'
                         : 'bg-pink-50 text-pink-700'
                     }`}
                   >
-                    <span 
+                    <span
                       className="w-2 h-2 rounded-full"
                       style={{ backgroundColor: member.color }}
                     ></span>
-                    <span className="max-w-16 truncate">
-                      {member.nickname}
-                    </span>
+                    <span className="max-w-16 truncate">{member.nickname}</span>
                   </div>
                 ))}
-                
+
                 {/* 3명 이상이면 + 버튼 표시 */}
                 {otherMembers.length > 2 && (
                   <button
@@ -184,12 +202,14 @@ function EditorHeader({
                   </button>
                 )}
               </div>
-              
+
               {/* 멤버 드롭다운 */}
               {showMembersDropdown && otherMembers.length > 2 && (
                 <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48">
                   <div className="p-2">
-                    <div className="text-xs text-gray-500 mb-2 px-2">페이지 멤버</div>
+                    <div className="text-xs text-gray-500 mb-2 px-2">
+                      페이지 멤버
+                    </div>
                     {otherMembers.map((member) => (
                       <div
                         key={member.id}
@@ -197,20 +217,25 @@ function EditorHeader({
                           member.status === 'PENDING' ? 'bg-yellow-50' : ''
                         }`}
                       >
-                        <span 
+                        <span
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: member.color }}
                         ></span>
                         <span className="flex-1 truncate">
                           {member.nickname}
                         </span>
-                        <span className={`text-xs ${
-                          member.status === 'PENDING' 
-                            ? 'text-yellow-600 font-medium' 
-                            : 'text-gray-500'
-                        }`}>
-                          {member.isOwner ? '소유자' : 
-                           member.status === 'PENDING' ? '초대 대기' : member.role}
+                        <span
+                          className={`text-xs ${
+                            member.status === 'PENDING'
+                              ? 'text-yellow-600 font-medium'
+                              : 'text-gray-500'
+                          }`}
+                        >
+                          {member.isOwner
+                            ? '소유자'
+                            : member.status === 'PENDING'
+                              ? '초대 대기'
+                              : member.role}
                         </span>
                       </div>
                     ))}
@@ -254,7 +279,13 @@ function EditorHeader({
               flex items-center whitespace-nowrap text-sm
             "
           >
-            <span className="material-symbols-outlined text-xl" title="템플릿 저장" aria-label="템플릿 저장">save</span>
+            <span
+              className="material-symbols-outlined text-xl"
+              title="템플릿 저장"
+              aria-label="템플릿 저장"
+            >
+              save
+            </span>
           </button>
         )}
 
@@ -267,7 +298,13 @@ function EditorHeader({
             flex items-center whitespace-nowrap text-sm
           "
         >
-          <span className="material-symbols-outlined text-base" title="공유" aria-label="공유">group_add</span>
+          <span
+            className="material-symbols-outlined text-base"
+            title="공유"
+            aria-label="공유"
+          >
+            group_add
+          </span>
         </button>
 
         {/* 미리보기 버튼 */}
@@ -296,7 +333,8 @@ function EditorHeader({
             fontSize: '14px',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            opacity: isDeploying || !components || components.length === 0 ? 0.6 : 1,
+            opacity:
+              isDeploying || !components || components.length === 0 ? 0.6 : 1,
           }}
           onMouseEnter={(e) => {
             if (!isDeploying && components && components.length > 0) {
@@ -315,7 +353,10 @@ function EditorHeader({
       {/* 배포 모달 */}
       <DeployModal
         isOpen={showDeployModal}
-        onClose={() => { setShowDeployModal(false); resetDeploy(); }}
+        onClose={() => {
+          setShowDeployModal(false);
+          resetDeploy();
+        }}
         isDeploying={isDeploying}
         deployedUrl={deployedUrl}
         errorMessage={errorMessage}
