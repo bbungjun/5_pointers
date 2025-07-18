@@ -4,10 +4,60 @@ const WebSocketConnectionGuide = ({ wsUrl, onRetry }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleCertificateSetup = () => {
-    // WSS/WS URL을 HTTPS/HTTP URL로 변경
-    let httpUrl = wsUrl.replace('wss://', 'https://').replace('ws://', 'http://');
-    console.log('🔗 서버 확인 URL:', httpUrl);
-    window.open(httpUrl, '_blank');
+    // WSS/WS URL을 HTTPS URL로 변경 (SSL 인증서 확인용)
+    let httpsUrl;
+    
+    if (wsUrl.includes('wss://')) {
+      // WSS URL을 HTTPS URL로 변경
+      httpsUrl = wsUrl.replace('wss://', 'https://');
+    } else if (wsUrl.includes('ws://')) {
+      // WS URL을 WSS용 HTTPS URL로 변경
+      if (wsUrl.includes('localhost:1234')) {
+        // 로컬 환경: 1234 포트를 1235 포트(SSL)로 변경
+        httpsUrl = wsUrl.replace('ws://localhost:1234', 'https://localhost:1235');
+      } else if (wsUrl.includes('ws.ddukddak.org')) {
+        // 프로덕션 환경: 도메인 기반 HTTPS
+        httpsUrl = wsUrl.replace('ws://', 'https://').replace(':1234', ':1235');
+      } else {
+        // 기타 환경: WS를 HTTPS로 변경하고 SSL 포트 사용
+        httpsUrl = wsUrl.replace('ws://', 'https://').replace(':1234', ':1235');
+      }
+    } else {
+      // 기본값
+      httpsUrl = wsUrl;
+    }
+    
+    // WSL 환경에서 localhost가 안 되는 경우를 위한 대체 URL
+    const isWSLEnvironment = httpsUrl.includes('localhost') && typeof window !== 'undefined';
+    const isProductionDomain = httpsUrl.includes('ddukddak.org');
+    
+    if (isWSLEnvironment) {
+      // WSL 환경: localhost와 WSL IP 둘 다 시도
+      console.log('🔗 SSL 서버 확인 URL (localhost):', httpsUrl);
+      console.log('🔗 SSL 서버 확인 URL (WSL IP 대체):', httpsUrl.replace('localhost', '172.30.74.11'));
+      console.log('💡 localhost가 안 되면 WSL IP로 시도하세요.');
+      
+      window.open(httpsUrl, '_blank');
+      
+      setTimeout(() => {
+        const wslUrl = httpsUrl.replace('localhost', '172.30.74.11');
+        console.log('🔄 WSL IP 대체 URL도 열어드립니다:', wslUrl);
+        if (confirm('localhost 연결이 안 되나요? WSL IP 주소로도 시도해보시겠습니까?\n\n' + wslUrl)) {
+          window.open(wslUrl, '_blank');
+        }
+      }, 3000);
+    } else if (isProductionDomain) {
+      // 프로덕션 도메인 환경
+      console.log('🌍 프로덕션 도메인 SSL 서버 확인 URL:', httpsUrl);
+      console.log('💡 도메인 SSL 인증서로 보안 연결을 제공합니다.');
+      window.open(httpsUrl, '_blank');
+    } else {
+      // 기타 환경
+      console.log('🔗 SSL 서버 확인 URL:', httpsUrl);
+      window.open(httpsUrl, '_blank');
+    }
+    
+    console.log('💡 SSL 인증서를 신뢰하도록 설정한 후 WSS 연결을 시도하세요.');
   };
 
   return (
@@ -21,10 +71,10 @@ const WebSocketConnectionGuide = ({ wsUrl, onRetry }) => {
           </div>
           <div className="ml-3 flex-1">
             <h3 className="text-sm font-medium text-yellow-800">
-              협업 서버 연결 확인 필요
+              협업 서버 SSL 연결 확인 필요
             </h3>
             <div className="mt-2 text-sm text-yellow-700">
-              <p>실시간 협업을 위해 WebSocket 서버 연결을 확인해주세요.</p>
+              <p>실시간 협업을 위해 WSS (보안 WebSocket) 서버 연결을 확인해주세요.</p>
             </div>
             <div className="mt-3 flex space-x-2">
               <button
@@ -40,7 +90,7 @@ const WebSocketConnectionGuide = ({ wsUrl, onRetry }) => {
                 onClick={handleCertificateSetup}
                 className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-xs font-medium px-3 py-1 rounded border border-yellow-300 transition-colors"
               >
-                서버 상태 확인
+                SSL 서버 확인
               </button>
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
@@ -67,15 +117,17 @@ const WebSocketConnectionGuide = ({ wsUrl, onRetry }) => {
         
         {isExpanded && (
           <div className="mt-4 text-sm text-yellow-700 border-t border-yellow-200 pt-4">
-            <h4 className="font-medium mb-2">📋 서버 연결 확인 방법:</h4>
+            <h4 className="font-medium mb-2">🔒 WSS 서버 연결 확인 방법:</h4>
             <ol className="list-decimal list-inside space-y-1 text-xs">
-              <li>"서버 상태 확인" 버튼 클릭</li>
-              <li>새 탭에서 "Y.js WebSocket Server is running!" 메시지 확인</li>
-              <li>메시지가 보이면 이 페이지로 돌아와서 "다시 연결" 클릭</li>
-              <li>메시지가 안 보이면 서버 관리자에게 문의</li>
+              <li>"SSL 서버 확인" 버튼 클릭</li>
+              <li>새 탭에서 SSL 인증서 경고가 나타나면 "고급" → "안전하지 않음으로 이동" 클릭</li>
+              <li>"Y.js WebSocket Server (HTTPS) is running!" 메시지 확인</li>
+              <li>인증서를 신뢰한 후 이 페이지로 돌아와서 "접속하기" 클릭</li>
+              <li>WSS 연결이 자동으로 설정됩니다</li>
             </ol>
             <div className="mt-3 p-2 bg-yellow-100 rounded text-xs">
-              <strong>💡 팁:</strong> 서버가 정상 작동하면 자동으로 연결됩니다.
+              <strong>🔒 SSL 보안:</strong> 자체 서명 인증서를 사용하므로 브라우저에서 경고가 나타날 수 있습니다. 
+              로컬 개발 환경에서는 안전하게 진행하셔도 됩니다.
             </div>
           </div>
         )}
