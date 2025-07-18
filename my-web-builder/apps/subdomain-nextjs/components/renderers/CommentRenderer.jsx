@@ -6,7 +6,15 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
   const actualWidth = comp.width || baseWidth;
   const scaleFactor = actualWidth / baseWidth;
 
-  const { title, placeholder, backgroundColor } = comp.props;
+  const {
+    title,
+    placeholder,
+    backgroundColor,
+    noBorder = true,
+    borderColor = '#e5e7eb',
+    borderWidth = '1px',
+    borderRadius = 0,
+  } = comp.props;
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
     author: '',
@@ -134,8 +142,8 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
           mode === 'live'
             ? `${(comp?.height || 400) * scaleFactor}px`
             : `${comp?.height || 200}px`,
-        borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : 0,
-        border: '1px solid #e5e7eb',
+        borderRadius: borderRadius,
+        border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`,
         backgroundColor,
         display: 'flex',
         flexDirection: 'column',
