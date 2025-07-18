@@ -1,0 +1,41 @@
+EC2 서버(43.203.235.108)에서 실행할 명령어들:
+
+1. 기존 Y.js 서버 중지:
+sudo pkill -f 'node.*yjs-server' || true
+
+2. Certbot 설치:
+sudo apt update
+sudo apt install -y certbot
+
+3. 기존 웹서버 중지 (포트 80 사용을 위해):
+sudo systemctl stop nginx 2>/dev/null || true
+sudo systemctl stop apache2 2>/dev/null || true
+
+4. Let's Encrypt SSL 인증서 발급:
+sudo certbot certonly \
+    --standalone \
+    --email admin@ddukddak.org \
+    --agree-tos \
+    --no-eff-email \
+    --domains ws.ddukddak.org
+
+5. 인증서 발급 성공 확인:
+sudo ls -la /etc/letsencrypt/live/ws.ddukddak.org/
+
+6. 인증서 파일을 작업 디렉토리로 복사:
+sudo cp /etc/letsencrypt/live/ws.ddukddak.org/fullchain.pem ./ws-ddukddak-org.crt
+sudo cp /etc/letsencrypt/live/ws.ddukddak.org/privkey.pem ./ws-ddukddak-org.key
+sudo chown $USER:$USER ./ws-ddukddak-org.*
+
+7. 인증서 파일 확인:
+ls -la ws-ddukddak-org.*
+
+8. Y.js 서버를 도메인 SSL 버전으로 재시작:
+NODE_ENV=production DOMAIN=ws.ddukddak.org nohup node yjs-server-domain.js > yjs-domain.log 2>&1 &
+
+9. 서버 실행 확인:
+sleep 5
+curl https://ws.ddukddak.org:1235
+
+성공하면 "Y.js WebSocket Server (HTTPS) is running!" 메시지가 나타나고
+브라우저에서 https://ws.ddukddak.org:1235 접속 시 보안 경고가 사라집니다.

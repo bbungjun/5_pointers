@@ -79,7 +79,14 @@ if (isProduction) {
   // 로컬 개발 환경: SSL 선택적
   console.log('🏠 로컬 개발 환경: SSL 인증서는 선택사항입니다.');
   try {
-    if (fs.existsSync('./server.key') && fs.existsSync('./server.crt')) {
+    // 로컬용 인증서 우선 확인
+    if (fs.existsSync('./server-local.key') && fs.existsSync('./server-local.crt')) {
+      httpsOptions = {
+        key: fs.readFileSync('./server-local.key'),
+        cert: fs.readFileSync('./server-local.crt')
+      };
+      console.log('✅ 로컬용 SSL 인증서 파일을 찾았습니다. HTTPS도 지원합니다.');
+    } else if (fs.existsSync('./server.key') && fs.existsSync('./server.crt')) {
       httpsOptions = {
         key: fs.readFileSync('./server.key'),
         cert: fs.readFileSync('./server.crt')

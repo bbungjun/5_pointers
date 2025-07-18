@@ -95,16 +95,19 @@ const getWebSocketUrl = () => {
   });
   
   if (isLocalhost) {
-    // 로컬 환경: 항상 ws://localhost:1234 사용 (문제 해결을 위해)
-    const localUrl = 'ws://localhost:1234';
-    console.log('🏠 로컬 WebSocket URL 강제 설정:', localUrl);
+    // 로컬 환경: WSS 연결 사용 (SSL 보안)
+    // WSL 환경에서는 WSL IP 사용
+    const localIP = getLocalNetworkIP();
+    const localUrl = `wss://${localIP}:1235`;
+    console.log('🔒 로컬 WSS URL 설정 (SSL 보안):', localUrl);
+    console.log('💡 WSL 환경에서 WSL IP 사용:', localIP);
     return localUrl;
   } else {
-    // 배포 환경: AWS EC2 WebSocket 서버 사용
-    // HTTPS면 1235, HTTP면 1234
-    const EC2_WEBSOCKET_IP = '43.203.235.108'; // WebSocket 서버 IP
-    const prodUrl = isHttps ? `wss://${EC2_WEBSOCKET_IP}:1235` : `ws://${EC2_WEBSOCKET_IP}:1234`;
-    console.log('🌍 배포 WebSocket URL 사용:', prodUrl, `(EC2 WebSocket 서버)`);
+    // 배포 환경: 도메인 기반 WebSocket 서버 사용
+    // HTTPS면 WSS, HTTP면 WS
+    const WEBSOCKET_DOMAIN = 'ws.ddukddak.org'; // Y.js WebSocket 서버 도메인
+    const prodUrl = isHttps ? `wss://${WEBSOCKET_DOMAIN}:1235` : `ws://${WEBSOCKET_DOMAIN}:1234`;
+    console.log('🌍 배포 WebSocket URL 사용:', prodUrl, `(도메인 기반)`);
     return prodUrl;
   }
 };
