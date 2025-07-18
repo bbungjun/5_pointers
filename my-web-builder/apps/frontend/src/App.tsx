@@ -148,11 +148,14 @@ function App() {
 
   // 로그아웃
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-    setUser({ nickname: 'Guest' });
-    // 메인페이지로 이동
+    // 먼저 메인페이지로 이동
     window.location.href = '/';
+    // 그 다음 상태 변경
+    setTimeout(() => {
+      localStorage.removeItem('token');
+      setIsLoggedIn(false);
+      setUser({ nickname: 'Guest' });
+    }, 100);
   };
 
   return (

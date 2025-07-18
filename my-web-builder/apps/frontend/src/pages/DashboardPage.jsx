@@ -28,11 +28,11 @@ function DashboardPage({ user, onLogout }) {
   // 모바일과 데스크톱 템플릿 상태
   const [mobileTemplates, setMobileTemplates] = useState([]);
   const [desktopTemplates, setDesktopTemplates] = useState([]);
-
+  
   // 전체 템플릿 데이터 (페이지네이션용)
   const [allMobileTemplates, setAllMobileTemplates] = useState([]);
   const [allDesktopTemplates, setAllDesktopTemplates] = useState([]);
-
+  
   // 페이지네이션 상태
   const [mobileCurrentPage, setMobileCurrentPage] = useState(1);
   const [mobileTotalPages, setMobileTotalPages] = useState(1);
@@ -40,13 +40,13 @@ function DashboardPage({ user, onLogout }) {
   const [desktopCurrentPage, setDesktopCurrentPage] = useState(1);
   const [desktopTotalPages, setDesktopTotalPages] = useState(1);
   const [desktopTotalCount, setDesktopTotalCount] = useState(0);
-
+  
   // 특정 기기 선택 시 페이지네이션 상태
   const [specificCurrentPage, setSpecificCurrentPage] = useState(1);
   const [specificTotalPages, setSpecificTotalPages] = useState(1);
   const [specificTotalCount, setSpecificTotalCount] = useState(0);
   const [allSpecificTemplates, setAllSpecificTemplates] = useState([]);
-
+  
   const mobileItemsPerPage = 4;
   const desktopItemsPerPage = 8;
   const specificItemsPerPage = 8;
@@ -71,37 +71,37 @@ function DashboardPage({ user, onLogout }) {
       setLoading(true);
       let url = `${API_BASE_URL}/templates`;
       const params = [];
-
+      
       if (category !== 'all') {
         params.push(`category=${category}`);
       }
       params.push(`editingMode=mobile`);
-
+      
       if (params.length > 0) {
         url += `?${params.join('&')}`;
       }
 
       const response = await fetch(url);
-
+      
       if (response.ok) {
         const data = await response.json();
         const uniqueTemplates = (Array.isArray(data) ? data : []).filter(
           (template, index, arr) => {
             const firstIndex = arr.findIndex((t) => t.id === template.id);
-            return firstIndex === index;
+          return firstIndex === index;
           }
         );
-
+        
         // 클라이언트 사이드 페이지네이션
         const startIndex = (page - 1) * mobileItemsPerPage;
         const endIndex = startIndex + mobileItemsPerPage;
         const paginatedTemplates = uniqueTemplates.slice(startIndex, endIndex);
-
+        
         setMobileTotalPages(
           Math.ceil(uniqueTemplates.length / mobileItemsPerPage)
         );
         setMobileTotalCount(uniqueTemplates.length);
-
+        
         return paginatedTemplates;
       }
     } catch (error) {
@@ -115,37 +115,37 @@ function DashboardPage({ user, onLogout }) {
     try {
       let url = `${API_BASE_URL}/templates`;
       const params = [];
-
+      
       if (category !== 'all') {
         params.push(`category=${category}`);
       }
       params.push(`editingMode=desktop`);
-
+      
       if (params.length > 0) {
         url += `?${params.join('&')}`;
       }
 
       const response = await fetch(url);
-
+      
       if (response.ok) {
         const data = await response.json();
         const uniqueTemplates = (Array.isArray(data) ? data : []).filter(
           (template, index, arr) => {
             const firstIndex = arr.findIndex((t) => t.id === template.id);
-            return firstIndex === index;
+          return firstIndex === index;
           }
         );
-
+        
         // 클라이언트 사이드 페이지네이션
         const startIndex = (page - 1) * desktopItemsPerPage;
         const endIndex = startIndex + desktopItemsPerPage;
         const paginatedTemplates = uniqueTemplates.slice(startIndex, endIndex);
-
+        
         setDesktopTotalPages(
           Math.ceil(uniqueTemplates.length / desktopItemsPerPage)
         );
         setDesktopTotalCount(uniqueTemplates.length);
-
+        
         return paginatedTemplates;
       }
     } catch (error) {
@@ -160,14 +160,14 @@ function DashboardPage({ user, onLogout }) {
       setLoading(true);
       let url = `${API_BASE_URL}/templates`;
       const params = [];
-
+      
       if (category !== 'all') {
         params.push(`category=${category}`);
       }
       if (device !== 'all') {
         params.push(`editingMode=${device}`);
       }
-
+      
       if (params.length > 0) {
         url += `?${params.join('&')}`;
       }
@@ -175,7 +175,7 @@ function DashboardPage({ user, onLogout }) {
       console.log('템플릿 조회 URL:', url);
       const response = await fetch(url);
       console.log('템플릿 조회 응답:', response.status, response.ok);
-
+      
       if (response.ok) {
         const data = await response.json();
         console.log('템플릿 원본 데이터:', data);
@@ -193,14 +193,14 @@ function DashboardPage({ user, onLogout }) {
           const desktopData = uniqueTemplates.filter(
             (t) => t.editingMode === 'desktop'
           );
-
+          
           console.log('모바일 템플릿:', mobileData);
           console.log('데스크톱 템플릿:', desktopData);
-
+          
           // 전체 데이터 저장
           setAllMobileTemplates(mobileData);
           setAllDesktopTemplates(desktopData);
-
+          
           // 모바일 페이지네이션
           const mobileStart = (mobileCurrentPage - 1) * mobileItemsPerPage;
           const mobileEnd = mobileStart + mobileItemsPerPage;
@@ -210,7 +210,7 @@ function DashboardPage({ user, onLogout }) {
             Math.ceil(mobileData.length / mobileItemsPerPage)
           );
           setMobileTotalCount(mobileData.length);
-
+          
           // 데스크톱 페이지네이션
           const desktopStart = (desktopCurrentPage - 1) * desktopItemsPerPage;
           const desktopEnd = desktopStart + desktopItemsPerPage;
@@ -220,10 +220,10 @@ function DashboardPage({ user, onLogout }) {
             Math.ceil(desktopData.length / desktopItemsPerPage)
           );
           setDesktopTotalCount(desktopData.length);
-
+          
           console.log('설정된 모바일 템플릿:', mobilePagedData);
           console.log('설정된 데스크톱 템플릿:', desktopPagedData);
-
+          
           setTemplates([]); // 기존 templates는 비움
         } else {
           // 특정 기기 선택 시 페이지네이션 처리
@@ -232,13 +232,13 @@ function DashboardPage({ user, onLogout }) {
           setSpecificTotalPages(
             Math.ceil(uniqueTemplates.length / specificItemsPerPage)
           );
-
+          
           // 첫 페이지 데이터 설정
           const startIndex = 0;
           const endIndex = specificItemsPerPage;
           const pagedData = uniqueTemplates.slice(startIndex, endIndex);
           setTemplates(pagedData);
-
+          
           setMobileTemplates([]);
           setDesktopTemplates([]);
         }
@@ -304,7 +304,7 @@ function DashboardPage({ user, onLogout }) {
           mobileEnd
         );
         setMobileTemplates(mobilePagedData);
-
+        
         // 데스크톱 페이지네이션
         const desktopStart = (desktopCurrentPage - 1) * desktopItemsPerPage;
         const desktopEnd = desktopStart + desktopItemsPerPage;
@@ -327,11 +327,11 @@ function DashboardPage({ user, onLogout }) {
   const handlePageChange = (deviceType, newPage) => {
     // 현재 스크롤 위치 저장
     const scrollPosition = window.scrollY;
-
+    
     // 페이지 변경
     if (deviceType === 'mobile') {
       setMobileCurrentPage(newPage);
-
+      
       // 모바일 템플릿 데이터 업데이트
       const startIndex = (newPage - 1) * mobileItemsPerPage;
       const endIndex = startIndex + mobileItemsPerPage;
@@ -339,7 +339,7 @@ function DashboardPage({ user, onLogout }) {
       setMobileTemplates(mobilePagedData);
     } else if (deviceType === 'desktop') {
       setDesktopCurrentPage(newPage);
-
+      
       // 데스크톱 템플릿 데이터 업데이트
       const startIndex = (newPage - 1) * desktopItemsPerPage;
       const endIndex = startIndex + desktopItemsPerPage;
@@ -347,7 +347,7 @@ function DashboardPage({ user, onLogout }) {
       setDesktopTemplates(desktopPagedData);
     } else if (deviceType === 'specific') {
       setSpecificCurrentPage(newPage);
-
+      
       // 특정 기기 템플릿 데이터 업데이트
       const startIndex = (newPage - 1) * specificItemsPerPage;
       const endIndex = startIndex + specificItemsPerPage;
@@ -357,7 +357,7 @@ function DashboardPage({ user, onLogout }) {
       );
       setTemplates(specificPagedData);
     }
-
+    
     // 다음 프레임에서 스크롤 위치 복원
     requestAnimationFrame(() => {
       window.scrollTo(0, scrollPosition);
@@ -377,15 +377,15 @@ function DashboardPage({ user, onLogout }) {
       const response = await fetch(
         `${API_BASE_URL}/templates/${template.id}/create-page`,
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            title: `${template.name} 복사본`,
-            subdomain: `template-${Date.now()}`,
-          }),
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: `${template.name} 복사본`,
+          subdomain: `template-${Date.now()}`,
+        }),
         }
       );
 
@@ -520,25 +520,25 @@ function DashboardPage({ user, onLogout }) {
           <div className="flex justify-between items-center">
             {/* 좌측: 로고와 사용자명 */}
             <div className="flex items-center gap-6">
-              <img
-                src="/ddukddak-logo.png"
-                alt="DDUKDDAK"
-                style={{ height: '16px', objectFit: 'contain' }}
+              <img 
+                src="/ddukddak-logo.png" 
+                alt="DDUKDDAK" 
+                style={{ height: '16px', objectFit: 'contain' }} 
               />
             </div>
 
             {/* 우측: 마이페이지, 알림, 로그아웃 */}
             <div className="flex items-center gap-4">
               {user && (
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
-                  <p className="text-slate-600 font-medium text-lg">
+            <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
+                <p className="text-slate-600 font-medium text-lg">
                     <span className="text-pink-600 font-semibold">
                       {user.nickname}
                     </span>
                     님
-                  </p>
-                </div>
+                </p>
+              </div>
               )}
               {/* 마이페이지 드롭다운 */}
               <div className="relative group">
@@ -573,7 +573,7 @@ function DashboardPage({ user, onLogout }) {
                     />
                   </svg>
                 </button>
-
+                
                 {/* 드롭다운 메뉴 */}
                 <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                   <div className="p-2">
@@ -860,8 +860,8 @@ function DashboardPage({ user, onLogout }) {
             ) : (selectedDevice === 'all' &&
                 mobileTotalCount === 0 &&
                 desktopTotalCount === 0) ||
-              (selectedDevice === 'mobile' && templates.length === 0) ||
-              (selectedDevice === 'desktop' && templates.length === 0) ? (
+                 (selectedDevice === 'mobile' && templates.length === 0) || 
+                 (selectedDevice === 'desktop' && templates.length === 0) ? (
               <div className="text-center py-16 rounded-xl border-2 border-dashed border-slate-200">
                 <div className="w-12 h-12 mx-auto mb-4 bg-slate-100 rounded-xl flex items-center justify-center">
                   <svg
@@ -889,9 +889,9 @@ function DashboardPage({ user, onLogout }) {
                   <>
                     {/* 모바일 템플릿 섹션 */}
                     {mobileTemplates.length > 0 && (
-                      <div>
-                        <div className="flex items-center justify-between mb-6">
-                          <div className="flex items-center gap-2">
+                          <div>
+                            <div className="flex items-center justify-between mb-6">
+                              <div className="flex items-center gap-2">
                             <svg
                               className="w-5 h-5 text-pink-600"
                               fill="none"
@@ -904,41 +904,41 @@ function DashboardPage({ user, onLogout }) {
                                 strokeWidth={2}
                                 d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z"
                               />
-                            </svg>
+                                </svg>
                             <h4 className="text-lg font-bold text-slate-800">
                               모바일 템플릿
                             </h4>
-                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                              {mobileTotalCount}개
-                            </span>
-                            {selectedCategory !== 'all' && (
-                              <span className="px-2 py-1 bg-pink-100 text-pink-700 text-sm font-medium rounded-full">
+                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                                  {mobileTotalCount}개
+                                </span>
+                                {selectedCategory !== 'all' && (
+                                  <span className="px-2 py-1 bg-pink-100 text-pink-700 text-sm font-medium rounded-full">
                                 {
                                   categories.find(
                                     (cat) => cat.value === selectedCategory
                                   )?.label
                                 }
-                              </span>
-                            )}
-                          </div>
-
-                          {/* 모바일 템플릿 페이지네이션 화살표 */}
-                          {mobileTotalPages > 1 && (
-                            <div className="flex items-center gap-2">
-                              <button
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {/* 모바일 템플릿 페이지네이션 화살표 */}
+                              {mobileTotalPages > 1 && (
+                                <div className="flex items-center gap-2">
+                                  <button
                                 onClick={() =>
                                   handlePageChange(
                                     'mobile',
                                     Math.max(1, mobileCurrentPage - 1)
                                   )
                                 }
-                                disabled={mobileCurrentPage === 1}
-                                className={`p-2 rounded-lg transition-all duration-300 ${
-                                  mobileCurrentPage === 1
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-gray-600 border border-gray-200 shadow-sm'
-                                }`}
-                              >
+                                    disabled={mobileCurrentPage === 1}
+                                    className={`p-2 rounded-lg transition-all duration-300 ${
+                                      mobileCurrentPage === 1
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-gray-600 border border-gray-200 shadow-sm'
+                                    }`}
+                                  >
                                 <svg
                                   className="w-5 h-5"
                                   fill="none"
@@ -951,14 +951,14 @@ function DashboardPage({ user, onLogout }) {
                                     strokeWidth={2}
                                     d="M15 19l-7-7 7-7"
                                   />
-                                </svg>
-                              </button>
-
-                              <span className="text-sm text-gray-600 min-w-[60px] text-center">
-                                {mobileCurrentPage} / {mobileTotalPages}
-                              </span>
-
-                              <button
+                                    </svg>
+                                  </button>
+                                  
+                                  <span className="text-sm text-gray-600 min-w-[60px] text-center">
+                                    {mobileCurrentPage} / {mobileTotalPages}
+                                  </span>
+                                  
+                                  <button
                                 onClick={() =>
                                   handlePageChange(
                                     'mobile',
@@ -971,12 +971,12 @@ function DashboardPage({ user, onLogout }) {
                                 disabled={
                                   mobileCurrentPage === mobileTotalPages
                                 }
-                                className={`p-2 rounded-lg transition-all duration-300 ${
-                                  mobileCurrentPage === mobileTotalPages
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-gray-600 border border-gray-200 shadow-sm'
-                                }`}
-                              >
+                                    className={`p-2 rounded-lg transition-all duration-300 ${
+                                      mobileCurrentPage === mobileTotalPages
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-gray-600 border border-gray-200 shadow-sm'
+                                    }`}
+                                  >
                                 <svg
                                   className="w-5 h-5"
                                   fill="none"
@@ -989,22 +989,22 @@ function DashboardPage({ user, onLogout }) {
                                     strokeWidth={2}
                                     d="M9 5l7 7-7 7"
                                   />
-                                </svg>
-                              </button>
+                                    </svg>
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                          {mobileTemplates.map((template) => (
-                            <div
-                              key={template.id}
-                              onClick={() => handleCreateFromTemplate(template)}
-                              className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
-                            >
-                              <div className="p-4">
-                                {/* 기기 타입과 테마 표시 */}
-                                <div className="flex items-center gap-2 mb-3">
-                                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-blue-800">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                              {mobileTemplates.map((template) => (
+                                <div
+                                  key={template.id}
+                                  onClick={() => handleCreateFromTemplate(template)}
+                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
+                                >
+                                  <div className="p-4">
+                                    {/* 기기 타입과 테마 표시 */}
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-blue-800">
                                     <svg
                                       className="w-3 h-3 mr-1"
                                       fill="currentColor"
@@ -1015,55 +1015,55 @@ function DashboardPage({ user, onLogout }) {
                                         d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z"
                                         clipRule="evenodd"
                                       ></path>
-                                    </svg>
-                                    모바일
-                                  </div>
-                                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        </svg>
+                                        모바일
+                                      </div>
+                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                     {
                                       categories.find(
                                         (cat) => cat.value === template.category
                                       )?.label
                                     }
-                                  </div>
-                                </div>
-                                {/* 템플릿 캔버스 미리보기 */}
+                                      </div>
+                                    </div>
+                                    {/* 템플릿 캔버스 미리보기 */}
                                 <div
                                   className={`relative rounded-lg overflow-hidden mb-4 ${
-                                    template.editingMode === 'mobile'
-                                      ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
+                                      template.editingMode === 'mobile' 
+                                        ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
                                       : 'aspect-video' // 데스크톱: 16:9 비율
                                   }`}
                                 >
-                                  <TemplateCanvasPreview
-                                    template={template}
-                                    className="w-full h-full object-cover"
-                                  />
+                                      <TemplateCanvasPreview 
+                                        template={template} 
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                    
+                                    <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
+                                      {template.name}
+                                    </h4>
+                                  </div>
                                 </div>
-
-                                <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
-                                  {template.name}
-                                </h4>
-                              </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                          </div>
+                        )}
 
-                    {/* 구분선 */}
+                        {/* 구분선 */}
                     {mobileTemplates.length > 0 &&
                       desktopTemplates.length > 0 && (
-                        <div className="flex items-center gap-4 py-4">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
-                        </div>
-                      )}
+                          <div className="flex items-center gap-4 py-4">
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+                          </div>
+                        )}
 
-                    {/* 데스크톱 템플릿 섹션 */}
-                    {desktopTemplates.length > 0 && (
-                      <div>
-                        <div className="flex items-center justify-between mb-6">
-                          <div className="flex items-center gap-2">
+                        {/* 데스크톱 템플릿 섹션 */}
+                        {desktopTemplates.length > 0 && (
+                          <div>
+                            <div className="flex items-center justify-between mb-6">
+                              <div className="flex items-center gap-2">
                             <svg
                               className="w-5 h-5 text-purple-600"
                               fill="none"
@@ -1076,41 +1076,41 @@ function DashboardPage({ user, onLogout }) {
                                 strokeWidth={2}
                                 d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                               />
-                            </svg>
+                                </svg>
                             <h4 className="text-lg font-bold text-slate-800">
                               데스크톱 템플릿
                             </h4>
-                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                              {desktopTotalCount}개
-                            </span>
-                            {selectedCategory !== 'all' && (
-                              <span className="px-2 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
+                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                                  {desktopTotalCount}개
+                                </span>
+                                {selectedCategory !== 'all' && (
+                                  <span className="px-2 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
                                 {
                                   categories.find(
                                     (cat) => cat.value === selectedCategory
                                   )?.label
                                 }
-                              </span>
-                            )}
-                          </div>
-
-                          {/* 데스크톱 템플릿 페이지네이션 화살표 */}
-                          {desktopTotalPages > 1 && (
-                            <div className="flex items-center gap-2">
-                              <button
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {/* 데스크톱 템플릿 페이지네이션 화살표 */}
+                              {desktopTotalPages > 1 && (
+                                <div className="flex items-center gap-2">
+                                  <button
                                 onClick={() =>
                                   handlePageChange(
                                     'desktop',
                                     Math.max(1, desktopCurrentPage - 1)
                                   )
                                 }
-                                disabled={desktopCurrentPage === 1}
-                                className={`p-2 rounded-lg transition-all duration-300 ${
-                                  desktopCurrentPage === 1
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 shadow-sm'
-                                }`}
-                              >
+                                    disabled={desktopCurrentPage === 1}
+                                    className={`p-2 rounded-lg transition-all duration-300 ${
+                                      desktopCurrentPage === 1
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 shadow-sm'
+                                    }`}
+                                  >
                                 <svg
                                   className="w-5 h-5"
                                   fill="none"
@@ -1123,14 +1123,14 @@ function DashboardPage({ user, onLogout }) {
                                     strokeWidth={2}
                                     d="M15 19l-7-7 7-7"
                                   />
-                                </svg>
-                              </button>
-
-                              <span className="text-sm text-gray-600 min-w-[60px] text-center">
-                                {desktopCurrentPage} / {desktopTotalPages}
-                              </span>
-
-                              <button
+                                    </svg>
+                                  </button>
+                                  
+                                  <span className="text-sm text-gray-600 min-w-[60px] text-center">
+                                    {desktopCurrentPage} / {desktopTotalPages}
+                                  </span>
+                                  
+                                  <button
                                 onClick={() =>
                                   handlePageChange(
                                     'desktop',
@@ -1143,12 +1143,12 @@ function DashboardPage({ user, onLogout }) {
                                 disabled={
                                   desktopCurrentPage === desktopTotalPages
                                 }
-                                className={`p-2 rounded-lg transition-all duration-300 ${
-                                  desktopCurrentPage === desktopTotalPages
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 shadow-sm'
-                                }`}
-                              >
+                                    className={`p-2 rounded-lg transition-all duration-300 ${
+                                      desktopCurrentPage === desktopTotalPages
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 shadow-sm'
+                                    }`}
+                                  >
                                 <svg
                                   className="w-5 h-5"
                                   fill="none"
@@ -1161,22 +1161,22 @@ function DashboardPage({ user, onLogout }) {
                                     strokeWidth={2}
                                     d="M9 5l7 7-7 7"
                                   />
-                                </svg>
-                              </button>
+                                    </svg>
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                          {desktopTemplates.map((template) => (
-                            <div
-                              key={template.id}
-                              onClick={() => handleCreateFromTemplate(template)}
-                              className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
-                            >
-                              <div className="p-4">
-                                {/* 기기 타입과 테마 표시 */}
-                                <div className="flex items-center gap-2 mb-3">
-                                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                              {desktopTemplates.map((template) => (
+                                <div
+                                  key={template.id}
+                                  onClick={() => handleCreateFromTemplate(template)}
+                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
+                                >
+                                  <div className="p-4">
+                                    {/* 기기 타입과 테마 표시 */}
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                     <svg
                                       className="w-3 h-3 mr-1"
                                       fill="currentColor"
@@ -1187,64 +1187,64 @@ function DashboardPage({ user, onLogout }) {
                                         d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
                                         clipRule="evenodd"
                                       ></path>
-                                    </svg>
-                                    데스크톱
-                                  </div>
-                                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        </svg>
+                                        데스크톱
+                                      </div>
+                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                     {
                                       categories.find(
                                         (cat) => cat.value === template.category
                                       )?.label
                                     }
-                                  </div>
-                                </div>
-                                {/* 템플릿 캔버스 미리보기 */}
-                                <div className="relative rounded-lg overflow-hidden mb-4">
-                                  {template.editingMode === 'mobile' ? (
-                                    // 모바일은 기존 코드 유지
-                                    <div className="relative rounded-lg overflow-hidden aspect-[9/16]">
-                                      <TemplateCanvasPreview
-                                        template={template}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                  ) : (
-                                    // 데스크톱만 배포된 페이지와 동일하게
-                                    <div className="flex items-center justify-center">
-                                      <div
-                                        className="relative bg-gray-50 overflow-hidden rounded-lg border border-gray-200"
-                                        style={{
-                                          width: '240px',
-                                          height: '180px',
-                                        }}
-                                      >
-                                        <TemplateCanvasPreview
-                                          template={template}
-                                          className="w-full h-full"
-                                        />
                                       </div>
                                     </div>
-                                  )}
+                                    {/* 템플릿 캔버스 미리보기 */}
+                                    <div className="relative rounded-lg overflow-hidden mb-4">
+                                      {template.editingMode === 'mobile' ? (
+                                        // 모바일은 기존 코드 유지
+                                        <div className="relative rounded-lg overflow-hidden aspect-[9/16]">
+                                          <TemplateCanvasPreview
+                                            template={template}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        </div>
+                                      ) : (
+                                        // 데스크톱만 배포된 페이지와 동일하게
+                                        <div className="flex items-center justify-center">
+                                          <div
+                                            className="relative bg-gray-50 overflow-hidden rounded-lg border border-gray-200"
+                                            style={{
+                                              width: '240px',
+                                              height: '180px',
+                                            }}
+                                          >
+                                            <TemplateCanvasPreview
+                                              template={template}
+                                              className="w-full h-full"
+                                            />
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
+                                      {template.name}
+                                    </h4>
+                                  </div>
                                 </div>
-
-                                <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
-                                  {template.name}
-                                </h4>
-                              </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  // 특정 기기 선택 시 페이지네이션 포함
-                  <div>
-                    {/* 헤더와 페이지네이션 */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-2">
-                        {selectedDevice === 'mobile' ? (
-                          <>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      // 특정 기기 선택 시 페이지네이션 포함
+                      <div>
+                        {/* 헤더와 페이지네이션 */}
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-2">
+                            {selectedDevice === 'mobile' ? (
+                              <>
                             <svg
                               className="w-5 h-5 text-pink-600"
                               fill="none"
@@ -1257,16 +1257,16 @@ function DashboardPage({ user, onLogout }) {
                                 strokeWidth={2}
                                 d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z"
                               />
-                            </svg>
+                                </svg>
                             <h4 className="text-lg font-bold text-slate-800">
                               모바일 템플릿
                             </h4>
-                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                              {mobileTotalCount}개
-                            </span>
-                          </>
-                        ) : (
-                          <>
+                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                                  {mobileTotalCount}개
+                                </span>
+                              </>
+                            ) : (
+                              <>
                             <svg
                               className="w-5 h-5 text-purple-600"
                               fill="none"
@@ -1279,58 +1279,58 @@ function DashboardPage({ user, onLogout }) {
                                 strokeWidth={2}
                                 d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                               />
-                            </svg>
+                                </svg>
                             <h4 className="text-lg font-bold text-slate-800">
                               데스크톱 템플릿
                             </h4>
-                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                              {desktopTotalCount}개
-                            </span>
-                          </>
-                        )}
-                      </div>
-
-                      {/* 페이지네이션 화살표 */}
-                      {((selectedDevice === 'mobile' && mobileTotalPages > 1) ||
+                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                                  {desktopTotalCount}개
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          
+                          {/* 페이지네이션 화살표 */}
+                          {((selectedDevice === 'mobile' && mobileTotalPages > 1) || 
                         (selectedDevice === 'desktop' &&
                           desktopTotalPages > 1)) && (
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              if (selectedDevice === 'mobile') {
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  if (selectedDevice === 'mobile') {
                                 handlePageChange(
                                   'mobile',
                                   Math.max(1, mobileCurrentPage - 1)
                                 );
-                              } else if (selectedDevice === 'desktop') {
+                                  } else if (selectedDevice === 'desktop') {
                                 handlePageChange(
                                   'desktop',
                                   Math.max(1, desktopCurrentPage - 1)
                                 );
-                              } else {
+                                  } else {
                                 handlePageChange(
                                   'specific',
                                   Math.max(1, specificCurrentPage - 1)
                                 );
-                              }
-                            }}
-                            disabled={
+                                  }
+                                }}
+                                disabled={
                               (selectedDevice === 'mobile' &&
                                 mobileCurrentPage === 1) ||
                               (selectedDevice === 'desktop' &&
                                 desktopCurrentPage === 1) ||
                               (selectedDevice !== 'all' &&
                                 specificCurrentPage === 1)
-                            }
-                            className={`p-2 rounded-lg transition-all duration-300 ${
+                                }
+                                className={`p-2 rounded-lg transition-all duration-300 ${
                               (selectedDevice === 'mobile' &&
                                 mobileCurrentPage === 1) ||
                               (selectedDevice === 'desktop' &&
                                 desktopCurrentPage === 1)
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-50 hover:text-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-600 border border-gray-200 shadow-sm`
-                            }`}
-                          >
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-50 hover:text-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-600 border border-gray-200 shadow-sm`
+                                }`}
+                              >
                             <svg
                               className="w-5 h-5"
                               fill="none"
@@ -1343,20 +1343,20 @@ function DashboardPage({ user, onLogout }) {
                                 strokeWidth={2}
                                 d="M15 19l-7-7 7-7"
                               />
-                            </svg>
-                          </button>
-
-                          <span className="text-sm text-gray-600 min-w-[60px] text-center">
+                                </svg>
+                              </button>
+                              
+                              <span className="text-sm text-gray-600 min-w-[60px] text-center">
                             {selectedDevice === 'mobile'
                               ? `${mobileCurrentPage} / ${mobileTotalPages}`
                               : selectedDevice === 'desktop'
                                 ? `${desktopCurrentPage} / ${desktopTotalPages}`
                                 : `${specificCurrentPage} / ${specificTotalPages}`}
-                          </span>
-
-                          <button
-                            onClick={() => {
-                              if (selectedDevice === 'mobile') {
+                              </span>
+                              
+                              <button
+                                onClick={() => {
+                                  if (selectedDevice === 'mobile') {
                                 handlePageChange(
                                   'mobile',
                                   Math.min(
@@ -1364,7 +1364,7 @@ function DashboardPage({ user, onLogout }) {
                                     mobileCurrentPage + 1
                                   )
                                 );
-                              } else if (selectedDevice === 'desktop') {
+                                  } else if (selectedDevice === 'desktop') {
                                 handlePageChange(
                                   'desktop',
                                   Math.min(
@@ -1372,7 +1372,7 @@ function DashboardPage({ user, onLogout }) {
                                     desktopCurrentPage + 1
                                   )
                                 );
-                              } else {
+                                  } else {
                                 handlePageChange(
                                   'specific',
                                   Math.min(
@@ -1380,25 +1380,25 @@ function DashboardPage({ user, onLogout }) {
                                     specificCurrentPage + 1
                                   )
                                 );
-                              }
-                            }}
-                            disabled={
+                                  }
+                                }}
+                                disabled={
                               (selectedDevice === 'mobile' &&
                                 mobileCurrentPage === mobileTotalPages) ||
                               (selectedDevice === 'desktop' &&
                                 desktopCurrentPage === desktopTotalPages) ||
                               (selectedDevice !== 'all' &&
                                 specificCurrentPage === specificTotalPages)
-                            }
-                            className={`p-2 rounded-lg transition-all duration-300 ${
+                                }
+                                className={`p-2 rounded-lg transition-all duration-300 ${
                               (selectedDevice === 'mobile' &&
                                 mobileCurrentPage === mobileTotalPages) ||
                               (selectedDevice === 'desktop' &&
                                 desktopCurrentPage === desktopTotalPages)
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-50 hover:text-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-600 border border-gray-200 shadow-sm`
-                            }`}
-                          >
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-50 hover:text-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-600 border border-gray-200 shadow-sm`
+                                }`}
+                              >
                             <svg
                               className="w-5 h-5"
                               fill="none"
@@ -1411,26 +1411,26 @@ function DashboardPage({ user, onLogout }) {
                                 strokeWidth={2}
                                 d="M9 5l7 7-7 7"
                               />
-                            </svg>
-                          </button>
+                                </svg>
+                              </button>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {templates.map((template) => (
-                        <div
-                          key={template.id}
-                          onClick={() => handleCreateFromTemplate(template)}
-                          className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
-                        >
-                          <div className="p-4">
-                            {/* 기기 타입과 테마 표시 */}
-                            <div className="flex items-center gap-2 mb-3">
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                          {templates.map((template) => (
+                          <div
+                            key={template.id}
+                            onClick={() => handleCreateFromTemplate(template)}
+                            className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
+                          >
+                            <div className="p-4">
+                              {/* 기기 타입과 테마 표시 */}
+                              <div className="flex items-center gap-2 mb-3">
                               <div
                                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                  template.editingMode === 'mobile'
-                                    ? 'bg-pink-100 text-pink-800'
+                                  template.editingMode === 'mobile' 
+                                    ? 'bg-pink-100 text-pink-800' 
                                     : 'bg-purple-100 text-purple-800'
                                 }`}
                               >
@@ -1439,60 +1439,60 @@ function DashboardPage({ user, onLogout }) {
                                   fill="currentColor"
                                   viewBox="0 0 20 20"
                                 >
-                                  {template.editingMode === 'mobile' ? (
+                                    {template.editingMode === 'mobile' ? (
                                     <path
                                       fillRule="evenodd"
                                       d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z"
                                       clipRule="evenodd"
                                     ></path>
-                                  ) : (
+                                    ) : (
                                     <path
                                       fillRule="evenodd"
                                       d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
                                       clipRule="evenodd"
                                     ></path>
-                                  )}
-                                </svg>
+                                    )}
+                                  </svg>
                                 {template.editingMode === 'mobile'
                                   ? '모바일'
                                   : '데스크톱'}
-                              </div>
-                              <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                </div>
+                                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                 {
                                   categories.find(
                                     (cat) => cat.value === template.category
                                   )?.label
                                 }
+                                </div>
                               </div>
-                            </div>
-                            {/* 템플릿 캔버스 미리보기 */}
+                              {/* 템플릿 캔버스 미리보기 */}
                             <div
                               className={`relative rounded-lg overflow-hidden mb-4 ${
-                                template.editingMode === 'mobile'
+                                template.editingMode === 'mobile' 
                                   ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
                                   : 'aspect-video' // 데스크톱: 16:9 비율
                               }`}
                             >
-                              <TemplateCanvasPreview
-                                template={template}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-
-                            <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
-                              {template.name}
-                            </h4>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-slate-500">
-                                {template.usageCount}회 사용
-                              </span>
+                                <TemplateCanvasPreview 
+                                  template={template} 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              
+                              <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
+                                {template.name}
+                              </h4>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-slate-500">
+                                  {template.usageCount}회 사용
+                                </span>
+                              </div>
                             </div>
                           </div>
+                        ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                      </div>
+                    )}
               </div>
             )}
           </div>
@@ -1555,9 +1555,9 @@ function DashboardPage({ user, onLogout }) {
             </button>
           </div>
         </div>
-      </div>
+              </div>
 
-      {/* 삭제 확인 모달 */}
+        {/* 삭제 확인 모달 */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
