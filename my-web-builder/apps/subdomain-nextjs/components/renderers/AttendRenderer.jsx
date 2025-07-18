@@ -183,13 +183,10 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
       }
 
       // API 기본 URL 동적 설정 (배포된 사이트와 에디터 구분)
-      const apiBaseUrl =
-        typeof window !== 'undefined' && window.API_BASE_URL
-          ? window.API_BASE_URL
-          : mode === 'live'
-            ? 'http://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com/api'
-            : '/api';
-
+      const apiBaseUrl = typeof window !== 'undefined' && window.API_BASE_URL 
+        ? window.API_BASE_URL 
+        : (mode === 'live' ? 'https://ddukddak.org/api' : '/api');
+      
       const url = `${apiBaseUrl}/users/pages/${targetPageId}/${currentConfig.apiEndpoint}/${comp.id}`;
       console.log('🎯 Form API Request:', {
         targetPageId,

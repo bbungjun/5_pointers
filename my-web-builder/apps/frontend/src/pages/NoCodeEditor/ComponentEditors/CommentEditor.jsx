@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FontFamilyEditor, 
-  TextAlignEditor, 
-  LineHeightEditor, 
-  LetterSpacingEditor, 
-  TextStyleEditor, 
-  ColorEditor, 
-  SelectEditor, 
+import {
+  FontFamilyEditor,
+  TextAlignEditor,
+  LineHeightEditor,
+  LetterSpacingEditor,
+  TextStyleEditor,
+  ColorEditor,
+  SelectEditor,
   NumberEditor,
   BorderEditor,
   TextEditor,
@@ -52,7 +52,7 @@ function CommentEditor({ selectedComp, onUpdate }) {
           placeholder="제목을 입력하세요"
         />
       </div>
-      
+
       <div>
         <label style={{
           display: 'block', fontSize: 13, fontWeight: 500,
@@ -69,10 +69,10 @@ function CommentEditor({ selectedComp, onUpdate }) {
 
       {/* 폰트 섹션 */}
       <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
-      <div style={{ 
-        fontSize: 12, 
-        color: '#65676b', 
-        fontWeight: 600, 
+      <div style={{
+        fontSize: 12,
+        color: '#65676b',
+        fontWeight: 600,
         marginBottom: 12,
         textTransform: 'uppercase',
         letterSpacing: '0.5px'
@@ -105,25 +105,21 @@ function CommentEditor({ selectedComp, onUpdate }) {
       />
 
       <TextStyleEditor
-        value={{
-          fontWeight: selectedComp.props?.fontWeight || false,
-          fontStyle: selectedComp.props?.fontStyle || false,
-          textDecoration: selectedComp.props?.textDecoration || false
-        }}
-        onChange={(styles) => {
-          handlePropChange('fontWeight', styles.fontWeight);
-          handlePropChange('fontStyle', styles.fontStyle);
-          handlePropChange('textDecoration', styles.textDecoration);
-        }}
         label="스타일"
+        boldValue={!!selectedComp.props?.fontWeight}
+        italicValue={!!selectedComp.props?.fontStyle}
+        underlineValue={!!selectedComp.props?.textDecoration}
+        onBoldChange={(v) => handlePropChange('fontWeight', v)}
+        onItalicChange={(v) => handlePropChange('fontStyle', v)}
+        onUnderlineChange={(v) => handlePropChange('textDecoration', v)}
       />
 
       {/* 색상 섹션 */}
       <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
-      <div style={{ 
-        fontSize: 12, 
-        color: '#65676b', 
-        fontWeight: 600, 
+      <div style={{
+        fontSize: 12,
+        color: '#65676b',
+        fontWeight: 600,
         marginBottom: 12,
         textTransform: 'uppercase',
         letterSpacing: '0.5px'
@@ -136,7 +132,7 @@ function CommentEditor({ selectedComp, onUpdate }) {
         onChange={(value) => handlePropChange('color', value)}
         label="텍스트 색상"
       />
-      
+
       <div>
         <label style={{
           display: 'block', fontSize: 13, fontWeight: 500,
