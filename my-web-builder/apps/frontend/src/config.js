@@ -74,7 +74,7 @@ export const API_BASE_URL = getEnvVar('VITE_API_URL') || getEnvVar('VITE_API_BAS
 
 // Y.js WebSocket 서버 설정 - 환경별 분기 (명확한 로컬 우선)
 const getWebSocketUrl = () => {
-  // 환경변수가 있으면 우선 사용
+  // 환경변수가 있으면 우선 사용 (도메인 기반 우선)
   const envUrl = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('VITE_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL');
   if (envUrl) {
     console.log('🔧 환경변수에서 WebSocket URL 사용:', envUrl);
