@@ -230,13 +230,15 @@ const DynamicPageRenderer = ({
 
   // ✅ 스케일링 전용 렌더링 함수: 이제 인자를 받도록 수정
   const renderMobileScalingLayout = (componentsToRender: ComponentData[]) => {
+    const PAGE_VERTICAL_PADDING = 16; // 상수를 공유하거나 동일한 값 사용
+    // 맨 마지막 컴포넌트 하단에 여백을 주기 위해 높이 계산 시 패딩 추가
     const contentHeight =
       Math.max(
         0,
         ...componentsToRender.map(
           (c: ComponentData) => (c.y || 0) + (c.height || 0)
         )
-      ) + 50;
+      ) + PAGE_VERTICAL_PADDING; // 하단 여백 추가
 
     return (
       <div
@@ -292,10 +294,9 @@ const DynamicPageRenderer = ({
       );
 
       const repositionedComponents = [];
-      let currentY = 0; // ❗️ 상단 여백을 0으로 시작합니다. 필요하다면 나중에 추가합니다.
 
-      // ❗️ 패딩 없이 캔버스 너비를 꽉 채웁니다.
-      const mobileCanvasContentWidth = BASE_MOBILE_WIDTH;
+      const PAGE_VERTICAL_PADDING = 16; // 상단 여백
+      let currentY = PAGE_VERTICAL_PADDING;
 
       for (const comp of sortedComponents) {
         const originalWidth =
@@ -303,24 +304,30 @@ const DynamicPageRenderer = ({
         const originalHeight =
           comp.height || getComponentDefaultSize(comp.type).height;
 
-        // 비율에 맞게 새 높이 계산
-        const aspectRatio = originalHeight / originalWidth;
-        // originalWidth가 0인 경우를 방지
-        const newHeight =
-          originalWidth > 0
-            ? mobileCanvasContentWidth * aspectRatio
-            : originalHeight;
+        let newWidth = originalWidth;
+        let newHeight = originalHeight;
+        let newX = 0;
+
+        if (originalWidth > BASE_MOBILE_WIDTH) {
+          newWidth = BASE_MOBILE_WIDTH;
+          if (originalWidth > 0) {
+            const aspectRatio = originalHeight / originalWidth;
+            newHeight = newWidth * aspectRatio;
+          }
+          newX = 0;
+        } else {
+          newX = (BASE_MOBILE_WIDTH - originalWidth) / 2;
+        }
 
         repositionedComponents.push({
           ...comp,
-          // ❗️ x 좌표를 0으로 설정하여 왼쪽에 붙입니다.
-          x: 0,
+          x: newX,
           y: currentY,
-          width: mobileCanvasContentWidth,
+          width: newWidth,
           height: newHeight,
         });
 
-        // ❗️ 루프 안에서 currentY를 다음 컴포넌트 높이만큼 누적합니다. (겹침 문제 해결)
+        // ❗️ 컴포넌트 간 여백 없이 y좌표 업데이트
         currentY += newHeight;
       }
 
