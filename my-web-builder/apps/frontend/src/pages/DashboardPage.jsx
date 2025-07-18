@@ -47,7 +47,7 @@ function DashboardPage({ user, onLogout }) {
   const [specificTotalCount, setSpecificTotalCount] = useState(0);
   const [allSpecificTemplates, setAllSpecificTemplates] = useState([]);
 
-  const mobileItemsPerPage = 4;
+  const mobileItemsPerPage = 5;
   const desktopItemsPerPage = 8;
   const specificItemsPerPage = 8;
 
@@ -510,13 +510,121 @@ function DashboardPage({ user, onLogout }) {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div
+      className="min-h-screen relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(to bottom right, #FF969A, #9E9EE6)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Flowing Lines */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Horizontal flowing lines */}
+        <div
+          className="absolute top-1/4 left-0 w-full h-px bg-white/30 animate-pulse"
+          style={{ animation: 'flow 8s ease-in-out infinite' }}
+        ></div>
+        <div
+          className="absolute top-3/4 left-0 w-full h-px bg-white/30 animate-pulse"
+          style={{ animation: 'flow 8s ease-in-out infinite 2s' }}
+        ></div>
+        <div
+          className="absolute top-1/2 left-0 w-full h-px bg-white/20 animate-pulse"
+          style={{ animation: 'flow 10s ease-in-out infinite 1s' }}
+        ></div>
+
+        {/* Curved flowing lines */}
+        <svg
+          className="absolute inset-0 w-full h-full"
+          style={{ animation: 'flow 12s ease-in-out infinite' }}
+        >
+          <path
+            d="M0,200 Q300,150 600,200 T1200,200"
+            stroke="rgba(255,255,255,0.2)"
+            strokeWidth="1"
+            fill="none"
+          />
+          <path
+            d="M0,400 Q400,350 800,400 T1600,400"
+            stroke="rgba(255,255,255,0.15)"
+            strokeWidth="1"
+            fill="none"
+          />
+        </svg>
+      </div>
+
+      {/* Floating Circles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Left side circles */}
+        <div
+          className="absolute top-1/4 left-1/4"
+          style={{ animation: 'float 6s ease-in-out infinite' }}
+        >
+          {/* Main colored circle */}
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-300/40 to-purple-300/40"></div>
+          {/* White border circle */}
+          <div className="absolute -top-2 -left-2 w-20 h-20 rounded-full border border-white/30"></div>
+          <div className="absolute -top-4 -left-4 w-24 h-24 rounded-full border border-white/20"></div>
+        </div>
+
+        <div
+          className="absolute top-2/3 left-1/6"
+          style={{ animation: 'float 8s ease-in-out infinite 1s' }}
+        >
+          {/* Main colored circle */}
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-200/30 to-purple-200/30"></div>
+          {/* White border circle */}
+          <div className="absolute -top-1 -left-1 w-14 h-14 rounded-full border border-white/25"></div>
+          <div className="absolute -top-3 -left-3 w-18 h-18 rounded-full border border-white/15"></div>
+        </div>
+
+        {/* Right side circles */}
+        <div
+          className="absolute top-1/3 right-1/4"
+          style={{ animation: 'float 7s ease-in-out infinite 2s' }}
+        >
+          {/* Main colored circle */}
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-300/40 to-pink-300/40"></div>
+          {/* White border circle */}
+          <div className="absolute -top-3 -left-3 w-26 h-26 rounded-full border border-white/30"></div>
+          <div className="absolute -top-6 -left-6 w-32 h-32 rounded-full border border-white/20"></div>
+        </div>
+
+        <div
+          className="absolute bottom-1/4 right-1/6"
+          style={{ animation: 'float 9s ease-in-out infinite 0.5s' }}
+        >
+          {/* Main colored circle */}
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-200/30 to-pink-200/30"></div>
+          {/* White border circle */}
+          <div className="absolute -top-2 -left-2 w-18 h-18 rounded-full border border-white/25"></div>
+          <div className="absolute -top-4 -left-4 w-22 h-22 rounded-full border border-white/15"></div>
+        </div>
+
+        {/* Additional small circles */}
+        <div
+          className="absolute top-1/2 left-1/3"
+          style={{ animation: 'float 5s ease-in-out infinite 1.5s' }}
+        >
+          <div className="w-6 h-6 rounded-full bg-white/20"></div>
+          <div className="absolute -top-1 -left-1 w-8 h-8 rounded-full border border-white/20"></div>
+        </div>
+
+        <div
+          className="absolute bottom-1/3 right-1/3"
+          style={{ animation: 'float 6s ease-in-out infinite 2.5s' }}
+        >
+          <div className="w-4 h-4 rounded-full bg-white/15"></div>
+          <div className="absolute -top-1 -left-1 w-6 h-6 rounded-full border border-white/15"></div>
+        </div>
+      </div>
+
       {/* Header */}
       <div
-        className="bg-gradient-to-r from-pink-50 to-rose-50 sticky top-0"
+        className="bg-transparent relative z-10"
         style={{ position: 'relative', zIndex: 30 }}
       >
-        <div className="max-w-7xl mx-auto px-7 py-3">
+        <div className="max-w-8xl mx-auto px-7 py-3">
           <div className="flex justify-between items-center">
             {/* 좌측: 로고와 사용자명 */}
             <div className="flex items-center gap-6">
@@ -534,11 +642,8 @@ function DashboardPage({ user, onLogout }) {
               {user && (
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
-                  <p className="text-slate-600 font-medium text-lg">
-                    <span
-                      className="font-semibold"
-                      style={{ color: '#212455' }}
-                    >
+                  <p className="text-white font-medium text-lg">
+                    <span className="font-semibold" style={{ color: 'white' }}>
                       {user.nickname}
                     </span>
                     님
@@ -658,8 +763,7 @@ function DashboardPage({ user, onLogout }) {
               {/* 로그아웃 버튼 */}
               <button
                 onClick={onLogout}
-                className="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 font-medium rounded-lg transition-all duration-300 flex items-center gap-2 group"
-                style={{ color: '#212455' }}
+                className="px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white font-medium rounded-lg transition-all duration-300 flex items-center gap-2 group"
               >
                 <svg
                   className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90"
@@ -682,10 +786,10 @@ function DashboardPage({ user, onLogout }) {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8 bg-white">
+      <div className="max-w-8xl mx-auto px-6 py-8 relative z-10">
         {/* 메인 헤더 */}
         <div className="text-center mb-8">
-          <p className="text-3xl text-slate-500 font-light">
+          <p className="text-3xl text-white font-light">
             사랑하는 사람들과 함께하는 특별한 순간
           </p>
         </div>
@@ -1000,16 +1104,16 @@ function DashboardPage({ user, onLogout }) {
                             </div>
                           )}
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                           {mobileTemplates.map((template) => (
                             <div
                               key={template.id}
                               onClick={() => handleCreateFromTemplate(template)}
                               className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
                             >
-                              <div className="p-4">
+                              <div className="p-3">
                                 {/* 기기 타입과 테마 표시 */}
-                                <div className="flex items-center gap-2 mb-3">
+                                <div className="flex items-center gap-2 mb-2">
                                   <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-blue-800">
                                     <svg
                                       className="w-3 h-3 mr-1"
@@ -1034,7 +1138,7 @@ function DashboardPage({ user, onLogout }) {
                                 </div>
                                 {/* 템플릿 캔버스 미리보기 */}
                                 <div
-                                  className={`relative rounded-lg overflow-hidden mb-4 ${
+                                  className={`relative rounded-lg overflow-hidden mb-2 ${
                                     template.editingMode === 'mobile'
                                       ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
                                       : 'aspect-video' // 데스크톱: 16:9 비율
@@ -1172,16 +1276,16 @@ function DashboardPage({ user, onLogout }) {
                             </div>
                           )}
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                           {desktopTemplates.map((template) => (
                             <div
                               key={template.id}
                               onClick={() => handleCreateFromTemplate(template)}
                               className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
                             >
-                              <div className="p-4">
+                              <div className="p-3">
                                 {/* 기기 타입과 테마 표시 */}
-                                <div className="flex items-center gap-2 mb-3">
+                                <div className="flex items-center gap-2 mb-2">
                                   <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                     <svg
                                       className="w-3 h-3 mr-1"
@@ -1423,16 +1527,16 @@ function DashboardPage({ user, onLogout }) {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                       {templates.map((template) => (
                         <div
                           key={template.id}
                           onClick={() => handleCreateFromTemplate(template)}
                           className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
                         >
-                          <div className="p-4">
+                          <div className="p-3">
                             {/* 기기 타입과 테마 표시 */}
-                            <div className="flex items-center gap-2 mb-3">
+                            <div className="flex items-center gap-2 mb-2">
                               <div
                                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                                   template.editingMode === 'mobile'
@@ -1473,7 +1577,7 @@ function DashboardPage({ user, onLogout }) {
                             </div>
                             {/* 템플릿 캔버스 미리보기 */}
                             <div
-                              className={`relative rounded-lg overflow-hidden mb-4 ${
+                              className={`relative rounded-lg overflow-hidden mb-2 ${
                                 template.editingMode === 'mobile'
                                   ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
                                   : 'aspect-video' // 데스크톱: 16:9 비율
@@ -1485,14 +1589,10 @@ function DashboardPage({ user, onLogout }) {
                               />
                             </div>
 
-                            <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
+                            <h4 className="font-bold text-slate-800 text-base mb-1 group-hover:text-gray-600 transition-colors">
                               {template.name}
                             </h4>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-slate-500">
-                                {template.usageCount}회 사용
-                              </span>
-                            </div>
+                            <div className="flex items-center justify-between"></div>
                           </div>
                         </div>
                       ))}
@@ -1617,6 +1717,31 @@ function DashboardPage({ user, onLogout }) {
           </div>
         </div>
       )}
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes flow {
+          0%,
+          100% {
+            transform: translateX(-100%);
+            opacity: 0;
+          }
+          50% {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-20px) rotate(180deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }
