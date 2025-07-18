@@ -33,7 +33,13 @@ function Inspector({ selectedComp, onUpdate, viewport }) {
 
   return (
     <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
-      <div className="flex-1 p-4 overflow-y-auto">               
+      <div
+        className="flex-1 p-4 overflow-y-auto"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'var(--color-primary-100) var(--color-primary-50)',
+        }}
+      >
         {SpecificEditor ? (
           <SpecificEditor selectedComp={selectedComp} onUpdate={onUpdate} />
         ) : (

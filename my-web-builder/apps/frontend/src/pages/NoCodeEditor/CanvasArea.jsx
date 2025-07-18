@@ -1,6 +1,13 @@
 // frontend/src/pages/NoCodeEditor/CanvasArea.jsx
 
-import React, { useState, useEffect, useRef, useMemo, forwardRef, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  forwardRef,
+  useCallback,
+} from 'react';
 import {
   LiveCursors,
   CollaborativeSelections,
@@ -125,8 +132,11 @@ const CanvasArea = forwardRef(
     ref
   ) => {
     // 협업 객체에서 드래그 상태 관리 함수들 추출
-    const { setComponentDragging, isComponentDragging: checkComponentDragging } = collaboration || {};
-    
+    const {
+      setComponentDragging,
+      isComponentDragging: checkComponentDragging,
+    } = collaboration || {};
+
     // 내부 canvasRef 생성 (외부에서 전달된 ref가 없는 경우를 대비)
     const internalCanvasRef = useRef(null);
     const canvasRefToUse = externalCanvasRef || internalCanvasRef;
@@ -147,7 +157,8 @@ const CanvasArea = forwardRef(
     });
 
     // 로컬 컴포넌트 드래그 상태 감지 (이름 변경으로 충돌 방지)
-    const [isLocalComponentDragging, setIsLocalComponentDragging] = useState(false);
+    const [isLocalComponentDragging, setIsLocalComponentDragging] =
+      useState(false);
 
     // 다중 선택 관련 상태
     const [isSelecting, setIsSelecting] = useState(false);
@@ -157,33 +168,39 @@ const CanvasArea = forwardRef(
     const LIBRARY_WIDTH = 240; // 좌측 패널(컴포넌트 라이브러리) width와 동일하게!
 
     // 줌 핸들러
-    const handleZoom = useCallback((delta) => {
-      const newZoom = Math.max(25, Math.min(400, localZoom + delta));
-      setLocalZoom(newZoom);
-      if (onZoomChange) onZoomChange(newZoom);
-    }, [localZoom, onZoomChange]);
+    const handleZoom = useCallback(
+      (delta) => {
+        const newZoom = Math.max(25, Math.min(400, localZoom + delta));
+        setLocalZoom(newZoom);
+        if (onZoomChange) onZoomChange(newZoom);
+      },
+      [localZoom, onZoomChange]
+    );
 
     // 마우스 휠로 줌 또는 스크롤
-    const handleWheel = useCallback((e) => {
-      if (e.ctrlKey || e.metaKey) {
-        // Ctrl/Cmd + 휠: 줌
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? -10 : 10;
-        handleZoom(delta);
-      } else if (isLocalComponentDragging) {
-        // 컴포넌트 드래그 중일 때는 스크롤 차단
-        e.preventDefault();
-      }
-    }, [isLocalComponentDragging, handleZoom]);
+    const handleWheel = useCallback(
+      (e) => {
+        if (e.ctrlKey || e.metaKey) {
+          // Ctrl/Cmd + 휠: 줌
+          e.preventDefault();
+          const delta = e.deltaY > 0 ? -10 : 10;
+          handleZoom(delta);
+        } else if (isLocalComponentDragging) {
+          // 컴포넌트 드래그 중일 때는 스크롤 차단
+          e.preventDefault();
+        }
+      },
+      [isLocalComponentDragging, handleZoom]
+    );
 
     useEffect(() => {
-        const element = canvasRefToUse?.current;
-        if (element) {
-            element.addEventListener('wheel', handleWheel, { passive: false });
-            return () => {
-                element.removeEventListener('wheel', handleWheel);
-            }
-        }
+      const element = canvasRefToUse?.current;
+      if (element) {
+        element.addEventListener('wheel', handleWheel, { passive: false });
+        return () => {
+          element.removeEventListener('wheel', handleWheel);
+        };
+      }
     }, [canvasRefToUse, handleWheel]);
 
     // 협업 커서 위치 업데이트 핸들러
@@ -191,12 +208,12 @@ const CanvasArea = forwardRef(
       if (updateCursorPosition) {
         updateCursorPosition(e.clientX, e.clientY, localZoom, viewport);
       }
-      
+
       // 다중 선택 업데이트
       if (isSelecting) {
         handleSelectionMove(e);
       }
-      
+
       onMouseMove(e);
     };
 
@@ -221,10 +238,10 @@ const CanvasArea = forwardRef(
     // 다중 선택 시작
     const handleSelectionStart = (e) => {
       // 컴포넌트 위에서 클릭한 경우 다중 선택 시작하지 않음
-      const isClickOnComponent = 
+      const isClickOnComponent =
         e.target.closest('[data-component-id]') !== null ||
         e.target.closest('.canvas-component') !== null;
-      
+
       // console.log('선택 시작 시도:', {
       //   button: e.button,
       //   ctrlKey: e.ctrlKey,
@@ -233,18 +250,18 @@ const CanvasArea = forwardRef(
       //   target: e.target.className,
       //   targetTagName: e.target.tagName
       // });
-      
+
       if (e.button === 0 && !e.ctrlKey && !e.metaKey && !isClickOnComponent) {
         // 빈 공간 클릭 시 선택 해제
         if (onSelect) {
           onSelect(null);
         }
-        
+
         const rect = canvasRefToUse.current.getBoundingClientRect();
         const scale = localZoom / 100;
         const x = (e.clientX - rect.left) / scale;
         const y = (e.clientY - rect.top) / scale;
-        
+
         // console.log('선택 영역 시작:', { x, y, scale, rect });
         setSelectionStart({ x, y });
         setIsSelecting(true);
@@ -254,7 +271,7 @@ const CanvasArea = forwardRef(
           button: e.button,
           ctrlKey: e.ctrlKey,
           metaKey: e.metaKey,
-          isClickOnComponent
+          isClickOnComponent,
         });
       }
     };
@@ -266,17 +283,17 @@ const CanvasArea = forwardRef(
         const scale = localZoom / 100;
         const x = (e.clientX - rect.left) / scale;
         const y = (e.clientY - rect.top) / scale;
-        
+
         const width = x - selectionStart.x;
         const height = y - selectionStart.y;
-        
+
         const newSelectionBox = {
           x: width < 0 ? x : selectionStart.x,
           y: height < 0 ? y : selectionStart.y,
           width: Math.abs(width),
-          height: Math.abs(height)
+          height: Math.abs(height),
         };
-        
+
         // console.log('선택 영역 업데이트:', newSelectionBox);
         setSelectionBox(newSelectionBox);
       }
@@ -285,7 +302,7 @@ const CanvasArea = forwardRef(
     // 다중 선택 완료
     const handleSelectionEnd = () => {
       // console.log('선택 완료 시도:', { isSelecting, selectionBox: !!selectionBox, onMultiSelect: !!onMultiSelect });
-      
+
       if (isSelecting && selectionBox && onMultiSelect) {
         // 최소 선택 영역 크기 (너무 작은 선택은 무시)
         const minSize = 5;
@@ -298,30 +315,29 @@ const CanvasArea = forwardRef(
         }
 
         // 선택 영역 내의 컴포넌트들 찾기 (캔버스 경계 무시)
-        const selectedComponents = components.filter(comp => {
+        const selectedComponents = components.filter((comp) => {
           const compWidth = comp.width || 120;
           const compHeight = comp.height || 40;
           const compRight = comp.x + compWidth;
           const compBottom = comp.y + compHeight;
           const boxRight = selectionBox.x + selectionBox.width;
           const boxBottom = selectionBox.y + selectionBox.height;
-          
+
           // 컴포넌트가 선택 영역과 겹치는지 확인 (경계 제한 없음)
-          const isSelected = (
+          const isSelected =
             comp.x < boxRight &&
             compRight > selectionBox.x &&
             comp.y < boxBottom &&
-            compBottom > selectionBox.y
-          );
-          
+            compBottom > selectionBox.y;
+
           return isSelected;
         });
-        
+
         if (selectedComponents.length > 0) {
-          onMultiSelect(selectedComponents.map(comp => comp.id));
+          onMultiSelect(selectedComponents.map((comp) => comp.id));
         }
       }
-      
+
       setIsSelecting(false);
       setSelectionBox(null);
       setSelectionStart(null);
@@ -338,13 +354,13 @@ const CanvasArea = forwardRef(
     // 마우스업
     const handleMouseUp = (e) => {
       setIsDragging(false);
-      
+
       // 다중 선택 완료
       if (isSelecting) {
         // console.log('캔버스에서 선택 완료');
         handleSelectionEnd();
       }
-      
+
       if (onMouseUp) onMouseUp(e);
       if (setSnapLines) {
         setSnapLines({ vertical: [], horizontal: [] });
@@ -366,10 +382,14 @@ const CanvasArea = forwardRef(
           const canvasRect = canvasElement.getBoundingClientRect();
           const clickX = e.clientX;
           const clickY = e.clientY;
-          
+
           // 클릭 위치가 캔버스 영역 밖인지 확인
-          if (clickX < canvasRect.left || clickX > canvasRect.right || 
-              clickY < canvasRect.top || clickY > canvasRect.bottom) {
+          if (
+            clickX < canvasRect.left ||
+            clickX > canvasRect.right ||
+            clickY < canvasRect.top ||
+            clickY > canvasRect.bottom
+          ) {
             // 캔버스 밖 클릭 시 선택 해제
             if (onSelect) {
               onSelect(null);
@@ -495,12 +515,12 @@ const CanvasArea = forwardRef(
     // useEffect(() => {
     //   if (isSelecting) {
     //     console.log('전역 마우스 이벤트 리스너 등록');
-        
+
     //     const handleGlobalMouseMove = (e) => {
     //       console.log('전역 마우스 이동:', e.clientX, e.clientY);
     //       handleSelectionMove(e);
     //     };
-        
+
     //     const handleGlobalMouseUp = (e) => {
     //       console.log('전역 마우스 업 - 선택 완료');
     //       // 약간의 지연을 두어 캔버스의 onMouseUp이 먼저 처리되도록 함
@@ -535,7 +555,7 @@ const CanvasArea = forwardRef(
         // Ctrl+G 키로 그리드 토글
         if (e.code === 'KeyG' && (e.ctrlKey || e.metaKey)) {
           e.preventDefault();
-          setShowGrid(prev => !prev);
+          setShowGrid((prev) => !prev);
         }
 
         // 화살표 키로 캔버스 스크롤
@@ -567,7 +587,6 @@ const CanvasArea = forwardRef(
           }
         }
       };
-
 
       const handleKeyUp = (e) => {
         // 🔥 텍스트 입력 중이면 키보드 이벤트 무시
@@ -725,10 +744,14 @@ const CanvasArea = forwardRef(
             const canvasRect = canvasElement.getBoundingClientRect();
             const clickX = e.clientX;
             const clickY = e.clientY;
-            
+
             // 클릭 위치가 캔버스 영역 밖인지 확인
-            if (clickX < canvasRect.left || clickX > canvasRect.right || 
-                clickY < canvasRect.top || clickY > canvasRect.bottom) {
+            if (
+              clickX < canvasRect.left ||
+              clickX > canvasRect.right ||
+              clickY < canvasRect.top ||
+              clickY > canvasRect.bottom
+            ) {
               // 캔버스 밖 클릭 시 선택 해제
               if (onSelect) {
                 onSelect(null);
@@ -736,7 +759,7 @@ const CanvasArea = forwardRef(
               return;
             }
           }
-          
+
           if (onClick) {
             onClick(e);
           }
@@ -774,14 +797,14 @@ const CanvasArea = forwardRef(
             onDragOver={onDragOver}
             onClick={(e) => {
               // 컴포넌트 위에서 클릭한 경우가 아니라면 선택 해제
-              const isClickOnComponent = 
+              const isClickOnComponent =
                 e.target.closest('[data-component-id]') !== null ||
                 e.target.closest('.canvas-component') !== null;
-              
+
               if (!isClickOnComponent && onSelect) {
                 onSelect(null);
               }
-              
+
               if (onClick) {
                 onClick(e);
               }
@@ -851,9 +874,10 @@ const CanvasArea = forwardRef(
               })
               .map((comp) => {
                 const isSelected = selectedId === comp.id;
-                const isMultiSelected = selectedIds && selectedIds.includes(comp.id);
+                const isMultiSelected =
+                  selectedIds && selectedIds.includes(comp.id);
                 const isAnySelected = isSelected || isMultiSelected;
-                
+
                 return (
                   <CanvasComponent
                     key={comp.id}
@@ -950,36 +974,31 @@ const CanvasArea = forwardRef(
           </div>
         </div>
 
-        {/* 스크롤바 스타일링 */}
+        {/* 글로벌 스크롤바 스타일 적용 */}
         <style>{`
-      /* 캔버스 컨테이너 스크롤바 스타일 */
+      /* 캔버스 컨테이너에서 글로벌 스크롤바 스타일 사용 */
       ::-webkit-scrollbar {
-        width: 12px;
-        height: 12px;
+        width: 8px !important;
+        height: 8px !important;
       }
       ::-webkit-scrollbar-track {
-        background: #f0f1f5;
-        border-radius: 6px;
+        background: var(--color-primary-50) !important;
       }
       ::-webkit-scrollbar-thumb {
-        background: #d1d5db;
-        border-radius: 6px;
-        border: 2px solid #f0f1f5;
+        background: var(--color-primary-100) !important;
+        border-radius: 4px !important;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #9ca3af;
-      }
-      ::-webkit-scrollbar-thumb:active {
-        background: #6b7280;
+        background: var(--color-primary-200) !important;
       }
       ::-webkit-scrollbar-corner {
-        background: #f0f1f5;
+        background: var(--color-primary-50) !important;
       }
       
       /* Firefox 스크롤바 스타일 */
       * {
-        scrollbar-width: thin;
-        scrollbar-color: #d1d5db #f0f1f5;
+        scrollbar-width: thin !important;
+        scrollbar-color: var(--color-primary-100) var(--color-primary-50) !important;
       }
     `}</style>
       </div>

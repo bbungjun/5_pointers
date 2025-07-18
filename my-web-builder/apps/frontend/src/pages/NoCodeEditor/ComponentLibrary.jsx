@@ -68,7 +68,7 @@ function ComponentLibrary({
             width: '28px',
             height: '48px',
             backgroundColor: '#ffffff',
-            border: '2px solid #fce7f3',
+            border: '2px solid #e0f2fe',
             borderLeft: 'none',
             borderTopRightRadius: '8px',
             borderBottomRightRadius: '8px',
@@ -81,18 +81,18 @@ function ComponentLibrary({
             transition: 'all 0.2s ease',
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = '#fdf2f8';
-            e.target.style.borderColor = '#f472b6';
+            e.target.style.backgroundColor = '#f0f9ff';
+            e.target.style.borderColor = '#38bdf8';
             e.target.style.boxShadow = 'none';
           }}
           onMouseLeave={(e) => {
             e.target.style.backgroundColor = '#ffffff';
-            e.target.style.borderColor = '#fce7f3';
+            e.target.style.borderColor = '#e0f2fe';
             e.target.style.boxShadow = 'none';
           }}
           title="컴포넌트 라이브러리 열기"
         >
-          <span style={{ fontSize: '14px', color: '#f472b6' }}>▶</span>
+          <span style={{ fontSize: '14px', color: '#38bdf8' }}>▶</span>
         </button>
       </div>
     );
@@ -122,7 +122,13 @@ function ComponentLibrary({
       <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
       {/* 스크롤 가능한 컴포넌트 그리드 */}
-      <div className="flex-1 overflow-y-auto">
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'var(--color-primary-100) var(--color-primary-50)',
+        }}
+      >
         <ComponentGrid
           components={ComponentList}
           searchTerm={searchTerm}
@@ -142,7 +148,7 @@ function ComponentLibrary({
           width: '28px',
           height: '48px',
           backgroundColor: '#ffffff',
-          border: '2px solid #fce7f3',
+          border: '2px solid #e0f2fe',
           borderLeft: 'none',
           borderTopRightRadius: '8px',
           borderBottomRightRadius: '8px',
@@ -153,21 +159,21 @@ function ComponentLibrary({
           boxShadow: 'none',
           zIndex: 5,
           transition: 'all 0.2s ease',
-          color: '#ec4899',
+          color: '#0ea5e9',
         }}
         onMouseEnter={(e) => {
-          e.target.style.backgroundColor = '#fdf2f8';
-          e.target.style.borderColor = '#ec4899';
+          e.target.style.backgroundColor = '#f0f9ff';
+          e.target.style.borderColor = '#0ea5e9';
           e.target.style.boxShadow = 'none';
         }}
         onMouseLeave={(e) => {
           e.target.style.backgroundColor = '#ffffff';
-          e.target.style.borderColor = '#f9a8d4';
+          e.target.style.borderColor = '#7dd3fc';
           e.target.style.boxShadow = 'none';
         }}
         title="컴포넌트 라이브러리 토글"
       >
-        <span style={{ fontSize: '14px', color: '#f472b6' }}>◀</span>
+        <span style={{ fontSize: '14px', color: '#38bdf8' }}>◀</span>
       </button>
 
       {/* 리사이즈 핸들 */}

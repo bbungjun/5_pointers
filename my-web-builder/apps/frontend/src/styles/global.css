@@ -1,34 +1,34 @@
-/* 핑크-보라 계열 전역 스타일 */
+/* 하늘색-파란색 계열 전역 스타일 */
 
 :root {
-  /* 메인 브랜드 색상 */
-  --color-primary-50: #fdf2f8;
-  --color-primary-100: #fce7f3;
-  --color-primary-200: #fbcfe8;
-  --color-primary-300: #f9a8d4;
-  --color-primary-400: #f472b6;
-  --color-primary-500: #ec4899;
-  --color-primary-600: #db2777;
-  --color-primary-700: #be185d;
-  --color-primary-800: #9d174d;
-  --color-primary-900: #831843;
-  
-  /* 보조 보라 색상 */
-  --color-secondary-50: #faf5ff;
-  --color-secondary-100: #f3e8ff;
-  --color-secondary-200: #e9d5ff;
-  --color-secondary-300: #d8b4fe;
-  --color-secondary-400: #c084fc;
-  --color-secondary-500: #a855f7;
-  --color-secondary-600: #9333ea;
-  --color-secondary-700: #7c3aed;
-  --color-secondary-800: #6b21a8;
-  --color-secondary-900: #581c87;
-  
+  /* 메인 브랜드 색상 - 하늘색 계열 */
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+
+  /* 보조 파란색 색상 */
+  --color-secondary-50: #eff6ff;
+  --color-secondary-100: #dbeafe;
+  --color-secondary-200: #bfdbfe;
+  --color-secondary-300: #93c5fd;
+  --color-secondary-400: #60a5fa;
+  --color-secondary-500: #3b82f6;
+  --color-secondary-600: #2563eb;
+  --color-secondary-700: #1d4ed8;
+  --color-secondary-800: #1e40af;
+  --color-secondary-900: #1e3a8a;
+
   /* 그라데이션 */
-  --gradient-primary: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
-  --gradient-light: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%);
-  --gradient-dark: linear-gradient(135deg, #be185d 0%, #7c3aed 100%);
+  --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  --gradient-light: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+  --gradient-dark: linear-gradient(135deg, #0369a1 0%, #1d4ed8 100%);
 }
 
 /* 기본 버튼 스타일 */
@@ -101,8 +101,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* 알림/토스트 스타일 */
@@ -118,22 +122,91 @@
   color: #991b1b;
 }
 
-/* 스크롤바 스타일 */
-::-webkit-scrollbar {
-  width: 8px;
+/* 스크롤바 스타일 - 모든 요소에 강제 적용 */
+html ::-webkit-scrollbar,
+body ::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--color-primary-50);
+html ::-webkit-scrollbar-track,
+body ::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: var(--color-primary-50) !important;
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--color-primary-300);
-  border-radius: 4px;
+html ::-webkit-scrollbar-thumb,
+body ::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background: var(--color-primary-100) !important;
+  border-radius: 4px !important;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary-400);
+html ::-webkit-scrollbar-thumb:hover,
+body ::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-200) !important;
+}
+
+/* Firefox 스크롤바 스타일 */
+html *,
+body *,
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--color-primary-100) var(--color-primary-50) !important;
+}
+
+/* 특정 스크롤 영역에 대한 강제 적용 */
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-auto::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track,
+.overflow-x-auto::-webkit-scrollbar-track,
+.overflow-auto::-webkit-scrollbar-track {
+  background: var(--color-primary-50) !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb,
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: var(--color-primary-100) !important;
+  border-radius: 4px !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.overflow-x-auto::-webkit-scrollbar-thumb:hover,
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-200) !important;
+}
+
+/* Tailwind CSS 클래스에 대한 강제 적용 */
+.flex-1::-webkit-scrollbar,
+.flex::-webkit-scrollbar,
+.bg-white::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.flex-1::-webkit-scrollbar-track,
+.flex::-webkit-scrollbar-track,
+.bg-white::-webkit-scrollbar-track {
+  background: var(--color-primary-50) !important;
+}
+
+.flex-1::-webkit-scrollbar-thumb,
+.flex::-webkit-scrollbar-thumb,
+.bg-white::-webkit-scrollbar-thumb {
+  background: var(--color-primary-100) !important;
+  border-radius: 4px !important;
+}
+
+.flex-1::-webkit-scrollbar-thumb:hover,
+.flex::-webkit-scrollbar-thumb:hover,
+.bg-white::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-200) !important;
 }
 
 /* 선택 영역 스타일 */
@@ -155,8 +228,8 @@ a:hover {
 }
 
 /* 체크박스/라디오 버튼 스타일 */
-input[type="checkbox"]:checked,
-input[type="radio"]:checked {
+input[type='checkbox']:checked,
+input[type='radio']:checked {
   accent-color: var(--color-primary-500);
 }
 
