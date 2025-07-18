@@ -184,6 +184,7 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
               border: '1px solid #d1d5db',
               borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
               fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
+              fontFamily: fontFamily,
               outline: 'none',
             }}
           />
@@ -215,6 +216,7 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
             border: '1px solid #d1d5db',
             borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
             fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
+            fontFamily: fontFamily,
             outline: 'none',
             resize: 'none',
             minHeight: mode === 'live' ? `${80 * scaleFactor}px` : '80px',

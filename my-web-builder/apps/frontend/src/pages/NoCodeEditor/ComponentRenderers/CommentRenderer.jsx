@@ -20,18 +20,23 @@ const AVAILABLE_FONTS = [
   'Montserrat',
   'Pinyon Script',
   'Prata',
-  'Underland'
+  'Underland',
 ];
 
-function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }) {
-  const { 
-    title, 
-    placeholder, 
+function CommentRenderer({
+  comp,
+  mode = 'editor',
+  viewport = 'desktop',
+  pageId,
+}) {
+  const {
+    title,
+    placeholder,
     backgroundColor,
     noBorder = true,
     borderColor = '#e5e7eb',
     borderWidth = '1px',
-    borderRadius = 0
+    borderRadius = 0,
   } = comp.props;
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState({
@@ -47,21 +52,27 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
     if (mode === 'editor') return; // 에디터 모드에서는 API 호출 안함
 
     const actualPageId = pageId || comp.pageId;
-    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
-    
+    const actualApiBaseUrl =
+      API_BASE_URL ||
+      (typeof window !== 'undefined' ? window.API_BASE_URL : null);
+
     if (!actualPageId || !actualApiBaseUrl) {
       return;
     }
 
     try {
       const apiUrl = `${actualApiBaseUrl}/users/pages/${actualPageId}/comments/${comp.id}`;
-      
+
       const response = await fetch(apiUrl);
       if (response.ok) {
         const data = await response.json();
         setComments(data);
       } else {
-        console.error('❌ CommentRenderer - API 응답 오류:', response.status, response.statusText);
+        console.error(
+          '❌ CommentRenderer - API 응답 오류:',
+          response.status,
+          response.statusText
+        );
       }
     } catch (error) {
       console.error('❌ CommentRenderer - 댓글 조회 실패:', error);
@@ -77,8 +88,10 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
     }
 
     const actualPageId = pageId || comp.pageId;
-    const actualApiBaseUrl = API_BASE_URL || (typeof window !== 'undefined' ? window.API_BASE_URL : null);
-    
+    const actualApiBaseUrl =
+      API_BASE_URL ||
+      (typeof window !== 'undefined' ? window.API_BASE_URL : null);
+
     if (!actualPageId || !actualApiBaseUrl) {
       alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
       return;
@@ -96,7 +109,9 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
         setNewComment({ author: '', content: '', password: '' });
         await fetchComments(); // 댓글 목록 새로고침
       } else {
-        alert(`댓글 등록에 실패했습니다. (${response.status}: ${response.statusText})`);
+        alert(
+          `댓글 등록에 실패했습니다. (${response.status}: ${response.statusText})`
+        );
       }
     } catch (error) {
       alert(`댓글 등록에 실패했습니다. 네트워크 오류: ${error.message}`);
@@ -213,7 +228,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column', 
+            flexDirection: 'column',
             gridTemplateColumns: styles.gridColumns,
             gap: viewport === 'mobile' ? '8px' : '12px',
             marginBottom: viewport === 'mobile' ? '8px' : '12px',
@@ -231,6 +246,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
               border: '1px solid #d1d5db',
               borderRadius: '6px',
               fontSize: styles.inputFontSize,
+              fontFamily: fontFamily,
               outline: 'none',
             }}
             onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
@@ -248,6 +264,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
               border: '1px solid #d1d5db',
               borderRadius: '6px',
               fontSize: styles.inputFontSize,
+              fontFamily: fontFamily,
               outline: 'none',
             }}
             onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
@@ -266,6 +283,7 @@ function CommentRenderer({ comp, mode = 'editor', viewport = 'desktop', pageId }
             border: '1px solid #d1d5db',
             borderRadius: '6px',
             fontSize: styles.inputFontSize,
+            fontFamily: fontFamily,
             outline: 'none',
             resize: 'none',
             minHeight: styles.textareaHeight,
