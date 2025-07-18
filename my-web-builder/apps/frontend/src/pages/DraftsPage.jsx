@@ -121,7 +121,7 @@ function DraftsPage({ user, onLogout }) {
               >
                 <img 
                   src="/ddukddak-logo.png" 
-                  style={{ height: '16px', objectFit: 'contain' }} 
+                  style={{ height: '36px', objectFit: 'contain' }} 
                 />
               </div>
             </div>

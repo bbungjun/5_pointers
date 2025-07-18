@@ -421,7 +421,7 @@ function DeployedPage({ user, onLogout }) {
                 <img 
                   src="/ddukddak-logo.png" 
                   alt="DDUKDDAK" 
-                  style={{ height: '16px', objectFit: 'contain' }} 
+                  style={{ height: '36px', objectFit: 'contain' }} 
                 />
               </div>
             </div>
