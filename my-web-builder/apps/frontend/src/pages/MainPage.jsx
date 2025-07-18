@@ -36,13 +36,6 @@ const MainPage = () => {
     }
   };
 
-  // 컴포넌트 마운트 시 로그인 상태 확인 - 로그아웃 후 메인페이지에 머물 수 있도록 제거
-  // useEffect(() => {
-  //   if (checkLoginStatus()) {
-  //     navigate('/dashboard');
-  //   }
-  // }, [navigate]);
-
   return (
     <div
       className="h-screen relative overflow-hidden"
