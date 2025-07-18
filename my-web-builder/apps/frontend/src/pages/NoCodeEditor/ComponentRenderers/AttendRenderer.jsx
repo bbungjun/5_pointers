@@ -167,7 +167,7 @@ function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
     padding: '12px', // 16px → 12px로 줄임
     fontFamily: '"Playfair Display", serif',
     backgroundColor: comp.props?.backgroundColor || '#f8f9fa',
-    borderRadius: comp.props?.borderRadius || '8px',
+    borderRadius: 0,
     boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
   };
 
@@ -216,7 +216,7 @@ function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
           backgroundColor: (mode === 'editor' || isEditor === true) ? '#d1d5db' : (comp.props?.buttonColor || '#9CAF88'),
           color: (mode === 'editor' || isEditor === true) ? '#9ca3af' : (comp.props?.buttonTextColor || 'white'),
           border: 'none',
-          borderRadius: comp.props?.borderRadius || '8px',
+          borderRadius: 0,
           padding: '12px 24px',
           marginBottom : '10px',
           fontSize: comp.props?.fontSize || '16px',
