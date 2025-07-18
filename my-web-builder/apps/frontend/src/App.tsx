@@ -131,7 +131,7 @@ function App() {
       // 리디렉션 URL 정리
       localStorage.removeItem('redirectUrl');
       console.log('App.jsx: 로그인 후 원래 목적지로 이동:', redirectUrl);
-      
+
       // URL 파라미터가 저장되어 있는지 확인
       const savedParams = localStorage.getItem('invitationParams');
       if (savedParams) {
@@ -150,21 +150,15 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
+    setUser({ nickname: 'Guest' });
+    // 메인페이지로 이동
+    window.location.href = '/';
   };
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/"
-          element={
-            isLoggedIn ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <MainPage onLogin={handleLogin} />
-            )
-          }
-        />
+        <Route path="/" element={<MainPage onLogin={handleLogin} />} />
         <Route
           path="/login"
           element={

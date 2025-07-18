@@ -5,7 +5,6 @@ import InvitationNotifications from '../components/InvitationNotifications';
 import NotificationToggle from '../components/NotificationToggle';
 import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
 
-
 function randomId() {
   return Math.random().toString(36).substring(2, 10);
 }
@@ -29,11 +28,11 @@ function DashboardPage({ user, onLogout }) {
   // 모바일과 데스크톱 템플릿 상태
   const [mobileTemplates, setMobileTemplates] = useState([]);
   const [desktopTemplates, setDesktopTemplates] = useState([]);
-  
+
   // 전체 템플릿 데이터 (페이지네이션용)
   const [allMobileTemplates, setAllMobileTemplates] = useState([]);
   const [allDesktopTemplates, setAllDesktopTemplates] = useState([]);
-  
+
   // 페이지네이션 상태
   const [mobileCurrentPage, setMobileCurrentPage] = useState(1);
   const [mobileTotalPages, setMobileTotalPages] = useState(1);
@@ -41,18 +40,16 @@ function DashboardPage({ user, onLogout }) {
   const [desktopCurrentPage, setDesktopCurrentPage] = useState(1);
   const [desktopTotalPages, setDesktopTotalPages] = useState(1);
   const [desktopTotalCount, setDesktopTotalCount] = useState(0);
-  
+
   // 특정 기기 선택 시 페이지네이션 상태
   const [specificCurrentPage, setSpecificCurrentPage] = useState(1);
   const [specificTotalPages, setSpecificTotalPages] = useState(1);
   const [specificTotalCount, setSpecificTotalCount] = useState(0);
   const [allSpecificTemplates, setAllSpecificTemplates] = useState([]);
-  
-  const mobileItemsPerPage = 4;
+
+  const mobileItemsPerPage = 5;
   const desktopItemsPerPage = 8;
   const specificItemsPerPage = 8;
-
-
 
   const categories = [
     { value: 'all', label: '전체' },
@@ -74,33 +71,37 @@ function DashboardPage({ user, onLogout }) {
       setLoading(true);
       let url = `${API_BASE_URL}/templates`;
       const params = [];
-      
+
       if (category !== 'all') {
         params.push(`category=${category}`);
       }
       params.push(`editingMode=mobile`);
-      
+
       if (params.length > 0) {
         url += `?${params.join('&')}`;
       }
 
       const response = await fetch(url);
-      
+
       if (response.ok) {
         const data = await response.json();
-        const uniqueTemplates = (Array.isArray(data) ? data : []).filter((template, index, arr) => {
-          const firstIndex = arr.findIndex(t => t.id === template.id);
-          return firstIndex === index;
-        });
-        
+        const uniqueTemplates = (Array.isArray(data) ? data : []).filter(
+          (template, index, arr) => {
+            const firstIndex = arr.findIndex((t) => t.id === template.id);
+            return firstIndex === index;
+          }
+        );
+
         // 클라이언트 사이드 페이지네이션
         const startIndex = (page - 1) * mobileItemsPerPage;
         const endIndex = startIndex + mobileItemsPerPage;
         const paginatedTemplates = uniqueTemplates.slice(startIndex, endIndex);
-        
-        setMobileTotalPages(Math.ceil(uniqueTemplates.length / mobileItemsPerPage));
+
+        setMobileTotalPages(
+          Math.ceil(uniqueTemplates.length / mobileItemsPerPage)
+        );
         setMobileTotalCount(uniqueTemplates.length);
-        
+
         return paginatedTemplates;
       }
     } catch (error) {
@@ -114,33 +115,37 @@ function DashboardPage({ user, onLogout }) {
     try {
       let url = `${API_BASE_URL}/templates`;
       const params = [];
-      
+
       if (category !== 'all') {
         params.push(`category=${category}`);
       }
       params.push(`editingMode=desktop`);
-      
+
       if (params.length > 0) {
         url += `?${params.join('&')}`;
       }
 
       const response = await fetch(url);
-      
+
       if (response.ok) {
         const data = await response.json();
-        const uniqueTemplates = (Array.isArray(data) ? data : []).filter((template, index, arr) => {
-          const firstIndex = arr.findIndex(t => t.id === template.id);
-          return firstIndex === index;
-        });
-        
+        const uniqueTemplates = (Array.isArray(data) ? data : []).filter(
+          (template, index, arr) => {
+            const firstIndex = arr.findIndex((t) => t.id === template.id);
+            return firstIndex === index;
+          }
+        );
+
         // 클라이언트 사이드 페이지네이션
         const startIndex = (page - 1) * desktopItemsPerPage;
         const endIndex = startIndex + desktopItemsPerPage;
         const paginatedTemplates = uniqueTemplates.slice(startIndex, endIndex);
-        
-        setDesktopTotalPages(Math.ceil(uniqueTemplates.length / desktopItemsPerPage));
+
+        setDesktopTotalPages(
+          Math.ceil(uniqueTemplates.length / desktopItemsPerPage)
+        );
         setDesktopTotalCount(uniqueTemplates.length);
-        
+
         return paginatedTemplates;
       }
     } catch (error) {
@@ -155,14 +160,14 @@ function DashboardPage({ user, onLogout }) {
       setLoading(true);
       let url = `${API_BASE_URL}/templates`;
       const params = [];
-      
+
       if (category !== 'all') {
         params.push(`category=${category}`);
       }
       if (device !== 'all') {
         params.push(`editingMode=${device}`);
       }
-      
+
       if (params.length > 0) {
         url += `?${params.join('&')}`;
       }
@@ -170,60 +175,70 @@ function DashboardPage({ user, onLogout }) {
       console.log('템플릿 조회 URL:', url);
       const response = await fetch(url);
       console.log('템플릿 조회 응답:', response.status, response.ok);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('템플릿 원본 데이터:', data);
         const uniqueTemplates = data.filter((template, index, arr) => {
-          const firstIndex = arr.findIndex(t => t.id === template.id);
+          const firstIndex = arr.findIndex((t) => t.id === template.id);
           return firstIndex === index;
         });
         console.log('중복 제거된 템플릿:', uniqueTemplates);
 
         if (device === 'all') {
           // 모바일과 데스크톱 템플릿 분리
-          const mobileData = uniqueTemplates.filter(t => t.editingMode === 'mobile');
-          const desktopData = uniqueTemplates.filter(t => t.editingMode === 'desktop');
-          
+          const mobileData = uniqueTemplates.filter(
+            (t) => t.editingMode === 'mobile'
+          );
+          const desktopData = uniqueTemplates.filter(
+            (t) => t.editingMode === 'desktop'
+          );
+
           console.log('모바일 템플릿:', mobileData);
           console.log('데스크톱 템플릿:', desktopData);
-          
+
           // 전체 데이터 저장
           setAllMobileTemplates(mobileData);
           setAllDesktopTemplates(desktopData);
-          
+
           // 모바일 페이지네이션
           const mobileStart = (mobileCurrentPage - 1) * mobileItemsPerPage;
           const mobileEnd = mobileStart + mobileItemsPerPage;
           const mobilePagedData = mobileData.slice(mobileStart, mobileEnd);
           setMobileTemplates(mobilePagedData);
-          setMobileTotalPages(Math.ceil(mobileData.length / mobileItemsPerPage));
+          setMobileTotalPages(
+            Math.ceil(mobileData.length / mobileItemsPerPage)
+          );
           setMobileTotalCount(mobileData.length);
-          
+
           // 데스크톱 페이지네이션
           const desktopStart = (desktopCurrentPage - 1) * desktopItemsPerPage;
           const desktopEnd = desktopStart + desktopItemsPerPage;
           const desktopPagedData = desktopData.slice(desktopStart, desktopEnd);
           setDesktopTemplates(desktopPagedData);
-          setDesktopTotalPages(Math.ceil(desktopData.length / desktopItemsPerPage));
+          setDesktopTotalPages(
+            Math.ceil(desktopData.length / desktopItemsPerPage)
+          );
           setDesktopTotalCount(desktopData.length);
-          
+
           console.log('설정된 모바일 템플릿:', mobilePagedData);
           console.log('설정된 데스크톱 템플릿:', desktopPagedData);
-          
+
           setTemplates([]); // 기존 templates는 비움
         } else {
           // 특정 기기 선택 시 페이지네이션 처리
           setAllSpecificTemplates(uniqueTemplates);
           setSpecificTotalCount(uniqueTemplates.length);
-          setSpecificTotalPages(Math.ceil(uniqueTemplates.length / specificItemsPerPage));
-          
+          setSpecificTotalPages(
+            Math.ceil(uniqueTemplates.length / specificItemsPerPage)
+          );
+
           // 첫 페이지 데이터 설정
           const startIndex = 0;
           const endIndex = specificItemsPerPage;
           const pagedData = uniqueTemplates.slice(startIndex, endIndex);
           setTemplates(pagedData);
-          
+
           setMobileTemplates([]);
           setDesktopTemplates([]);
         }
@@ -254,7 +269,7 @@ function DashboardPage({ user, onLogout }) {
         const data = await response.json();
         // 중복된 ID 제거 (같은 ID를 가진 첫 번째 항목만 유지)
         const uniquePages = data.filter((page, index, arr) => {
-          const firstIndex = arr.findIndex(p => p.id === page.id);
+          const firstIndex = arr.findIndex((p) => p.id === page.id);
           return firstIndex === index;
         });
         setMyPages(uniquePages);
@@ -284,27 +299,39 @@ function DashboardPage({ user, onLogout }) {
         // 모바일 페이지네이션
         const mobileStart = (mobileCurrentPage - 1) * mobileItemsPerPage;
         const mobileEnd = mobileStart + mobileItemsPerPage;
-        const mobilePagedData = allMobileTemplates.slice(mobileStart, mobileEnd);
+        const mobilePagedData = allMobileTemplates.slice(
+          mobileStart,
+          mobileEnd
+        );
         setMobileTemplates(mobilePagedData);
-        
+
         // 데스크톱 페이지네이션
         const desktopStart = (desktopCurrentPage - 1) * desktopItemsPerPage;
         const desktopEnd = desktopStart + desktopItemsPerPage;
-        const desktopPagedData = allDesktopTemplates.slice(desktopStart, desktopEnd);
+        const desktopPagedData = allDesktopTemplates.slice(
+          desktopStart,
+          desktopEnd
+        );
         setDesktopTemplates(desktopPagedData);
       }
     }
-  }, [mobileCurrentPage, desktopCurrentPage, allMobileTemplates, allDesktopTemplates, selectedDevice]);
+  }, [
+    mobileCurrentPage,
+    desktopCurrentPage,
+    allMobileTemplates,
+    allDesktopTemplates,
+    selectedDevice,
+  ]);
 
   // 페이지네이션 핸들러 (스크롤 위치 유지)
   const handlePageChange = (deviceType, newPage) => {
     // 현재 스크롤 위치 저장
     const scrollPosition = window.scrollY;
-    
+
     // 페이지 변경
     if (deviceType === 'mobile') {
       setMobileCurrentPage(newPage);
-      
+
       // 모바일 템플릿 데이터 업데이트
       const startIndex = (newPage - 1) * mobileItemsPerPage;
       const endIndex = startIndex + mobileItemsPerPage;
@@ -312,7 +339,7 @@ function DashboardPage({ user, onLogout }) {
       setMobileTemplates(mobilePagedData);
     } else if (deviceType === 'desktop') {
       setDesktopCurrentPage(newPage);
-      
+
       // 데스크톱 템플릿 데이터 업데이트
       const startIndex = (newPage - 1) * desktopItemsPerPage;
       const endIndex = startIndex + desktopItemsPerPage;
@@ -320,14 +347,17 @@ function DashboardPage({ user, onLogout }) {
       setDesktopTemplates(desktopPagedData);
     } else if (deviceType === 'specific') {
       setSpecificCurrentPage(newPage);
-      
+
       // 특정 기기 템플릿 데이터 업데이트
       const startIndex = (newPage - 1) * specificItemsPerPage;
       const endIndex = startIndex + specificItemsPerPage;
-      const specificPagedData = allSpecificTemplates.slice(startIndex, endIndex);
+      const specificPagedData = allSpecificTemplates.slice(
+        startIndex,
+        endIndex
+      );
       setTemplates(specificPagedData);
     }
-    
+
     // 다음 프레임에서 스크롤 위치 복원
     requestAnimationFrame(() => {
       window.scrollTo(0, scrollPosition);
@@ -344,17 +374,20 @@ function DashboardPage({ user, onLogout }) {
       }
 
       // 템플릿으로 페이지 생성 API 사용
-      const response = await fetch(`${API_BASE_URL}/templates/${template.id}/create-page`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title: `${template.name} 복사본`,
-          subdomain: `template-${Date.now()}`,
-        }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/templates/${template.id}/create-page`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title: `${template.name} 복사본`,
+            subdomain: `template-${Date.now()}`,
+          }),
+        }
+      );
 
       if (response.ok) {
         const newPage = await response.json();
@@ -477,61 +510,183 @@ function DashboardPage({ user, onLogout }) {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div
+      className="min-h-screen relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(to bottom right, #FF969A, #9E9EE6)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Flowing Lines */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Horizontal flowing lines */}
+        <div
+          className="absolute top-1/4 left-0 w-full h-px bg-white/30 animate-pulse"
+          style={{ animation: 'flow 8s ease-in-out infinite' }}
+        ></div>
+        <div
+          className="absolute top-3/4 left-0 w-full h-px bg-white/30 animate-pulse"
+          style={{ animation: 'flow 8s ease-in-out infinite 2s' }}
+        ></div>
+        <div
+          className="absolute top-1/2 left-0 w-full h-px bg-white/20 animate-pulse"
+          style={{ animation: 'flow 10s ease-in-out infinite 1s' }}
+        ></div>
+
+        {/* Curved flowing lines */}
+        <svg
+          className="absolute inset-0 w-full h-full"
+          style={{ animation: 'flow 12s ease-in-out infinite' }}
+        >
+          <path
+            d="M0,200 Q300,150 600,200 T1200,200"
+            stroke="rgba(255,255,255,0.2)"
+            strokeWidth="1"
+            fill="none"
+          />
+          <path
+            d="M0,400 Q400,350 800,400 T1600,400"
+            stroke="rgba(255,255,255,0.15)"
+            strokeWidth="1"
+            fill="none"
+          />
+        </svg>
+      </div>
+
+      {/* Floating Circles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Left side circles */}
+        <div
+          className="absolute top-1/4 left-1/4"
+          style={{ animation: 'float 6s ease-in-out infinite' }}
+        >
+          {/* Main colored circle */}
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-300/40 to-purple-300/40"></div>
+          {/* White border circle */}
+          <div className="absolute -top-2 -left-2 w-20 h-20 rounded-full border border-white/30"></div>
+          <div className="absolute -top-4 -left-4 w-24 h-24 rounded-full border border-white/20"></div>
+        </div>
+
+        <div
+          className="absolute top-2/3 left-1/6"
+          style={{ animation: 'float 8s ease-in-out infinite 1s' }}
+        >
+          {/* Main colored circle */}
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-200/30 to-purple-200/30"></div>
+          {/* White border circle */}
+          <div className="absolute -top-1 -left-1 w-14 h-14 rounded-full border border-white/25"></div>
+          <div className="absolute -top-3 -left-3 w-18 h-18 rounded-full border border-white/15"></div>
+        </div>
+
+        {/* Right side circles */}
+        <div
+          className="absolute top-1/3 right-1/4"
+          style={{ animation: 'float 7s ease-in-out infinite 2s' }}
+        >
+          {/* Main colored circle */}
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-300/40 to-pink-300/40"></div>
+          {/* White border circle */}
+          <div className="absolute -top-3 -left-3 w-26 h-26 rounded-full border border-white/30"></div>
+          <div className="absolute -top-6 -left-6 w-32 h-32 rounded-full border border-white/20"></div>
+        </div>
+
+        <div
+          className="absolute bottom-1/4 right-1/6"
+          style={{ animation: 'float 9s ease-in-out infinite 0.5s' }}
+        >
+          {/* Main colored circle */}
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-200/30 to-pink-200/30"></div>
+          {/* White border circle */}
+          <div className="absolute -top-2 -left-2 w-18 h-18 rounded-full border border-white/25"></div>
+          <div className="absolute -top-4 -left-4 w-22 h-22 rounded-full border border-white/15"></div>
+        </div>
+
+        {/* Additional small circles */}
+        <div
+          className="absolute top-1/2 left-1/3"
+          style={{ animation: 'float 5s ease-in-out infinite 1.5s' }}
+        >
+          <div className="w-6 h-6 rounded-full bg-white/20"></div>
+          <div className="absolute -top-1 -left-1 w-8 h-8 rounded-full border border-white/20"></div>
+        </div>
+
+        <div
+          className="absolute bottom-1/3 right-1/3"
+          style={{ animation: 'float 6s ease-in-out infinite 2.5s' }}
+        >
+          <div className="w-4 h-4 rounded-full bg-white/15"></div>
+          <div className="absolute -top-1 -left-1 w-6 h-6 rounded-full border border-white/15"></div>
+        </div>
+      </div>
+
       {/* Header */}
       <div
-        className="bg-gradient-to-r from-pink-50 to-rose-50 sticky top-0"
+        className="bg-transparent relative z-10"
         style={{ position: 'relative', zIndex: 30 }}
       >
-        <div className="max-w-7xl mx-auto px-7 py-3">
+        <div className="max-w-8xl mx-auto px-7 py-3">
           <div className="flex justify-between items-center">
             {/* 좌측: 로고와 사용자명 */}
             <div className="flex items-center gap-6">
-              <img 
-                src="/ddukddak-logo.png" 
-                alt="DDUKDDAK" 
-                style={{ height: '16px', objectFit: 'contain' }} 
+              <img
+                src="/ddukddak-logo.png"
+                alt="DDUKDDAK"
+                style={{ height: '36px', objectFit: 'contain' }}
+                className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                onClick={() => navigate('/dashboard')}
               />
-              
             </div>
 
             {/* 우측: 마이페이지, 알림, 로그아웃 */}
             <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
-                <p className="text-slate-600 font-medium text-lg">
-                  <span className="text-black font-semibold">{user.nickname}</span>님
-                </p>
-              </div>
+              {user && (
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
+                  <p className="text-white font-medium text-lg">
+                    <span className="font-semibold" style={{ color: 'white' }}>
+                      {user.nickname}
+                    </span>
+                    님
+                  </p>
+                </div>
+              )}
               {/* 마이페이지 드롭다운 */}
               <div className="relative group">
                 <button className="px-4 py-2 bg-white text-slate-600 hover:text-gray-600 rounded-lg transition-all duration-300 font-medium border border-slate-200 hover:border-gray-300 flex items-center gap-2 group">
                   마이페이지
-                  <svg className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
-                
+
                 {/* 드롭다운 메뉴 */}
                 <div className="absolute top-full right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                  <div className="p-2 flex flex-col gap-1"> {/* gap-1로 간격 최소화 */}
+                  <div className="p-2 flex flex-col gap-1">
+                    {' '}
+                    {/* gap-1로 간격 최소화 */}
                     {/* 임시 저장 페이지 버튼 */}
                     <button
                       onClick={() => navigate('/dashboard/drafts')}
                       className="w-full px-3 py-2 text-left text-slate-500 hover:text-black rounded-lg transition-all duration-300 font-medium hover:bg-blue-50 flex items-center gap-2 text-sm whitespace-nowrap"
                     >
-                      <span className="truncate flex-1">
-                        임시 저장
-                      </span>
+                      <span className="truncate flex-1">임시 저장</span>
                     </button>
                     {/* 배포된 페이지 버튼 */}
                     <button
                       onClick={() => navigate('/dashboard/deployed')}
                       className="w-full px-3 py-2 text-left text-slate-500 hover:text-black rounded-lg transition-all duration-300 font-medium hover:bg-blue-50 flex items-center gap-2 text-sm whitespace-nowrap"
                     >
-                      <span className="truncate flex-1">
-                        배포된 페이지
-                      </span>
+                      <span className="truncate flex-1">배포된 페이지</span>
                     </button>
                   </div>
                 </div>
@@ -543,10 +698,20 @@ function DashboardPage({ user, onLogout }) {
               {/* 로그아웃 버튼 */}
               <button
                 onClick={onLogout}
-                className="px-4 py-2 border border-pink-200 hover:border-pink-300 text-pink-500 hover:text-pink-600 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 group bg-white"
+                className="px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white font-medium rounded-lg transition-all duration-300 flex items-center gap-2 group"
               >
-                <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                <svg
+                  className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
                 </svg>
                 로그아웃
               </button>
@@ -556,10 +721,10 @@ function DashboardPage({ user, onLogout }) {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8 bg-white">
+      <div className="max-w-8xl mx-auto px-6 py-8 relative z-10">
         {/* 메인 헤더 */}
         <div className="text-center mb-8">
-          <p className="text-3xl text-slate-500 font-light">
+          <p className="text-3xl text-white font-light">
             사랑하는 사람들과 함께하는 특별한 순간
           </p>
         </div>
@@ -570,7 +735,9 @@ function DashboardPage({ user, onLogout }) {
           <div className="flex flex-col gap-4 mb-8">
             {/* 테마 카테고리 */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-700 min-w-fit">테마</span>
+              <span className="text-sm font-semibold text-slate-700 min-w-fit">
+                테마
+              </span>
               <div className="flex gap-2">
                 {categories.map((category) => (
                   <button
@@ -581,28 +748,70 @@ function DashboardPage({ user, onLogout }) {
                         ? 'text-white shadow-lg'
                         : 'bg-slate-100 text-slate-600 hover:bg-pink-50 hover:text-gray-600'
                     }`}
-                    style={selectedCategory === category.value ? { backgroundColor: '#7483D1' } : {}}
+                    style={
+                      selectedCategory === category.value
+                        ? { backgroundColor: '#7483D1' }
+                        : {}
+                    }
                   >
                     {category.value === 'all' && (
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                        />
                       </svg>
                     )}
                     {category.value === 'wedding' && (
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
                       </svg>
                     )}
                     {category.value === 'birthday' && (
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+                        />
                       </svg>
                     )}
                     {category.value === 'dol' && (
-                      <img src="/icons/baby-icon.svg" alt="아기" className="w-3 h-3" />
+                      <img
+                        src="/icons/baby-icon.svg"
+                        alt="아기"
+                        className="w-3 h-3"
+                      />
                     )}
                     {category.value === 'pet' && (
-                      <img src="/icons/dog2.svg" alt="반려동물" className="w-3 h-3" />
+                      <img
+                        src="/icons/dog2.svg"
+                        alt="반려동물"
+                        className="w-3 h-3"
+                      />
                     )}
                     {category.label}
                   </button>
@@ -611,7 +820,9 @@ function DashboardPage({ user, onLogout }) {
             </div>
             {/* 디바이스 타입 */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-700 min-w-fit">기기</span>
+              <span className="text-sm font-semibold text-slate-700 min-w-fit">
+                기기
+              </span>
               <div className="flex gap-2">
                 {deviceTypes.map((device) => (
                   <button
@@ -622,21 +833,55 @@ function DashboardPage({ user, onLogout }) {
                         ? 'text-white shadow-lg'
                         : 'bg-slate-100 text-slate-600 hover:bg-pink-50 hover:text-gray-600'
                     }`}
-                    style={selectedDevice === device.value ? { backgroundColor: '#7483D1' } : {}}
+                    style={
+                      selectedDevice === device.value
+                        ? { backgroundColor: '#7483D1' }
+                        : {}
+                    }
                   >
                     {device.value === 'mobile' && (
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z"
+                        />
                       </svg>
                     )}
                     {device.value === 'desktop' && (
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        />
                       </svg>
                     )}
                     {device.value === 'all' && (
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z" />
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z"
+                        />
                       </svg>
                     )}
                     {device.label}
@@ -645,7 +890,6 @@ function DashboardPage({ user, onLogout }) {
               </div>
             </div>
           </div>
-          
 
           {/* 템플릿 리스트 */}
           <div className="relative">
@@ -654,18 +898,34 @@ function DashboardPage({ user, onLogout }) {
                 <div className="w-16 h-16 mx-auto mb-4">
                   <div className="w-16 h-16 border-4 border-pink-200 border-t-pink-600 rounded-full animate-spin"></div>
                 </div>
-                <p className="text-slate-600 font-medium">큐브 템플릿을 불러오는 중...</p>
+                <p className="text-slate-600 font-medium">
+                  큐브 템플릿을 불러오는 중...
+                </p>
               </div>
-            ) : (selectedDevice === 'all' && mobileTotalCount === 0 && desktopTotalCount === 0) || 
-                 (selectedDevice === 'mobile' && templates.length === 0) || 
-                 (selectedDevice === 'desktop' && templates.length === 0) ? (
+            ) : (selectedDevice === 'all' &&
+                mobileTotalCount === 0 &&
+                desktopTotalCount === 0) ||
+              (selectedDevice === 'mobile' && templates.length === 0) ||
+              (selectedDevice === 'desktop' && templates.length === 0) ? (
               <div className="text-center py-16 rounded-xl border-2 border-dashed border-slate-200">
                 <div className="w-12 h-12 mx-auto mb-4 bg-slate-100 rounded-xl flex items-center justify-center">
-                  <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                  <svg
+                    className="w-6 h-6 text-slate-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                    />
                   </svg>
                 </div>
-                <p className="font-medium text-slate-800 mb-2">이 테마의 큐브가 없습니다</p>
+                <p className="font-medium text-slate-800 mb-2">
+                  이 테마의 큐브가 없습니다
+                </p>
                 <p className="text-slate-600">다른 테마를 선택해보세요</p>
               </div>
             ) : (
@@ -674,382 +934,609 @@ function DashboardPage({ user, onLogout }) {
                   <>
                     {/* 모바일 템플릿 섹션 */}
                     {mobileTemplates.length > 0 && (
-                          <div>
-                            <div className="flex items-center justify-between mb-6">
-                              <div className="flex items-center gap-2">
-                                <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
-                                </svg>
-                                <h4 className="text-lg font-bold text-slate-800">모바일 템플릿</h4>
-                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                                  {mobileTotalCount}개
-                                </span>
-                                {selectedCategory !== 'all' && (
-                                  <span className="px-2 py-1 bg-pink-100 text-pink-700 text-sm font-medium rounded-full">
-                                    {categories.find(cat => cat.value === selectedCategory)?.label}
-                                  </span>
-                                )}
-                              </div>
-                              
-                              {/* 모바일 템플릿 페이지네이션 화살표 */}
-                              {mobileTotalPages > 1 && (
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={() => handlePageChange('mobile', Math.max(1, mobileCurrentPage - 1))}
-                                    disabled={mobileCurrentPage === 1}
-                                    className={`p-2 rounded-lg transition-all duration-300 ${
-                                      mobileCurrentPage === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-gray-600 border border-gray-200 shadow-sm'
-                                    }`}
-                                  >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                    </svg>
-                                  </button>
-                                  
-                                  <span className="text-sm text-gray-600 min-w-[60px] text-center">
-                                    {mobileCurrentPage} / {mobileTotalPages}
-                                  </span>
-                                  
-                                  <button
-                                    onClick={() => handlePageChange('mobile', Math.min(mobileTotalPages, mobileCurrentPage + 1))}
-                                    disabled={mobileCurrentPage === mobileTotalPages}
-                                    className={`p-2 rounded-lg transition-all duration-300 ${
-                                      mobileCurrentPage === mobileTotalPages
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-gray-600 border border-gray-200 shadow-sm'
-                                    }`}
-                                  >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                              {mobileTemplates.map((template) => (
-                                <div
-                                  key={template.id}
-                                  onClick={() => handleCreateFromTemplate(template)}
-                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
-                                >
-                                  <div className="p-4">
-                                    {/* 기기 타입과 테마 표시 */}
-                                    <div className="flex items-center gap-2 mb-3">
-                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-blue-800">
-                                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z" clipRule="evenodd"></path>
-                                        </svg>
-                                        모바일
-                                      </div>
-                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        {categories.find(cat => cat.value === template.category)?.label}
-                                      </div>
-                                    </div>
-                                    {/* 템플릿 캔버스 미리보기 */}
-                                    <div className={`relative rounded-lg overflow-hidden mb-4 ${
-                                      template.editingMode === 'mobile' 
-                                        ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
-                                        : 'aspect-video'   // 데스크톱: 16:9 비율
-                                    }`}>
-                                      <TemplateCanvasPreview 
-                                        template={template} 
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                    
-                                    <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
-                                      {template.name}
-                                    </h4>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 구분선 */}
-                        {mobileTemplates.length > 0 && desktopTemplates.length > 0 && (
-                          <div className="flex items-center gap-4 py-4">
-                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
-                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
-                          </div>
-                        )}
-
-                        {/* 데스크톱 템플릿 섹션 */}
-                        {desktopTemplates.length > 0 && (
-                          <div>
-                            <div className="flex items-center justify-between mb-6">
-                              <div className="flex items-center gap-2">
-                                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                <h4 className="text-lg font-bold text-slate-800">데스크톱 템플릿</h4>
-                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                                  {desktopTotalCount}개
-                                </span>
-                                {selectedCategory !== 'all' && (
-                                  <span className="px-2 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
-                                    {categories.find(cat => cat.value === selectedCategory)?.label}
-                                  </span>
-                                )}
-                              </div>
-                              
-                              {/* 데스크톱 템플릿 페이지네이션 화살표 */}
-                              {desktopTotalPages > 1 && (
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={() => handlePageChange('desktop', Math.max(1, desktopCurrentPage - 1))}
-                                    disabled={desktopCurrentPage === 1}
-                                    className={`p-2 rounded-lg transition-all duration-300 ${
-                                      desktopCurrentPage === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 shadow-sm'
-                                    }`}
-                                  >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                    </svg>
-                                  </button>
-                                  
-                                  <span className="text-sm text-gray-600 min-w-[60px] text-center">
-                                    {desktopCurrentPage} / {desktopTotalPages}
-                                  </span>
-                                  
-                                  <button
-                                    onClick={() => handlePageChange('desktop', Math.min(desktopTotalPages, desktopCurrentPage + 1))}
-                                    disabled={desktopCurrentPage === desktopTotalPages}
-                                    className={`p-2 rounded-lg transition-all duration-300 ${
-                                      desktopCurrentPage === desktopTotalPages
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 shadow-sm'
-                                    }`}
-                                  >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                              {desktopTemplates.map((template) => (
-                                <div
-                                  key={template.id}
-                                  onClick={() => handleCreateFromTemplate(template)}
-                                  className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
-                                >
-                                  <div className="p-4">
-                                    {/* 기기 타입과 테마 표시 */}
-                                    <div className="flex items-center gap-2 mb-3">
-                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd"></path>
-                                        </svg>
-                                        데스크톱
-                                      </div>
-                                      <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        {categories.find(cat => cat.value === template.category)?.label}
-                                      </div>
-                                    </div>
-                                    {/* 템플릿 캔버스 미리보기 */}
-                                    <div className="relative rounded-lg overflow-hidden mb-4">
-                                      {template.editingMode === 'mobile' ? (
-                                        // 모바일은 기존 코드 유지
-                                        <div className="relative rounded-lg overflow-hidden aspect-[9/16]">
-                                          <TemplateCanvasPreview
-                                            template={template}
-                                            className="w-full h-full object-cover"
-                                          />
-                                        </div>
-                                      ) : (
-                                        // 데스크톱만 배포된 페이지와 동일하게
-                                        <div className="flex items-center justify-center">
-                                          <div
-                                            className="relative bg-gray-50 overflow-hidden rounded-lg border border-gray-200"
-                                            style={{
-                                              width: '240px',
-                                              height: '180px',
-                                            }}
-                                          >
-                                            <TemplateCanvasPreview
-                                              template={template}
-                                              className="w-full h-full"
-                                            />
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                    
-                                    <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
-                                      {template.name}
-                                    </h4>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      // 특정 기기 선택 시 페이지네이션 포함
                       <div>
-                        {/* 헤더와 페이지네이션 */}
                         <div className="flex items-center justify-between mb-6">
                           <div className="flex items-center gap-2">
-                            {selectedDevice === 'mobile' ? (
-                              <>
-                                <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
-                                </svg>
-                                <h4 className="text-lg font-bold text-slate-800">모바일 템플릿</h4>
-                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                                  {mobileTotalCount}개
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                <h4 className="text-lg font-bold text-slate-800">데스크톱 템플릿</h4>
-                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                                  {desktopTotalCount}개
-                                </span>
-                              </>
-                            )}
-                          </div>
-                          
-                          {/* 페이지네이션 화살표 */}
-                          {((selectedDevice === 'mobile' && mobileTotalPages > 1) || 
-                            (selectedDevice === 'desktop' && desktopTotalPages > 1)) && (
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => {
-                                  if (selectedDevice === 'mobile') {
-                                    handlePageChange('mobile', Math.max(1, mobileCurrentPage - 1));
-                                  } else if (selectedDevice === 'desktop') {
-                                    handlePageChange('desktop', Math.max(1, desktopCurrentPage - 1));
-                                  } else {
-                                    handlePageChange('specific', Math.max(1, specificCurrentPage - 1));
-                                  }
-                                }}
-                                disabled={
-                                  (selectedDevice === 'mobile' && mobileCurrentPage === 1) ||
-                                  (selectedDevice === 'desktop' && desktopCurrentPage === 1) ||
-                                  (selectedDevice !== 'all' && specificCurrentPage === 1)
-                                }
-                                className={`p-2 rounded-lg transition-all duration-300 ${
-                                  (selectedDevice === 'mobile' && mobileCurrentPage === 1) ||
-                                  (selectedDevice === 'desktop' && desktopCurrentPage === 1)
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-50 hover:text-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-600 border border-gray-200 shadow-sm`
-                                }`}
-                              >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                </svg>
-                              </button>
-                              
-                              <span className="text-sm text-gray-600 min-w-[60px] text-center">
-                                {selectedDevice === 'mobile' ? 
-                                  `${mobileCurrentPage} / ${mobileTotalPages}` : 
-                                  selectedDevice === 'desktop' ?
-                                  `${desktopCurrentPage} / ${desktopTotalPages}` :
-                                  `${specificCurrentPage} / ${specificTotalPages}`
+                            <svg
+                              className="w-5 h-5 text-pink-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z"
+                              />
+                            </svg>
+                            <h4 className="text-lg font-bold text-slate-800">
+                              모바일 템플릿
+                            </h4>
+                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                              {mobileTotalCount}개
+                            </span>
+                            {selectedCategory !== 'all' && (
+                              <span className="px-2 py-1 bg-pink-100 text-pink-700 text-sm font-medium rounded-full">
+                                {
+                                  categories.find(
+                                    (cat) => cat.value === selectedCategory
+                                  )?.label
                                 }
                               </span>
-                              
+                            )}
+                          </div>
+
+                          {/* 모바일 템플릿 페이지네이션 화살표 */}
+                          {mobileTotalPages > 1 && (
+                            <div className="flex items-center gap-2">
                               <button
-                                onClick={() => {
-                                  if (selectedDevice === 'mobile') {
-                                    handlePageChange('mobile', Math.min(mobileTotalPages, mobileCurrentPage + 1));
-                                  } else if (selectedDevice === 'desktop') {
-                                    handlePageChange('desktop', Math.min(desktopTotalPages, desktopCurrentPage + 1));
-                                  } else {
-                                    handlePageChange('specific', Math.min(specificTotalPages, specificCurrentPage + 1));
-                                  }
-                                }}
-                                disabled={
-                                  (selectedDevice === 'mobile' && mobileCurrentPage === mobileTotalPages) ||
-                                  (selectedDevice === 'desktop' && desktopCurrentPage === desktopTotalPages) ||
-                                  (selectedDevice !== 'all' && specificCurrentPage === specificTotalPages)
+                                onClick={() =>
+                                  handlePageChange(
+                                    'mobile',
+                                    Math.max(1, mobileCurrentPage - 1)
+                                  )
                                 }
+                                disabled={mobileCurrentPage === 1}
                                 className={`p-2 rounded-lg transition-all duration-300 ${
-                                  (selectedDevice === 'mobile' && mobileCurrentPage === mobileTotalPages) ||
-                                  (selectedDevice === 'desktop' && desktopCurrentPage === desktopTotalPages)
+                                  mobileCurrentPage === 1
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-50 hover:text-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-600 border border-gray-200 shadow-sm`
+                                    : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-gray-600 border border-gray-200 shadow-sm'
                                 }`}
                               >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 19l-7-7 7-7"
+                                  />
+                                </svg>
+                              </button>
+
+                              <span className="text-sm text-gray-600 min-w-[60px] text-center">
+                                {mobileCurrentPage} / {mobileTotalPages}
+                              </span>
+
+                              <button
+                                onClick={() =>
+                                  handlePageChange(
+                                    'mobile',
+                                    Math.min(
+                                      mobileTotalPages,
+                                      mobileCurrentPage + 1
+                                    )
+                                  )
+                                }
+                                disabled={
+                                  mobileCurrentPage === mobileTotalPages
+                                }
+                                className={`p-2 rounded-lg transition-all duration-300 ${
+                                  mobileCurrentPage === mobileTotalPages
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-gray-600 border border-gray-200 shadow-sm'
+                                }`}
+                              >
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
                                 </svg>
                               </button>
                             </div>
                           )}
                         </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                          {templates.map((template) => (
-                          <div
-                            key={template.id}
-                            onClick={() => handleCreateFromTemplate(template)}
-                            className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
-                          >
-                            <div className="p-4">
-                              {/* 기기 타입과 테마 표시 */}
-                              <div className="flex items-center gap-2 mb-3">
-                                <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                  template.editingMode === 'mobile' 
-                                    ? 'bg-pink-100 text-pink-800' 
-                                    : 'bg-purple-100 text-purple-800'
-                                }`}>
-                                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    {template.editingMode === 'mobile' ? (
-                                      <path fillRule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z" clipRule="evenodd"></path>
-                                    ) : (
-                                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd"></path>
-                                    )}
-                                  </svg>
-                                  {template.editingMode === 'mobile' ? '모바일' : '데스크톱'}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                          {mobileTemplates.map((template) => (
+                            <div
+                              key={template.id}
+                              onClick={() => handleCreateFromTemplate(template)}
+                              className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
+                            >
+                              <div className="p-3">
+                                {/* 기기 타입과 테마 표시 */}
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-blue-800">
+                                    <svg
+                                      className="w-3 h-3 mr-1"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z"
+                                        clipRule="evenodd"
+                                      ></path>
+                                    </svg>
+                                    모바일
+                                  </div>
+                                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {
+                                      categories.find(
+                                        (cat) => cat.value === template.category
+                                      )?.label
+                                    }
+                                  </div>
                                 </div>
-                                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                  {categories.find(cat => cat.value === template.category)?.label}
+                                {/* 템플릿 캔버스 미리보기 */}
+                                <div
+                                  className={`relative rounded-lg overflow-hidden mb-2 ${
+                                    template.editingMode === 'mobile'
+                                      ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
+                                      : 'aspect-video' // 데스크톱: 16:9 비율
+                                  }`}
+                                >
+                                  <TemplateCanvasPreview
+                                    template={template}
+                                    className="w-full h-full object-cover"
+                                  />
                                 </div>
-                              </div>
-                              {/* 템플릿 캔버스 미리보기 */}
-                              <div className={`relative rounded-lg overflow-hidden mb-4 ${
-                                template.editingMode === 'mobile' 
-                                  ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
-                                  : 'aspect-video'   // 데스크톱: 16:9 비율
-                              }`}>
-                                <TemplateCanvasPreview 
-                                  template={template} 
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                              
-                              <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
-                                {template.name}
-                              </h4>
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm text-slate-500">
-                                  {template.usageCount}회 사용
-                                </span>
+
+                                <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
+                                  {template.name}
+                                </h4>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
                         </div>
                       </div>
                     )}
+
+                    {/* 구분선 */}
+                    {mobileTemplates.length > 0 &&
+                      desktopTemplates.length > 0 && (
+                        <div className="flex items-center gap-4 py-4">
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+                        </div>
+                      )}
+
+                    {/* 데스크톱 템플릿 섹션 */}
+                    {desktopTemplates.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-2">
+                            <svg
+                              className="w-5 h-5 text-purple-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                              />
+                            </svg>
+                            <h4 className="text-lg font-bold text-slate-800">
+                              데스크톱 템플릿
+                            </h4>
+                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                              {desktopTotalCount}개
+                            </span>
+                            {selectedCategory !== 'all' && (
+                              <span className="px-2 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
+                                {
+                                  categories.find(
+                                    (cat) => cat.value === selectedCategory
+                                  )?.label
+                                }
+                              </span>
+                            )}
+                          </div>
+
+                          {/* 데스크톱 템플릿 페이지네이션 화살표 */}
+                          {desktopTotalPages > 1 && (
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() =>
+                                  handlePageChange(
+                                    'desktop',
+                                    Math.max(1, desktopCurrentPage - 1)
+                                  )
+                                }
+                                disabled={desktopCurrentPage === 1}
+                                className={`p-2 rounded-lg transition-all duration-300 ${
+                                  desktopCurrentPage === 1
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 shadow-sm'
+                                }`}
+                              >
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 19l-7-7 7-7"
+                                  />
+                                </svg>
+                              </button>
+
+                              <span className="text-sm text-gray-600 min-w-[60px] text-center">
+                                {desktopCurrentPage} / {desktopTotalPages}
+                              </span>
+
+                              <button
+                                onClick={() =>
+                                  handlePageChange(
+                                    'desktop',
+                                    Math.min(
+                                      desktopTotalPages,
+                                      desktopCurrentPage + 1
+                                    )
+                                  )
+                                }
+                                disabled={
+                                  desktopCurrentPage === desktopTotalPages
+                                }
+                                className={`p-2 rounded-lg transition-all duration-300 ${
+                                  desktopCurrentPage === desktopTotalPages
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 shadow-sm'
+                                }`}
+                              >
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                          {desktopTemplates.map((template) => (
+                            <div
+                              key={template.id}
+                              onClick={() => handleCreateFromTemplate(template)}
+                              className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
+                            >
+                              <div className="p-3">
+                                {/* 기기 타입과 테마 표시 */}
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    <svg
+                                      className="w-3 h-3 mr-1"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
+                                        clipRule="evenodd"
+                                      ></path>
+                                    </svg>
+                                    데스크톱
+                                  </div>
+                                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {
+                                      categories.find(
+                                        (cat) => cat.value === template.category
+                                      )?.label
+                                    }
+                                  </div>
+                                </div>
+                                {/* 템플릿 캔버스 미리보기 */}
+                                <div className="relative rounded-lg overflow-hidden mb-4">
+                                  {template.editingMode === 'mobile' ? (
+                                    // 모바일은 기존 코드 유지
+                                    <div className="relative rounded-lg overflow-hidden aspect-[9/16]">
+                                      <TemplateCanvasPreview
+                                        template={template}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                  ) : (
+                                    // 데스크톱만 배포된 페이지와 동일하게
+                                    <div className="flex items-center justify-center">
+                                      <div
+                                        className="relative bg-gray-50 overflow-hidden rounded-lg border border-gray-200"
+                                        style={{
+                                          width: '240px',
+                                          height: '180px',
+                                        }}
+                                      >
+                                        <TemplateCanvasPreview
+                                          template={template}
+                                          className="w-full h-full"
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
+                                  {template.name}
+                                </h4>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  // 특정 기기 선택 시 페이지네이션 포함
+                  <div>
+                    {/* 헤더와 페이지네이션 */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-2">
+                        {selectedDevice === 'mobile' ? (
+                          <>
+                            <svg
+                              className="w-5 h-5 text-pink-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z"
+                              />
+                            </svg>
+                            <h4 className="text-lg font-bold text-slate-800">
+                              모바일 템플릿
+                            </h4>
+                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                              {mobileTotalCount}개
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <svg
+                              className="w-5 h-5 text-purple-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                              />
+                            </svg>
+                            <h4 className="text-lg font-bold text-slate-800">
+                              데스크톱 템플릿
+                            </h4>
+                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                              {desktopTotalCount}개
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* 페이지네이션 화살표 */}
+                      {((selectedDevice === 'mobile' && mobileTotalPages > 1) ||
+                        (selectedDevice === 'desktop' &&
+                          desktopTotalPages > 1)) && (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              if (selectedDevice === 'mobile') {
+                                handlePageChange(
+                                  'mobile',
+                                  Math.max(1, mobileCurrentPage - 1)
+                                );
+                              } else if (selectedDevice === 'desktop') {
+                                handlePageChange(
+                                  'desktop',
+                                  Math.max(1, desktopCurrentPage - 1)
+                                );
+                              } else {
+                                handlePageChange(
+                                  'specific',
+                                  Math.max(1, specificCurrentPage - 1)
+                                );
+                              }
+                            }}
+                            disabled={
+                              (selectedDevice === 'mobile' &&
+                                mobileCurrentPage === 1) ||
+                              (selectedDevice === 'desktop' &&
+                                desktopCurrentPage === 1) ||
+                              (selectedDevice !== 'all' &&
+                                specificCurrentPage === 1)
+                            }
+                            className={`p-2 rounded-lg transition-all duration-300 ${
+                              (selectedDevice === 'mobile' &&
+                                mobileCurrentPage === 1) ||
+                              (selectedDevice === 'desktop' &&
+                                desktopCurrentPage === 1)
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-50 hover:text-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-600 border border-gray-200 shadow-sm`
+                            }`}
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 19l-7-7 7-7"
+                              />
+                            </svg>
+                          </button>
+
+                          <span className="text-sm text-gray-600 min-w-[60px] text-center">
+                            {selectedDevice === 'mobile'
+                              ? `${mobileCurrentPage} / ${mobileTotalPages}`
+                              : selectedDevice === 'desktop'
+                                ? `${desktopCurrentPage} / ${desktopTotalPages}`
+                                : `${specificCurrentPage} / ${specificTotalPages}`}
+                          </span>
+
+                          <button
+                            onClick={() => {
+                              if (selectedDevice === 'mobile') {
+                                handlePageChange(
+                                  'mobile',
+                                  Math.min(
+                                    mobileTotalPages,
+                                    mobileCurrentPage + 1
+                                  )
+                                );
+                              } else if (selectedDevice === 'desktop') {
+                                handlePageChange(
+                                  'desktop',
+                                  Math.min(
+                                    desktopTotalPages,
+                                    desktopCurrentPage + 1
+                                  )
+                                );
+                              } else {
+                                handlePageChange(
+                                  'specific',
+                                  Math.min(
+                                    specificTotalPages,
+                                    specificCurrentPage + 1
+                                  )
+                                );
+                              }
+                            }}
+                            disabled={
+                              (selectedDevice === 'mobile' &&
+                                mobileCurrentPage === mobileTotalPages) ||
+                              (selectedDevice === 'desktop' &&
+                                desktopCurrentPage === desktopTotalPages) ||
+                              (selectedDevice !== 'all' &&
+                                specificCurrentPage === specificTotalPages)
+                            }
+                            className={`p-2 rounded-lg transition-all duration-300 ${
+                              (selectedDevice === 'mobile' &&
+                                mobileCurrentPage === mobileTotalPages) ||
+                              (selectedDevice === 'desktop' &&
+                                desktopCurrentPage === desktopTotalPages)
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : `bg-white text-gray-700 hover:bg-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-50 hover:text-${selectedDevice === 'mobile' ? 'purple' : 'purple'}-600 border border-gray-200 shadow-sm`
+                            }`}
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                      {templates.map((template) => (
+                        <div
+                          key={template.id}
+                          onClick={() => handleCreateFromTemplate(template)}
+                          className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
+                        >
+                          <div className="p-3">
+                            {/* 기기 타입과 테마 표시 */}
+                            <div className="flex items-center gap-2 mb-2">
+                              <div
+                                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                  template.editingMode === 'mobile'
+                                    ? 'bg-pink-100 text-pink-800'
+                                    : 'bg-purple-100 text-purple-800'
+                                }`}
+                              >
+                                <svg
+                                  className="w-3 h-3 mr-1"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  {template.editingMode === 'mobile' ? (
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4z"
+                                      clipRule="evenodd"
+                                    ></path>
+                                  ) : (
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
+                                      clipRule="evenodd"
+                                    ></path>
+                                  )}
+                                </svg>
+                                {template.editingMode === 'mobile'
+                                  ? '모바일'
+                                  : '데스크톱'}
+                              </div>
+                              <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {
+                                  categories.find(
+                                    (cat) => cat.value === template.category
+                                  )?.label
+                                }
+                              </div>
+                            </div>
+                            {/* 템플릿 캔버스 미리보기 */}
+                            <div
+                              className={`relative rounded-lg overflow-hidden mb-2 ${
+                                template.editingMode === 'mobile'
+                                  ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
+                                  : 'aspect-video' // 데스크톱: 16:9 비율
+                              }`}
+                            >
+                              <TemplateCanvasPreview
+                                template={template}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+
+                            <h4 className="font-bold text-slate-800 text-base mb-1 group-hover:text-gray-600 transition-colors">
+                              {template.name}
+                            </h4>
+                            <div className="flex items-center justify-between"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
-
         </div>
 
         {/* 빈 큐브로 시작하기 섹션 */}
@@ -1057,31 +1544,64 @@ function DashboardPage({ user, onLogout }) {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center transform rotate-45" style={{ backgroundColor: '#7483D1', opacity: 0.1 }}>
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#7483D1' }}>
-                    <svg className="w-4 h-4 text-white -rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center transform rotate-45"
+                  style={{ backgroundColor: '#7483D1', opacity: 0.1 }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: '#7483D1' }}
+                  >
+                    <svg
+                      className="w-4 h-4 text-white -rotate-45"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
                     </svg>
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800">빈 캔버스로 시작하기</h3>
+                <h3 className="text-2xl font-bold text-slate-800">
+                  빈 캔버스로 시작하기
+                </h3>
               </div>
-              <p className="text-slate-600 ml-15">자유롭게 나만의 이벤트 페이지를 만들어보세요</p>
+              <p className="text-slate-600 ml-15">
+                자유롭게 나만의 이벤트 페이지를 만들어보세요
+              </p>
             </div>
             <button
               onClick={handleCreateNew}
-              className="px-6 py-3 text-pink-600 hover:text-white bg-pink-50 hover:bg-pink-600 rounded-xl transition-all duration-300 font-medium flex items-center gap-2"
+              className="pl-6 pr-4 py-4 font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl border-0 flex items-center gap-2 text-white"
+              style={{
+                backgroundColor: '#7483D1',
+              }}
             >
               지금 만들기
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
           </div>
         </div>
-              </div>
+      </div>
 
-        {/* 삭제 확인 모달 */}
+      {/* 삭제 확인 모달 */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
@@ -1132,9 +1652,33 @@ function DashboardPage({ user, onLogout }) {
           </div>
         </div>
       )}
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes flow {
+          0%,
+          100% {
+            transform: translateX(-100%);
+            opacity: 0;
+          }
+          50% {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-20px) rotate(180deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }
 
 export default DashboardPage;
-

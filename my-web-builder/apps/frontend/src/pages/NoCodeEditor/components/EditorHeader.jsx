@@ -112,7 +112,7 @@ function EditorHeader({
           <img
             src={ddukddakLogo}
             alt="DDUKDDAK"
-            className="h-4 object-contain"
+            className="h-9 object-contain"
           />
         </div>
       </div>

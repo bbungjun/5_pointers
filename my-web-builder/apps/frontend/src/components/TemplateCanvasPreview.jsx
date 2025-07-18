@@ -20,10 +20,22 @@ function toKebabCase(str) {
 const TemplateCanvasPreview = ({ template, className = '' }) => {
   if (!template || !template.content) {
     return (
-      <div className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}>
+      <div
+        className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}
+      >
         <div className="text-center text-gray-500">
-          <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <svg
+            className="w-8 h-8 mx-auto mb-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
           </svg>
           <p className="text-sm">미리보기 없음</p>
         </div>
@@ -44,10 +56,22 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
 
   if (components.length === 0) {
     return (
-      <div className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}>
+      <div
+        className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}
+      >
         <div className="text-center text-gray-500">
-          <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          <svg
+            className="w-8 h-8 mx-auto mb-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            />
           </svg>
           <p className="text-sm">빈 템플릿</p>
         </div>
@@ -57,48 +81,52 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
 
   // 컴포넌트들의 전체 영역 계산
   const getBounds = () => {
-    if (components.length === 0) return { minX: 0, minY: 0, maxX: 375, maxY: 600 };
-    
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    
-    components.forEach(comp => {
+    if (components.length === 0)
+      return { minX: 0, minY: 0, maxX: 375, maxY: 600 };
+
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
+
+    components.forEach((comp) => {
       const x = comp.x || 0;
       const y = comp.y || 0;
       const width = comp.width || 100;
       const height = comp.height || 50;
-      
+
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
       maxX = Math.max(maxX, x + width);
       maxY = Math.max(maxY, y + height);
     });
-    
+
     // 최소 영역 보장
     minX = Math.min(minX, 0);
     minY = Math.min(minY, 0);
     maxX = Math.max(maxX, 375);
     maxY = Math.max(maxY, 600);
-    
+
     return { minX, minY, maxX, maxY };
   };
 
   const bounds = getBounds();
   const contentWidth = bounds.maxX - bounds.minX;
   const contentHeight = bounds.maxY - bounds.minY;
-  
+
   // 편집 기준에 따른 미리보기 크기 설정
   const getPreviewDimensions = () => {
     if (editingMode === 'mobile') {
       return {
-        width: 200,  // 모바일 화면 영역 크기 확대
+        width: 200, // 모바일 화면 영역 크기 확대
         height: 400, // 더 길게 만든 높이 확대
-        aspectRatio: '1/2'
+        aspectRatio: '1/2',
       };
     } else {
       return {
-        width: 240,  // 데스크톱 비율 (16:9) 확대
+        width: 240, // 데스크톱 비율 (16:9) 확대
         height: 180,
-        aspectRatio: '16/9'
+        aspectRatio: '16/9',
       };
     }
   };
@@ -106,7 +134,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   const previewDimensions = getPreviewDimensions();
   const scaleX = previewDimensions.width / contentWidth;
   const scaleY = previewDimensions.height / contentHeight;
-  
+
   // 편집 기준에 따른 스케일 전략
   let finalScale;
   if (editingMode === 'mobile') {
@@ -116,21 +144,22 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
     // 데스크톱: 너비를 기준으로 스케일 고정하여 높이 변화에 영향받지 않도록
     finalScale = Math.min(scaleX, 0.8);
   }
-  
 
   return (
-    <div className={`relative bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
+    <div
+      className={`relative bg-white rounded-lg overflow-hidden ${className}`}
+    >
       {editingMode === 'mobile' ? (
         // 모바일 휴대폰 프레임 (단순화된 버전)
-        <div className="flex items-center justify-center h-full">
+        <div className="flex items-center justify-center h-full py-4">
           <div className="relative">
             {/* 휴대폰 외곽 프레임 */}
             <div className="relative bg-gradient-to-b from-gray-800 to-gray-900 rounded-[1.5rem] p-1">
               {/* 상단 노치 (단순화) */}
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-3 bg-gray-900 rounded-b-lg z-20"></div>
-              
+
               {/* 스크린 영역 (세로로 길게) */}
-              <div 
+              <div
                 className="relative bg-white rounded-[1.25rem] overflow-hidden border border-gray-600"
                 style={{
                   width: `${previewDimensions.width}px`,
@@ -140,14 +169,14 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                 {/* 컨텐츠 영역 */}
                 <div className="absolute inset-0 bg-gray-50 overflow-hidden">
                   {/* 컴포넌트들 렌더링 */}
-                  <div 
+                  <div
                     className="absolute inset-0"
                     style={{
                       transform: `scale(${finalScale})`,
                       transformOrigin: 'top left',
                     }}
                   >
-                    {components.map((comp, index) => {            
+                    {components.map((comp, index) => {
                       // 타입 변환 적용
                       const rendererKey = ComponentRenderers[comp.type]
                         ? comp.type
@@ -155,7 +184,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                           ? toKebabCase(comp.type)
                           : comp.type;
                       const RendererComponent = ComponentRenderers[rendererKey];
-                      
+
                       if (!RendererComponent) {
                         console.warn('렌더러를 찾을 수 없음:', comp.type);
                         return (
@@ -169,7 +198,9 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                               height: comp.height || 50,
                             }}
                           >
-                            <span className="text-xs text-gray-500">{comp.type}</span>
+                            <span className="text-xs text-gray-500">
+                              {comp.type}
+                            </span>
                           </div>
                         );
                       }
@@ -196,7 +227,12 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                                   style={{
                                     width: '100%',
                                     height: '100%',
-                                    fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
+                                    fontSize:
+                                      Math.max(
+                                        8,
+                                        (comp.props?.style?.fontSize || 14) *
+                                          finalScale
+                                      ) + 'px',
                                     ...comp.props?.style,
                                   }}
                                 />
@@ -205,7 +241,11 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                           </div>
                         );
                       } catch (error) {
-                        console.error('컴포넌트 렌더링 에러:', comp.type, error);
+                        console.error(
+                          '컴포넌트 렌더링 에러:',
+                          comp.type,
+                          error
+                        );
                         return (
                           <div
                             key={comp.id || index}
@@ -217,7 +257,9 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                               height: comp.height || 50,
                             }}
                           >
-                            <span className="text-xs text-red-500">에러: {comp.type}</span>
+                            <span className="text-xs text-red-500">
+                              에러: {comp.type}
+                            </span>
                           </div>
                         );
                       }
@@ -225,10 +267,10 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                   </div>
                 </div>
               </div>
-              
+
               {/* 홈 인디케이터 (하단) */}
               <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gray-600 rounded-full"></div>
-              
+
               {/* 사이드 버튼들 (단순화) */}
               <div className="absolute left-0 top-12 w-0.5 h-4 bg-gray-700 rounded-r-full"></div>
               <div className="absolute left-0 top-20 w-0.5 h-8 bg-gray-700 rounded-r-full"></div>
@@ -238,7 +280,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
         </div>
       ) : (
         // 데스크톱 미리보기 (기존)
-        <div 
+        <div
           className="relative bg-gray-50 w-full overflow-hidden"
           style={{
             width: `${previewDimensions.width}px`,
@@ -248,9 +290,9 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
         >
           {/* 캔버스 배경 */}
           <div className="absolute inset-0 bg-white" />
-          
+
           {/* 컴포넌트들 렌더링 */}
-          <div 
+          <div
             className="absolute inset-0"
             style={{
               transform: `scale(${finalScale})`,
@@ -265,7 +307,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                   ? toKebabCase(comp.type)
                   : comp.type;
               const RendererComponent = ComponentRenderers[rendererKey];
-              
+
               if (!RendererComponent) {
                 console.warn('데스크톱 렌더러를 찾을 수 없음:', comp.type);
                 return (
@@ -305,7 +347,11 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                           style={{
                             width: '100%',
                             height: '100%',
-                            fontSize: Math.max(8, (comp.props?.style?.fontSize || 14) * finalScale) + 'px',
+                            fontSize:
+                              Math.max(
+                                8,
+                                (comp.props?.style?.fontSize || 14) * finalScale
+                              ) + 'px',
                             ...comp.props?.style,
                           }}
                         />
@@ -314,7 +360,11 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                   </div>
                 );
               } catch (error) {
-                console.error('데스크톱 컴포넌트 렌더링 에러:', comp.type, error);
+                console.error(
+                  '데스크톱 컴포넌트 렌더링 에러:',
+                  comp.type,
+                  error
+                );
                 return (
                   <div
                     key={comp.id || index}
@@ -326,7 +376,9 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                       height: comp.height || 50,
                     }}
                   >
-                    <span className="text-xs text-red-500">에러: {comp.type}</span>
+                    <span className="text-xs text-red-500">
+                      에러: {comp.type}
+                    </span>
                   </div>
                 );
               }
@@ -338,4 +390,4 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   );
 };
 
-export default TemplateCanvasPreview; 
+export default TemplateCanvasPreview;
