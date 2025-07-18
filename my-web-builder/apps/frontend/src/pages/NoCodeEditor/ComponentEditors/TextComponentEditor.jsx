@@ -105,29 +105,6 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
         onChange={(value) => updateProperty('color', value)}
         label="글자 색상"
       />
-
-      {/* 레이어 섹션 */}
-      <div style={{ height: 1, backgroundColor: '#eee', margin: '16px 0' }} />
-      <div style={{
-        fontSize: 12,
-        color: '#65676b',
-        fontWeight: 600,
-        marginBottom: 12,
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px'
-      }}>
-        Layer
-      </div>
-
-      <NumberEditor
-        value={selectedComp.props?.zIndex || 1000}
-        onChange={(value) => updateProperty('zIndex', value)}
-        label="레이어 순서"
-        min={1}
-        max={2000}
-        suffix=""
-        description="높은 숫자가 위에 표시됩니다 (텍스트는 기본 1000)"
-      />
     </div>
   );
 }
