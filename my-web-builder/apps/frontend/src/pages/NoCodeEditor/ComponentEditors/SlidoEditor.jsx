@@ -132,7 +132,7 @@ function SlidoEditor({ selectedComp, onUpdate }) {
           }}
           onCompositionStart={handleCompositionStart}
           onCompositionEnd={handleCompositionEnd}
-          placeholder="의견을 입력하세요..."
+          placeholder="의견을 입력해보세요!"
           style={{
             width: '100%',
             padding: '8px 12px',
@@ -234,9 +234,7 @@ function SlidoEditor({ selectedComp, onUpdate }) {
           💡 사용 안내
         </div>
         <div style={{ fontSize: 11, color: '#1565c0', lineHeight: 1.4 }}>
-          • 배포 후 실시간으로 의견이 수집됩니다<br/>
-          • 새로운 의견은 자동으로 3초마다 업데이트됩니다<br/>
-          • 의견은 시간순으로 정렬되어 표시됩니다
+          • 게시 후 실시간으로 의견이 수집됩니다<br/>
         </div>
       </div>
     </div>
