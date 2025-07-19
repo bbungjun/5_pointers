@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useToastContext } from '../../../contexts/ToastContext';
 
 function LinkRenderer({ comp, mode = 'editor' }) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props.text);
   const inputRef = useRef();
+  const { showError } = useToastContext();
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -40,7 +42,9 @@ function LinkRenderer({ comp, mode = 'editor' }) {
   const handleBlur = () => {
     setEditing(false);
     if (editValue !== comp.props.text) {
-      alert('링크 텍스트가 변경되었습니다. (실제 구현에서는 onUpdate 콜백을 호출해야 합니다)');
+      showError(
+        '링크 텍스트가 변경되었습니다.'
+      );
     }
   };
 
@@ -48,7 +52,9 @@ function LinkRenderer({ comp, mode = 'editor' }) {
     if (e.key === 'Enter') {
       setEditing(false);
       if (editValue !== comp.props.text) {
-        alert('링크 텍스트가 변경되었습니다. (실제 구현에서는 onUpdate 콜백을 호출해야 합니다)');
+        showError(
+          '링크 텍스트가 변경되었습니다.'
+        );
       }
     }
   };
@@ -58,7 +64,7 @@ function LinkRenderer({ comp, mode = 'editor' }) {
       <input
         ref={inputRef}
         value={editValue}
-        onChange={e => setEditValue(e.target.value)}
+        onChange={(e) => setEditValue(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         className="w-32 border-2 border-pink-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
@@ -68,18 +74,22 @@ function LinkRenderer({ comp, mode = 'editor' }) {
   }
 
   return (
-    <div 
+    <div
       className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
       style={{
-        color: comp.props.color || '#D8BFD8', 
+        color: comp.props.color || '#D8BFD8',
         fontSize: comp.props.fontSize || '16px',
         whiteSpace: 'pre-wrap', // ✅ 줄바꿈 지원
         textDecoration: 'underline',
-        fontFamily: comp.props.fontFamily || 'Montserrat, sans-serif'
+        fontFamily: comp.props.fontFamily || 'Montserrat, sans-serif',
       }}
       onDoubleClick={handleDoubleClick}
       onClick={handleClick}
-      title={comp.props.href ? `링크: ${comp.props.href}` : '링크 URL이 설정되지 않았습니다'}
+      title={
+        comp.props.href
+          ? `링크: ${comp.props.href}`
+          : '링크 URL이 설정되지 않았습니다'
+      }
     >
       {comp.props.text || '링크 텍스트'}
     </div>

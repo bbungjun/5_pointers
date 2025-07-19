@@ -64,7 +64,7 @@ function ButtonRenderer({ comp, component, mode = 'live', isPreview = false, edi
   const handleBlur = () => {
     setEditing(false);
     if (editValue !== (actualComp?.props?.text || '')) {
-      alert('버튼 텍스트가 변경되었습니다. (실제 구현에서는 onUpdate 콜백을 호출해야 합니다)');
+      alert('버튼 텍스트가 변경되었습니다.');
     }
   };
 
@@ -72,7 +72,7 @@ function ButtonRenderer({ comp, component, mode = 'live', isPreview = false, edi
     if (e.key === 'Enter') {
       setEditing(false);
       if (editValue !== (actualComp?.props?.text || '')) {
-        alert('버튼 텍스트가 변경되었습니다. (실제 구현에서는 onUpdate 콜백을 호출해야 합니다)');
+        alert('버튼 텍스트가 변경되었습니다.');
       }
     }
   };

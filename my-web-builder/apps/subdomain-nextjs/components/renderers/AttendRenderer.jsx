@@ -183,10 +183,13 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
       }
 
       // API 기본 URL 동적 설정 (배포된 사이트와 에디터 구분)
-      const apiBaseUrl = typeof window !== 'undefined' && window.API_BASE_URL 
-        ? window.API_BASE_URL 
-        : (mode === 'live' ? 'https://ddukddak.org/api' : '/api');
-      
+      const apiBaseUrl =
+        typeof window !== 'undefined' && window.API_BASE_URL
+          ? window.API_BASE_URL
+          : mode === 'live'
+            ? 'https://ddukddak.org/api'
+            : '/api';
+
       const url = `${apiBaseUrl}/users/pages/${targetPageId}/${currentConfig.apiEndpoint}/${comp.id}`;
       console.log('🎯 Form API Request:', {
         targetPageId,
@@ -234,7 +237,33 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
           formType === 'attendance'
             ? '참석 의사가 성공적으로 전달되었습니다!'
             : '가입 신청이 성공적으로 제출되었습니다!';
-        alert(successMessage);
+
+        // 간단한 인라인 알림 표시
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #10b981;
+          color: white;
+          padding: 12px 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          z-index: 999999;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          max-width: 300px;
+          word-wrap: break-word;
+        `;
+        notification.textContent = successMessage;
+        document.body.appendChild(notification);
+
+        // 3초 후 자동 제거
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 3000);
+
         setIsModalOpen(false);
 
         // 폼 데이터 초기화
@@ -254,7 +283,32 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
       }
     } catch (error) {
       console.error('Form submission error:', error);
-      alert('제출에 실패했습니다. 다시 시도해주세요.');
+
+      // 에러 알림 표시
+      const errorNotification = document.createElement('div');
+      errorNotification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ef4444;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 999999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 300px;
+        word-wrap: break-word;
+      `;
+      errorNotification.textContent = '제출에 실패했습니다. 다시 시도해주세요.';
+      document.body.appendChild(errorNotification);
+
+      // 3초 후 자동 제거
+      setTimeout(() => {
+        if (errorNotification.parentNode) {
+          errorNotification.remove();
+        }
+      }, 3000);
     } finally {
       setIsSubmitting(false);
     }

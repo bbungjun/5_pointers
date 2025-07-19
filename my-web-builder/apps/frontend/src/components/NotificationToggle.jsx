@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import { io } from 'socket.io-client';
+import { useToastContext } from '../contexts/ToastContext';
 
 function getUserIdFromToken() {
   try {
@@ -28,6 +29,7 @@ function NotificationToggle() {
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
   const socketRef = useRef(null);
+  const { showError } = useToastContext();
 
   // 초대 목록 조회
   const fetchInvitations = async () => {
@@ -91,11 +93,11 @@ function NotificationToggle() {
         setIsOpen(false);
       } else {
         const errorData = await response.json();
-        alert(errorData.message || '초대 수락에 실패했습니다.');
+        showError(errorData.message || '초대 수락에 실패했습니다.');
       }
     } catch (error) {
       console.error('초대 수락 실패:', error);
-      alert('초대 수락에 실패했습니다.');
+      showError('초대 수락에 실패했습니다.');
     } finally {
       setProcessing((prev) => ({ ...prev, [invitationToken]: null }));
     }
@@ -130,11 +132,11 @@ function NotificationToggle() {
         setUnreadCount((prev) => Math.max(0, prev - 1));
       } else {
         const errorData = await response.json();
-        alert(errorData.message || '초대 거절에 실패했습니다.');
+        showError(errorData.message || '초대 거절에 실패했습니다.');
       }
     } catch (error) {
       console.error('초대 거절 실패:', error);
-      alert('초대 거절에 실패했습니다.');
+      showError('초대 거절에 실패했습니다.');
     } finally {
       setProcessing((prev) => ({ ...prev, [invitationToken]: null }));
     }

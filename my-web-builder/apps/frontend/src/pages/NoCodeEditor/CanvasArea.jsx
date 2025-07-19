@@ -12,12 +12,14 @@ import {
   LiveCursors,
   CollaborativeSelections,
 } from '../../components/collaboration/LiveCursors';
+import { useToastContext } from '../../contexts/ToastContext';
 
 // 그리드 크기 상수 import 또는 선언
 const GRID_SIZE = 50;
 
 // 섹션 추가 버튼 컴포넌트
 function AddSectionButton({ canvasHeight, viewport, onAddSection }) {
+  const { showSuccess } = useToastContext();
   // 현재 캔버스의 높이 사용 (더미 컴포넌트 필요 없음)
   const currentMaxY = canvasHeight;
 
@@ -46,7 +48,7 @@ function AddSectionButton({ canvasHeight, viewport, onAddSection }) {
             onAddSection(newSectionY);
           } else {
             // onAddSection이 없는 경우 기본 동작
-            alert(
+            showSuccess(
               '캔버스가 확장되었습니다! 새로운 영역에 컴포넌트를 추가해보세요.'
             );
           }

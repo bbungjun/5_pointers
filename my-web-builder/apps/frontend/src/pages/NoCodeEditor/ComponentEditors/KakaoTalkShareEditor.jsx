@@ -1,7 +1,10 @@
-import React, { useRef } from "react";
+import React, { useRef } from 'react';
 import { API_BASE_URL } from '../../../config.js';
+import { useToastContext } from '../../../contexts/ToastContext';
 
 export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
+  const { showError } = useToastContext();
+
   // selectedComp가 undefined인 경우 방어 코드
   if (!selectedComp || !selectedComp.props) {
     return (
@@ -22,7 +25,10 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
     if (titleRef.current && titleRef.current.value !== (props.title || '')) {
       titleRef.current.value = props.title || '';
     }
-    if (descriptionRef.current && descriptionRef.current.value !== (props.description || '')) {
+    if (
+      descriptionRef.current &&
+      descriptionRef.current.value !== (props.description || '')
+    ) {
       descriptionRef.current.value = props.description || '';
     }
   }, [props.title, props.description]);
@@ -83,7 +89,7 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
     if (file) {
       // 파일 크기 제한 (1MB)
       if (file.size > 1 * 1024 * 1024) {
-        alert('카카오톡 공유용 이미지는 1MB 이하로 업로드해주세요.');
+        showError('카카오톡 공유용 이미지는 1MB 이하로 업로드해주세요.');
         return;
       }
 
@@ -132,17 +138,16 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
             ...selectedComp,
             props: {
               ...props,
-              imageUrl: serverImageUrl,     // 카카오톡용: 절대 URL
+              imageUrl: serverImageUrl, // 카카오톡용: 절대 URL
               previewImageUrl: base64Image, // 미리보기용: Base64
             },
           });
         };
 
         img.src = URL.createObjectURL(file);
-
       } catch (error) {
         console.error('이미지 업로드 실패:', error);
-        alert('이미지 업로드에 실패했습니다.');
+        showError('이미지 업로드에 실패했습니다.');
 
         onUpdate({
           ...selectedComp,
@@ -155,7 +160,6 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
       }
     }
   };
-
 
   // 줄바꿈을 <br> 태그로 변환하는 함수
   const renderTextWithLineBreaks = (text) => {
@@ -174,12 +178,23 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
   return (
     <div style={{ padding: '16px' }}>
       <div style={{ marginBottom: '20px' }}>
-        <h3 style={{ color: '#333', marginBottom: '8px' }}>📱 카카오톡 공유 설정</h3>
-        <p style={{ fontSize: '14px', color: '#666' }}>카카오톡으로 공유할 때 보여질 내용을 설정해주세요</p>
+        <h3 style={{ color: '#333', marginBottom: '8px' }}>
+          📱 카카오톡 공유 설정
+        </h3>
+        <p style={{ fontSize: '14px', color: '#666' }}>
+          카카오톡으로 공유할 때 보여질 내용을 설정해주세요
+        </p>
       </div>
 
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333' }}>
+        <label
+          style={{
+            display: 'block',
+            fontWeight: 'bold',
+            marginBottom: '6px',
+            color: '#333',
+          }}
+        >
           📝 공유 제목
         </label>
         <textarea
@@ -195,13 +210,20 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
             borderRadius: '8px',
             fontSize: '14px',
             resize: 'vertical',
-            fontFamily: 'inherit'
+            fontFamily: 'inherit',
           }}
         />
       </div>
 
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333' }}>
+        <label
+          style={{
+            display: 'block',
+            fontWeight: 'bold',
+            marginBottom: '6px',
+            color: '#333',
+          }}
+        >
           💬 공유 설명
         </label>
         <textarea
@@ -217,23 +239,32 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
             borderRadius: '8px',
             fontSize: '14px',
             resize: 'vertical',
-            fontFamily: 'inherit'
+            fontFamily: 'inherit',
           }}
         />
       </div>
 
       <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333' }}>
+        <label
+          style={{
+            display: 'block',
+            fontWeight: 'bold',
+            marginBottom: '6px',
+            color: '#333',
+          }}
+        >
           🖼️ 썸네일 이미지
         </label>
 
-        <div style={{
-          border: '2px dashed #e1e5e9',
-          borderRadius: '8px',
-          padding: '20px',
-          textAlign: 'center',
-          backgroundColor: '#fafafa'
-        }}>
+        <div
+          style={{
+            border: '2px dashed #e1e5e9',
+            borderRadius: '8px',
+            padding: '20px',
+            textAlign: 'center',
+            backgroundColor: '#fafafa',
+          }}
+        >
           <input
             type="file"
             accept="image/*"
@@ -252,13 +283,20 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
               borderRadius: '6px',
               cursor: 'pointer',
               fontSize: '14px',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
             }}
           >
             📁 이미지 선택
           </label>
 
-          <p style={{ fontSize: '12px', color: '#888', marginTop: '8px', margin: '8px 0 0 0' }}>
+          <p
+            style={{
+              fontSize: '12px',
+              color: '#888',
+              marginTop: '8px',
+              margin: '8px 0 0 0',
+            }}
+          >
             JPG, PNG, GIF 파일을 선택해주세요
           </p>
           <p style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>
@@ -276,7 +314,7 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
                 maxHeight: '200px',
                 objectFit: 'contain',
                 borderRadius: '8px',
-                border: '1px solid #ddd'
+                border: '1px solid #ddd',
               }}
             />
             <button
@@ -298,7 +336,7 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
                 border: 'none',
                 borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: '12px'
+                fontSize: '12px',
               }}
             >
               ❌ 이미지 제거
@@ -306,32 +344,39 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
           </div>
         )}
 
-        {(props.imageUrl === 'loading...' || props.previewImageUrl === 'loading...') && (
-          <div style={{ marginTop: '12px', textAlign: 'center', color: '#666' }}>
+        {(props.imageUrl === 'loading...' ||
+          props.previewImageUrl === 'loading...') && (
+          <div
+            style={{ marginTop: '12px', textAlign: 'center', color: '#666' }}
+          >
             <div style={{ fontSize: '14px' }}>📤 이미지 업로드 중...</div>
           </div>
         )}
       </div>
 
       {(props.title || props.description || previewImageUrl) && (
-        <div style={{
-          border: '2px solid #fee500',
-          borderRadius: '12px',
-          padding: '16px',
-          backgroundColor: '#fffbf0',
-          marginTop: '20px'
-        }}>
+        <div
+          style={{
+            border: '2px solid #fee500',
+            borderRadius: '12px',
+            padding: '16px',
+            backgroundColor: '#fffbf0',
+            marginTop: '20px',
+          }}
+        >
           <h4 style={{ color: '#333', marginBottom: '12px', fontSize: '16px' }}>
             👀 카카오톡 미리보기
           </h4>
 
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '16px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            maxWidth: '300px'
-          }}>
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '16px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              maxWidth: '300px',
+            }}
+          >
             {previewImageUrl && previewImageUrl !== 'loading...' && (
               <img
                 src={previewImageUrl}
@@ -341,41 +386,48 @@ export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
                   height: '150px',
                   objectFit: 'cover',
                   borderRadius: '8px',
-                  marginBottom: '12px'
+                  marginBottom: '12px',
                 }}
                 onError={(e) => {
-                  e.target.style.display = 'none'
+                  e.target.style.display = 'none';
                 }}
               />
             )}
 
-            <div style={{
-              fontSize: '16px',
-              fontWeight: 'bold',
-              color: '#333',
-              marginBottom: '8px'
-            }}>
+            <div
+              style={{
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#333',
+                marginBottom: '8px',
+              }}
+            >
               {renderTextWithLineBreaks(props.title) || '제목을 입력해주세요'}
             </div>
 
-            <div style={{
-              fontSize: '14px',
-              color: '#666',
-              lineHeight: '1.4'
-            }}>
-              {renderTextWithLineBreaks(props.description) || '설명을 입력해주세요'}
+            <div
+              style={{
+                fontSize: '14px',
+                color: '#666',
+                lineHeight: '1.4',
+              }}
+            >
+              {renderTextWithLineBreaks(props.description) ||
+                '설명을 입력해주세요'}
             </div>
 
-            <div style={{
-              backgroundColor: '#fee500',
-              color: '#333',
-              padding: '8px 16px',
-              borderRadius: '6px',
-              textAlign: 'center',
-              marginTop: '12px',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}>
+            <div
+              style={{
+                backgroundColor: '#fee500',
+                color: '#333',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                textAlign: 'center',
+                marginTop: '12px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+              }}
+            >
               자세히 보기
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { API_BASE_URL } from '../config.js';
+import { useToastContext } from '../contexts/ToastContext';
 
 /**
  * 에디터 UI 상호작용 관리 훅
@@ -23,6 +24,8 @@ export function useEditorInteractionManager(designMode, setDesignMode) {
     tags: '',
   });
   const [isInviteOpen, setIsInviteOpen] = useState(false);
+
+  const { showError } = useToastContext();
 
   // designMode가 외부(PageDataManager)에서 바뀌면 viewport 동기화
   useEffect(() => {
@@ -60,7 +63,7 @@ export function useEditorInteractionManager(designMode, setDesignMode) {
 
       // 템플릿으로부터 생성된 페이지인 경우 편집 기준 변경 불가
       if (isFromTemplate) {
-        alert('템플릿으로부터 생성된 페이지에서는 편집 기준을 변경할 수 없습니다.');
+        showError('템플릿으로 생성한 페이지에서는 편집 기준을 변경할 수 없습니다.');
         return;
       }
 
@@ -101,10 +104,10 @@ export function useEditorInteractionManager(designMode, setDesignMode) {
         );
       } catch (error) {
         console.error('편집 기준 변경 실패:', error);
-        alert('편집 기준 변경에 실패했습니다. 다시 시도해주세요.');
+        showError('편집 기준 변경에 실패했습니다. 다시 시도해주세요.');
       }
     },
-    [designMode, setDesignMode]
+    [designMode, setDesignMode, showError]
   );
 
   // 템플릿 저장 관련 핸들러들
