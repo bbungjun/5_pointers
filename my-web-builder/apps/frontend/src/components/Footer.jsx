@@ -14,7 +14,8 @@ const Footer = () => {
               <img
                 src="/ddukddak-logo.png"
                 alt="DDUKDDAK"
-                className="h-8 object-contain"
+                className="h-8 w-auto object-contain"
+                style={{ maxWidth: '100px' }}
               />
               {/* <h3 className="text-xl font-bold">DDUKDDAK</h3> */}
             </div>

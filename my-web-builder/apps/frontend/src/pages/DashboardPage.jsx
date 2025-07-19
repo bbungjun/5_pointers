@@ -634,7 +634,12 @@ function DashboardPage({ user, onLogout }) {
               <img
                 src="/ddukddak-logo.png"
                 alt="DDUKDDAK"
-                style={{ height: '36px', objectFit: 'contain' }}
+                style={{
+                  height: '36px',
+                  width: 'auto',
+                  objectFit: 'contain',
+                  maxWidth: '120px',
+                }}
                 className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
                 onClick={() => navigate('/dashboard')}
               />

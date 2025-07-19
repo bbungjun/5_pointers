@@ -157,7 +157,12 @@ const MainPage = () => {
                 <img
                   src="/ddukddak-logo.png"
                   alt="DDUKDDAK"
-                  style={{ height: '35px', objectFit: 'contain' }}
+                  style={{
+                    height: '35px',
+                    width: 'auto',
+                    objectFit: 'contain',
+                    maxWidth: '120px',
+                  }}
                 />
               </div>
 

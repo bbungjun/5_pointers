@@ -159,7 +159,8 @@ function EditorHeader({
           <img
             src={ddukddakLogo}
             alt="DDUKDDAK"
-            className="h-9 object-contain"
+            className="h-9 w-auto object-contain"
+            style={{ maxWidth: '120px' }}
           />
         </div>
       </div>
