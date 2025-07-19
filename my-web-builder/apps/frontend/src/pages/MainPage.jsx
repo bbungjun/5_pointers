@@ -11,25 +11,27 @@ const MainPage = () => {
   // 비밀 페이지로 이동하는 함수
   const handleSecretClick = (side) => {
     const currentTime = Date.now();
-    
+
     // 5초 내에 클릭하지 않으면 카운트 리셋
     if (currentTime - lastClickTime > 5000) {
       setLeftClickCount(0);
       setRightClickCount(0);
     }
-    
+
     setLastClickTime(currentTime);
-    
+
     if (side === 'left') {
-      setLeftClickCount(prev => prev + 1);
+      setLeftClickCount((prev) => prev + 1);
     } else if (side === 'right') {
-      setRightClickCount(prev => prev + 1);
+      setRightClickCount((prev) => prev + 1);
     }
-    
+
     // 양쪽 모두 한 번씩 클릭했는지 확인
-    if ((side === 'left' && leftClickCount === 0 && rightClickCount === 1) ||
-        (side === 'right' && rightClickCount === 0 && leftClickCount === 1) ||
-        (leftClickCount === 1 && rightClickCount === 1)) {
+    if (
+      (side === 'left' && leftClickCount === 0 && rightClickCount === 1) ||
+      (side === 'right' && rightClickCount === 0 && leftClickCount === 1) ||
+      (leftClickCount === 1 && rightClickCount === 1)
+    ) {
       // 비밀 페이지로 이동
       navigate('/secret');
       // 카운트 리셋
@@ -237,48 +239,29 @@ const MainPage = () => {
           </div>
         </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 flex items-start justify-center h-screen">
-        <div className="text-center text-white w-full mt-48">
-          <h1 className="text-6xl font-bold mb-4 tracking-wide leading-tight">
-            특별한 날을
-            <br />더 특별하게
-          </h1>
+        {/* Secret Click Areas */}
+        <div
+          className="absolute bottom-4 left-4 w-8 h-8 cursor-pointer z-20"
+          onClick={() => handleSecretClick('left')}
+          style={{
+            background: 'transparent',
+            borderRadius: '50%',
+          }}
+          title="비밀 영역"
+        />
 
-          <div className="mt-16">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="px-8 py-4 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white font-semibold rounded-full transition-all duration-300 text-lg"
-            >
-              시작하기
-            </button>
-          </div>
-        </div>
-      </div>
+        <div
+          className="absolute bottom-4 right-4 w-8 h-8 cursor-pointer z-20"
+          onClick={() => handleSecretClick('right')}
+          style={{
+            background: 'transparent',
+            borderRadius: '50%',
+          }}
+          title="비밀 영역"
+        />
 
-      {/* Secret Click Areas */}
-      <div 
-        className="absolute bottom-4 left-4 w-8 h-8 cursor-pointer z-20"
-        onClick={() => handleSecretClick('left')}
-        style={{ 
-          background: 'transparent',
-          borderRadius: '50%'
-        }}
-        title="비밀 영역"
-      />
-      
-      <div 
-        className="absolute bottom-4 right-4 w-8 h-8 cursor-pointer z-20"
-        onClick={() => handleSecretClick('right')}
-        style={{ 
-          background: 'transparent',
-          borderRadius: '50%'
-        }}
-        title="비밀 영역"
-      />
-
-      {/* CSS Animations */}
-      <style>{`
+        {/* CSS Animations */}
+        <style>{`
         @keyframes flow {
           0%,
           100% {
