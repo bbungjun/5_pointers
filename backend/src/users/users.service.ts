@@ -249,8 +249,9 @@ export class UsersService {
       isOwner: true,
     };
 
-    // 소유자를 맨 앞에, 나머지는 생성일 순으로 정렬
-    return [ownerMember, ...invitedMembersList];
+    // 현재 사용자를 제외한 멤버 목록 반환
+    const allMembers = [ownerMember, ...invitedMembersList];
+    return allMembers.filter(member => member.userId !== userId);
   }
 
   // 페이지 제목 수정
@@ -408,7 +409,6 @@ export class UsersService {
 
     const page = this.pagesRepository.create({
       owner: user,
-      userId: userId,
       subdomain: body.subdomain || `page-${Date.now()}`,
       title: body.title || 'Untitled',
       content: content,
@@ -471,7 +471,6 @@ export class UsersService {
       this.pagesRepository.manager.getRepository('Submissions');
     const submission = submissionsRepository.create({
       page: page,
-      pageId: pageId,
       component_id: 'deploy_' + Date.now(),
       data: { html, components, deployedAt: new Date(), domain },
     });
@@ -492,7 +491,7 @@ export class UsersService {
     // 도메인으로 찾지 못하면 pageId로 검색
     if (!submission) {
       submission = await submissionsRepository.findOne({
-        where: { pageId: identifier },
+        where: { page: { id: identifier } },
         order: { createdAt: 'DESC' },
       });
     }
@@ -502,7 +501,7 @@ export class UsersService {
     }
 
     return {
-      pageId: submission.pageId,
+      pageId: submission.page.id,
       components: submission.data.components || [],
       deployedAt: submission.data.deployedAt,
       domain: submission.data.domain,
@@ -554,7 +553,7 @@ export class UsersService {
   async getComments(pageId: string, componentId: string): Promise<any[]> {
     const comments = await this.submissionsRepository.find({
       where: {
-        pageId: pageId,
+        page: { id: pageId },
         component_id: componentId,
       },
       order: { createdAt: 'DESC' },
@@ -581,7 +580,6 @@ export class UsersService {
 
     const submission = this.submissionsRepository.create({
       page: page,
-      pageId: pageId,
       component_id: componentId,
       data: {
         author: commentData.author,
@@ -609,7 +607,7 @@ export class UsersService {
     const comment = await this.submissionsRepository.findOne({
       where: {
         id: parseInt(commentId),
-        pageId: pageId,
+        page: { id: pageId },
         component_id: componentId,
       },
     });
@@ -634,7 +632,7 @@ export class UsersService {
   async getSlido(pageId: string, componentId: string): Promise<any[]> {
     const opinions = await this.submissionsRepository.find({
       where: {
-        pageId: pageId,
+        page: { id: pageId },
         component_id: componentId,
       },
       order: { createdAt: 'DESC' },
@@ -658,7 +656,6 @@ export class UsersService {
 
     const submission = this.submissionsRepository.create({
       page: page,
-      pageId: pageId,
       component_id: componentId,
       data: {
         content: slidoData.content,
@@ -837,7 +834,6 @@ export class UsersService {
           },
         },
         status: PageStatus.DRAFT,
-        userId: 1, // 기본 사용자 ID
       });
 
       const savedPage = await this.pagesRepository.save(newPage);
@@ -1108,7 +1104,8 @@ export class UsersService {
   ): Promise<any> {
     const queryBuilder = this.submissionsRepository
       .createQueryBuilder('submission')
-      .where('submission.pageId = :pageId OR submission.component_id = :pageId', { pageId })
+      .leftJoinAndSelect('submission.page', 'page')
+      .where('page.id = :pageId OR submission.component_id = :pageId', { pageId })
       .orderBy('submission.createdAt', 'DESC');
 
     // 컴포넌트 타입별 필터링
@@ -1138,15 +1135,17 @@ export class UsersService {
     // 총 개수 조회
     const totalCount = await this.submissionsRepository
       .createQueryBuilder('submission')
-      .where('submission.pageId = :pageId OR submission.component_id = :pageId', { pageId })
+      .leftJoinAndSelect('submission.page', 'page')
+      .where('page.id = :pageId OR submission.component_id = :pageId', { pageId })
       .getCount();
 
     // 타입별 통계 조회
     const typeStats = await this.submissionsRepository
       .createQueryBuilder('submission')
+      .leftJoinAndSelect('submission.page', 'page')
       .select('submission.component_id', 'componentId')
       .addSelect('COUNT(*)', 'count')
-      .where('submission.pageId = :pageId OR submission.component_id = :pageId', { pageId })
+      .where('page.id = :pageId OR submission.component_id = :pageId', { pageId })
       .groupBy('submission.component_id')
       .getRawMany();
 
@@ -1196,7 +1195,7 @@ export class UsersService {
   async getAttendance(pageId: string, componentId: string): Promise<any[]> {
     const submissions = await this.submissionsRepository.find({
       where: {
-        pageId: pageId,
+        page: { id: pageId },
         component_id: componentId,
       },
       order: { createdAt: 'DESC' },
@@ -1239,7 +1238,6 @@ export class UsersService {
 
     const submission = this.submissionsRepository.create({
       page: page,
-      pageId: pageId,
       component_id: componentId,
       data: {
         attendeeName: attendanceData.attendeeName,

@@ -46,7 +46,7 @@ export class GeneratorService {
       
       // 서브도메인이 이미 사용 중인 경우 소유권 확인
       if (existingPageBySubdomain) {
-        if (existingPageBySubdomain.userId !== numericUserId) {
+        if (existingPageBySubdomain.owner.id !== numericUserId) {
           // 다른 사용자가 사용 중인 서브도메인인 경우 - 에러 발생
           throw new BadRequestException('이미 존재하는 서브도메인입니다');
         }
@@ -79,7 +79,6 @@ export class GeneratorService {
             subdomain: subdomain,
             title: 'Deployed Page',
             status: PageStatus.DEPLOYED,
-            userId: numericUserId,
             editingMode: 'desktop', // editingMode 기본값 설정
           });
           await this.pagesRepository.save(page);

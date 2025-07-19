@@ -69,12 +69,17 @@ function LoginPage({ onLogin }) {
           <div className="flex justify-between items-center">
             {/* Logo */}
             <div className="flex items-center">
-              <img
-                src="/ddukddak-logo.png"
-                alt="DDUKDDAK"
-                style={{ height: '35px', objectFit: 'contain' }}
-              />
+              <Link to="/">
+                <img
+                  src="/ddukddak-logo.png"
+                  alt="DDUKDDAK"
+                  style={{ height: '35px', objectFit: 'contain', cursor: 'pointer', marginTop: '3px' }}
+                />
+              </Link>
             </div>
+
+            {/* Empty div for spacing consistency with MainPage */}
+            <div></div>
           </div>
         </div>
       </div>
@@ -176,7 +181,7 @@ function LoginPage({ onLogin }) {
 
           <div className="mt-8 text-center">
             <p className="text-white leading-relaxed">
-              계정이 없으신가요?{' '}
+              아직 뚝딱 회원이 아니신가요?{' '}
               <Link
                 to="/signup"
                 className="text-white hover:text-pink-200 font-semibold hover:underline transition-all duration-300"

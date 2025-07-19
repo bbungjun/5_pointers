@@ -3,6 +3,28 @@ import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import ddukddakLogo from '../assets/page-cube-logo.png';
 import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
+
+// 페이지 멤버 정보를 가져오는 함수
+const fetchPageMembers = async (pageId, userId) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return [];
+
+    const response = await fetch(`${API_BASE_URL}/users/pages/${pageId}/members?userId=${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+  } catch (error) {
+    console.error('페이지 멤버 조회 실패:', error);
+  }
+  return [];
+};
 function DeployedPage({ user, onLogout }) {
   const navigate = useNavigate();
   const [myPages, setMyPages] = useState([]);
@@ -21,6 +43,7 @@ function DeployedPage({ user, onLogout }) {
     title: '',
     data: null,
   });
+  const [pageMembers, setPageMembers] = useState({});
   // 페이지 submissions 데이터 조회
   const fetchPageSubmissions = async (pageId) => {
     try {
@@ -103,6 +126,14 @@ function DeployedPage({ user, onLogout }) {
           }
         }
         setSubmissions(submissionsData);
+
+        // 각 페이지의 멤버 정보 조회
+        const membersData = {};
+        for (const page of uniquePages.filter((p) => p.status === 'DEPLOYED')) {
+          const members = await fetchPageMembers(page.id, user.id);
+          membersData[page.id] = members;
+        }
+        setPageMembers(membersData);
       }
     } catch (error) {
       console.error('페이지 목록 조회 실패:', error);
@@ -291,7 +322,99 @@ function DeployedPage({ user, onLogout }) {
             </p>
           )}
 
-          {/* Submissions 버튼 - 여기에는 아무것도 표시하지 않음 */}
+
+          {/* 멤버 정보 표시 */}
+          {pageMembers[page.id] && pageMembers[page.id].length > 0 && (
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-xs text-slate-500">멤버:</span>
+              <div className="flex flex-wrap gap-1">
+                {pageMembers[page.id]
+                  .slice(0, 3)
+                  .map((member, index) => (
+                    <span
+                      key={member.id}
+                      className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                    >
+                      {member.nickname || member.email?.split('@')[0] || '알 수 없음'}
+                    </span>
+                  ))}
+                {pageMembers[page.id].length > 3 && (
+                  <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                    +{pageMembers[page.id].length - 3}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Submissions 통계 정보 */}
+          {submissions[page.id] && (
+            <div className="mt-3 p-3 bg-white/70 rounded-lg border border-slate-400">
+              <p className="text-sm font-medium text-slate-700 mb-2">제출된 응답</p>
+              <div className="flex flex-wrap gap-2">
+                {submissions[page.id].typeStats.attendance > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    참석/가입: {submissions[page.id].typeStats.attendance}
+                  </span>
+                )}
+                {submissions[page.id].typeStats.comment > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    댓글: {submissions[page.id].typeStats.comment}
+                  </span>
+                )}
+                {submissions[page.id].typeStats.slido > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                    </svg>
+                    의견: {submissions[page.id].typeStats.slido}
+                  </span>
+                )}
+                {submissions[page.id].typeStats.other > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    동아리 가입: {submissions[page.id].typeStats.other}
+                  </span>
+                )}
+              </div>
+              {submissions[page.id].totalCount > 0 && (
+                <button
+                  onClick={() => openSubmissionsModal(page.id, page.title)}
+                  className="mt-2 text-xs text-emerald-600 hover:text-emerald-800 font-medium"
+                >
+                  전체 {submissions[page.id].totalCount}개 응답 보기 →
+                </button>
+              )}
+            </div>
+          )}
         </div>
         {/* 편집/삭제 버튼을 절대 위치로 고정 */}
         <div className="absolute top-0 right-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
