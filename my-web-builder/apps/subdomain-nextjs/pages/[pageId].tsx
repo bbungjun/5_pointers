@@ -483,13 +483,51 @@ const RenderedPage = ({
     );
   }
 
+  // 페이지 제목과 설명 추출 (첫 번째 텍스트 컴포넌트에서)
+  const titleComponent = pageData.components.find(comp => comp.type === 'text');
+  const pageTitle = titleComponent?.props?.text || `${subdomain || '페이지'}`;
+  const pageDescription = titleComponent?.props?.description || '개인화된 웹페이지입니다.';
+
+  // 페이지에서 첫 번째 이미지 컴포넌트 찾기
+  const imageComponent = pageData.components.find(comp => comp.type === 'image');
+  const pageImageUrl = imageComponent?.props?.imageUrl || '';
+
+  const currentUrl = `https://${subdomain}.ddukddak.org`;
+
   return (
-    <DynamicPageRenderer
-      components={pageData.components}
-      pageId={pageData.pageId || pageId}
-      subdomain={subdomain}
-      editingMode={pageData.editingMode}
-    />
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        {/* Open Graph 메타태그 */}
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        {pageImageUrl && <meta property="og:image" content={pageImageUrl} />}
+        <meta property="og:url" content={currentUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Ddukddak" />
+        
+        {/* Twitter Card 메타태그 */}
+        <meta name="twitter:card" content={pageImageUrl ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        {pageImageUrl && <meta name="twitter:image" content={pageImageUrl} />}
+        
+        {/* 추가 메타태그 */}
+        <meta name="description" content={pageDescription} />
+        <meta name="keywords" content="웹페이지, 개인화, 커스텀" />
+        
+        {/* 파비콘 */}
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <DynamicPageRenderer
+        components={pageData.components}
+        pageId={pageData.pageId || pageId}
+        subdomain={subdomain}
+        editingMode={pageData.editingMode}
+      />
+    </>
   );
 };
 
