@@ -69,18 +69,18 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
           }, 5000);
         } else {
           // 초대 링크 생성 실패
-          setMessage(data.message || '초대 링크 생성에 실패했습니다.');
+          setMessage(data.message || '초대에 실패했습니다.');
           setMessageType('error');
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
         setMessage(
-          errorData.message || data.message || '초대 링크 생성에 실패했습니다.'
+          errorData.message || data.message || '초대에 실패했습니다.'
         );
         setMessageType('error');
       }
     } catch (error) {
-      console.error('초대 링크 생성 오류:', error);
+      console.error('초대 오류:', error);
       setMessage('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       setMessageType('error');
     } finally {
@@ -212,7 +212,7 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
               marginBottom: '24px',
             }}
           >
-            {loading ? '링크 생성 중...' : '초대 링크 생성'}
+            {loading ? '초대 중...' : '초대 보내기'}
           </button>
         </form>
 

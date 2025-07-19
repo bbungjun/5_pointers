@@ -13,6 +13,7 @@ import NoCodeEditor from './pages/NoCodeEditorWithRecovery';
 import InvitationHandler from './pages/InvitationHandler';
 import RecoveryTest from './pages/RecoveryTest';
 import SecretPage from './pages/SecretPage';
+import { ToastProvider } from './contexts/ToastContext';
 
 function App() {
   // JWT 토큰 기반으로 로그인 상태 확인
@@ -157,77 +158,82 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<MainPage onLogin={handleLogin} />} />
-        <Route
-          path="/login"
-          element={
-            isLoggedIn ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <LoginPage onLogin={handleLogin} />
-            )
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            isLoggedIn ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <SignupPage onLogin={handleLogin} />
-            )
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            isLoggedIn ? (
-              <DashboardPage user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/dashboard/drafts"
-          element={
-            isLoggedIn ? (
-              <DraftsPage user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/dashboard/deployed"
-          element={
-            isLoggedIn ? (
-              <DeployedPage user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/editor/:pageId"
-          element={
-            isLoggedIn ? <AppEditor /> : <Navigate to="/login" replace />
-          }
-        />
-        <Route
-          path="/social-callback"
-          element={<SocialCallbackPage onLogin={handleLogin} />}
-        />
-        <Route path="/dashboard/*" element={<Dashboard />} />
-        <Route path="/no-code-editor" element={<NoCodeEditor />} />
-        <Route path="/invitation/:inviteCode" element={<InvitationHandler />} />
-        <Route path="/recovery-test" element={<RecoveryTest />} />
-        <Route path="/secret" element={<SecretPage />} />
-        <Route path="*" element={<div>404 Not Found</div>} />
-      </Routes>
-    </BrowserRouter>
+    <ToastProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<MainPage onLogin={handleLogin} />} />
+          <Route
+            path="/login"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <LoginPage onLogin={handleLogin} />
+              )
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <SignupPage onLogin={handleLogin} />
+              )
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              isLoggedIn ? (
+                <DashboardPage user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/dashboard/drafts"
+            element={
+              isLoggedIn ? (
+                <DraftsPage user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/dashboard/deployed"
+            element={
+              isLoggedIn ? (
+                <DeployedPage user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/editor/:pageId"
+            element={
+              isLoggedIn ? <AppEditor /> : <Navigate to="/login" replace />
+            }
+          />
+          <Route
+            path="/social-callback"
+            element={<SocialCallbackPage onLogin={handleLogin} />}
+          />
+          <Route path="/dashboard/*" element={<Dashboard />} />
+          <Route path="/no-code-editor" element={<NoCodeEditor />} />
+          <Route
+            path="/invitation/:inviteCode"
+            element={<InvitationHandler />}
+          />
+          <Route path="/recovery-test" element={<RecoveryTest />} />
+          <Route path="/secret" element={<SecretPage />} />
+          <Route path="*" element={<div>404 Not Found</div>} />
+        </Routes>
+      </BrowserRouter>
+    </ToastProvider>
   );
 }
 
