@@ -147,11 +147,11 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
 
   return (
     <div
-      className={`relative bg-white rounded-lg overflow-hidden ${className}`}
+      className={`relative overflow-hidden ${className}`}
     >
       {editingMode === 'mobile' ? (
         // 모바일 휴대폰 프레임 (단순화된 버전)
-        <div className="flex items-center justify-center h-full py-4">
+        <div className="flex items-center justify-center py-0">
           <div className="relative">
             {/* 휴대폰 외곽 프레임 */}
             <div className="relative bg-gradient-to-b from-gray-800 to-gray-900 rounded-[1.5rem] p-1">
