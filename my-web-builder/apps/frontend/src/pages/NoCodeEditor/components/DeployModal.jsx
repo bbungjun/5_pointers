@@ -65,10 +65,11 @@ function DeployModal({
           transform: 'translate(-50%, -50%)',
           backgroundColor: 'white',
           borderRadius: '20px',
-          padding: '40px',
-          width: deployedUrl ? '900px' : '600px',
-          maxWidth: '95%',
-          minHeight: deployedUrl ? '600px' : '400px',
+          padding: '32px',
+          width: deployedUrl ? '700px' : '500px',
+          maxWidth: '90%',
+          maxHeight: '85vh',
+          overflow: 'auto',
           boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
         }}
         onClick={(e) => e.stopPropagation()}
@@ -85,7 +86,7 @@ function DeployModal({
           <h2
             style={{
               margin: 0,
-              fontSize: '32px',
+              fontSize: '28px',
               fontWeight: 'bold',
               color: '#1f2937',
             }}
@@ -110,75 +111,53 @@ function DeployModal({
         {deployedUrl ? (
           // 성공 메시지
           <div style={{ textAlign: 'center' }}>
-            <p
-              style={{
-                fontSize: '48px',
-                fontWeight: 600,
-                marginBottom: '24px',
-              }}
-            >
-              게시 완료!
-            </p>
-
+            <p style={{ fontSize: '36px', fontWeight: 600, marginBottom: '20px' }}>게시 완료!</p>
+            
             {/* QR 코드 중앙 배치 */}
-            <div
-              style={{
+            {qrCodeDataUrl && (
+              <div style={{ 
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '40px',
-                padding: '32px',
-                backgroundColor: '#f9fafb',
-                borderRadius: '16px',
-                border: '2px solid #e5e7eb',
-              }}
-            >
-              {qrCodeDataUrl && (
-                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                  <img
-                    src={qrCodeDataUrl}
-                    alt="QR Code"
-                    style={{
-                      width: '280px',
-                      height: '280px',
-                      border: '3px solid #e5e7eb',
-                      borderRadius: '16px',
-                      backgroundColor: '#ffffff',
-                    }}
-                  />
-                  <p
-                    style={{
-                      fontSize: '16px',
-                      color: '#6b7280',
-                      marginTop: '12px',
-                      margin: 0,
-                    }}
-                  >
-                    QR 코드로 접속
-                  </p>
-                </div>
-              )}
-            </div>
+                marginBottom: '32px'
+              }}>
+                <img 
+                  src={qrCodeDataUrl} 
+                  alt="QR Code" 
+                  style={{ 
+                    width: '220px', 
+                    height: '220px',
+                    border: '3px solid #e5e7eb',
+                    borderRadius: '16px',
+                    backgroundColor: '#ffffff'
+                  }} 
+                />
+                <p style={{ 
+                  fontSize: '16px', 
+                  color: '#6b7280', 
+                  marginTop: '12px',
+                  margin: 0
+                }}>
+                  QR 코드로 접속
+                </p>
+              </div>
+            )}
 
             {/* 배포된 URL 정보 */}
-            <div
-              style={{
-                marginBottom: '24px',
-                padding: '16px',
-                backgroundColor: '#f3f4f6',
-                borderRadius: '12px',
-                border: '1px solid #e5e7eb',
-              }}
-            >
-              <p
-                style={{
-                  fontSize: '36px',
-                  color: '#374151',
-                  marginBottom: '8px',
-                  fontWeight: 600,
-                }}
-              >
+            <div style={{
+              marginBottom: '24px',
+              padding: '16px',
+              backgroundColor: '#f3f4f6',
+              borderRadius: '12px',
+              border: '1px solid #e5e7eb'
+            }}>
+              <p style={{ 
+                fontSize: '28px', 
+                color: '#374151', 
+                marginBottom: '8px',
+                fontWeight: 600
+              }}>
                 배포된 페이지
               </p>
               <a
@@ -189,7 +168,7 @@ function DeployModal({
                   color: '#ec4899',
                   textDecoration: 'underline',
                   wordBreak: 'break-all',
-                  fontSize: '36px',
+                  fontSize: '24px',
                   fontWeight: 500,
                   display: 'block',
                 }}

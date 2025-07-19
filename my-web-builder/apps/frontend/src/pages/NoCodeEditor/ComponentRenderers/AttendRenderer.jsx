@@ -216,7 +216,7 @@ function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
           backgroundColor: comp.props?.buttonColor || '#9CAF88',
           color: comp.props?.buttonTextColor || 'white',
           border: 'none',
-          borderRadius: 0,
+          borderRadius: '10px',
           padding: '12px 24px',
           marginBottom : '10px',
           fontSize: comp.props?.fontSize || '16px',
