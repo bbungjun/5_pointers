@@ -8,137 +8,227 @@ function FontFamilyEditor({ label, value, onChange }) {
 
   // 한국어 폰트 (모든 폰트 기울임 지원)
   const koreanFonts = [
-    { 
-      value: '"Noto Sans KR", "맑은 고딕", "Malgun Gothic", sans-serif', 
+    {
+      value: '"Noto Sans KR", "맑은 고딕", "Malgun Gothic", sans-serif',
       label: 'Noto Sans KR',
       italicSupport: true
     },
-    { 
-      value: '"맑은 고딕", "Malgun Gothic", sans-serif', 
+    {
+      value: '"맑은 고딕", "Malgun Gothic", sans-serif',
       label: '맑은 고딕',
       italicSupport: true
     },
-    { 
-      value: '"나눔고딕", "NanumGothic", sans-serif', 
+    {
+      value: '"나눔고딕", "NanumGothic", sans-serif',
       label: '나눔고딕',
       italicSupport: true
     },
-    { 
-      value: '"나눔명조", "NanumMyeongjo", serif', 
+    {
+      value: '"나눔명조", "NanumMyeongjo", serif',
       label: '나눔명조',
       italicSupport: true
     },
-    { 
-      value: '"돋움", "Dotum", sans-serif', 
+    {
+      value: '"돋움", "Dotum", sans-serif',
       label: '돋움',
       italicSupport: true
     },
-    { 
-      value: '"굴림", "Gulim", sans-serif', 
+    {
+      value: '"굴림", "Gulim", sans-serif',
       label: '굴림',
       italicSupport: true
     },
-    { 
-      value: '"바탕", "Batang", serif', 
+    {
+      value: '"바탕", "Batang", serif',
       label: '바탕',
       italicSupport: true
     },
-    { 
-      value: '"궁서", "Gungsuh", serif', 
+    {
+      value: '"궁서", "Gungsuh", serif',
       label: '궁서',
       italicSupport: true
-    }
+    },
+    {
+      value: '"Ownglyph_corncorn-Rg", sans-serif',
+      label: '온글잎 콘콘',
+      italicSupport: true
+    },
+    {
+      value: '"ChosunGu", sans-serif',
+      label: '조선굴림체',
+      italicSupport: true
+    },
+    {
+      value: '"GowunDodum-Regular", sans-serif',
+      label: '고운돋움',
+      italicSupport: true
+    },
+    {
+      value: '"BMJUA", sans-serif',
+      label: '주아체',
+      italicSupport: true
+    },
+    {
+      value: '"neurimboGothicRegular", sans-serif',
+      label: '느림보고딕',
+      italicSupport: true
+    },
+    {
+      value: '"KCC-Ganpan", sans-serif',
+      label: 'KCC간판체',
+      italicSupport: true
+    },
+    {
+      value: '"GeekbleMalang2WOFF2", sans-serif',
+      label: '긱블 말랑이',
+      italicSupport: true
+    },
+    {
+      value: '"HSSummer", sans-serif',
+      label: 'HS여름물빛',
+      italicSupport: true
+    },
+    {
+      value: '"netmarbleB", sans-serif',
+      label: '넷마블',
+      italicSupport: true
+    },
+    {
+      value: '"MonoplexKR-Italic", sans-serif',
+      label: '모노플렉스KR Italic',
+      italicSupport: true
+    },
+    {
+      value: '"TAEBAEKmilkyway", sans-serif',
+      label: '태백 은하수',
+      italicSupport: true
+    },
+    {
+      value: '"TTCrownMychewR", sans-serif',
+      label: '마이쮸',
+      italicSupport: true
+    },
+    {
+      value: '"Cafe24Oneprettynight", serif',
+      label: '카페24 고운밤',
+      italicSupport: true
+    },
+    {
+      value: '"Cafe24Shiningstar", cursive',
+      label: '카페24 빛나는별',
+      italicSupport: true
+    },
+    {
+      value: '"KOTRAHOPE", cursive',
+      label: '코트라 희망',
+      italicSupport: true
+    },
+    {
+      value: '"Katuri", cursive',
+      label: '엄마까투리',
+      italicSupport: true
+    },
+    {
+      value: '"SinchonRhapsody", cursive',
+      label: '신촌랩소디',
+      italicSupport: true
+    },
+    {
+      value: '"YanoljaYacheR", cursive',
+      label: '야놀자',
+      italicSupport: true
+    },
   ];
 
   // 웨딩 테마 폰트 (우아하고 로맨틱한 폰트들)
   const weddingFonts = [
-    { 
-      value: '"Playfair Display", serif', 
+    {
+      value: '"Playfair Display", serif',
       label: 'Playfair Display',
       italicSupport: true
     },
-    { 
-      value: '"Adelio Darmanto", cursive', 
+    {
+      value: '"Adelio Darmanto", cursive',
       label: 'Adelio Darmanto',
       italicSupport: true
     },
-    { 
-      value: '"Bodoni", serif', 
+    {
+      value: '"Bodoni", serif',
       label: 'Bodoni',
       italicSupport: true
     },
-    { 
-      value: '"Brooke Smith Script", cursive', 
+    {
+      value: '"Brooke Smith Script", cursive',
       label: 'Brooke Smith Script',
       italicSupport: true
     },
-    { 
-      value: '"Chalisa Oktavia", cursive', 
+    {
+      value: '"Chalisa Oktavia", cursive',
       label: 'Chalisa Oktavia',
       italicSupport: true
     },
-    { 
-      value: '"Dearly Loved One", cursive', 
+    {
+      value: '"Dearly Loved One", cursive',
       label: 'Dearly Loved One',
       italicSupport: true
     },
-    { 
-      value: '"Deluxe Edition", serif', 
+    {
+      value: '"Deluxe Edition", serif',
       label: 'Deluxe Edition',
       italicSupport: true
     },
-    { 
-      value: '"Dreamland", cursive', 
+    {
+      value: '"Dreamland", cursive',
       label: 'Dreamland',
       italicSupport: true
     },
-    { 
-      value: '"EB Garamond", serif', 
+    {
+      value: '"EB Garamond", serif',
       label: 'EB Garamond',
       italicSupport: true
     },
-    { 
-      value: '"Elsie", serif', 
+    {
+      value: '"Elsie", serif',
       label: 'Elsie',
       italicSupport: true
     },
-    { 
-      value: '"England Hand", cursive', 
+    {
+      value: '"England Hand", cursive',
       label: 'England Hand',
       italicSupport: true
     },
-    { 
-      value: '"Hijrnotes", cursive', 
+    {
+      value: '"Hijrnotes", cursive',
       label: 'Hijrnotes',
       italicSupport: true
     },
-    { 
-      value: '"La Paloma", cursive', 
+    {
+      value: '"La Paloma", cursive',
       label: 'La Paloma',
       italicSupport: true
     },
-    { 
-      value: '"Millerstone", serif', 
+    {
+      value: '"Millerstone", serif',
       label: 'Millerstone',
       italicSupport: true
     },
-    { 
-      value: '"Montserrat", sans-serif', 
+    {
+      value: '"Montserrat", sans-serif',
       label: 'Montserrat',
       italicSupport: true
     },
-    { 
-      value: '"Pinyon Script", cursive', 
+    {
+      value: '"Pinyon Script", cursive',
       label: 'Pinyon Script',
       italicSupport: true
     },
-    { 
-      value: '"Prata", serif', 
+    {
+      value: '"Prata", serif',
       label: 'Prata',
       italicSupport: true
     },
-    { 
-      value: '"Underland", cursive', 
+    {
+      value: '"Underland", cursive',
       label: 'Underland',
       italicSupport: true
     }
@@ -146,54 +236,64 @@ function FontFamilyEditor({ label, value, onChange }) {
 
   // 영어 폰트 (모든 폰트 기울임 지원)
   const englishFonts = [
-    { 
-      value: 'Arial, sans-serif', 
+    {
+      value: 'Arial, sans-serif',
       label: 'Arial',
       italicSupport: true
     },
-    { 
-      value: '"Helvetica Neue", Helvetica, Arial, sans-serif', 
+    {
+      value: '"Helvetica Neue", Helvetica, Arial, sans-serif',
       label: 'Helvetica',
       italicSupport: true
     },
-    { 
-      value: 'Georgia, serif', 
+    {
+      value: 'Georgia, serif',
       label: 'Georgia',
       italicSupport: true
     },
-    { 
-      value: '"Times New Roman", Times, serif', 
+    {
+      value: '"Times New Roman", Times, serif',
       label: 'Times New Roman',
       italicSupport: true
     },
-    { 
-      value: '"Courier New", Courier, monospace', 
+    {
+      value: '"Courier New", Courier, monospace',
       label: 'Courier New',
       italicSupport: true
     },
-    { 
-      value: 'Verdana, Geneva, sans-serif', 
+    {
+      value: 'Verdana, Geneva, sans-serif',
       label: 'Verdana',
       italicSupport: true
     },
-    { 
-      value: '"Trebuchet MS", Helvetica, sans-serif', 
+    {
+      value: '"Trebuchet MS", Helvetica, sans-serif',
       label: 'Trebuchet MS',
       italicSupport: true
     },
-    { 
-      value: 'Impact, Charcoal, sans-serif', 
+    {
+      value: 'Impact, Charcoal, sans-serif',
       label: 'Impact',
       italicSupport: true // Impact도 강제 기울임으로 지원
     },
-    { 
-      value: '"Comic Sans MS", cursive, sans-serif', 
+    {
+      value: '"Comic Sans MS", cursive, sans-serif',
       label: 'Comic Sans MS',
       italicSupport: true
     },
-    { 
-      value: '"Lucida Console", Monaco, monospace', 
+    {
+      value: '"Lucida Console", Monaco, monospace',
       label: 'Lucida Console',
+      italicSupport: true
+    },
+    {
+      value: '"Cafe24Behappy", cursive',
+      label: 'Cafe24Behappy',
+      italicSupport: true
+    },
+    {
+      value: '"Cafe24Decobox", fantasy',
+      label: 'Cafe24 Decobox',
       italicSupport: true
     }
   ];
@@ -208,7 +308,7 @@ function FontFamilyEditor({ label, value, onChange }) {
   // CSS 스타일 주입으로 폰트 강제 적용
   useEffect(() => {
     const currentFontValue = value || '"Playfair Display", serif';
-    
+
     // 기존 스타일 제거
     const existingStyle = document.getElementById(uniqueId);
     if (existingStyle) {
@@ -259,16 +359,16 @@ function FontFamilyEditor({ label, value, onChange }) {
 
   return (
     <div style={{ marginBottom: '12px' }}>
-      <label style={{ 
-        display: 'block', 
-        marginBottom: '6px', 
-        fontSize: '12px', 
+      <label style={{
+        display: 'block',
+        marginBottom: '6px',
+        fontSize: '12px',
         fontWeight: '500',
         color: '#374151'
       }}>
         {label}
       </label>
-      
+
       <div style={{ position: 'relative' }} ref={dropdownRef}>
         <button
           ref={buttonRef}
@@ -297,13 +397,13 @@ function FontFamilyEditor({ label, value, onChange }) {
           onMouseEnter={(e) => e.target.style.borderColor = '#9ca3af'}
           onMouseLeave={(e) => e.target.style.borderColor = '#d1d5db'}
         >
-          <span className={uniqueId} style={{ 
+          <span className={uniqueId} style={{
             fontSize: '14px',
             color: '#374151'
           }}>
             {currentFontLabel}
           </span>
-          <span style={{ 
+          <span style={{
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.2s ease',
             fontSize: '12px',
@@ -372,8 +472,8 @@ function FontFamilyEditor({ label, value, onChange }) {
                   {font.label} <span style={{ fontSize: '12px', color: '#9ca3af' }}>가나다</span>
                 </span>
                 {font.value === value && (
-                  <span style={{ 
-                    color: '#3b82f6', 
+                  <span style={{
+                    color: '#3b82f6',
                     fontSize: '12px',
                     fontFamily: 'Arial, sans-serif'
                   }}>✓</span>
@@ -425,8 +525,8 @@ function FontFamilyEditor({ label, value, onChange }) {
                   {font.label} <span style={{ fontSize: '12px', color: '#D8BFD8' }}>Wedding</span>
                 </span>
                 {font.value === value && (
-                  <span style={{ 
-                    color: '#D8BFD8', 
+                  <span style={{
+                    color: '#D8BFD8',
                     fontSize: '12px',
                     fontFamily: 'Arial, sans-serif'
                   }}>✓</span>
@@ -478,8 +578,8 @@ function FontFamilyEditor({ label, value, onChange }) {
                   {font.label} <span style={{ fontSize: '12px', color: '#9ca3af' }}>Abc</span>
                 </span>
                 {font.value === value && (
-                  <span style={{ 
-                    color: '#3b82f6', 
+                  <span style={{
+                    color: '#3b82f6',
                     fontSize: '12px',
                     fontFamily: 'Arial, sans-serif'
                   }}>✓</span>
