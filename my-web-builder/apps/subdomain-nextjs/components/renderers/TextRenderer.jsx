@@ -62,7 +62,7 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
   const handleBlur = () => {
     setEditing(false);
     if (editValue !== (comp.props?.text || '')) {
-      alert('텍스트가 변경되었습니다. (실제 구현에서는 onUpdate 콜백을 호출해야 합니다)');
+      alert('텍스트가 변경되었습니다.');
     }
   };
 
@@ -70,7 +70,7 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
     if (e.key === 'Enter') {
       setEditing(false);
       if (editValue !== (comp.props?.text || '')) {
-        alert('텍스트가 변경되었습니다. (실제 구현에서는 onUpdate 콜백을 호출해야 합니다)');
+        alert('텍스트가 변경되었습니다.');
       }
     }
   };

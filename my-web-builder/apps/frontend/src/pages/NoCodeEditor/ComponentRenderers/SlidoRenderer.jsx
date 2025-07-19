@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../../config';
+import { useToastContext } from '../../../contexts/ToastContext';
 
 function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
+  const { showError } = useToastContext();
   const {
     question,
     placeholder,
@@ -315,7 +317,7 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
         actualApiBaseUrl,
         comp: comp,
       });
-      alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+      showError('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
       setIsSubmitting(false);
       return;
     }
@@ -351,13 +353,13 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
           statusText: response.statusText,
           body: errorText,
         });
-        alert(
+        showError(
           `의견 제출에 실패했습니다. (${response.status}: ${response.statusText})`
         );
       }
     } catch (error) {
       console.error('의견 제출 실패:', error);
-      alert(`의견 제출에 실패했습니다. 네트워크 오류: ${error.message}`);
+      showError(`의견 제출에 실패했습니다. 네트워크 오류: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }

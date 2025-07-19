@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { API_BASE_URL } from '../../../config.js';
+import { useToastContext } from '../../../contexts/ToastContext';
 
 function ThumbnailEditor({ label, value, onChange }) {
   const [activeTab, setActiveTab] = useState('upload');
   const [urlInput, setUrlInput] = useState(value || '');
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef();
+  const { showError } = useToastContext();
 
   // 파일 업로드 처리
   const handleFileSelect = async (event) => {
@@ -14,13 +16,13 @@ function ThumbnailEditor({ label, value, onChange }) {
 
     // 이미지 파일 검증
     if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드할 수 있습니다.');
+      showError('이미지 파일만 업로드할 수 있습니다.');
       return;
     }
 
     // 파일 크기 검증 (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('파일 크기는 5MB 이하여야 합니다.');
+      showError('파일 크기는 5MB 이하여야 합니다.');
       return;
     }
 
@@ -40,7 +42,7 @@ function ThumbnailEditor({ label, value, onChange }) {
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
         onChange(result.imageUrl);
         setUrlInput(result.imageUrl);
@@ -50,7 +52,7 @@ function ThumbnailEditor({ label, value, onChange }) {
       }
     } catch (error) {
       console.error('파일 업로드 실패:', error);
-      alert('파일 업로드에 실패했습니다: ' + error.message);
+      showError('파일 업로드에 실패했습니다: ' + error.message);
     } finally {
       setIsUploading(false);
     }
@@ -70,18 +72,26 @@ function ThumbnailEditor({ label, value, onChange }) {
 
   return (
     <div style={{ marginBottom: 16 }}>
-      <label style={{ 
-        display: 'block',
-        fontSize: 13, 
-        color: '#333', 
-        fontWeight: 500,
-        marginBottom: 8
-      }}>
+      <label
+        style={{
+          display: 'block',
+          fontSize: 13,
+          color: '#333',
+          fontWeight: 500,
+          marginBottom: 8,
+        }}
+      >
         {label}
       </label>
 
       {/* 탭 버튼 */}
-      <div style={{ display: 'flex', marginBottom: 12, borderBottom: '1px solid #e5e7eb' }}>
+      <div
+        style={{
+          display: 'flex',
+          marginBottom: 12,
+          borderBottom: '1px solid #e5e7eb',
+        }}
+      >
         <button
           type="button"
           onClick={() => setActiveTab('upload')}
@@ -138,7 +148,7 @@ function ThumbnailEditor({ label, value, onChange }) {
               cursor: isUploading ? 'not-allowed' : 'pointer',
               fontSize: '14px',
               textAlign: 'center',
-              transition: 'all 0.2s'
+              transition: 'all 0.2s',
             }}
             onMouseEnter={(e) => {
               if (!isUploading) {
@@ -175,10 +185,10 @@ function ThumbnailEditor({ label, value, onChange }) {
               borderRadius: 6,
               outline: 'none',
               boxSizing: 'border-box',
-              transition: 'border-color 0.2s'
+              transition: 'border-color 0.2s',
             }}
-            onFocus={(e) => e.target.style.borderColor = '#0066FF'}
-            onBlur={(e) => e.target.style.borderColor = '#ddd'}
+            onFocus={(e) => (e.target.style.borderColor = '#0066FF')}
+            onBlur={(e) => (e.target.style.borderColor = '#ddd')}
           />
           <button
             type="button"
@@ -191,10 +201,10 @@ function ThumbnailEditor({ label, value, onChange }) {
               border: 'none',
               borderRadius: 6,
               cursor: 'pointer',
-              transition: 'background-color 0.2s'
+              transition: 'background-color 0.2s',
             }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
+            onMouseEnter={(e) => (e.target.style.backgroundColor = '#2563eb')}
+            onMouseLeave={(e) => (e.target.style.backgroundColor = '#3b82f6')}
           >
             적용
           </button>
@@ -203,51 +213,59 @@ function ThumbnailEditor({ label, value, onChange }) {
 
       {/* 썸네일 미리보기 */}
       {value && (
-        <div style={{ 
-          marginTop: 12,
-          padding: 8,
-          border: '1px solid #eee',
-          borderRadius: 6,
-          backgroundColor: '#f9f9f9'
-        }}>
-          <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>미리보기:</div>
-          <div style={{
-            width: '60px',
-            height: '36px',
-            border: '1px solid #ddd',
-            borderRadius: 4,
-            overflow: 'hidden',
-            backgroundColor: '#fff',
-            position: 'relative'
-          }}>
-            <img 
-              src={value} 
+        <div
+          style={{
+            marginTop: 12,
+            padding: 8,
+            border: '1px solid #eee',
+            borderRadius: 6,
+            backgroundColor: '#f9f9f9',
+          }}
+        >
+          <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>
+            미리보기:
+          </div>
+          <div
+            style={{
+              width: '60px',
+              height: '36px',
+              border: '1px solid #ddd',
+              borderRadius: 4,
+              overflow: 'hidden',
+              backgroundColor: '#fff',
+              position: 'relative',
+            }}
+          >
+            <img
+              src={value}
               alt="썸네일 미리보기"
-              style={{ 
-                maxWidth: '100%', 
-                maxHeight: '100%', 
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
                 width: 'auto',
                 height: 'auto',
                 objectFit: 'contain',
-                objectPosition: 'center'
+                objectPosition: 'center',
               }}
               onError={(e) => {
                 e.target.style.display = 'none';
                 e.target.nextSibling.style.display = 'flex';
               }}
             />
-            <div style={{
-              display: 'none',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '10px',
-              color: '#999'
-            }}>
+            <div
+              style={{
+                display: 'none',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                color: '#999',
+              }}
+            >
               ❌ 로드 실패
             </div>
           </div>

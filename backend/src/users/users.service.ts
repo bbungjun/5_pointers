@@ -104,27 +104,36 @@ export class UsersService {
 
     // 배포된 페이지는 deployedAt 기준, 그 외는 updatedAt 기준으로 정렬
     const sortedPages = allPages.sort((a, b) => {
-      const aTime = a.status === 'DEPLOYED' && a.deployedAt 
-        ? new Date(a.deployedAt).getTime() 
-        : new Date(a.updatedAt).getTime();
-      const bTime = b.status === 'DEPLOYED' && b.deployedAt 
-        ? new Date(b.deployedAt).getTime() 
-        : new Date(b.updatedAt).getTime();
+      const aTime =
+        a.status === 'DEPLOYED' && a.deployedAt
+          ? new Date(a.deployedAt).getTime()
+          : new Date(a.updatedAt).getTime();
+      const bTime =
+        b.status === 'DEPLOYED' && b.deployedAt
+          ? new Date(b.deployedAt).getTime()
+          : new Date(b.updatedAt).getTime();
       return bTime - aTime;
     });
-    
+
     console.log('📋 getMyPages 결과:', {
       totalPages: sortedPages.length,
-      deployedPages: sortedPages.filter(p => p.status === 'DEPLOYED').length,
-      draftPages: sortedPages.filter(p => p.status === 'DRAFT').length,
-      pages: sortedPages.map(p => ({ id: p.id, status: p.status, title: p.title }))
+      deployedPages: sortedPages.filter((p) => p.status === 'DEPLOYED').length,
+      draftPages: sortedPages.filter((p) => p.status === 'DRAFT').length,
+      pages: sortedPages.map((p) => ({
+        id: p.id,
+        status: p.status,
+        title: p.title,
+      })),
     });
-    
+
     return sortedPages;
   }
 
   // 네비게이션용 내 페이지 목록 조회 (기존 getMyPages와 동일)
-  async getMyPagesForNavigation(userId: number, currentPageId?: string): Promise<Pages[]> {
+  async getMyPagesForNavigation(
+    userId: number,
+    currentPageId?: string,
+  ): Promise<Pages[]> {
     // 기존 getMyPages 메서드와 동일하게 배열 반환
     return this.getMyPages(userId);
   }
@@ -214,7 +223,7 @@ export class UsersService {
       // 초대 상태에 따라 다른 표시
       let displayName = '알 수 없음';
       let displayEmail = member.email;
-      
+
       if (member.status === 'ACCEPTED' && member.user) {
         // 초대를 수락한 경우: 사용자 닉네임 표시
         displayName = member.user.nickname;
@@ -224,7 +233,7 @@ export class UsersService {
         displayName = member.email ? member.email.split('@')[0] : '알 수 없음';
         displayEmail = member.email;
       }
-      
+
       return {
         id: member.id,
         email: displayEmail,
@@ -251,7 +260,7 @@ export class UsersService {
 
     // 현재 사용자를 제외한 멤버 목록 반환
     const allMembers = [ownerMember, ...invitedMembersList];
-    return allMembers.filter(member => member.userId !== userId);
+    return allMembers.filter((member) => member.userId !== userId);
   }
 
   // 페이지 제목 수정
@@ -319,8 +328,8 @@ export class UsersService {
       page.content = {
         components: Array.isArray(content) ? content : [],
         canvasSettings: {
-          canvasHeight: 1080 // 기본값
-        }
+          canvasHeight: 1080, // 기본값
+        },
       };
     }
 
@@ -396,7 +405,8 @@ export class UsersService {
           ? template.content
           : template.content.components || [];
         const canvasSettings =
-          typeof template.content === 'object' && !Array.isArray(template.content)
+          typeof template.content === 'object' &&
+          !Array.isArray(template.content)
             ? template.content.canvasSettings || { canvasHeight: 1080 }
             : { canvasHeight: 1080 };
 
@@ -432,16 +442,16 @@ export class UsersService {
     components: any[],
     domain: string,
   ): Promise<any> {
-    const page = await this.pagesRepository.findOne({ 
+    const page = await this.pagesRepository.findOne({
       where: { id: pageId },
-      relations: ['owner']
+      relations: ['owner'],
     });
     if (!page) throw new Error('Page not found');
 
     // 서브도메인 중복 검사
     const existingPage = await this.pagesRepository.findOne({
       where: { subdomain: domain },
-      relations: ['owner']
+      relations: ['owner'],
     });
 
     if (existingPage && existingPage.owner.id !== userId) {
@@ -676,10 +686,10 @@ export class UsersService {
     if (!page) {
       throw new Error('Page not found');
     }
-    return { 
+    return {
       content: page.content || [],
       editingMode: page.editingMode || 'desktop',
-      title: page.title
+      title: page.title,
     };
   }
 
@@ -761,12 +771,42 @@ export class UsersService {
               if (res.ok) {
                 loadComments();
               } else {
-                alert('비밀번호가 일치하지 않습니다.');
+                res.json().then(data => {
+                  // 더 나은 사용자 경험을 위한 인라인 에러 표시
+                  const errorDiv = document.createElement('div');
+                  errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc2626; color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+                  errorDiv.textContent = data.message || '비밀번호가 일치하지 않습니다.';
+                  
+                  document.body.appendChild(errorDiv);
+                  
+                  // 3초 후 에러 메시지 제거
+                  setTimeout(() => {
+                    if (errorDiv.parentNode) errorDiv.remove();
+                  }, 3000);
+                }).catch(() => {
+                  const errorDiv = document.createElement('div');
+                  errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc2626; color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+                  errorDiv.textContent = '비밀번호가 일치하지 않습니다.';
+                  
+                  document.body.appendChild(errorDiv);
+                  
+                  setTimeout(() => {
+                    if (errorDiv.parentNode) errorDiv.remove();
+                  }, 3000);
+                });
               }
             })
             .catch(err => {
               console.error('댓글 삭제 실패:', err);
-              alert('댓글 삭제에 실패했습니다.');
+              const errorDiv = document.createElement('div');
+              errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc2626; color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+              errorDiv.textContent = '댓글 삭제에 실패했습니다.';
+              
+              document.body.appendChild(errorDiv);
+              
+              setTimeout(() => {
+                if (errorDiv.parentNode) errorDiv.remove();
+              }, 3000);
             });
           };
           
@@ -779,7 +819,22 @@ export class UsersService {
             const content = inputs[2].value;
             
             if (!author || !password || !content) {
-              alert('모든 필드를 입력해주세요.');
+              // 더 나은 사용자 경험을 위한 인라인 에러 표시
+              const errorDiv = document.createElement('div');
+              errorDiv.style.cssText = 'color: #dc2626; font-size: 12px; margin-top: 8px; text-align: center;';
+              errorDiv.textContent = '모든 필드를 입력해주세요.';
+              
+              // 기존 에러 메시지 제거
+              const existingError = form.querySelector('.error-message');
+              if (existingError) existingError.remove();
+              
+              errorDiv.className = 'error-message';
+              form.appendChild(errorDiv);
+              
+              // 3초 후 에러 메시지 제거
+              setTimeout(() => {
+                if (errorDiv.parentNode) errorDiv.remove();
+              }, 3000);
               return;
             }
             
@@ -793,12 +848,42 @@ export class UsersService {
                 form.reset();
                 loadComments();
               } else {
-                alert('댓글 작성에 실패했습니다.');
+                res.json().then(data => {
+                  // 더 나은 사용자 경험을 위한 인라인 에러 표시
+                  const errorDiv = document.createElement('div');
+                  errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc2626; color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+                  errorDiv.textContent = data.message || '댓글 작성에 실패했습니다.';
+                  
+                  document.body.appendChild(errorDiv);
+                  
+                  // 3초 후 에러 메시지 제거
+                  setTimeout(() => {
+                    if (errorDiv.parentNode) errorDiv.remove();
+                  }, 3000);
+                }).catch(() => {
+                  const errorDiv = document.createElement('div');
+                  errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc2626; color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+                  errorDiv.textContent = '댓글 작성에 실패했습니다.';
+                  
+                  document.body.appendChild(errorDiv);
+                  
+                  setTimeout(() => {
+                    if (errorDiv.parentNode) errorDiv.remove();
+                  }, 3000);
+                });
               }
             })
             .catch(err => {
               console.error('댓글 작성 실패:', err);
-              alert('댓글 작성에 실패했습니다.');
+              const errorDiv = document.createElement('div');
+              errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc2626; color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+              errorDiv.textContent = '댓글 작성에 실패했습니다.';
+              
+              document.body.appendChild(errorDiv);
+              
+              setTimeout(() => {
+                if (errorDiv.parentNode) errorDiv.remove();
+              }, 3000);
             });
           });
           
@@ -817,7 +902,6 @@ export class UsersService {
     componentId: string;
     pageName?: string;
   }) {
-
     try {
       // 1. 새 페이지 생성
       const newPage = this.pagesRepository.create({
@@ -1041,12 +1125,42 @@ export class UsersService {
                 input.value = '';
                 loadOpinions();
               } else {
-                alert('의견 제출에 실패했습니다.');
+                res.json().then(data => {
+                  // 더 나은 사용자 경험을 위한 인라인 에러 표시
+                  const errorDiv = document.createElement('div');
+                  errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc2626; color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+                  errorDiv.textContent = data.message || '의견 제출에 실패했습니다.';
+                  
+                  document.body.appendChild(errorDiv);
+                  
+                  // 3초 후 에러 메시지 제거
+                  setTimeout(() => {
+                    if (errorDiv.parentNode) errorDiv.remove();
+                  }, 3000);
+                }).catch(() => {
+                  const errorDiv = document.createElement('div');
+                  errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc2626; color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+                  errorDiv.textContent = '의견 제출에 실패했습니다.';
+                  
+                  document.body.appendChild(errorDiv);
+                  
+                  setTimeout(() => {
+                    if (errorDiv.parentNode) errorDiv.remove();
+                  }, 3000);
+                });
               }
             })
             .catch(err => {
               console.error('의견 제출 실패:', err);
-              alert('의견 제출에 실패했습니다.');
+              const errorDiv = document.createElement('div');
+              errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc2626; color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+              errorDiv.textContent = '의견 제출에 실패했습니다.';
+              
+              document.body.appendChild(errorDiv);
+              
+              setTimeout(() => {
+                if (errorDiv.parentNode) errorDiv.remove();
+              }, 3000);
             })
             .finally(() => {
               isSubmitting = false;
@@ -1066,9 +1180,12 @@ export class UsersService {
   }
 
   // 디자인 모드 업데이트
-  async updateDesignMode(pageId: string, designMode: 'desktop' | 'mobile'): Promise<any> {
+  async updateDesignMode(
+    pageId: string,
+    designMode: 'desktop' | 'mobile',
+  ): Promise<any> {
     const page = await this.pagesRepository.findOne({
-      where: { id: pageId }
+      where: { id: pageId },
     });
 
     if (!page) {
@@ -1083,15 +1200,15 @@ export class UsersService {
     // content 객체에 designMode 저장
     page.content = {
       ...page.content,
-      designMode: designMode
+      designMode: designMode,
     };
 
     const updatedPage = await this.pagesRepository.save(page);
-    
+
     return {
       message: 'Design mode updated successfully',
       pageId: pageId,
-      designMode: designMode
+      designMode: designMode,
     };
   }
 
@@ -1105,20 +1222,28 @@ export class UsersService {
     const queryBuilder = this.submissionsRepository
       .createQueryBuilder('submission')
       .leftJoinAndSelect('submission.page', 'page')
-      .where('page.id = :pageId OR submission.component_id = :pageId', { pageId })
+      .where('page.id = :pageId OR submission.component_id = :pageId', {
+        pageId,
+      })
       .orderBy('submission.createdAt', 'DESC');
 
     // 컴포넌트 타입별 필터링
     if (componentType) {
       switch (componentType) {
         case 'comment':
-          queryBuilder.andWhere('submission.component_id LIKE :pattern', { pattern: 'comment_%' });
+          queryBuilder.andWhere('submission.component_id LIKE :pattern', {
+            pattern: 'comment_%',
+          });
           break;
         case 'slido':
-          queryBuilder.andWhere('submission.component_id LIKE :pattern', { pattern: 'slido_%' });
+          queryBuilder.andWhere('submission.component_id LIKE :pattern', {
+            pattern: 'slido_%',
+          });
           break;
         case 'attendance':
-          queryBuilder.andWhere('submission.component_id LIKE :pattern', { pattern: 'attend_%' });
+          queryBuilder.andWhere('submission.component_id LIKE :pattern', {
+            pattern: 'attend_%',
+          });
           break;
       }
     }
@@ -1131,12 +1256,14 @@ export class UsersService {
     }
 
     const submissions = await queryBuilder.getMany();
-    
+
     // 총 개수 조회
     const totalCount = await this.submissionsRepository
       .createQueryBuilder('submission')
       .leftJoinAndSelect('submission.page', 'page')
-      .where('page.id = :pageId OR submission.component_id = :pageId', { pageId })
+      .where('page.id = :pageId OR submission.component_id = :pageId', {
+        pageId,
+      })
       .getCount();
 
     // 타입별 통계 조회
@@ -1145,7 +1272,9 @@ export class UsersService {
       .leftJoinAndSelect('submission.page', 'page')
       .select('submission.component_id', 'componentId')
       .addSelect('COUNT(*)', 'count')
-      .where('page.id = :pageId OR submission.component_id = :pageId', { pageId })
+      .where('page.id = :pageId OR submission.component_id = :pageId', {
+        pageId,
+      })
       .groupBy('submission.component_id')
       .getRawMany();
 

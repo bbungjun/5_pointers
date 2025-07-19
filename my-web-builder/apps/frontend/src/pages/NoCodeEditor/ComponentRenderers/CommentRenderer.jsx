@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../../../config';
+import { useToastContext } from '../../../contexts/ToastContext';
 
 // 사용 가능한 폰트 목록
 const AVAILABLE_FONTS = [
@@ -29,6 +30,7 @@ function CommentRenderer({
   viewport = 'desktop',
   pageId,
 }) {
+  const { showError } = useToastContext();
   const {
     title,
     placeholder,
@@ -83,7 +85,7 @@ function CommentRenderer({
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     if (!newComment.author || !newComment.content || !newComment.password) {
-      alert('모든 필드를 입력해주세요.');
+      showError('모든 필드를 입력해주세요.');
       return;
     }
 
@@ -93,7 +95,7 @@ function CommentRenderer({
       (typeof window !== 'undefined' ? window.API_BASE_URL : null);
 
     if (!actualPageId || !actualApiBaseUrl) {
-      alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+      showError('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
       return;
     }
 
@@ -109,19 +111,19 @@ function CommentRenderer({
         setNewComment({ author: '', content: '', password: '' });
         await fetchComments(); // 댓글 목록 새로고침
       } else {
-        alert(
+        showError(
           `댓글 등록에 실패했습니다. (${response.status}: ${response.statusText})`
         );
       }
     } catch (error) {
-      alert(`댓글 등록에 실패했습니다. 네트워크 오류: ${error.message}`);
+      showError(`댓글 등록에 실패했습니다. 네트워크 오류: ${error.message}`);
     }
   };
 
   // 댓글 삭제
   const handleDeleteComment = async () => {
     if (!deletePassword) {
-      alert('비밀번호를 입력해주세요.');
+      showError('비밀번호를 입력해주세요.');
       return;
     }
 
@@ -140,10 +142,10 @@ function CommentRenderer({
         setDeletePassword('');
         fetchComments(); // 댓글 목록 새로고침
       } else {
-        alert('비밀번호가 일치하지 않습니다.');
+        showError('비밀번호가 일치하지 않습니다.');
       }
     } catch (error) {
-      alert('댓글 삭제에 실패했습니다.');
+      showError('댓글 삭제에 실패했습니다.');
     }
   };
 
