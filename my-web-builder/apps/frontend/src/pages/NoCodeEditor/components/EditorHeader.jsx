@@ -27,6 +27,8 @@ function EditorHeader({
   templateCategory = null,
   isFromTemplate = false,
   onMembersRefetch,
+  pageTitle = '',
+  onPageTitleChange,
 }) {
   const navigate = useNavigate();
 
@@ -54,6 +56,11 @@ function EditorHeader({
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
   const membersDropdownRef = useRef(null);
 
+  // 페이지 제목 수정 상태
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(pageTitle);
+  const titleInputRef = useRef(null);
+
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -75,17 +82,57 @@ function EditorHeader({
     navigate('/dashboard');
   };
 
+  // 제목 수정 시작
+  const startEditTitle = () => {
+    setIsEditingTitle(true);
+    setEditingTitle(pageTitle);
+    setTimeout(() => {
+      if (titleInputRef.current) {
+        titleInputRef.current.focus();
+        titleInputRef.current.select();
+      }
+    }, 100);
+  };
+
+  // 제목 수정 취소
+  const cancelEditTitle = () => {
+    setIsEditingTitle(false);
+    setEditingTitle(pageTitle);
+  };
+
+  // 제목 수정 저장
+  const saveEditTitle = () => {
+    if (editingTitle.trim() && onPageTitleChange) {
+      onPageTitleChange(editingTitle.trim());
+    }
+    setIsEditingTitle(false);
+  };
+
+  // 제목 수정 중 Enter 키 처리
+  const handleTitleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      saveEditTitle();
+    } else if (e.key === 'Escape') {
+      cancelEditTitle();
+    }
+  };
+
   // refetchMembers 함수를 부모 컴포넌트로 전달
   useEffect(() => {
     if (onMembersRefetch) {
       onMembersRefetch(refetchMembers);
     }
   }, [refetchMembers, onMembersRefetch]);
+
+  // 페이지 제목이 변경될 때마다 상태 업데이트
+  useEffect(() => {
+    setEditingTitle(pageTitle);
+  }, [pageTitle]);
   return (
     <div
       className="
         h-16 w-full
-        bg-pink-50 backdrop-blur-sm border-b border-pink-100 
+        backdrop-blur-sm border-b border-pink-100 
         flex items-center justify-between px-6
         shadow-sm
       "
@@ -94,7 +141,7 @@ function EditorHeader({
         alignItems: 'center',
         padding: '0 1rem',
         height: '64px',
-        backgroundColor: '#fdf2f8',
+        background: 'linear-gradient(to right, #FE969B, #CF9AC0)',
         borderBottom: '1px solid #fce7f3',
         color: '#1f2937',
         zIndex: 10,
@@ -117,13 +164,13 @@ function EditorHeader({
         </div>
       </div>
 
-      {/* 중앙: 편집 기준 선택 및 멤버 정보 */}
+      {/* 중앙: 화면 기준 및 페이지 제목 */}
       <div className="flex-1 flex justify-center mx-4 min-w-0">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           {/* DesignMode 선택 드롭다운 */}
           <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-600 font-medium whitespace-nowrap">
-              편집 기준
+            <label className="text-xs text-white/80 font-medium whitespace-nowrap">
+              화면 기준
             </label>
             <select
               value={designMode}
@@ -145,128 +192,149 @@ function EditorHeader({
               }
             >
               {templateCategory !== 'wedding' && (
-                <option value="desktop">💻 데스크탑</option>
+                <option value="desktop">데스크탑</option>
               )}
-              <option value="mobile">📱 모바일</option>
+              <option value="mobile">모바일</option>
             </select>
           </div>
 
-          {/* 멤버 정보 표시 */}
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-600 font-medium whitespace-nowrap">
-              멤버
-            </label>
-            <div className="relative" ref={membersDropdownRef}>
-              {/* 현재 사용자와 멤버들을 가로로 배치 */}
-              <div className="flex items-center gap-2">
-                {/* 현재 사용자 표시 */}
-                <div className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded text-xs">
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{
-                      backgroundColor: currentUser
-                        ? getUserColor(currentUser.id)
-                        : '#10B981',
-                    }}
-                  ></span>
-                  <span className="max-w-16 truncate">
-                    {currentUser?.nickname || '나'}
-                  </span>
-                </div>
-
-                {/* 다른 멤버들 표시 (최대 2명까지) */}
-                {otherMembers.slice(0, 2).map((member) => (
-                  <div
-                    key={member.id}
-                    className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${
-                      member.status === 'PENDING'
-                        ? 'bg-yellow-50 text-yellow-700'
-                        : 'bg-pink-50 text-pink-700'
-                    }`}
-                  >
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: member.color }}
-                    ></span>
-                    <span className="max-w-16 truncate">{member.nickname}</span>
-                  </div>
-                ))}
-
-                {/* 3명 이상이면 + 버튼 표시 */}
-                {otherMembers.length > 2 && (
-                  <button
-                    onClick={() => setShowMembersDropdown(!showMembersDropdown)}
-                    className="px-2 py-1 bg-pink-50 text-pink-700 rounded text-xs hover:bg-pink-100 transition-colors"
-                  >
-                    +{otherMembers.length - 2}
-                  </button>
-                )}
-              </div>
-
-              {/* 멤버 드롭다운 */}
-              {showMembersDropdown && otherMembers.length > 2 && (
-                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48">
-                  <div className="p-2">
-                    <div className="text-xs text-gray-500 mb-2 px-2">
-                      페이지 멤버
-                    </div>
-                    {otherMembers.map((member) => (
-                      <div
-                        key={member.id}
-                        className={`flex items-center gap-2 px-2 py-1 rounded text-xs hover:bg-gray-50 ${
-                          member.status === 'PENDING' ? 'bg-yellow-50' : ''
-                        }`}
-                      >
-                        <span
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: member.color }}
-                        ></span>
-                        <span className="flex-1 truncate">
-                          {member.nickname}
-                        </span>
-                        <span
-                          className={`text-xs ${
-                            member.status === 'PENDING'
-                              ? 'text-yellow-600 font-medium'
-                              : 'text-gray-500'
-                          }`}
-                        >
-                          {member.isOwner
-                            ? '소유자'
-                            : member.status === 'PENDING'
-                              ? '초대 대기'
-                              : member.role}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+          {/* 페이지 제목 */}
+          <div className="flex items-center gap-2 min-w-48">
+            {isEditingTitle ? (
+              <input
+                ref={titleInputRef}
+                type="text"
+                value={editingTitle}
+                onChange={(e) => setEditingTitle(e.target.value)}
+                onBlur={saveEditTitle}
+                onKeyDown={handleTitleKeyPress}
+                className="
+                  px-3 py-1 text-lg font-light text-white text-center
+                  bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg
+                  focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40
+                  w-48 max-w-96
+                  placeholder:text-gray-300 placeholder:font-light
+                "
+                placeholder="페이지 제목을 입력하세요"
+                style={{ textAlign: 'center' }}
+              />
+            ) : (
+              <button
+                onClick={startEditTitle}
+                className="
+                  px-3 py-1 text-lg font-semibold text-white
+                  hover:bg-white/10 rounded-lg transition-colors
+                  w-48 max-w-96 truncate
+                "
+                title="클릭하여 제목 수정"
+              >
+                {pageTitle || '제목 없음'}
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* 우측: 버튼들 */}
       <div className="flex items-center min-w-0 flex-shrink-0 gap-3">
-        {/* 연결 상태 표시 */}
+        {/* 멤버 정보 표시 */}
         <div className="flex items-center gap-2">
-          {connectionError ? (
-            <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded text-xs">
-              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-              <span>연결 오류</span>
+          <span className="text-xs text-white/80 font-medium whitespace-nowrap">
+            멤버
+          </span>
+          <div className="relative" ref={membersDropdownRef}>
+            {/* 현재 사용자와 멤버들을 가로로 배치 */}
+            <div className="flex items-center gap-2">
+              {/* 현재 사용자 표시 */}
+              <div
+                className="flex items-center gap-1 px-2 py-1 rounded text-xs"
+                style={{
+                  backgroundColor: currentUser ? '#F3F4F6' : '#F3F4F6',
+                  color: currentUser ? getUserColor(currentUser.id) : '#EC4899',
+                }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: currentUser
+                      ? getUserColor(currentUser.id)
+                      : '#EC4899',
+                  }}
+                ></span>
+                <span className="max-w-16 truncate">
+                  {currentUser?.nickname || '나'}
+                </span>
+              </div>
+
+              {/* 다른 멤버들 표시 (최대 2명까지) */}
+              {otherMembers.slice(0, 2).map((member) => (
+                <div
+                  key={member.id}
+                  className="flex items-center gap-1 px-2 py-1 rounded text-xs"
+                  style={{
+                    backgroundColor:
+                      member.status === 'PENDING' ? '#FEF3C7' : '#F3F4F6',
+                    color:
+                      member.status === 'PENDING' ? '#D97706' : member.color,
+                  }}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: member.color }}
+                  ></span>
+                  <span className="max-w-16 truncate">{member.nickname}</span>
+                </div>
+              ))}
+
+              {/* 3명 이상이면 + 버튼 표시 */}
+              {otherMembers.length > 2 && (
+                <button
+                  onClick={() => setShowMembersDropdown(!showMembersDropdown)}
+                  className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 transition-colors"
+                >
+                  +{otherMembers.length - 2}
+                </button>
+              )}
             </div>
-          ) : isConnected ? (
-            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              <span>연결됨</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">
-              <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
-              <span>연결 중...</span>
-            </div>
-          )}
+
+            {/* 멤버 드롭다운 */}
+            {showMembersDropdown && otherMembers.length > 2 && (
+              <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48">
+                <div className="p-2">
+                  <div className="text-xs text-gray-500 mb-2 px-2">
+                    페이지 멤버
+                  </div>
+                  {otherMembers.map((member) => (
+                    <div
+                      key={member.id}
+                      className={`flex items-center gap-2 px-2 py-1 rounded text-xs hover:bg-gray-50 ${
+                        member.status === 'PENDING' ? 'bg-yellow-50' : ''
+                      }`}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: member.color }}
+                      ></span>
+                      <span className="flex-1 truncate">{member.nickname}</span>
+                      <span
+                        className={`text-xs ${
+                          member.status === 'PENDING'
+                            ? 'text-yellow-600 font-medium'
+                            : 'text-gray-500'
+                        }`}
+                      >
+                        {member.isOwner
+                          ? '소유자'
+                          : member.status === 'PENDING'
+                            ? '초대 대기'
+                            : member.role}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 템플릿 저장 버튼 (관리자만) */}
@@ -293,9 +361,9 @@ function EditorHeader({
         <button
           onClick={onInviteOpen}
           className="
-            px-4 py-2 bg-white border border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700
-            font-medium rounded-lg transition-colors duration-200
-            flex items-center whitespace-nowrap text-sm
+            w-10 h-10 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white
+            font-medium rounded-lg transition-all duration-300
+            flex items-center justify-center
           "
         >
           <span
@@ -311,40 +379,25 @@ function EditorHeader({
         <button
           onClick={onPreviewOpen}
           className="
-            px-4 py-2 bg-white border border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700
-            font-medium rounded-lg transition-colors duration-200
+            h-10 px-4 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white
+            font-medium rounded-lg transition-all duration-300
             flex items-center whitespace-nowrap text-sm
           "
         >
           미리보기
         </button>
 
-        {/* 게시 버튼 (최우측, 강조 색상) */}
+        {/* 게시 버튼 (최우측, 보라색 배경) */}
         <button
           onClick={() => setShowDeployModal(true)}
           disabled={isDeploying || !components || components.length === 0}
+          className="
+            h-10 px-4 text-white font-medium rounded-lg transition-all duration-300
+            flex items-center whitespace-nowrap text-sm
+            disabled:opacity-50 disabled:cursor-not-allowed
+          "
           style={{
-            background: colors.gradient.primary,
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            border: 'none',
-            fontWeight: '500',
-            fontSize: '14px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            opacity:
-              isDeploying || !components || components.length === 0 ? 0.6 : 1,
-          }}
-          onMouseEnter={(e) => {
-            if (!isDeploying && components && components.length > 0) {
-              e.target.style.background = colors.gradient.dark;
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isDeploying && components && components.length > 0) {
-              e.target.style.background = colors.gradient.primary;
-            }
+            backgroundColor: '#524778',
           }}
         >
           게시

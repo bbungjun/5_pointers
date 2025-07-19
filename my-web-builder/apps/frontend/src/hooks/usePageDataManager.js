@@ -72,12 +72,16 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
           if (pageData.editingMode) {
             console.log('📄 페이지 editingMode 설정:', pageData.editingMode);
             setDesignMode(pageData.editingMode);
-            
+
             // 템플릿으로부터 생성된 페이지인지 판단
             // editingMode가 설정되어 있고, 컴포넌트가 있는 경우 템플릿으로부터 생성된 것으로 간주
-            if (pageData.content && 
-                ((pageData.content.components && pageData.content.components.length > 0) || 
-                 (Array.isArray(pageData.content) && pageData.content.length > 0))) {
+            if (
+              pageData.content &&
+              ((pageData.content.components &&
+                pageData.content.components.length > 0) ||
+                (Array.isArray(pageData.content) &&
+                  pageData.content.length > 0))
+            ) {
               setIsFromTemplate(true);
               console.log('📄 템플릿으로부터 생성된 페이지로 판단됨');
             }
@@ -87,8 +91,12 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
           if (pageData.content && typeof pageData.content === 'object') {
             // 새로운 형식: { components: [], canvasSettings: {} }
             const loadedComponents = pageData.content.components || [];
-            console.log('📄 페이지 데이터에서 로드된 컴포넌트:', loadedComponents.length, '개');
-            
+            console.log(
+              '📄 페이지 데이터에서 로드된 컴포넌트:',
+              loadedComponents.length,
+              '개'
+            );
+
             // 템플릿 컴포넌트를 즉시 렌더링
             if (loadedComponents.length > 0) {
               console.log('🎨 템플릿 컴포넌트를 즉시 렌더링합니다');
@@ -102,8 +110,12 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
           } else if (Array.isArray(pageData.content)) {
             // 이전 형식: content가 직접 배열인 경우
             const loadedComponents = pageData.content || [];
-            console.log('📄 페이지 데이터에서 로드된 컴포넌트:', loadedComponents.length, '개');
-            
+            console.log(
+              '📄 페이지 데이터에서 로드된 컴포넌트:',
+              loadedComponents.length,
+              '개'
+            );
+
             // 템플릿 컴포넌트를 즉시 렌더링
             if (loadedComponents.length > 0) {
               console.log('🎨 템플릿 컴포넌트를 즉시 렌더링합니다');
@@ -148,13 +160,48 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
     if (prevDesignModeRef.current !== designMode) {
       const newHeight = designMode === 'mobile' ? 667 : 1080;
       // 현재 캔버스 높이가 기본값(또는 이전 모드 기본값)과 동일한 경우에만 업데이트
-      const defaultPrevHeight = prevDesignModeRef.current === 'mobile' ? 667 : 1080;
+      const defaultPrevHeight =
+        prevDesignModeRef.current === 'mobile' ? 667 : 1080;
       if (canvasHeight === defaultPrevHeight) {
         setCanvasHeight(newHeight);
       }
       prevDesignModeRef.current = designMode;
     }
   }, [designMode, canvasHeight]);
+
+  // 페이지 제목 업데이트 함수
+  const updatePageTitle = useCallback(
+    async (newTitle) => {
+      if (!roomId || !newTitle.trim()) return;
+
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('토큰이 없습니다.');
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/users/pages/${roomId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ title: newTitle.trim() }),
+        });
+
+        if (response.ok) {
+          setPageTitle(newTitle.trim());
+          console.log('페이지 제목 업데이트 성공:', newTitle);
+        } else {
+          console.error('페이지 제목 업데이트 실패:', response.status);
+        }
+      } catch (error) {
+        console.error('페이지 제목 업데이트 오류:', error);
+      }
+    },
+    [roomId]
+  );
 
   return {
     // 상태
@@ -172,5 +219,6 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
     // 유틸리티
     autoSave,
     decodeJWTPayload,
+    updatePageTitle,
   };
 }
