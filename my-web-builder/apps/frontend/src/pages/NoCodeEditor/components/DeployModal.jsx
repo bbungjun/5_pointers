@@ -165,7 +165,7 @@ function DeployModal({
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  color: '#ec4899',
+                  color: '#8477FF',
                   textDecoration: 'underline',
                   wordBreak: 'break-all',
                   fontSize: '24px',
@@ -182,12 +182,12 @@ function DeployModal({
               style={{
                 padding: '16px 32px',
                 borderRadius: '12px',
-                background: 'linear-gradient(90deg, #ec4899 0%, #be185d 100%)',
-                color: '#fff',
-                fontWeight: 500,
+                backgroundColor: '#8477FF',
+                color: 'white',
+                fontWeight: 600,
                 fontSize: '18px',
                 cursor: 'pointer',
-                border: 'none',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
               }}
             >
               닫기
