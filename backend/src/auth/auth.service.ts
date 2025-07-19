@@ -221,11 +221,12 @@ export class AuthService {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     console.log('=== 카카오 프로필 요청 성공 ===');
+    const profileData = profileRes.data as any;
     console.log('프로필 데이터:', {
-      id: profileRes.data.id,
-      hasKakaoAccount: !!profileRes.data.kakao_account,
-      hasEmail: !!profileRes.data.kakao_account?.email,
-      hasProfile: !!profileRes.data.kakao_account?.profile
+      id: profileData.id,
+      hasKakaoAccount: !!profileData.kakao_account,
+      hasEmail: !!profileData.kakao_account?.email,
+      hasProfile: !!profileData.kakao_account?.profile
     });
     
     const kakaoAccount = (profileRes.data as any).kakao_account;
