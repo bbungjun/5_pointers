@@ -25,16 +25,6 @@ function LoginPage({ onLogin }) {
   });
 
   const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(googleRedirectUrl)}&response_type=code&scope=openid%20email%20profile`;
-  
-  // 카카오 리다이렉트 URL 디버깅
-  const kakaoRedirectUrl = getRedirectUrl('kakao');
-  console.log('카카오 OAuth 설정:', {
-    clientId: KAKAO_CLIENT_ID,
-    redirectUrl: kakaoRedirectUrl,
-    isProduction: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
-  });
-  
-  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${encodeURIComponent(kakaoRedirectUrl)}&response_type=code`;
 
   // 소셜 로그인은 SocialCallbackPage에서 처리됨
 
@@ -167,19 +157,7 @@ function LoginPage({ onLogin }) {
               </button>
             </a>
 
-            <a href={KAKAO_AUTH_URL} className="w-full block flex justify-center">
-              <button className="kakao-material-button w-80 h-12">
-                <div className="kakao-material-button-content-wrapper">
-                  <div className="kakao-material-button-icon">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="10" cy="10" r="10" fill="#FEE500"/>
-                      <path fillRule="evenodd" clipRule="evenodd" d="M10 3C5.58133 3 2 5.7791 2 9.20745C2 11.3382 3.38489 13.2184 5.49511 14.3367L4.60711 17.5927C4.52889 17.8814 4.856 18.1105 5.10756 17.9435L8.99822 15.3643C9.32711 15.3963 9.66044 15.414 10 15.414C14.4178 15.414 18 12.6349 18 9.20745C18 5.7791 14.4178 3 10 3Z" fill="black"/>
-                    </svg>
-                  </div>
-                  <span className="kakao-material-button-contents">카카오 로그인</span>
-                </div>
-              </button>
-            </a>
+
           </div>
         </div>
 

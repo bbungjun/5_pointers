@@ -12,9 +12,7 @@ async function bootstrap() {
     DB_HOST: process.env.DB_HOST ? '설정됨' : '설정되지 않음',
     JWT_SECRET: process.env.JWT_SECRET ? '설정됨' : '설정되지 않음',
     JWT_SECRET_LENGTH: process.env.JWT_SECRET?.length || 0,
-    KAKAO_CLIENT_ID: process.env.KAKAO_CLIENT_ID ? `설정됨 (${process.env.KAKAO_CLIENT_ID.substring(0, 8)}...)` : '❌ 설정되지 않음',
-    KAKAO_CLIENT_SECRET: process.env.KAKAO_CLIENT_SECRET ? '설정됨' : '❌ 설정되지 않음',
-    KAKAO_CALLBACK_URL: process.env.KAKAO_CALLBACK_URL || '설정되지 않음'
+    KAKAO_JS_KEY: process.env.KAKAO_JS_KEY ? '설정됨' : '설정되지 않음'
   });
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -88,7 +86,7 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
   console.log(
-    'ImageUploadServer-ver.2: Static file serving enabled (v2) - API prefix configured',
+    'ImageUploadServer-ver.2: Static file serving enabled (v2) - API prefix configured - Kakao OAuth fix',
   );
 }
 bootstrap();

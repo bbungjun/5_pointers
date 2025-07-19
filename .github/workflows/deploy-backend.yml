@@ -45,10 +45,8 @@ jobs:
           echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
           echo "GOOGLE_CALLBACK_URL=https://ddukddak.org/social-callback?provider=google" >> .env
-          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
-          echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "KAKAO_JS_KEY=${{ secrets.KAKAO_JS_KEY }}" >> .env
-          echo "KAKAO_CALLBACK_URL=https://ddukddak.org/social-callback?provider=kakao" >> .env
+
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "JWT_EXPIRES_IN=1d" >> .env
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
@@ -65,28 +63,12 @@ jobs:
           
           echo "🔍 환경 변수 검증:"
           JWT_SECRET_VAL="${{ secrets.JWT_SECRET }}"
-          KAKAO_CLIENT_ID_VAL="${{ secrets.KAKAO_CLIENT_ID }}"
-          KAKAO_CLIENT_SECRET_VAL="${{ secrets.KAKAO_CLIENT_SECRET }}"
           
           if [ -z "$JWT_SECRET_VAL" ]; then
             echo "❌ JWT_SECRET이 설정되지 않았습니다!"
             exit 1
           else
             echo "✅ JWT_SECRET이 설정되어 있습니다. (길이: ${#JWT_SECRET_VAL})"
-          fi
-          
-          if [ -z "$KAKAO_CLIENT_ID_VAL" ]; then
-            echo "❌ KAKAO_CLIENT_ID가 설정되지 않았습니다!"
-            exit 1
-          else
-            echo "✅ KAKAO_CLIENT_ID가 설정되어 있습니다. (길이: ${#KAKAO_CLIENT_ID_VAL})"
-          fi
-          
-          if [ -z "$KAKAO_CLIENT_SECRET_VAL" ]; then
-            echo "❌ KAKAO_CLIENT_SECRET이 설정되지 않았습니다!"
-            exit 1
-          else
-            echo "✅ KAKAO_CLIENT_SECRET이 설정되어 있습니다. (길이: ${#KAKAO_CLIENT_SECRET_VAL})"
           fi
 
       - name: Create deployment package
