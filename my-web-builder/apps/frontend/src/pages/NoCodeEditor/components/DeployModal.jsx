@@ -1,14 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 
-function DeployModal({
-  isOpen,
-  onClose,
-  onDeploy,
-  isDeploying,
-  deployedUrl,
-  errorMessage,
-}) {
+function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl, errorMessage }) {
   const [domain, setDomain] = useState('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const qrCodeRef = useRef(null);
@@ -23,8 +16,8 @@ function DeployModal({
             margin: 2,
             color: {
               dark: '#000000',
-              light: '#ffffff',
-            },
+              light: '#ffffff'
+            }
           });
           setQrCodeDataUrl(qrCodeDataURL);
         } catch (error) {
@@ -32,7 +25,7 @@ function DeployModal({
         }
       }
     };
-
+    
     generateQRCode();
   }, [deployedUrl]);
 
@@ -52,7 +45,7 @@ function DeployModal({
         width: '100vw',
         height: '100vh',
         backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        zIndex: 999999,
+        zIndex: 1000,
         fontFamily: 'Inter, sans-serif',
       }}
       onClick={onClose}
@@ -91,7 +84,7 @@ function DeployModal({
               color: '#1f2937',
             }}
           >
-            페이지 주소 확정
+            내가 만든 페이지 게시
           </h2>
           <button
             onClick={onClose}
@@ -170,13 +163,13 @@ function DeployModal({
                   wordBreak: 'break-all',
                   fontSize: '24px',
                   fontWeight: 500,
-                  display: 'block',
+                  display: 'block'
                 }}
               >
                 {deployedUrl}
               </a>
             </div>
-
+            
             <button
               onClick={onClose}
               style={{
@@ -203,22 +196,20 @@ function DeployModal({
                 fontSize: '18px',
               }}
             >
-              원하는 주소를 입력하여 사이트를 최종 완성하세요.
+              서브도메인을 입력하여 사이트를 배포하세요.<br />예: <code style={{ fontSize: '16px', backgroundColor: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>my-wedding</code>
             </p>
 
             <div style={{ marginBottom: '32px' }}>
               <input
                 type="text"
-                placeholder="사용할 주소 입력하세요."
+                placeholder="서브도메인 입력"
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '16px',
                   borderRadius: '12px',
-                  border: errorMessage
-                    ? '2px solid #dc2626'
-                    : '2px solid #e5e7eb',
+                  border: errorMessage ? '2px solid #dc2626' : '2px solid #e5e7eb',
                   fontSize: '18px',
                   boxSizing: 'border-box',
                 }}
@@ -227,35 +218,17 @@ function DeployModal({
                 }}
                 autoFocus
               />
-              {domain.trim() && (
-                <div
-                  style={{
-                    marginTop: '12px',
-                    padding: '12px',
-                    backgroundColor: '#f3f4f6',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    color: '#6b7280',
-                    fontSize: '16px',
-                    fontWeight: '500',
-                  }}
-                >
-                  https://{domain.trim()}.ddukddak.org/
-                </div>
-              )}
               {errorMessage && (
-                <div
-                  style={{
-                    marginTop: '12px',
-                    padding: '12px',
-                    backgroundColor: '#fee2e2',
-                    border: '2px solid #fecaca',
-                    borderRadius: '8px',
-                    color: '#dc2626',
-                    fontSize: '16px',
-                    fontWeight: '500',
-                  }}
-                >
+                <div style={{
+                  marginTop: '12px',
+                  padding: '12px',
+                  backgroundColor: '#fee2e2',
+                  border: '2px solid #fecaca',
+                  borderRadius: '8px',
+                  color: '#dc2626',
+                  fontSize: '16px',
+                  fontWeight: '500'
+                }}>
                   {errorMessage}
                 </div>
               )}
@@ -268,12 +241,12 @@ function DeployModal({
                 width: '100%',
                 padding: '16px',
                 borderRadius: '12px',
-                backgroundColor: '#8477FF',
+                background: isDeploying ? '#9ca3af' : 'linear-gradient(90deg, #ec4899 0%, #be185d 100%)',
                 color: 'white',
                 fontWeight: 600,
                 fontSize: '18px',
                 cursor: isDeploying ? 'not-allowed' : 'pointer',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
+                border: 'none',
               }}
             >
               {isDeploying ? '게시 중...' : '최종 확정'}

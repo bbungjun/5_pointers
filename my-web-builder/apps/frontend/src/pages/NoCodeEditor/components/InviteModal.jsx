@@ -53,33 +53,7 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
       if (response.ok) {
         if (data.success) {
           // 초대 링크 생성 성공
-          setMessage(
-            <div>
-              <p>초대 링크를 성공적으로 생성했습니다! 🎉</p>
-              <p
-                style={{
-                  marginTop: '10px',
-                  padding: '10px',
-                  background: '#f8f9fa',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  fontFamily: 'monospace',
-                  wordBreak: 'break-all',
-                }}
-              >
-                초대 링크: {data.inviteUrl || '링크 생성 중...'}
-              </p>
-              <p
-                style={{
-                  marginTop: '8px',
-                  fontSize: '13px',
-                  color: '#6b7280',
-                }}
-              >
-                이 링크를 복사하여 초대할 사용자에게 공유하세요.
-              </p>
-            </div>
-          );
+          setMessage('초대 링크를 성공적으로 생성했습니다! 🎉');
           setMessageType('success');
           setEmail('');
 
@@ -149,7 +123,7 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
           padding: '40px',
           width: '600px',
           maxWidth: '95%',
-          minHeight: '400px',
+          height: '500px',
           boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
         }}
         onClick={(e) => e.stopPropagation()}
@@ -235,29 +209,39 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
               fontSize: '18px',
               cursor: loading ? 'not-allowed' : 'pointer',
               border: '1px solid rgba(255, 255, 255, 0.3)',
+              marginBottom: '40px',
             }}
           >
             {loading ? '링크 생성 중...' : '초대 링크 생성'}
           </button>
         </form>
 
-        {/* 메시지 */}
-        {message && (
-          <div
-            style={{
-              marginTop: '10px',
-              color: messageType === 'success' ? '#059669' : '#d32f2f',
-              background: messageType === 'success' ? '#ecfdf5' : '#ffebee',
-              borderRadius: '6px',
-              padding: '12px',
-              fontSize: '15px',
-              textAlign: 'center',
-              fontWeight: 500,
-            }}
-          >
-            {message}
-          </div>
-        )}
+        {/* 메시지 영역 - 항상 일정한 공간 확보 */}
+        <div
+          style={{
+            marginTop: '5px',
+            minHeight: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {message && (
+            <div
+              style={{
+                color: messageType === 'success' ? '#059669' : '#d32f2f',
+                background: messageType === 'success' ? '#ecfdf5' : '#ffebee',
+                borderRadius: '6px',
+                padding: '12px',
+                fontSize: '15px',
+                textAlign: 'center',
+                fontWeight: 500,
+              }}
+            >
+              {message}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

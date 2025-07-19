@@ -164,12 +164,15 @@ export class AuthService {
       ? 'https://ddukddak.org/social-callback?provider=kakao'
       : 'http://localhost:5173/social-callback?provider=kakao';
 
+    console.log('=== 카카오 프로필 요청 시작 ===');
     console.log('getKakaoProfile called!');
-    console.log({
-      client_id: process.env.KAKAO_CLIENT_ID,
+    console.log('환경 변수 확인:', {
+      client_id: process.env.KAKAO_CLIENT_ID ? '설정됨' : '❌ 설정되지 않음',
       client_secret: process.env.KAKAO_CLIENT_SECRET ? '***설정됨***' : '❌ 설정되지 않음',
       redirect_uri: callbackUrl,
       code: code?.substring(0, 10) + '...',
+      environment: process.env.NODE_ENV || 'development',
+      isProduction
     });
 
     const params = new URLSearchParams({
@@ -191,35 +194,58 @@ export class AuthService {
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
       );
     } catch (error) {
-      console.error(
-        'Kakao OAuth 에러:',
-        {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-          config: {
-            clientId: process.env.KAKAO_CLIENT_ID,
-            callbackUrl,
-            environment: process.env.NODE_ENV
-          }
-        }
-      );
+      console.error('=== 카카오 OAuth 토큰 요청 에러 ===');
+      console.error('에러 메시지:', error.message);
+      console.error('응답 상태:', error.response?.status);
+      console.error('응답 데이터:', error.response?.data);
+      console.error('요청 설정:', {
+        clientId: process.env.KAKAO_CLIENT_ID ? '설정됨' : '❌ 설정되지 않음',
+        clientSecret: process.env.KAKAO_CLIENT_SECRET ? '설정됨' : '❌ 설정되지 않음',
+        callbackUrl,
+        environment: process.env.NODE_ENV || 'development'
+      });
       throw error;
     }
+    console.log('=== 카카오 토큰 요청 성공 ===');
+    console.log('토큰 응답:', {
+      hasAccessToken: !!tokenRes.data.access_token,
+      tokenType: tokenRes.data.token_type,
+      expiresIn: tokenRes.data.expires_in
+    });
+
     const accessToken = (tokenRes.data as { access_token: string })
       .access_token;
 
+    console.log('=== 카카오 프로필 요청 시작 ===');
     const profileRes = await axios.get('https://kapi.kakao.com/v2/user/me', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
+    console.log('=== 카카오 프로필 요청 성공 ===');
+    console.log('프로필 데이터:', {
+      id: profileRes.data.id,
+      hasKakaoAccount: !!profileRes.data.kakao_account,
+      hasEmail: !!profileRes.data.kakao_account?.email,
+      hasProfile: !!profileRes.data.kakao_account?.profile
+    });
+    
     const kakaoAccount = (profileRes.data as any).kakao_account;
 
-    return {
+    const result = {
       email: kakaoAccount.email,
       nickname: kakaoAccount.profile.nickname,
       provider_id: String((profileRes.data as any).id),
       provider: AuthProvider.KAKAO,
     };
+    
+    console.log('=== 카카오 프로필 파싱 완료 ===');
+    console.log('최종 프로필:', {
+      email: result.email,
+      nickname: result.nickname,
+      provider_id: result.provider_id,
+      provider: result.provider
+    });
+    
+    return result;
   }
 
   async findOrCreateUser(profile: {
