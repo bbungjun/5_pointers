@@ -52,7 +52,7 @@ function DeployModal({
         width: '100vw',
         height: '100vh',
         backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        zIndex: 1000,
+        zIndex: 999999,
         fontFamily: 'Inter, sans-serif',
       }}
       onClick={onClose}

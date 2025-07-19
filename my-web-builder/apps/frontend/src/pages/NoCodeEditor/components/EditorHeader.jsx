@@ -144,7 +144,7 @@ function EditorHeader({
         background: 'linear-gradient(to right, #FE969B, #CF9AC0)',
         borderBottom: '1px solid #fce7f3',
         color: '#1f2937',
-        zIndex: 10,
+        zIndex: 1000,
         position: 'sticky',
         top: 0,
       }}
