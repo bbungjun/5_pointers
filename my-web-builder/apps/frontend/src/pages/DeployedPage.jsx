@@ -75,11 +75,14 @@ function DeployedPage({ user, onLogout }) {
       setPagesLoading(true);
       const token = localStorage.getItem('token');
       if (!token) return;
+      
+      // 모든 페이지 가져오기
       const response = await fetch(`${API_BASE_URL}/users/pages/my-pages`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      
       if (response.ok) {
         const data = await response.json();
         console.log('📋 받아온 페이지 데이터:', data);
@@ -90,17 +93,33 @@ function DeployedPage({ user, onLogout }) {
           return firstIndex === index;
         });
 
-        console.log('🔍 중복 제거된 페이지:', uniquePages);
-        console.log(
-          '🚀 배포된 페이지 필터링:',
-          uniquePages.filter((page) => page.status === 'DEPLOYED')
-        );
+        // 배포된 페이지와 임시저장 페이지 분류
+        const deployedPages = uniquePages.filter(page => page.status === 'DEPLOYED');
+        const draftPages = uniquePages.filter(page => page.status === 'DRAFT');
+        
+        // 배포된 페이지의 제목 업데이트 (임시저장에서 배포한 경우 제목 가져오기)
+        const updatedDeployedPages = deployedPages.map(deployedPage => {
+          // 동일한 ID를 가진 임시저장 페이지 찾기
+          const draftVersion = draftPages.find(draft => draft.originalPageId === deployedPage.id);
+          
+          // 임시저장 페이지가 있고 제목이 있는 경우 제목 업데이트
+          if (draftVersion && draftVersion.title && (!deployedPage.title || deployedPage.title === '제목 없음')) {
+            return { ...deployedPage, title: draftVersion.title };
+          }
+          return deployedPage;
+        });
+        
+        // 업데이트된 페이지와 임시저장 페이지 합치기
+        const mergedPages = [...updatedDeployedPages, ...draftPages];
 
-        setMyPages(uniquePages);
+        console.log('🔍 업데이트된 페이지:', mergedPages);
+        console.log('🚀 배포된 페이지:', updatedDeployedPages);
+
+        setMyPages(mergedPages);
 
         // 각 페이지의 submissions 데이터 조회
         const submissionsData = {};
-        for (const page of uniquePages.filter((p) => p.status === 'DEPLOYED')) {
+        for (const page of updatedDeployedPages) {
           const pageSubmissions = await fetchPageSubmissions(page.id);
           if (pageSubmissions) {
             submissionsData[page.id] = pageSubmissions;
@@ -218,12 +237,11 @@ function DeployedPage({ user, onLogout }) {
   const PageCard = ({ page, isMobile = false }) => (
     <div
       key={page.id}
-      className={`bg-white border border-slate-400 rounded-xl p-6 hover:bg-blue-50 transition-all duration-300 group ${
-        isMobile ? 'max-w-xs mx-auto' : ''
-      }`}
+      className="bg-white border border-slate-400 rounded-xl p-6 hover:bg-blue-50 transition-all duration-300 group overflow-hidden h-full flex flex-col"
+      style={{ minHeight: '520px' }}
     >
       {/* 미리보기 영역 */}
-      <div className="mb-4">
+      <div className="mb-4 flex items-center justify-center">
         {isMobile ? (
           // 모바일 휴대폰 프레임 (TemplateCanvasPreview와 동일한 스타일)
           <div className="flex items-center justify-center">
@@ -276,8 +294,8 @@ function DeployedPage({ user, onLogout }) {
         )}
       </div>
 
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
+      <div className="relative mb-4">
+        <div className="pr-16"> {/* 오른쪽에 버튼 공간 확보 */}
           {editingId === page.id ? (
             <input
               type="text"
@@ -289,7 +307,7 @@ function DeployedPage({ user, onLogout }) {
               autoFocus
             />
           ) : (
-            <h3 className="text-lg font-bold text-slate-800 mb-2">
+            <h3 className="text-lg font-bold text-slate-800 mb-2 line-clamp-1 w-full">
               {page.title || '제목 없음'}
             </h3>
           )}
@@ -303,6 +321,7 @@ function DeployedPage({ user, onLogout }) {
               도메인: {page.subdomain}.ddukddak.org
             </p>
           )}
+
 
           {/* 멤버 정보 표시 */}
           {pageMembers[page.id] && pageMembers[page.id].length > 0 && (
@@ -397,7 +416,8 @@ function DeployedPage({ user, onLogout }) {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* 편집/삭제 버튼을 절대 위치로 고정 */}
+        <div className="absolute top-0 right-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => startEditTitle(page.id, page.title)}
             className="p-2 text-slate-600 hover:bg-slate-300 rounded-lg"
@@ -438,21 +458,54 @@ function DeployedPage({ user, onLogout }) {
           </button>
         </div>
       </div>
-      <div className="flex gap-2">
-        <button
-          onClick={() => {
-            navigate(`/editor/${page.id}`);
-          }}
-          className="flex-1 px-4 py-2 bg-slate-400 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"
-        >
-          편집하기
+      <div className="flex flex-col gap-2 mt-auto">
+        {/* 제출된 응답 버튼 */}
+        {submissions[page.id] && (
+          <button
+            onClick={() => openSubmissionsModal(page.id, page.title)}
+            className="w-full py-2 px-3 bg-white hover:bg-blue-100 text-slate-700 rounded-lg border border-slate-400 hover:border-slate-600 transition-all duration-200 flex items-center justify-between"
+          >
+            <span className="font-medium">제출된 응답</span>
+            <div className="flex items-center gap-2">
+              <span className="bg-white px-2 py-1 rounded-full text-xs font-bold text-slate-700">
+                {submissions[page.id].totalCount}개
+              </span>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
           </button>
-        <button
-          onClick={() => window.open(`https://${page.subdomain}.ddukddak.org`, '_blank')}
-          className="px-4 py-2 bg-white text-slate-600 border border-slate-400 rounded-lg font-medium hover:border-slate-800 transition-colors"
-        >
-          보기
-        </button>
+        )}
+        
+        {/* 편집하기/보기 버튼 */}
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => {
+              const viewport =
+                page.editingMode === 'mobile' ? 'mobile' : 'desktop';
+              navigate(`/editor/${page.id}?viewport=${viewport}`);
+            }}
+            className="flex-1 px-4 py-2 bg-slate-400 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"
+          >
+            편집하기
+          </button>
+          <button
+            onClick={() => window.open(`https://${page.subdomain}.ddukddak.org`, '_blank')}
+            className="px-4 py-2 bg-white text-slate-600 border border-slate-400 rounded-lg font-medium hover:bg-blue-100 hover:border-slate-600 transition-all duration-200"
+          >
+            보기
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -606,10 +659,14 @@ function DeployedPage({ user, onLogout }) {
                       {mobilePages.length}개
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {mobilePages.map((page) => (
-                      <PageCard key={page.id} page={page} isMobile={true} />
-                    ))}
+                  <div className="mx-2 sm:mx-3 md:mx-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 auto-rows-fr">
+                      {mobilePages.map((page) => (
+                        <div className="w-full h-full" key={page.id}>
+                          <PageCard page={page} isMobile={true} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -650,10 +707,14 @@ function DeployedPage({ user, onLogout }) {
                       {desktopPages.length}개
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {desktopPages.map((page) => (
-                      <PageCard key={page.id} page={page} isMobile={false} />
-                    ))}
+                  <div className="mx-2 sm:mx-3 md:mx-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 auto-rows-fr">
+                      {desktopPages.map((page) => (
+                        <div className="w-full h-full" key={page.id}>
+                          <PageCard page={page} isMobile={false} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}

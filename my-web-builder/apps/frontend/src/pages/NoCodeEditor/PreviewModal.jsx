@@ -292,56 +292,60 @@ const PreviewModal = ({
       }
 
       .modal-header {
-        background: #fff;
-        padding: 16px 24px;
-        border-bottom: 1px solid #e5e7eb;
+        background: linear-gradient(to right, #FE969B, #CF9AC0);
+        padding: 0 24px;
+        height: 64px;
+        border-bottom: 1px solid #fce7f3;
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
+        position: relative;
       }
 
       .viewport-controls {
         display: flex;
         gap: 8px;
+        justify-content: center;
       }
 
       .viewport-btn {
         padding: 8px 16px;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-        background: #fff;
-        color: #374151;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s;
+        backdrop-blur: 4px;
       }
 
       .viewport-btn:hover {
-        background: #f9fafb;
-        border-color: #9ca3af;
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
       }
 
       .viewport-btn.active {
-        background: #3b82f6;
-        border-color: #3b82f6;
-        color: #fff;
+        background: rgba(255, 255, 255, 0.4);
+        border-color: rgba(255, 255, 255, 0.6);
+        color: white;
       }
 
       .close-btn {
-        padding: 8px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-        background: #fff;
-        color: #6b7280;
-        font-size: 16px;
+        position: absolute;
+        right: 24px;
+        padding: 8px;
+        border: none;
+        background: none;
+        color: white;
+        font-size: 24px;
         cursor: pointer;
         transition: all 0.2s;
       }
 
       .close-btn:hover {
-        background: #f3f4f6;
-        color: #374151;
+        opacity: 0.7;
       }
 
       .preview-container {

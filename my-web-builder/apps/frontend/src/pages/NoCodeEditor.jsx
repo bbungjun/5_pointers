@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import useAutoSave from '../hooks/useAutoSave';
 import SaveStatusIndicator from '../components/SaveStatusIndicator';
@@ -17,6 +23,7 @@ import UserCursor from './NoCodeEditor/components/UserCursor';
 import WebSocketConnectionGuide from '../components/WebSocketConnectionGuide';
 import ChatBubble from '../components/collaboration/ChatBubble';
 import ChatInput from '../components/collaboration/ChatInput';
+import ConnectionStatus from '../components/ConnectionStatus';
 
 // 훅들
 import { usePageDataManager } from '../hooks/usePageDataManager';
@@ -26,22 +33,20 @@ import { useComponentActions } from '../hooks/useComponentActions';
 
 // 유틸리티
 import { getUserColor } from '../utils/userColors';
-import {
-  getComponentDimensions,
-} from './NoCodeEditor/utils/editorUtils';
+import { getComponentDimensions } from './NoCodeEditor/utils/editorUtils';
 
 // 쓰로틀링 유틸리티 함수
 const throttle = (func, limit) => {
   let inThrottle;
-  return function() {
+  return function () {
     const args = arguments;
     const context = this;
     if (!inThrottle) {
       func.apply(context, args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      setTimeout(() => (inThrottle = false), limit);
     }
-  }
+  };
 };
 
 function NoCodeEditor({ pageId }) {
@@ -50,20 +55,21 @@ function NoCodeEditor({ pageId }) {
   // pageId가 없으면 임시 ID 생성 (하지만 실제로는 pageId가 항상 있어야 함)
   const effectivePageId = pageId || `room-${Date.now()}`;
   
+
   // URL 파라미터는 더 이상 사용하지 않음 (페이지의 editingMode 사용)
   const initialViewport = 'desktop'; // 기본값만 설정
-  
+
   // 템플릿 정보는 더 이상 URL 파라미터로 전달하지 않음
   const templateCategory = null;
-  
+
   const canvasRef = useRef();
   const containerRef = useRef();
   const [components, setComponents] = useState([]);
-  
+
   // 다중 선택 관련 상태
   const [selectedIds, setSelectedIds] = useState([]);
   const [clipboard, setClipboard] = useState([]);
-  
+
   // 멤버 목록 새로고침 함수 (useCallback으로 관리)
   const [refetchMembers, setRefetchMembers] = useState(() => () => {});
 
@@ -76,6 +82,9 @@ function NoCodeEditor({ pageId }) {
     isLoading,
     isFromTemplate,
     decodeJWTPayload,
+    pageTitle,
+    setPageTitle,
+    updatePageTitle,
   } = usePageDataManager(effectivePageId, initialViewport);
 
   // 2. 사용자 정보 처리 (단순화)
@@ -112,7 +121,11 @@ function NoCodeEditor({ pageId }) {
   const isAdmin = userInfo?.role === 'ADMIN';
 
   // 3. UI 상호작용 관리 (초기 뷰포트 설정 포함)
-  const interaction = useEditorInteractionManager(designMode, setDesignMode, initialViewport);
+  const interaction = useEditorInteractionManager(
+    designMode,
+    setDesignMode,
+    initialViewport
+  );
 
   // 4. 협업 동기화 로직 (항상 호출되도록 보장)
   const collaboration = useCollaboration({
@@ -122,7 +135,10 @@ function NoCodeEditor({ pageId }) {
     selectedComponentId: interaction.selectedId,
     onComponentsUpdate: setComponents,
     onCanvasSettingsUpdate: (settings) => {
-      if (settings.canvasHeight !== undefined && settings.canvasHeight !== canvasHeight) {
+      if (
+        settings.canvasHeight !== undefined &&
+        settings.canvasHeight !== canvasHeight
+      ) {
         console.log('협업을 통해 캔버스 높이 동기화:', settings.canvasHeight);
         setCanvasHeight(settings.canvasHeight);
       }
@@ -133,20 +149,20 @@ function NoCodeEditor({ pageId }) {
   // 템플릿 시작 시 모든 사용자에게 즉시 동기화 (최초 한 번만)
   const [hasInitialSync, setHasInitialSync] = useState(false);
   useEffect(() => {
-    if (isFromTemplate && effectivePageId && !isLoading && collaboration.isConnected && components.length > 0 && !hasInitialSync) {
-      console.log('🎨 템플릿이 로드되었습니다. 모든 사용자에게 즉시 동기화 준비 완료');
-      
       // 모든 사용자에게 즉시 동기화를 위해 updateAllComponents 호출
       if (collaboration.updateAllComponents) {
         console.log('🔄 모든 사용자에게 템플릿 동기화 시작...');
         collaboration.updateAllComponents(components);
         setHasInitialSync(true); // 최초 동기화 완료 표시
-        console.log('✅ 템플릿 초기 동기화 완료. 이후 Y.js가 실시간 협업을 처리합니다.');
+        console.log(
+          '✅ 템플릿 초기 동기화 완료. 이후 Y.js가 실시간 협업을 처리합니다.'
+        );
       }
     }
+
   }, [isFromTemplate, effectivePageId, isLoading, collaboration.isConnected, components.length, collaboration.updateAllComponents, hasInitialSync]);
 
-        // collaboration이 undefined일 수 있으므로 기본값 제공
+  // collaboration이 undefined일 수 있으므로 기본값 제공
   const {
     otherCursors = [],
     otherSelections = [],
@@ -193,34 +209,38 @@ function NoCodeEditor({ pageId }) {
   );
 
   // 협업 시스템을 통한 컴포넌트 업데이트 함수
-  const handleCollaborativeUpdate = useCallback((updatedComponent) => {
-    if (isConnected && updateComponentObject) {
-      // 협업 모드: Y.js를 통한 동기화
-      updateComponentObject(updatedComponent);
-    } else {
-      // 로컬 모드: 로컬 상태 업데이트
-      setComponents(prevComponents => 
-        prevComponents.map(comp => 
-          comp.id === updatedComponent.id ? updatedComponent : comp
-        )
-      );
-    }
-  }, [isConnected, updateComponentObject]);
+  const handleCollaborativeUpdate = useCallback(
+    (updatedComponent) => {
+      if (isConnected && updateComponentObject) {
+        // 협업 모드: Y.js를 통한 동기화
+        updateComponentObject(updatedComponent);
+      } else {
+        // 로컬 모드: 로컬 상태 업데이트
+        setComponents((prevComponents) =>
+          prevComponents.map((comp) =>
+            comp.id === updatedComponent.id ? updatedComponent : comp
+          )
+        );
+      }
+    },
+    [isConnected, updateComponentObject]
+  );
 
   // 쓰로틀링된 커서 업데이트 함수 (useRef로 관리)
   const throttledUpdateCursorPositionRef = useRef(null);
-  
+
   useEffect(() => {
-    throttledUpdateCursorPositionRef.current = throttle(updateCursorPosition, 16);
+    throttledUpdateCursorPositionRef.current = throttle(
+      updateCursorPosition,
+      16
+    );
   }, [updateCursorPosition]);
-  
+
   const throttledUpdateCursorPosition = useCallback((...args) => {
     if (throttledUpdateCursorPositionRef.current) {
       throttledUpdateCursorPositionRef.current(...args);
     }
   }, []);
-
-
 
   // 컴포넌트 선택 시 스크롤 이동
   useEffect(() => {
@@ -255,8 +275,6 @@ function NoCodeEditor({ pageId }) {
     }
   }, [connectionError, isConnected]);
 
-
-
   // 키보드 단축키 처리 (Delete, Ctrl+C, Ctrl+V)
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -269,7 +287,7 @@ function NoCodeEditor({ pageId }) {
       if (e.key === 'Delete') {
         if (selectedIds.length > 0) {
           // 다중 선택된 컴포넌트들 삭제
-          selectedIds.forEach(id => {
+          selectedIds.forEach((id) => {
             actions.handleDelete(id, id, interaction.setSelectedId);
           });
           setSelectedIds([]);
@@ -286,14 +304,15 @@ function NoCodeEditor({ pageId }) {
       // Ctrl+C: 복사
       if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
         e.preventDefault();
-        const componentsToCopy = selectedIds.length > 0 
-          ? components.filter(comp => selectedIds.includes(comp.id))
-          : interaction.selectedId 
-            ? [components.find(comp => comp.id === interaction.selectedId)]
-            : [];
-        
+        const componentsToCopy =
+          selectedIds.length > 0
+            ? components.filter((comp) => selectedIds.includes(comp.id))
+            : interaction.selectedId
+              ? [components.find((comp) => comp.id === interaction.selectedId)]
+              : [];
+
         if (componentsToCopy.length > 0) {
-          setClipboard(componentsToCopy.map(comp => ({ ...comp })));
+          setClipboard(componentsToCopy.map((comp) => ({ ...comp })));
         }
       }
 
@@ -301,20 +320,20 @@ function NoCodeEditor({ pageId }) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
         e.preventDefault();
         if (clipboard.length > 0) {
-          const newComponents = clipboard.map(comp => ({
+          const newComponents = clipboard.map((comp) => ({
             ...comp,
             id: `${comp.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             x: comp.x + 20,
             y: comp.y + 20,
           }));
-          
+
           // 협업 시스템의 addComponent 함수 사용
-          newComponents.forEach(comp => {
+          newComponents.forEach((comp) => {
             addComponent(comp);
           });
-          
+
           // 새로 붙여넣은 컴포넌트들을 선택
-          setSelectedIds(newComponents.map(comp => comp.id));
+          setSelectedIds(newComponents.map((comp) => comp.id));
           if (newComponents.length === 1) {
             interaction.setSelectedId(newComponents[0].id);
           }
@@ -324,7 +343,7 @@ function NoCodeEditor({ pageId }) {
       // Ctrl+A: 전체 선택
       if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
         e.preventDefault();
-        setSelectedIds(components.map(comp => comp.id));
+        setSelectedIds(components.map((comp) => comp.id));
       }
 
       // Escape: 선택 해제
@@ -344,7 +363,15 @@ function NoCodeEditor({ pageId }) {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedIds, interaction.selectedId, actions, components, clipboard, interaction.setSelectedId, addComponent]);
+  }, [
+    selectedIds,
+    interaction.selectedId,
+    actions,
+    components,
+    clipboard,
+    interaction.setSelectedId,
+    addComponent,
+  ]);
 
   // 브라우저 확대/축소 방지
   useEffect(() => {
@@ -374,77 +401,93 @@ function NoCodeEditor({ pageId }) {
   }, []);
 
   // 드롭 핸들러 (컴포넌트 추가 후 자동 선택)
-  const handleDrop = useCallback((e) => {
-    const newComponentId = actions.handleDrop(e);
-    if (newComponentId) {
-      setTimeout(() => interaction.setSelectedId(newComponentId), 100);
-    }
-  }, [actions, interaction.setSelectedId]);
+  const handleDrop = useCallback(
+    (e) => {
+      const newComponentId = actions.handleDrop(e);
+      if (newComponentId) {
+        setTimeout(() => interaction.setSelectedId(newComponentId), 100);
+      }
+    },
+    [actions, interaction.setSelectedId]
+  );
 
   // 다중 선택 핸들러
-  const handleMultiSelect = useCallback((ids) => {
-    console.log('handleMultiSelect 호출:', ids);
-    setSelectedIds(ids);
-    if (ids.length === 1) {
-      interaction.setSelectedId(ids[0]);
-    } else {
-      interaction.setSelectedId(null);
-    }
-    // 협업 시스템에 다중 선택 알림
-    updateSelection(ids, interaction.viewport);
-  }, [interaction.setSelectedId, interaction.viewport, updateSelection]);
+  const handleMultiSelect = useCallback(
+    (ids) => {
+      console.log('handleMultiSelect 호출:', ids);
+      setSelectedIds(ids);
+      if (ids.length === 1) {
+        interaction.setSelectedId(ids[0]);
+      } else {
+        interaction.setSelectedId(null);
+      }
+      // 협업 시스템에 다중 선택 알림
+      updateSelection(ids, interaction.viewport);
+    },
+    [interaction.setSelectedId, interaction.viewport, updateSelection]
+  );
 
   // 컴포넌트 선택 핸들러 (Ctrl+클릭 지원)
-  const handleSelect = useCallback((id, isCtrlPressed = false) => {
-    if (id === null) {
-      // 빈 영역 클릭 시 선택 해제
-      setSelectedIds([]);
-      interaction.setSelectedId(null);
-      // 협업 시스템에 선택 해제 알림
-      updateSelection([], interaction.viewport);
-      return;
-    }
+  const handleSelect = useCallback(
+    (id, isCtrlPressed = false) => {
+      if (id === null) {
+        // 빈 영역 클릭 시 선택 해제
+        setSelectedIds([]);
+        interaction.setSelectedId(null);
+        // 협업 시스템에 선택 해제 알림
+        updateSelection([], interaction.viewport);
+        return;
+      }
 
-    if (isCtrlPressed) {
-      // Ctrl+클릭으로 다중 선택 토글
-      if (selectedIds.includes(id)) {
-        // 이미 선택된 컴포넌트를 다시 클릭하면 선택 해제
-        const newSelectedIds = selectedIds.filter(selectedId => selectedId !== id);
-        setSelectedIds(newSelectedIds);
-        if (newSelectedIds.length === 1) {
-          interaction.setSelectedId(newSelectedIds[0]);
-          // 협업 시스템에 단일 선택 알림
+      if (isCtrlPressed) {
+        // Ctrl+클릭으로 다중 선택 토글
+        if (selectedIds.includes(id)) {
+          // 이미 선택된 컴포넌트를 다시 클릭하면 선택 해제
+          const newSelectedIds = selectedIds.filter(
+            (selectedId) => selectedId !== id
+          );
+          setSelectedIds(newSelectedIds);
+          if (newSelectedIds.length === 1) {
+            interaction.setSelectedId(newSelectedIds[0]);
+            // 협업 시스템에 단일 선택 알림
+            updateSelection(newSelectedIds, interaction.viewport);
+          } else if (newSelectedIds.length === 0) {
+            interaction.setSelectedId(null);
+            // 협업 시스템에 선택 해제 알림
+            updateSelection([], interaction.viewport);
+          }
+        } else {
+          // 새로운 컴포넌트를 다중 선택에 추가
+          const newSelectedIds = [...selectedIds, id];
+          setSelectedIds(newSelectedIds);
+          if (newSelectedIds.length === 1) {
+            interaction.setSelectedId(id);
+          }
+          // 협업 시스템에 다중 선택 알림
           updateSelection(newSelectedIds, interaction.viewport);
-        } else if (newSelectedIds.length === 0) {
-          interaction.setSelectedId(null);
-          // 협업 시스템에 선택 해제 알림
-          updateSelection([], interaction.viewport);
         }
       } else {
-        // 새로운 컴포넌트를 다중 선택에 추가
-        const newSelectedIds = [...selectedIds, id];
-        setSelectedIds(newSelectedIds);
-        if (newSelectedIds.length === 1) {
-          interaction.setSelectedId(id);
-        }
-        // 협업 시스템에 다중 선택 알림
-        updateSelection(newSelectedIds, interaction.viewport);
+        // 일반 클릭 시 단일 선택 (기존 다중 선택 해제)
+        setSelectedIds([id]);
+        interaction.setSelectedId(id);
+        // 협업 시스템에 단일 선택 알림
+        updateSelection([id], interaction.viewport);
       }
-    } else {
-      // 일반 클릭 시 단일 선택 (기존 다중 선택 해제)
-      setSelectedIds([id]);
-      interaction.setSelectedId(id);
-      // 협업 시스템에 단일 선택 알림
-      updateSelection([id], interaction.viewport);
-    }
-  }, [selectedIds, interaction.setSelectedId, interaction.viewport, updateSelection]);
+    },
+    [
+      selectedIds,
+      interaction.setSelectedId,
+      interaction.viewport,
+      updateSelection,
+    ]
+  );
 
   // 자동저장 훅 (컴포넌트 변경 시에만 저장)
   const { isSaving, lastSaved, saveError, saveCount, saveNow } = useAutoSave(
-    pageId,          // roomId (페이지 ID)
-    components,      // 컴포넌트 배열
-    canvasHeight,    // 현재 캔버스 높이
-    2000             // 디바운스 시간 (2초)
+    pageId, // roomId (페이지 ID)
+    components, // 컴포넌트 배열
+    canvasHeight, // 현재 캔버스 높이
+    2000 // 디바운스 시간 (2초)
   );
 
   // 컴포넌트 변경 시 자동저장 트리거
@@ -472,35 +515,38 @@ function NoCodeEditor({ pageId }) {
   const selectedComp = components.find((c) => c.id === interaction.selectedId);
 
   // 메모이제이션된 협업 객체
-  const collaborationObject = useMemo(() => ({
-    otherCursors,
-    otherSelections,
-    updateCursorPosition: throttledUpdateCursorPosition,
-    addComponent,
-    updateComponent,
-    removeComponent,
-    updateAllComponents,
-    getActiveUsers,
-    undo,
-    redo,
-    getHistory,
-    setHistory,
-    isConnected,
-  }), [
-    otherCursors,
-    otherSelections,
-    throttledUpdateCursorPosition,
-    addComponent,
-    updateComponent,
-    removeComponent,
-    updateAllComponents,
-    getActiveUsers,
-    undo,
-    redo,
-    getHistory,
-    setHistory,
-    isConnected,
-  ]);
+  const collaborationObject = useMemo(
+    () => ({
+      otherCursors,
+      otherSelections,
+      updateCursorPosition: throttledUpdateCursorPosition,
+      addComponent,
+      updateComponent,
+      removeComponent,
+      updateAllComponents,
+      getActiveUsers,
+      undo,
+      redo,
+      getHistory,
+      setHistory,
+      isConnected,
+    }),
+    [
+      otherCursors,
+      otherSelections,
+      throttledUpdateCursorPosition,
+      addComponent,
+      updateComponent,
+      removeComponent,
+      updateAllComponents,
+      getActiveUsers,
+      undo,
+      redo,
+      getHistory,
+      setHistory,
+      isConnected,
+    ]
+  );
 
   // 로딩 상태 처리
   if (isLoading) {
@@ -534,7 +580,13 @@ function NoCodeEditor({ pageId }) {
         viewport={interaction.viewport}
         designMode={designMode}
         onViewportChange={interaction.handleViewportChange}
-        onDesignModeChange={(newDesignMode) => interaction.handleDesignModeChange(newDesignMode, pageId, isFromTemplate)}
+        onDesignModeChange={(newDesignMode) =>
+          interaction.handleDesignModeChange(
+            newDesignMode,
+            pageId,
+            isFromTemplate
+          )
+        }
         onPreviewOpen={interaction.handlePreviewOpen}
         onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
         onInviteOpen={interaction.handleInviteOpen}
@@ -550,6 +602,8 @@ function NoCodeEditor({ pageId }) {
             setRefetchMembers(() => refetchFn);
           }
         }}
+        pageTitle={pageTitle}
+        onPageTitleChange={updatePageTitle}
       />
 
       {/* 저장 상태 표시 */}
@@ -560,6 +614,14 @@ function NoCodeEditor({ pageId }) {
         saveCount={saveCount}
         onSaveNow={saveNow}
       />
+
+      {/* 연결 상태 표시 (헤더 밖) */}
+      <div className="absolute top-20 right-6 z-20">
+        <ConnectionStatus
+          isConnected={isConnected}
+          connectionError={connectionError}
+        />
+      </div>
 
       {/* 메인 에디터 영역 */}
       <div className="flex flex-1 overflow-hidden">
@@ -618,11 +680,7 @@ function NoCodeEditor({ pageId }) {
             updateCursorPosition={throttledUpdateCursorPosition}
             pageId={pageId}
             onAddSection={(sectionY) =>
-              actions.handleAddSection(
-                sectionY,
-                containerRef,
-                interaction.zoom
-              )
+              actions.handleAddSection(sectionY, containerRef, interaction.zoom)
             }
             openChatInput={openChatInput}
             cursorChatMessages={cursorChatMessages}
@@ -690,16 +748,21 @@ function NoCodeEditor({ pageId }) {
       {/* 커서 채팅 메시지들 (자신과 다른 사용자 모두) */}
       {Object.entries(cursorChatMessages).map(([userId, message]) => {
         if (!message) return null;
-        
+
         // 자신의 메시지인지 확인
-        const isOwnMessage = userId === userInfo?.id || userId === String(userInfo?.id);
-        
+        const isOwnMessage =
+          userId === userInfo?.id || userId === String(userInfo?.id);
+
         return (
           <ChatBubble
             key={`cursor-chat-${userId}-${message}`}
             x={cursorPosition.x}
             y={cursorPosition.y}
-            user={isOwnMessage ? userInfo : { id: userId, name: '사용자', color: '#3B4EFF' }}
+            user={
+              isOwnMessage
+                ? userInfo
+                : { id: userId, name: '사용자', color: '#3B4EFF' }
+            }
             message={message}
             timestamp={Date.now()}
             onClose={() => {
@@ -733,16 +796,15 @@ function NoCodeEditor({ pageId }) {
         <div className="websocket-guide">
           <WebSocketConnectionGuide
             wsUrl={YJS_WEBSOCKET_URL}
-
             onRetry={() => {
               console.log('🔄 WebSocket 재연결 시도...');
-              
+
               // 협업 시스템 재연결 시도
               if (collaboration && collaboration.provider) {
                 console.log('🔗 Y.js Provider 재연결 시도');
                 collaboration.provider.connect();
               }
-              
+
               // 페이지 새로고침을 통한 강제 재연결
               setTimeout(() => {
                 if (!isConnected) {
