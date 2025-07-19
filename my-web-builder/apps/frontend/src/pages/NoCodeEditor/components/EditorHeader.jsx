@@ -225,11 +225,13 @@ function EditorHeader({
                 className="
                   px-3 py-1 text-lg font-semibold text-white
                   hover:bg-white/10 rounded-lg transition-colors
-                  w-48 max-w-96 truncate
+                  w-64 max-w-96 truncate
                 "
                 title="클릭하여 제목 수정"
               >
-                {pageTitle || '제목 없음'}
+                {pageTitle && pageTitle.length > 15 
+                  ? `${pageTitle.substring(0, 15)}...` 
+                  : (pageTitle || '제목 없음')}
               </button>
             )}
           </div>
@@ -248,9 +250,8 @@ function EditorHeader({
             <div className="flex items-center gap-2">
               {/* 현재 사용자 표시 */}
               <div
-                className="flex items-center gap-1 px-2 py-1 rounded text-xs"
+                className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-white/90"
                 style={{
-                  backgroundColor: currentUser ? '#F3F4F6' : '#F3F4F6',
                   color: currentUser ? getUserColor(currentUser.id) : '#EC4899',
                 }}
               >
@@ -271,12 +272,9 @@ function EditorHeader({
               {otherMembers.slice(0, 2).map((member) => (
                 <div
                   key={member.id}
-                  className="flex items-center gap-1 px-2 py-1 rounded text-xs"
+                  className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-white/90"
                   style={{
-                    backgroundColor:
-                      member.status === 'PENDING' ? '#FEF3C7' : '#F3F4F6',
-                    color:
-                      member.status === 'PENDING' ? '#D97706' : member.color,
+                    color: member.status === 'PENDING' ? '#D97706' : member.color,
                   }}
                 >
                   <span
@@ -308,9 +306,10 @@ function EditorHeader({
                   {otherMembers.map((member) => (
                     <div
                       key={member.id}
-                      className={`flex items-center gap-2 px-2 py-1 rounded text-xs hover:bg-gray-50 ${
-                        member.status === 'PENDING' ? 'bg-yellow-50' : ''
-                      }`}
+                      className="flex items-center gap-2 px-2 py-1 rounded text-xs hover:bg-gray-50"
+                      style={{
+                        color: member.status === 'PENDING' ? '#D97706' : member.color
+                      }}
                     >
                       <span
                         className="w-2 h-2 rounded-full"
@@ -343,18 +342,19 @@ function EditorHeader({
           <button
             onClick={onTemplateSaveOpen}
             className="
-              px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800
-              font-medium rounded-lg transition-colors duration-200
+              h-10 px-4 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white
+              font-medium rounded-lg transition-all duration-300
               flex items-center whitespace-nowrap text-sm
             "
           >
             <span
-              className="material-symbols-outlined text-xl"
+              className="material-symbols-outlined text-base mr-1"
               title="템플릿 저장"
               aria-label="템플릿 저장"
             >
               save
             </span>
+            템플릿 저장
           </button>
         )}
 

@@ -109,17 +109,22 @@ export function useDeploy() {
         console.log('배포 성공 데이터:', data);
         
         // 백엔드에서 반환된 URL을 사용 (백엔드가 환경별 올바른 URL을 제공)
-        const deployedUrl = data.url || getDeployedUrl(domainToUse);
-        console.log('최종 배포 URL:', deployedUrl);
-        
-        setDeployedUrl(deployedUrl);
-        setShowDomainInput(false);
-        
-        console.log('배포 완료! URL 상태 업데이트됨:', deployedUrl);
-        
-        // 배포 성공 후 콜백 실행
-        if (onDeploySuccess) {
-          onDeploySuccess(deployedUrl);
+        // data가 유효한지 확인
+        if (data && typeof data === 'object') {
+          const deployedUrl = data.url || getDeployedUrl(domainToUse);
+          console.log('최종 배포 URL:', deployedUrl);
+          
+          setDeployedUrl(deployedUrl);
+          setShowDomainInput(false);
+          
+          console.log('배포 완료! URL 상태 업데이트됨:', deployedUrl);
+          
+          // 배포 성공 후 콜백 실행
+          if (onDeploySuccess) {
+            onDeploySuccess(deployedUrl);
+          }
+        } else {
+          throw new Error('백엔드에서 유효한 응답을 받지 못했습니다.');
         }
       } else {
         let errorMessage = '배포 실패';
@@ -153,9 +158,21 @@ export function useDeploy() {
       // 에러 메시지를 상태에 저장
       console.log('🔍 에러 메시지 검사:', error.message);
       
-      if (error.message.includes('이미 존재하는 서브도메인입니다') || 
-          error.message.includes('이미 사용 중입니다')) {
-        setErrorMessage('다른 사용자가 사용중인 서브도메인입니다. 다른 서브도메인을 입력해주세요.');
+      const errorMsg = error.message.toLowerCase();
+      
+      // 데이터베이스 저장 실패 또는 undefined id 관련 오류 처리
+      if (errorMsg.includes('cannot read properties of undefined') || 
+          (errorMsg.includes('undefined') && errorMsg.includes('id')) || 
+          errorMsg.includes('데이터베이스 저장 실패')) {
+        setErrorMessage('이미 존재하는 주소입니다. 다른 주소를 입력해주세요.');
+      }
+      // 이미 존재하는 도메인 관련 오류 처리
+      else if (errorMsg.includes('이미 존재') || 
+          errorMsg.includes('이미 사용') || 
+          errorMsg.includes('already') || 
+          errorMsg.includes('exist') || 
+          errorMsg.includes('duplicate')) {
+        setErrorMessage('이미 존재하는 주소입니다. 다른 주소를 입력해주세요.');
       } else {
         setErrorMessage(`배포 중 오류가 발생했습니다: ${error.message}`);
       }

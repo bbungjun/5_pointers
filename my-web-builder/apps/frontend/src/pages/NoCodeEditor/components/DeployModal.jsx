@@ -153,13 +153,13 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl, erro
               }}>
                 배포된 페이지
               </p>
-              <a 
-                href={deployedUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                style={{ 
-                  color: '#ec4899', 
-                  textDecoration: 'underline', 
+              <a
+                href={deployedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#8477FF',
+                  textDecoration: 'underline',
                   wordBreak: 'break-all',
                   fontSize: '24px',
                   fontWeight: 500,
@@ -175,12 +175,12 @@ function DeployModal({ isOpen, onClose, onDeploy, isDeploying, deployedUrl, erro
               style={{
                 padding: '16px 32px',
                 borderRadius: '12px',
-                background: 'linear-gradient(90deg, #ec4899 0%, #be185d 100%)',
-                color: '#fff',
-                fontWeight: 500,
+                backgroundColor: '#8477FF',
+                color: 'white',
+                fontWeight: 600,
                 fontSize: '18px',
                 cursor: 'pointer',
-                border: 'none'
+                border: '1px solid rgba(255, 255, 255, 0.3)',
               }}
             >
               닫기
