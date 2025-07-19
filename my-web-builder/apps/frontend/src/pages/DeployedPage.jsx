@@ -369,23 +369,23 @@ function DeployedPage({ user, onLogout }) {
           </button>
         )}
         
-        {/* 편집하기/보기 버튼 */}
+        {/* 바로가기/편집 버튼 */}
         <div className="flex gap-2 items-center">
+          <button
+            onClick={() => window.open(`https://${page.subdomain}.ddukddak.org`, '_blank')}
+            className="flex-1 px-4 py-2 bg-slate-400 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"
+          >
+            바로가기
+          </button>
           <button
             onClick={() => {
               const viewport =
                 page.editingMode === 'mobile' ? 'mobile' : 'desktop';
               navigate(`/editor/${page.id}?viewport=${viewport}`);
             }}
-            className="flex-1 px-4 py-2 bg-slate-400 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"
-          >
-            편집하기
-          </button>
-          <button
-            onClick={() => window.open(`https://${page.subdomain}.ddukddak.org`, '_blank')}
             className="px-4 py-2 bg-white text-slate-600 border border-slate-400 rounded-lg font-medium hover:bg-blue-100 hover:border-slate-600 transition-all duration-200"
           >
-            보기
+            편집
           </button>
         </div>
       </div>
