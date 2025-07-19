@@ -221,21 +221,22 @@ const MainPage = () => {
         </div>
 
         {/* Main Content */}
-        <div className="relative z-10 flex items-start justify-center h-screen">
-          <div className="text-center text-white w-full mt-48">
-            <h1 className="text-6xl font-bold mb-4 tracking-wide leading-tight">
+        <div
+          className="relative z-10 flex items-center justify-center"
+          style={{ height: 'calc(100vh - 80px)' }}
+        >
+          <div className="text-center text-white w-full">
+            <h1 className="text-6xl font-bold mb-10 tracking-wide leading-tight">
               특별한 날을
               <br />더 특별하게
             </h1>
 
-            <div className="mt-16">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="px-8 py-4 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white font-semibold rounded-full transition-all duration-300 text-lg"
-              >
-                시작하기
-              </button>
-            </div>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="px-8 py-4 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white font-semibold rounded-full transition-all duration-300 text-lg"
+            >
+              시작하기
+            </button>
           </div>
         </div>
 
