@@ -167,7 +167,7 @@ export class AuthService {
     console.log('=== 카카오 프로필 요청 시작 ===');
     console.log('getKakaoProfile called!');
     console.log('환경 변수 확인:', {
-      client_id: process.env.KAKAO_CLIENT_ID ? '설정됨' : '❌ 설정되지 않음',
+      client_id: process.env.KAKAO_CLIENT_ID ? `설정됨 (${process.env.KAKAO_CLIENT_ID.substring(0, 8)}...)` : '❌ 설정되지 않음',
       client_secret: process.env.KAKAO_CLIENT_SECRET ? '***설정됨***' : '❌ 설정되지 않음',
       redirect_uri: callbackUrl,
       code: code?.substring(0, 10) + '...',
