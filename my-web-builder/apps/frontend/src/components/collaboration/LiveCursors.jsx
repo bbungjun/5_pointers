@@ -25,7 +25,7 @@ ChatMessage.displayName = 'ChatMessage';
  * 성능 최적화된 실시간 커서 컴포넌트
  */
 export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'desktop', cursorChatMessages = {} }) => {
-  console.log('🎯 LiveCursors props 받음:', { cursorChatMessages, cursorsLength: cursors.length });
+  
   const scale = zoom / 100;
   
   // 커서 데이터 메모이제이션
