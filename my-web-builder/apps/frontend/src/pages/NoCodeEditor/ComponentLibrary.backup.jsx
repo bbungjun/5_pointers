@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ComponentList } from '../components/definitions';
 import { API_BASE_URL } from '../../config';
-import { useToastContext } from '../../contexts/ToastContext';
 
 function ComponentLibrary({
   onDragStart,
@@ -10,12 +9,25 @@ function ComponentLibrary({
   isOpen = true,
   onToggle,
 }) {
+  // Toast Context를 안전하게 사용
+  let showError = null;
+  let showSuccess = null;
+  try {
+    const { useToastContext } = require('../../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showError = toastContext?.showError;
+    showSuccess = toastContext?.showSuccess;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showError = (message) => alert(message);
+    showSuccess = (message) => alert(message);
+  }
+
   const [showDomainInput, setShowDomainInput] = useState(false);
   const [domainName, setDomainName] = useState('');
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const { showError, showSuccess } = useToastContext();
 
   // 컴포넌트 타입별 아이콘
   const getComponentIcon = (type) => {

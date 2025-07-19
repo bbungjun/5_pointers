@@ -16,14 +16,23 @@
 
 import React, { useState, useRef } from 'react';
 import { API_BASE_URL } from '../../../config.js';
-import { useToastContext } from '../../../contexts/ToastContext';
 
 function ImageListEditor({ value = [], onChange, label = '이미지 목록' }) {
+  // Toast Context를 안전하게 사용
+  let showError = null;
+  try {
+    const { useToastContext } = require('../../../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showError = toastContext?.showError;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showError = (message) => alert(message);
+  }
+
   const [isDragging, setIsDragging] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef();
-  const { showError } = useToastContext();
 
   // 🚀 서버 업로드 방식으로 변경된 파일 선택 처리
   const handleFileSelect = async (event) => {

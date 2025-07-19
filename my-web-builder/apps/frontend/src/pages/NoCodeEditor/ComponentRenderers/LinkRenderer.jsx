@@ -1,11 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useToastContext } from '../../../contexts/ToastContext';
 
 function LinkRenderer({ comp, mode = 'editor' }) {
+  // Toast Context를 안전하게 사용
+  let showError = null;
+  try {
+    const { useToastContext } = require('../../../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showError = toastContext?.showError;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showError = (message) => alert(message);
+  }
+
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(comp.props.text);
   const inputRef = useRef();
-  const { showError } = useToastContext();
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -43,7 +52,7 @@ function LinkRenderer({ comp, mode = 'editor' }) {
     setEditing(false);
     if (editValue !== comp.props.text) {
       showError(
-        '링크 텍스트가 변경되었습니다.'
+        '링크 텍스트가 변경되었습니다. (실제 구현에서는 onUpdate 콜백을 호출해야 합니다)'
       );
     }
   };
@@ -53,7 +62,7 @@ function LinkRenderer({ comp, mode = 'editor' }) {
       setEditing(false);
       if (editValue !== comp.props.text) {
         showError(
-          '링크 텍스트가 변경되었습니다.'
+          '링크 텍스트가 변경되었습니다. (실제 구현에서는 onUpdate 콜백을 호출해야 합니다)'
         );
       }
     }
