@@ -149,6 +149,9 @@ function NoCodeEditor({ pageId }) {
   // 템플릿 시작 시 모든 사용자에게 즉시 동기화 (최초 한 번만)
   const [hasInitialSync, setHasInitialSync] = useState(false);
   useEffect(() => {
+    if (isFromTemplate && effectivePageId && !isLoading && collaboration.isConnected && components.length > 0 && !hasInitialSync) {
+      console.log('🎨 템플릿이 로드되었습니다. 모든 사용자에게 즉시 동기화 준비 완료');
+      
       // 모든 사용자에게 즉시 동기화를 위해 updateAllComponents 호출
       if (collaboration.updateAllComponents) {
         console.log('🔄 모든 사용자에게 템플릿 동기화 시작...');
@@ -159,7 +162,6 @@ function NoCodeEditor({ pageId }) {
         );
       }
     }
-
   }, [isFromTemplate, effectivePageId, isLoading, collaboration.isConnected, components.length, collaboration.updateAllComponents, hasInitialSync]);
 
   // collaboration이 undefined일 수 있으므로 기본값 제공
