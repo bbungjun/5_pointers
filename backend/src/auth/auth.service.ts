@@ -186,6 +186,16 @@ export class AuthService {
       params.append('client_secret', process.env.KAKAO_CLIENT_SECRET);
     }
 
+    console.log('=== 카카오 토큰 요청 파라미터 ===');
+    console.log('요청 URL:', 'https://kauth.kakao.com/oauth/token');
+    console.log('요청 파라미터:', {
+      grant_type: 'authorization_code',
+      client_id: process.env.KAKAO_CLIENT_ID ? '설정됨' : '❌ 설정되지 않음',
+      client_secret: process.env.KAKAO_CLIENT_SECRET ? '설정됨' : '❌ 설정되지 않음',
+      redirect_uri: callbackUrl,
+      code: code?.substring(0, 10) + '...'
+    });
+
     let tokenRes;
     try {
       tokenRes = await axios.post(
@@ -255,22 +265,31 @@ export class AuthService {
     provider_id: string;
     provider: AuthProvider;
   }) {
-    console.log('findOrCreateUser profile:', profile);
+    console.log('=== findOrCreateUser 시작 ===');
+    console.log('입력 프로필:', profile);
+    
     let user = await this.userRepository.findOne({
       where: { provider: profile.provider, provider_id: profile.provider_id },
     });
-    if (user) return user;
+    
+    if (user) {
+      console.log('기존 사용자 발견 (provider + provider_id):', { id: user.id, email: user.email });
+      return user;
+    }
 
     user = await this.userRepository.findOne({
       where: { email: profile.email },
     });
+    
     if (user) {
+      console.log('기존 사용자 발견 (email), provider 업데이트:', { id: user.id, email: user.email });
       user.provider = profile.provider;
       user.provider_id = profile.provider_id;
       await this.userRepository.save(user);
       return user;
     }
 
+    console.log('새 사용자 생성:', { email: profile.email, nickname: profile.nickname });
     user = this.userRepository.create({
       email: profile.email,
       nickname: profile.nickname,
@@ -278,6 +297,7 @@ export class AuthService {
       provider_id: profile.provider_id,
     });
     await this.userRepository.save(user);
+    console.log('새 사용자 생성 완료:', { id: user.id, email: user.email });
     return user;
   }
 }

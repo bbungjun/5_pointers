@@ -65,11 +65,28 @@ jobs:
           
           echo "🔍 환경 변수 검증:"
           JWT_SECRET_VAL="${{ secrets.JWT_SECRET }}"
+          KAKAO_CLIENT_ID_VAL="${{ secrets.KAKAO_CLIENT_ID }}"
+          KAKAO_CLIENT_SECRET_VAL="${{ secrets.KAKAO_CLIENT_SECRET }}"
+          
           if [ -z "$JWT_SECRET_VAL" ]; then
             echo "❌ JWT_SECRET이 설정되지 않았습니다!"
             exit 1
           else
             echo "✅ JWT_SECRET이 설정되어 있습니다. (길이: ${#JWT_SECRET_VAL})"
+          fi
+          
+          if [ -z "$KAKAO_CLIENT_ID_VAL" ]; then
+            echo "❌ KAKAO_CLIENT_ID가 설정되지 않았습니다!"
+            exit 1
+          else
+            echo "✅ KAKAO_CLIENT_ID가 설정되어 있습니다. (길이: ${#KAKAO_CLIENT_ID_VAL})"
+          fi
+          
+          if [ -z "$KAKAO_CLIENT_SECRET_VAL" ]; then
+            echo "❌ KAKAO_CLIENT_SECRET이 설정되지 않았습니다!"
+            exit 1
+          else
+            echo "✅ KAKAO_CLIENT_SECRET이 설정되어 있습니다. (길이: ${#KAKAO_CLIENT_SECRET_VAL})"
           fi
 
       - name: Create deployment package

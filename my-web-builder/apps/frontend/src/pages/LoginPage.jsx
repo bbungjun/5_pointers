@@ -144,7 +144,7 @@ function LoginPage({ onLogin }) {
                 <div className="gsi-material-button-state"></div>
                 <div className="gsi-material-button-content-wrapper">
                   <div className="gsi-material-button-icon">
-                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink" style={{ display: 'block' }}>
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlnsXlink="http://www.w3.org/1999/xlink" style={{ display: 'block' }}>
                       <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
                       <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
                       <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
@@ -164,7 +164,7 @@ function LoginPage({ onLogin }) {
                   <div className="kakao-material-button-icon">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="10" cy="10" r="10" fill="#FEE500"/>
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M10 3C5.58133 3 2 5.7791 2 9.20745C2 11.3382 3.38489 13.2184 5.49511 14.3367L4.60711 17.5927C4.52889 17.8814 4.856 18.1105 5.10756 17.9435L8.99822 15.3643C9.32711 15.3963 9.66044 15.414 10 15.414C14.4178 15.414 18 12.6349 18 9.20745C18 5.7791 14.4178 3 10 3Z" fill="black"/>
+                      <path fillRule="evenodd" clipRule="evenodd" d="M10 3C5.58133 3 2 5.7791 2 9.20745C2 11.3382 3.38489 13.2184 5.49511 14.3367L4.60711 17.5927C4.52889 17.8814 4.856 18.1105 5.10756 17.9435L8.99822 15.3643C9.32711 15.3963 9.66044 15.414 10 15.414C14.4178 15.414 18 12.6349 18 9.20745C18 5.7791 14.4178 3 10 3Z" fill="black"/>
                     </svg>
                   </div>
                   <span className="kakao-material-button-contents">카카오 로그인</span>
