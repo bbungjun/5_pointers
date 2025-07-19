@@ -225,7 +225,7 @@ function EditorHeader({
                 className="
                   px-3 py-1 text-lg font-semibold text-white
                   hover:bg-white/10 rounded-lg transition-colors
-                  w-48 max-w-96 truncate
+                  w-64 max-w-96 truncate
                 "
                 title="클릭하여 제목 수정"
               >
