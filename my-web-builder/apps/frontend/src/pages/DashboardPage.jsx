@@ -4,6 +4,8 @@ import { API_BASE_URL } from '../config';
 import InvitationNotifications from '../components/InvitationNotifications';
 import NotificationToggle from '../components/NotificationToggle';
 import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
+import { getUserColor } from '../utils/userColors';
+import { getCurrentUser } from '../utils/userUtils';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 10);
@@ -641,7 +643,17 @@ function DashboardPage({ user, onLogout }) {
             <div className="flex items-center gap-4">
               {user && (
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-purple-500 border border-purple-600 shadow-sm"></div>
+                  <div
+                    className="w-2 h-2 rounded-full shadow-sm border"
+                    style={{
+                      backgroundColor: getUserColor(
+                        getCurrentUser()?.id || user.id || user.email
+                      ),
+                      borderColor: getUserColor(
+                        getCurrentUser()?.id || user.id || user.email
+                      ),
+                    }}
+                  ></div>
                   <p className="text-white font-medium text-lg">
                     <span className="font-semibold" style={{ color: 'white' }}>
                       {user.nickname}
@@ -721,7 +733,7 @@ function DashboardPage({ user, onLogout }) {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-8xl mx-auto px-6 py-8 relative z-10">
+      <div className="max-w-8xl mx-auto px-6 relative z-10">
         {/* 메인 헤더 */}
         <div className="text-center mb-8">
           <p className="text-3xl text-white font-light">
