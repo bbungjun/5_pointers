@@ -51,10 +51,9 @@ const throttle = (func, limit) => {
 
 function NoCodeEditor({ pageId }) {
   const [searchParams] = useSearchParams();
-  
+
   // pageId가 없으면 임시 ID 생성 (하지만 실제로는 pageId가 항상 있어야 함)
   const effectivePageId = pageId || `room-${Date.now()}`;
-  
 
   // URL 파라미터는 더 이상 사용하지 않음 (페이지의 editingMode 사용)
   const initialViewport = 'desktop'; // 기본값만 설정
@@ -130,7 +129,11 @@ function NoCodeEditor({ pageId }) {
   // 4. 협업 동기화 로직 (항상 호출되도록 보장)
   const collaboration = useCollaboration({
     roomId: effectivePageId,
-    userInfo: userInfo || { id: 'anonymous', name: 'Anonymous', color: '#000000' },
+    userInfo: userInfo || {
+      id: 'anonymous',
+      name: 'Anonymous',
+      color: '#000000',
+    },
     canvasRef,
     selectedComponentId: interaction.selectedId,
     onComponentsUpdate: setComponents,
@@ -157,12 +160,16 @@ function NoCodeEditor({ pageId }) {
       components.length > 0 &&
       !hasInitialSync
     ) {
-      console.log('🎨 템플릿이 로드되었습니다. 모든 사용자에게 즉시 동기화 준비 완료');
+      console.log(
+        '🎨 템플릿이 로드되었습니다. 모든 사용자에게 즉시 동기화 준비 완료'
+      );
       if (collaboration.updateAllComponents) {
         console.log('🔄 모든 사용자에게 템플릿 동기화 시작...');
         collaboration.updateAllComponents(components);
         setHasInitialSync(true);
-        console.log('✅ 템플릿 초기 동기화 완료. 이후 Y.js가 실시간 협업을 처리합니다.');
+        console.log(
+          '✅ 템플릿 초기 동기화 완료. 이후 Y.js가 실시간 협업을 처리합니다.'
+        );
       }
     }
   }, [
@@ -295,8 +302,8 @@ function NoCodeEditor({ pageId }) {
         return;
       }
 
-      // Delete 키로 삭제
-      if (e.key === 'Delete') {
+      // Delete 또는 Backspace 키로 삭제
+      if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selectedIds.length > 0) {
           // 다중 선택된 컴포넌트들 삭제
           selectedIds.forEach((id) => {
