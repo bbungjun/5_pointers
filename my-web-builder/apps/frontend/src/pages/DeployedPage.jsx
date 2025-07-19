@@ -187,7 +187,7 @@ function DeployedPage({ user, onLogout }) {
   const PageCard = ({ page, isMobile = false }) => (
     <div
       key={page.id}
-      className={`bg-white border border-slate-400 rounded-xl p-6 hover:bg-blue-50 transition-all duration-300 group ${
+      className={`bg-white border border-slate-400 rounded-xl p-6 hover:bg-blue-50 transition-all duration-300 group overflow-hidden ${
         isMobile ? 'max-w-xs mx-auto' : ''
       }`}
     >
@@ -245,8 +245,8 @@ function DeployedPage({ user, onLogout }) {
         )}
       </div>
 
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
+      <div className="relative mb-4">
+        <div className="pr-16"> {/* 오른쪽에 버튼 공간 확보 */}
           {editingId === page.id ? (
             <input
               type="text"
@@ -342,7 +342,8 @@ function DeployedPage({ user, onLogout }) {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* 편집/삭제 버튼을 절대 위치로 고정 */}
+        <div className="absolute top-0 right-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => startEditTitle(page.id, page.title)}
             className="p-2 text-slate-600 hover:bg-slate-300 rounded-lg"
@@ -553,10 +554,14 @@ function DeployedPage({ user, onLogout }) {
                       {mobilePages.length}개
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {mobilePages.map((page) => (
-                      <PageCard key={page.id} page={page} isMobile={true} />
-                    ))}
+                  <div className="mx-2 sm:mx-3 md:mx-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 auto-rows-fr">
+                      {mobilePages.map((page) => (
+                        <div className="w-full" key={page.id}>
+                          <PageCard page={page} isMobile={true} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -597,10 +602,14 @@ function DeployedPage({ user, onLogout }) {
                       {desktopPages.length}개
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {desktopPages.map((page) => (
-                      <PageCard key={page.id} page={page} isMobile={false} />
-                    ))}
+                  <div className="mx-2 sm:mx-3 md:mx-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 auto-rows-fr">
+                      {desktopPages.map((page) => (
+                        <div className="w-full" key={page.id}>
+                          <PageCard page={page} isMobile={false} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
