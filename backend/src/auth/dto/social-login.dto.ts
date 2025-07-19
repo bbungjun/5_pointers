@@ -1,8 +1,8 @@
 import { IsIn, IsString } from 'class-validator';
 
 export class SocialLoginDto {
-  @IsIn(['google', 'kakao'])
-  provider: 'google' | 'kakao';
+  @IsIn(['google'])
+  provider: 'google';
 
   @IsString()
   authorizationCode: string;
