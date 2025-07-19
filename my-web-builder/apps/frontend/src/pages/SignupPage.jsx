@@ -89,12 +89,17 @@ function SignupPage({ onLogin }) {
           <div className="flex justify-between items-center">
             {/* Logo */}
             <div className="flex items-center">
-              <img
-                src="/ddukddak-logo.png"
-                alt="DDUKDDAK"
-                style={{ height: '35px', objectFit: 'contain' }}
-              />
+              <Link to="/">
+                <img
+                  src="/ddukddak-logo.png"
+                  alt="DDUKDDAK"
+                  style={{ height: '35px', objectFit: 'contain', cursor: 'pointer', marginTop: '3px' }}
+                />
+              </Link>
             </div>
+
+            {/* Empty div for spacing consistency with MainPage */}
+            <div></div>
           </div>
         </div>
       </div>
