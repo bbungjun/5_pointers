@@ -12,7 +12,6 @@ import { PageMembers } from './page_members.entity';
 export enum AuthProvider {
   LOCAL = 'local',
   GOOGLE = 'google',
-  KAKAO = 'kakao',
 }
 
 @Entity('users')

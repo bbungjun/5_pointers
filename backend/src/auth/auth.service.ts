@@ -79,7 +79,7 @@ export class AuthService {
   }
 
   async loginSocial(dto: {
-    provider: 'google' | 'kakao';
+    provider: 'google';
     authorizationCode: string;
   }) {
     let profile: {
@@ -92,9 +92,6 @@ export class AuthService {
     switch (dto.provider) {
       case 'google':
         profile = await this.getGoogleProfile(dto.authorizationCode);
-        break;
-      case 'kakao':
-        profile = await this.getKakaoProfile(dto.authorizationCode);
         break;
       default:
         throw new BadRequestException('지원하지 않는 소셜 로그인입니다.');
@@ -157,107 +154,7 @@ export class AuthService {
     }
   }
 
-  private async getKakaoProfile(code: string) {
-    // 환경에 따른 콜백 URL 설정
-    const isProduction = process.env.NODE_ENV === 'production';
-    const callbackUrl = isProduction
-      ? 'https://ddukddak.org/social-callback?provider=kakao'
-      : 'http://localhost:5173/social-callback?provider=kakao';
 
-    console.log('=== 카카오 프로필 요청 시작 ===');
-    console.log('getKakaoProfile called!');
-    console.log('환경 변수 확인:', {
-      client_id: process.env.KAKAO_CLIENT_ID ? `설정됨 (${process.env.KAKAO_CLIENT_ID.substring(0, 8)}...)` : '❌ 설정되지 않음',
-      client_secret: process.env.KAKAO_CLIENT_SECRET ? '***설정됨***' : '❌ 설정되지 않음',
-      redirect_uri: callbackUrl,
-      code: code?.substring(0, 10) + '...',
-      environment: process.env.NODE_ENV || 'development',
-      isProduction
-    });
-
-    const params = new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: process.env.KAKAO_CLIENT_ID,
-      redirect_uri: callbackUrl,
-      code,
-    });
-
-    if (process.env.KAKAO_CLIENT_SECRET) {
-      params.append('client_secret', process.env.KAKAO_CLIENT_SECRET);
-    }
-
-    console.log('=== 카카오 토큰 요청 파라미터 ===');
-    console.log('요청 URL:', 'https://kauth.kakao.com/oauth/token');
-    console.log('요청 파라미터:', {
-      grant_type: 'authorization_code',
-      client_id: process.env.KAKAO_CLIENT_ID ? '설정됨' : '❌ 설정되지 않음',
-      client_secret: process.env.KAKAO_CLIENT_SECRET ? '설정됨' : '❌ 설정되지 않음',
-      redirect_uri: callbackUrl,
-      code: code?.substring(0, 10) + '...'
-    });
-
-    let tokenRes;
-    try {
-      tokenRes = await axios.post(
-        'https://kauth.kakao.com/oauth/token',
-        params,
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-      );
-    } catch (error) {
-      console.error('=== 카카오 OAuth 토큰 요청 에러 ===');
-      console.error('에러 메시지:', error.message);
-      console.error('응답 상태:', error.response?.status);
-      console.error('응답 데이터:', error.response?.data);
-      console.error('요청 설정:', {
-        clientId: process.env.KAKAO_CLIENT_ID ? '설정됨' : '❌ 설정되지 않음',
-        clientSecret: process.env.KAKAO_CLIENT_SECRET ? '설정됨' : '❌ 설정되지 않음',
-        callbackUrl,
-        environment: process.env.NODE_ENV || 'development'
-      });
-      throw error;
-    }
-    console.log('=== 카카오 토큰 요청 성공 ===');
-    console.log('토큰 응답:', {
-      hasAccessToken: !!tokenRes.data.access_token,
-      tokenType: tokenRes.data.token_type,
-      expiresIn: tokenRes.data.expires_in
-    });
-
-    const accessToken = (tokenRes.data as { access_token: string })
-      .access_token;
-
-    console.log('=== 카카오 프로필 요청 시작 ===');
-    const profileRes = await axios.get('https://kapi.kakao.com/v2/user/me', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    console.log('=== 카카오 프로필 요청 성공 ===');
-    const profileData = profileRes.data as any;
-    console.log('프로필 데이터:', {
-      id: profileData.id,
-      hasKakaoAccount: !!profileData.kakao_account,
-      hasEmail: !!profileData.kakao_account?.email,
-      hasProfile: !!profileData.kakao_account?.profile
-    });
-    
-    const kakaoAccount = (profileRes.data as any).kakao_account;
-
-    const result = {
-      email: kakaoAccount.email,
-      nickname: kakaoAccount.profile.nickname,
-      provider_id: String((profileRes.data as any).id),
-      provider: AuthProvider.KAKAO,
-    };
-    
-    console.log('=== 카카오 프로필 파싱 완료 ===');
-    console.log('최종 프로필:', {
-      email: result.email,
-      nickname: result.nickname,
-      provider_id: result.provider_id,
-      provider: result.provider
-    });
-    
-    return result;
-  }
 
   async findOrCreateUser(profile: {
     email: string;

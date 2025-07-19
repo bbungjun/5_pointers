@@ -37,7 +37,8 @@ jobs:
  
           echo "VITE_SUBDOMAIN_URL=http://3.35.141.231:3001" >> .env.production
           echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.production
-          echo "VITE_KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env.production
+          echo "VITE_KAKAO_JS_KEY=${{ secrets.KAKAO_JS_KEY }}" >> .env.production
+
           echo "VITE_FRONTEND_URL=https://ddukddak.org" >> .env.production
           echo "Created .env.production:"
           cat .env.production
