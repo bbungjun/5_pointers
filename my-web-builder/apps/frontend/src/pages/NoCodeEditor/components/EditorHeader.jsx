@@ -387,20 +387,20 @@ function EditorHeader({
           미리보기
         </button>
 
-        {/* 게시 버튼 (최우측, 보라색 배경) */}
+        {/* 최종 확정 버튼 */}
         <button
           onClick={() => setShowDeployModal(true)}
           disabled={isDeploying || !components || components.length === 0}
           className="
-            h-10 px-4 text-white font-medium rounded-lg transition-all duration-300
-            flex items-center whitespace-nowrap text-sm
+            h-10 px-4 text-white font-medium rounded-lg
+            flex items-center whitespace-nowrap text-sm border border-white/30
             disabled:opacity-50 disabled:cursor-not-allowed
           "
           style={{
-            backgroundColor: '#524778',
+            backgroundColor: '#8477FF',
           }}
         >
-          게시
+          최종 확정
         </button>
       </div>
       {/* 배포 모달 */}
