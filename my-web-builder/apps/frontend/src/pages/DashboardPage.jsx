@@ -6,6 +6,7 @@ import NotificationToggle from '../components/NotificationToggle';
 import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
 import { getUserColor } from '../utils/userColors';
 import { getCurrentUser } from '../utils/userUtils';
+import Footer from '../components/Footer';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 10);
@@ -1689,6 +1690,9 @@ function DashboardPage({ user, onLogout }) {
           }
         }
       `}</style>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

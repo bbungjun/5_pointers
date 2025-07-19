@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import { ComponentList } from '../components/definitions';
 
 // 모듈화된 컴포넌트들
-import ToggleButton from './ComponentLibrary/components/ToggleButton';
 import SearchBar from './ComponentLibrary/components/SearchBar';
 import ComponentGrid from './ComponentLibrary/components/ComponentGrid';
 
@@ -68,7 +67,7 @@ function ComponentLibrary({
             width: '28px',
             height: '48px',
             backgroundColor: '#ffffff',
-            border: '2px solid #e0f2fe',
+            border: '2px solid var(--color-primary-200)',
             borderLeft: 'none',
             borderTopRightRadius: '8px',
             borderBottomRightRadius: '8px',
@@ -81,18 +80,20 @@ function ComponentLibrary({
             transition: 'all 0.2s ease',
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = '#f0f9ff';
-            e.target.style.borderColor = '#38bdf8';
+            e.target.style.backgroundColor = 'var(--color-primary-50)';
+            e.target.style.borderColor = 'var(--color-primary-500)';
             e.target.style.boxShadow = 'none';
           }}
           onMouseLeave={(e) => {
             e.target.style.backgroundColor = '#ffffff';
-            e.target.style.borderColor = '#e0f2fe';
+            e.target.style.borderColor = 'var(--color-primary-200)';
             e.target.style.boxShadow = 'none';
           }}
           title="컴포넌트 라이브러리 열기"
         >
-          <span style={{ fontSize: '14px', color: '#38bdf8' }}>▶</span>
+          <span style={{ fontSize: '14px', color: 'var(--color-primary-400)' }}>
+            ▶
+          </span>
         </button>
       </div>
     );
@@ -148,7 +149,7 @@ function ComponentLibrary({
           width: '28px',
           height: '48px',
           backgroundColor: '#ffffff',
-          border: '2px solid #e0f2fe',
+          border: '2px solid var(--color-primary-200)',
           borderLeft: 'none',
           borderTopRightRadius: '8px',
           borderBottomRightRadius: '8px',
@@ -159,21 +160,23 @@ function ComponentLibrary({
           boxShadow: 'none',
           zIndex: 5,
           transition: 'all 0.2s ease',
-          color: '#0ea5e9',
+          color: 'var(--color-primary-500)',
         }}
         onMouseEnter={(e) => {
-          e.target.style.backgroundColor = '#f0f9ff';
-          e.target.style.borderColor = '#0ea5e9';
+          e.target.style.backgroundColor = 'var(--color-primary-50)';
+          e.target.style.borderColor = 'var(--color-primary-500)';
           e.target.style.boxShadow = 'none';
         }}
         onMouseLeave={(e) => {
           e.target.style.backgroundColor = '#ffffff';
-          e.target.style.borderColor = '#7dd3fc';
+          e.target.style.borderColor = 'var(--color-primary-200)';
           e.target.style.boxShadow = 'none';
         }}
         title="컴포넌트 라이브러리 토글"
       >
-        <span style={{ fontSize: '14px', color: '#38bdf8' }}>◀</span>
+        <span style={{ fontSize: '14px', color: 'var(--color-primary-400)' }}>
+          ◀
+        </span>
       </button>
 
       {/* 리사이즈 핸들 */}
