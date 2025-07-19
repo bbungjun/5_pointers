@@ -1102,9 +1102,9 @@ function DashboardPage({ user, onLogout }) {
                                 </div>
                                 {/* 템플릿 캔버스 미리보기 */}
                                 <div
-                                  className={`relative rounded-lg overflow-hidden mb-2 ${
+                                  className={`relative rounded-lg overflow-hidden mb-1 ${
                                     template.editingMode === 'mobile'
-                                      ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
+                                      ? 'aspect-[9/13.5]' // 모바일: 9:16 비율 (세로로 긴 화면)
                                       : 'aspect-video' // 데스크톱: 16:9 비율
                                   }`}
                                 >
@@ -1114,7 +1114,7 @@ function DashboardPage({ user, onLogout }) {
                                   />
                                 </div>
 
-                                <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
+                                <h4 className="font-bold text-slate-800 text-lg mb-0 text-center py-1 group-hover:text-gray-600 transition-colors">
                                   {template.name}
                                 </h4>
                               </div>
@@ -1273,7 +1273,7 @@ function DashboardPage({ user, onLogout }) {
                                   </div>
                                 </div>
                                 {/* 템플릿 캔버스 미리보기 */}
-                                <div className="relative rounded-lg overflow-hidden mb-4">
+                                <div className="relative rounded-lg overflow-hidden mb-2">
                                   {template.editingMode === 'mobile' ? (
                                     // 모바일은 기존 코드 유지
                                     <div className="relative rounded-lg overflow-hidden aspect-[9/16]">
@@ -1301,7 +1301,7 @@ function DashboardPage({ user, onLogout }) {
                                   )}
                                 </div>
 
-                                <h4 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-gray-600 transition-colors">
+                                <h4 className="font-bold text-slate-800 text-lg mb-1 text-center py-0 group-hover:text-gray-600 transition-colors">
                                   {template.name}
                                 </h4>
                               </div>
