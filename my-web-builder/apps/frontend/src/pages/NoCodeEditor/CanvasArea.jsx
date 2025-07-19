@@ -809,13 +809,6 @@ const CanvasArea = forwardRef(
                 onClick(e);
               }
             }}
-            onContextMenu={(e) => {
-              // 우클릭 시 채팅 입력 열기
-              e.preventDefault();
-              if (openChatInput) {
-                openChatInput(e.clientX, e.clientY);
-              }
-            }}
             onMouseDown={(e) => {
               // console.log('캔버스 마우스 다운:', e.target.className);
               handleMouseDown(e);
