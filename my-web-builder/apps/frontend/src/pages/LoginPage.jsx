@@ -25,7 +25,16 @@ function LoginPage({ onLogin }) {
   });
 
   const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(googleRedirectUrl)}&response_type=code&scope=openid%20email%20profile`;
-  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${getRedirectUrl('kakao')}&response_type=code`;
+  
+  // 카카오 리다이렉트 URL 디버깅
+  const kakaoRedirectUrl = getRedirectUrl('kakao');
+  console.log('카카오 OAuth 설정:', {
+    clientId: KAKAO_CLIENT_ID,
+    redirectUrl: kakaoRedirectUrl,
+    isProduction: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+  });
+  
+  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${encodeURIComponent(kakaoRedirectUrl)}&response_type=code`;
 
   // 소셜 로그인은 SocialCallbackPage에서 처리됨
 
