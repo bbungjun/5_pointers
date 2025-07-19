@@ -53,7 +53,7 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
       if (response.ok) {
         if (data.success) {
           // 초대 링크 생성 성공
-          setMessage('초대 링크를 성공적으로 생성했습니다! 🎉');
+          setMessage('초대를 보냈습니다!');
           setMessageType('success');
           setEmail('');
 
@@ -123,7 +123,7 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
           padding: '40px',
           width: '600px',
           maxWidth: '95%',
-          height: '500px',
+          height: 'auto',
           boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
         }}
         onClick={(e) => e.stopPropagation()}
@@ -209,39 +209,27 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
               fontSize: '18px',
               cursor: loading ? 'not-allowed' : 'pointer',
               border: '1px solid rgba(255, 255, 255, 0.3)',
-              marginBottom: '40px',
+              marginBottom: '24px',
             }}
           >
             {loading ? '링크 생성 중...' : '초대 링크 생성'}
           </button>
         </form>
 
-        {/* 메시지 영역 - 항상 일정한 공간 확보 */}
-        <div
-          style={{
-            marginTop: '5px',
-            minHeight: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {message && (
-            <div
-              style={{
-                color: messageType === 'success' ? '#059669' : '#d32f2f',
-                background: messageType === 'success' ? '#ecfdf5' : '#ffebee',
-                borderRadius: '6px',
-                padding: '12px',
-                fontSize: '15px',
-                textAlign: 'center',
-                fontWeight: 500,
-              }}
-            >
-              {message}
-            </div>
-          )}
-        </div>
+        {/* 메시지 영역 - 간단한 텍스트만 표시 */}
+        {message && (
+          <div
+            style={{
+              marginTop: '16px',
+              textAlign: 'center',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: messageType === 'success' ? '#059669' : '#d32f2f',
+            }}
+          >
+            {message}
+          </div>
+        )}
       </div>
     </div>
   );
