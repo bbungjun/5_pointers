@@ -7,6 +7,7 @@ import {
 } from '../pages/NoCodeEditor/utils/editorUtils';
 import { ComponentDefinitions } from '../pages/components/definitions';
 import { API_BASE_URL } from '../config';
+import { useToastContext } from '../contexts/ToastContext';
 
 /**
  * 컴포넌트 액션 관리 훅
@@ -26,26 +27,27 @@ export function useComponentActions(
   setTemplateData,
   setIsTemplateSaveOpen
 ) {
-  const { addComponent, updateComponent, removeComponent, updateCanvasSettings } = collaboration;
+  const {
+    addComponent,
+    updateComponent,
+    removeComponent,
+    updateCanvasSettings,
+  } = collaboration;
+  const { showError, showSuccess } = useToastContext();
 
   // 유니크한 ID 생성 함수
   const generateUniqueId = () => {
     return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}-${userInfo.id}-${Math.random().toString(36).slice(2, 8)}`;
   };
-  
+
   // 드롭 위치 계산 함수
   const calculateDropPosition = (e) => {
     const effectiveGridSize = GRID_SIZE;
-    const snappedX = Math.round(e.nativeEvent.offsetX / effectiveGridSize) * effectiveGridSize;
-    const snappedY = Math.round(e.nativeEvent.offsetY / effectiveGridSize) * effectiveGridSize;
+    const snappedX =
+      Math.round(e.nativeEvent.offsetX / effectiveGridSize) * effectiveGridSize;
+    const snappedY =
+      Math.round(e.nativeEvent.offsetY / effectiveGridSize) * effectiveGridSize;
     return { snappedX, snappedY };
-  };
-
-  // 토스트 알림 함수 (임시)
-  const showToast = (message, type = 'info') => {
-    console.log(`[${type.toUpperCase()}] ${message}`);
-    // 실제 토스트 라이브러리가 있다면 여기서 호출
-    alert(message);
   };
 
   // Page 컴포넌트 자동 페이지 생성 로직
@@ -59,15 +61,29 @@ export function useComponentActions(
       const width = dimensions.defaultWidth;
       const height = dimensions.defaultHeight;
 
-      const maxX = viewport === 'mobile' ? Math.max(0, 375 - width) : Math.max(0, 1920 - width);
+      const maxX =
+        viewport === 'mobile'
+          ? Math.max(0, 375 - width)
+          : Math.max(0, 1920 - width);
       const maxY = Math.max(0, canvasHeight - height);
 
       let clampedX = clamp(snappedX, 0, maxX);
       let clampedY = clamp(snappedY, 0, maxY);
 
       // 충돌 방지
-      const tempComponent = { id: 'temp', type: 'page', x: clampedX, y: clampedY, width, height };
-      const collisionResult = resolveCollision(tempComponent, components, getComponentDimensions);
+      const tempComponent = {
+        id: 'temp',
+        type: 'page',
+        x: clampedX,
+        y: clampedY,
+        width,
+        height,
+      };
+      const collisionResult = resolveCollision(
+        tempComponent,
+        components,
+        getComponentDimensions
+      );
       clampedX = collisionResult.x;
       clampedY = collisionResult.y;
 
@@ -77,18 +93,21 @@ export function useComponentActions(
 
       console.log('📡 페이지 생성 API 호출:', { currentPageId, componentId });
 
-      const response = await fetch(`${API_BASE_URL}/users/pages/create-from-component`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          parentPageId: currentPageId,
-          componentId: componentId,
-          pageName: "새 페이지"
-        })
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/users/pages/create-from-component`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            parentPageId: currentPageId,
+            componentId: componentId,
+            pageName: '새 페이지',
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`페이지 생성 실패: ${response.status}`);
@@ -119,7 +138,7 @@ export function useComponentActions(
           borderWidth: '2px',
           borderRadius: 8,
           fontSize: 14,
-          fontWeight: '500'
+          fontWeight: '500',
         },
         editedViewport: viewport,
         createdBy: userInfo.id,
@@ -130,24 +149,23 @@ export function useComponentActions(
       addComponent(pageComponent);
 
       // 5. 성공 알림
-      // showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
+      showSuccess(
+        `🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`
+      );
 
       console.log('✅ Page 컴포넌트 자동 생성 완료:', {
         componentId: pageComponent.id,
         linkedPageId: result.page.id,
-        pageName: result.page.title
+        pageName: result.page.title,
       });
 
       return pageComponent.id;
-
     } catch (error) {
       console.error('❌ Page 컴포넌트 생성 실패:', error);
-      showToast('페이지 생성에 실패했습니다. 다시 시도해주세요.', 'error');
+      showError('페이지 생성에 실패했습니다. 다시 시도해주세요.');
       return null;
     }
   };
-
-
 
   const handlePageButtonComponentDrop = async (e) => {
     try {
@@ -157,32 +175,49 @@ export function useComponentActions(
       const width = dimensions.defaultWidth;
       const height = dimensions.defaultHeight;
 
-      const maxX = viewport === 'mobile' ? Math.max(0, 375 - width) : Math.max(0, 1920 - width);
+      const maxX =
+        viewport === 'mobile'
+          ? Math.max(0, 375 - width)
+          : Math.max(0, 1920 - width);
       const maxY = Math.max(0, canvasHeight - height);
 
       let clampedX = clamp(snappedX, 0, maxX);
       let clampedY = clamp(snappedY, 0, maxY);
 
-      const tempComponent = { id: 'temp', type: 'pageButton', x: clampedX, y: clampedY, width, height };
-      const collisionResult = resolveCollision(tempComponent, components, getComponentDimensions);
+      const tempComponent = {
+        id: 'temp',
+        type: 'pageButton',
+        x: clampedX,
+        y: clampedY,
+        width,
+        height,
+      };
+      const collisionResult = resolveCollision(
+        tempComponent,
+        components,
+        getComponentDimensions
+      );
       clampedX = collisionResult.x;
       clampedY = collisionResult.y;
 
       const currentPageId = window.location.pathname.split('/').pop();
       const componentId = generateUniqueId();
 
-      const response = await fetch(`${API_BASE_URL}/users/pages/create-from-component`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          parentPageId: currentPageId,
-          componentId: componentId,
-          pageName: "새 페이지"
-        })
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/users/pages/create-from-component`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            parentPageId: currentPageId,
+            componentId: componentId,
+            pageName: '새 페이지',
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`페이지 생성 실패: ${response.status}`);
@@ -217,19 +252,17 @@ export function useComponentActions(
 
       addComponent(pageButtonComponent);
 
-      // showToast(`🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`, 'success');
+      showSuccess(
+        `🎉 새 페이지 "${result.page.title}"가 생성되고 연결되었습니다!`
+      );
 
       return pageButtonComponent.id;
-
     } catch (error) {
       console.error('❌ PageButton 컴포넌트 생성 실패:', error);
-      showToast('페이지 생성에 실패했습니다. 다시 시도해주세요.', 'error');
+      showError('페이지 생성에 실패했습니다. 다시 시도해주세요.');
       return null;
     }
   };
-
-
-
 
   // 일반 컴포넌트 드롭 처리
   const handleNormalComponentDrop = (e) => {
@@ -242,15 +275,29 @@ export function useComponentActions(
       const width = dimensions.defaultWidth;
       const height = dimensions.defaultHeight;
 
-      const maxX = viewport === 'mobile' ? Math.max(0, 375 - width) : Math.max(0, 1920 - width);
+      const maxX =
+        viewport === 'mobile'
+          ? Math.max(0, 375 - width)
+          : Math.max(0, 1920 - width);
       const maxY = Math.max(0, canvasHeight - height);
 
       let clampedX = clamp(snappedX, 0, maxX);
       let clampedY = clamp(snappedY, 0, maxY);
 
       // 충돌 방지
-      const tempComponent = { id: 'temp', type, x: clampedX, y: clampedY, width, height };
-      const collisionResult = resolveCollision(tempComponent, components, getComponentDimensions);
+      const tempComponent = {
+        id: 'temp',
+        type,
+        x: clampedX,
+        y: clampedY,
+        width,
+        height,
+      };
+      const collisionResult = resolveCollision(
+        tempComponent,
+        components,
+        getComponentDimensions
+      );
       clampedX = collisionResult.x;
       clampedY = collisionResult.y;
 
@@ -291,7 +338,6 @@ export function useComponentActions(
   //   [addComponent, userInfo, components, viewport, canvasHeight]
   // );
 
-
   // 컴포넌트 드래그 앤 드롭 추가 (메인 함수)
   const handleDrop = useCallback(
     async (e) => {
@@ -312,8 +358,6 @@ export function useComponentActions(
     [addComponent, userInfo, components, viewport, canvasHeight]
   );
 
-
-
   // 컴포넌트 업데이트 (실시간 동기화 개선)
   const handleUpdate = useCallback(
     (comp) => {
@@ -327,11 +371,11 @@ export function useComponentActions(
       // 변경된 속성만 추출 (성능 최적화)
       const updates = {};
       let hasChanges = false;
-      
+
       Object.keys(comp).forEach((key) => {
         const existingValue = existingComp[key];
         const newValue = comp[key];
-        
+
         // 깊은 비교 대신 간단한 비교 사용 (성능 향상)
         if (existingValue !== newValue) {
           updates[key] = newValue;
@@ -340,7 +384,12 @@ export function useComponentActions(
       });
 
       // 편집 뷰포트 정보 유지 (위치나 크기 변경 시)
-      if (updates.x !== undefined || updates.y !== undefined || updates.width !== undefined || updates.height !== undefined) {
+      if (
+        updates.x !== undefined ||
+        updates.y !== undefined ||
+        updates.width !== undefined ||
+        updates.height !== undefined
+      ) {
         updates.editedViewport = viewport;
       }
 
@@ -366,9 +415,9 @@ export function useComponentActions(
     async (selectedComponents) => {
       try {
         const token = localStorage.getItem('token');
-        
+
         if (!token) {
-          alert('로그인이 필요합니다.');
+          showError('로그인이 필요합니다.');
           return;
         }
 
@@ -378,42 +427,51 @@ export function useComponentActions(
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
               components: selectedComponents,
               name: templateData.name,
               category: templateData.category,
               editingMode: viewport === 'mobile' ? 'mobile' : 'desktop', // 현재 뷰포트에 따라 편집 기준 설정
-              tags: templateData.tags ? templateData.tags.split(',').map(tag => tag.trim()) : [],
+              tags: templateData.tags
+                ? templateData.tags.split(',').map((tag) => tag.trim())
+                : [],
               canvasSettings: {
-                canvasHeight: canvasHeight
-              }
+                canvasHeight: canvasHeight,
+              },
             }),
           }
         );
 
         if (response.ok) {
           console.log('템플릿 저장 성공');
-          alert('템플릿이 성공적으로 저장되었습니다!');
+          showSuccess('템플릿이 성공적으로 저장되었습니다!');
           setTemplateData({ name: '', category: 'wedding', tags: '' });
           setIsTemplateSaveOpen(false);
         } else {
           const errorData = await response.text();
           console.error('템플릿 저장 실패:', response.status, errorData);
-          
+
           if (response.status === 401) {
-            alert('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+            showError('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
           } else {
-            alert(`템플릿 저장에 실패했습니다: ${response.status}`);
+            showError(`템플릿 저장에 실패했습니다: ${response.status}`);
           }
         }
       } catch (error) {
         console.error('템플릿 저장 실패:', error);
-        alert('템플릿 저장 중 오류가 발생했습니다.');
+        showError('템플릿 저장 중 오류가 발생했습니다.');
       }
     },
-    [templateData, setTemplateData, setIsTemplateSaveOpen, canvasHeight]
+    [
+      templateData,
+      setTemplateData,
+      setIsTemplateSaveOpen,
+      canvasHeight,
+      showError,
+      showSuccess,
+    ]
   );
 
   // 섹션 추가
@@ -421,15 +479,20 @@ export function useComponentActions(
     (sectionY, containerRef, zoom) => {
       const newHeight = Math.max(canvasHeight, sectionY + 200);
       setCanvasHeight(newHeight);
-      
+
       // 협업 시스템을 통해 캔버스 높이 동기화
       if (updateCanvasSettings) {
         updateCanvasSettings({ canvasHeight: newHeight });
-        console.log('🔄 협업 시스템을 통해 캔버스 높이 동기화 요청:', newHeight);
+        console.log(
+          '🔄 협업 시스템을 통해 캔버스 높이 동기화 요청:',
+          newHeight
+        );
       } else {
-        console.warn('⚠️ updateCanvasSettings 함수가 없습니다. 협업 동기화가 불가능합니다.');
+        console.warn(
+          '⚠️ updateCanvasSettings 함수가 없습니다. 협업 동기화가 불가능합니다.'
+        );
       }
-      
+
       console.log('섹션 추가:', { 기존높이: canvasHeight, 새높이: newHeight });
     },
     [canvasHeight, setCanvasHeight, updateCanvasSettings]

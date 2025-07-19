@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
+import { useToastContext } from '../contexts/ToastContext';
 
 function SocialCallbackPage({ onLogin }) {
   const navigate = useNavigate();
   const location = useLocation();
   const hasFetched = useRef(false);
+  const { showError } = useToastContext();
 
   useEffect(() => {
     if (hasFetched.current) {
@@ -25,22 +27,28 @@ function SocialCallbackPage({ onLogin }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider, authorizationCode: code }),
       })
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
           console.log('SocialCallbackPage - 백엔드 응답:', data);
-          console.log('SocialCallbackPage - 응답의 모든 키:', Object.keys(data));
+          console.log(
+            'SocialCallbackPage - 응답의 모든 키:',
+            Object.keys(data)
+          );
           console.log('SocialCallbackPage - data.user:', data.user);
           console.log('SocialCallbackPage - data.nickname:', data.nickname);
           console.log('SocialCallbackPage - data.name:', data.name);
-          console.log('SocialCallbackPage - 전체 응답 구조:', JSON.stringify(data, null, 2));
-          
+          console.log(
+            'SocialCallbackPage - 전체 응답 구조:',
+            JSON.stringify(data, null, 2)
+          );
+
           window.history.replaceState({}, document.title, url.pathname);
           if (data.access_token) {
             localStorage.setItem('token', data.access_token);
-            
+
             // JWT 토큰에서 사용자 정보 추출
             let nickname = `${provider}User`; // 기본값
-            
+
             try {
               // JWT 토큰 디코딩 (payload 부분만 추출) - 한글 깨짐 방지
               const tokenParts = data.access_token.split('.');
@@ -50,22 +58,29 @@ function SocialCallbackPage({ onLogin }) {
                 const decodedPayload = decodeURIComponent(
                   atob(base64Payload)
                     .split('')
-                    .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                    .map(
+                      (c) =>
+                        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                    )
                     .join('')
                 );
                 const payload = JSON.parse(decodedPayload);
                 console.log('JWT payload (한글 처리됨):', payload);
-                
-                nickname = payload.nickname || payload.name || payload.email?.split('@')[0] || nickname;
+
+                nickname =
+                  payload.nickname ||
+                  payload.name ||
+                  payload.email?.split('@')[0] ||
+                  nickname;
               }
             } catch (error) {
               console.error('JWT 디코딩 실패:', error);
               // 실패 시 기본값 사용
             }
-            
+
             console.log('SocialCallbackPage - 최종 사용할 nickname:', nickname);
             onLogin({ nickname });
-            
+
             // 초대 링크에서 왔는지 확인하고 리디렉션
             const redirectUrl = localStorage.getItem('redirectUrl');
             if (redirectUrl) {
@@ -79,14 +94,14 @@ function SocialCallbackPage({ onLogin }) {
               navigate('/dashboard');
             }
           } else {
-            alert(data.message || '소셜 로그인 실패');
+            showError(data.message || '소셜 로그인 실패');
             navigate('/login');
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('SocialCallbackPage - 에러:', error);
           window.history.replaceState({}, document.title, url.pathname);
-          alert('소셜 로그인 에러');
+          showError('소셜 로그인 에러');
           navigate('/login');
         });
     } else {

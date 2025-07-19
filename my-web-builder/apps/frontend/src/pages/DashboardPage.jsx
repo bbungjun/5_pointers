@@ -7,6 +7,7 @@ import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
 import { getUserColor } from '../utils/userColors';
 import { getCurrentUser } from '../utils/userUtils';
 import Footer from '../components/Footer';
+import { useToastContext } from '../contexts/ToastContext';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 10);
@@ -14,6 +15,7 @@ function randomId() {
 
 function DashboardPage({ user, onLogout }) {
   const navigate = useNavigate();
+  const { showError } = useToastContext();
   const [myPages, setMyPages] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -372,7 +374,7 @@ function DashboardPage({ user, onLogout }) {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('로그인이 필요합니다.');
+        showError('로그인이 필요합니다.');
         return;
       }
 
@@ -401,11 +403,11 @@ function DashboardPage({ user, onLogout }) {
         console.log('네비게이션 URL:', url);
         navigate(url);
       } else {
-        alert('템플릿 페이지 생성에 실패했습니다.');
+        showError('템플릿 페이지 생성에 실패했습니다.');
       }
     } catch (error) {
       console.error('템플릿 페이지 생성 실패:', error);
-      alert('템플릿 페이지 생성에 실패했습니다.');
+      showError('템플릿 페이지 생성에 실패했습니다.');
     }
   };
 
@@ -483,7 +485,7 @@ function DashboardPage({ user, onLogout }) {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('로그인이 필요합니다.');
+        showError('로그인이 필요합니다.');
         return;
       }
 
@@ -504,11 +506,11 @@ function DashboardPage({ user, onLogout }) {
         console.log('새 페이지 생성:', newPage);
         navigate(`/editor/${newPage.id}`);
       } else {
-        alert('페이지 생성에 실패했습니다.');
+        showError('페이지 생성에 실패했습니다.');
       }
     } catch (error) {
       console.error('페이지 생성 실패:', error);
-      alert('페이지 생성에 실패했습니다.');
+      showError('페이지 생성에 실패했습니다.');
     }
   };
 

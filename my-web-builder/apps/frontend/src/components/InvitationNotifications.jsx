@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import { io } from 'socket.io-client';
+import { useToastContext } from '../contexts/ToastContext';
 
 /**
  * InvitationNotifications 컴포넌트
- * 
+ *
  * 역할: 사용자가 받은 초대 목록을 표시하고 수락/거절할 수 있는 알림 컴포넌트
  */
 function InvitationNotifications() {
@@ -14,6 +15,7 @@ function InvitationNotifications() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState({});
   const [socket, setSocket] = useState(null);
+  const { showError } = useToastContext();
 
   // 초대 목록 조회
   const fetchInvitations = async () => {
@@ -22,11 +24,14 @@ function InvitationNotifications() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch(`${API_BASE_URL}/invitations/my-invitations`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await fetch(
+        `${API_BASE_URL}/invitations/my-invitations`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -42,37 +47,42 @@ function InvitationNotifications() {
   // 초대 수락
   const handleAcceptInvitation = async (invitationToken, pageId) => {
     try {
-      setProcessing(prev => ({ ...prev, [invitationToken]: 'accepting' }));
+      setProcessing((prev) => ({ ...prev, [invitationToken]: 'accepting' }));
       const token = localStorage.getItem('token');
-      
-      const response = await fetch(`${API_BASE_URL}/invitations/${invitationToken}/accept`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+
+      const response = await fetch(
+        `${API_BASE_URL}/invitations/${invitationToken}/accept`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
       if (response.ok) {
         // 초대 목록에서 제거
-        setInvitations(prev => prev.filter(inv => inv.invitationToken !== invitationToken));
-        
+        setInvitations((prev) =>
+          prev.filter((inv) => inv.invitationToken !== invitationToken)
+        );
+
         // URL 파라미터 없이 에디터로 이동
         const targetUrl = `/editor/${pageId}`;
-        
+
         console.log('InvitationNotifications: 에디터로 이동:', targetUrl);
-        
+
         // 에디터 페이지로 이동
         navigate(targetUrl);
       } else {
         const errorData = await response.json();
-        alert(errorData.message || '초대 수락에 실패했습니다.');
+        showError(errorData.message || '초대 수락에 실패했습니다.');
       }
     } catch (error) {
       console.error('초대 수락 실패:', error);
-      alert('초대 수락에 실패했습니다.');
+      showError('초대 수락에 실패했습니다.');
     } finally {
-      setProcessing(prev => ({ ...prev, [invitationToken]: null }));
+      setProcessing((prev) => ({ ...prev, [invitationToken]: null }));
     }
   };
 
@@ -83,41 +93,46 @@ function InvitationNotifications() {
     }
 
     try {
-      setProcessing(prev => ({ ...prev, [invitationToken]: 'declining' }));
+      setProcessing((prev) => ({ ...prev, [invitationToken]: 'declining' }));
       const token = localStorage.getItem('token');
-      
-      const response = await fetch(`${API_BASE_URL}/invitations/${invitationToken}/decline`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+
+      const response = await fetch(
+        `${API_BASE_URL}/invitations/${invitationToken}/decline`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
       if (response.ok) {
         // 초대 목록에서 제거
-        setInvitations(prev => prev.filter(inv => inv.invitationToken !== invitationToken));
+        setInvitations((prev) =>
+          prev.filter((inv) => inv.invitationToken !== invitationToken)
+        );
       } else {
         const errorData = await response.json();
-        alert(errorData.message || '초대 거절에 실패했습니다.');
+        showError(errorData.message || '초대 거절에 실패했습니다.');
       }
     } catch (error) {
       console.error('초대 거절 실패:', error);
-      alert('초대 거절에 실패했습니다.');
+      showError('초대 거절에 실패했습니다.');
     } finally {
-      setProcessing(prev => ({ ...prev, [invitationToken]: null }));
+      setProcessing((prev) => ({ ...prev, [invitationToken]: null }));
     }
   };
 
   // 만료 시간 포맷팅
   const formatExpiryTime = (expiresAt) => {
     if (!expiresAt) return '만료 시간 없음';
-    
+
     const expiryDate = new Date(expiresAt);
     const now = new Date();
     const diffTime = expiryDate - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays <= 0) return '만료됨';
     if (diffDays === 1) return '오늘 만료';
     return `${diffDays}일 후 만료`;
@@ -126,11 +141,16 @@ function InvitationNotifications() {
   // 역할 한글화
   const getRoleLabel = (role) => {
     switch (role) {
-      case 'OWNER': return '소유자';
-      case 'ADMIN': return '관리자';
-      case 'EDITOR': return '편집자';
-      case 'VIEWER': return '뷰어';
-      default: return role;
+      case 'OWNER':
+        return '소유자';
+      case 'ADMIN':
+        return '관리자';
+      case 'EDITOR':
+        return '편집자';
+      case 'VIEWER':
+        return '뷰어';
+      default:
+        return role;
     }
   };
 
@@ -218,8 +238,18 @@ function InvitationNotifications() {
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-pink-200/30">
         <div className="flex items-center mb-4">
           <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h6a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            <svg
+              className="w-4 h-4 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 17h5l-5 5v-5zM4 19h6a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
             </svg>
           </div>
           <h3 className="text-lg font-bold text-slate-800">초대 알림</h3>
@@ -241,8 +271,18 @@ function InvitationNotifications() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h6a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            <svg
+              className="w-4 h-4 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 17h5l-5 5v-5zM4 19h6a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
             </svg>
           </div>
           <h3 className="text-lg font-bold text-slate-800">초대 알림</h3>
@@ -254,7 +294,7 @@ function InvitationNotifications() {
 
       <div className="space-y-3">
         {invitations.map((invitation) => (
-          <div 
+          <div
             key={invitation.id}
             className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg"
           >
@@ -269,13 +309,19 @@ function InvitationNotifications() {
                     {getRoleLabel(invitation.role)}
                   </span>
                 </div>
-                
+
                 <h4 className="font-semibold text-slate-800 mb-1">
                   {invitation.pageName}
                 </h4>
-                
+
                 <div className="flex items-center text-xs text-slate-500">
-                  <span className={formatExpiryTime(invitation.expiresAt).includes('만료') ? 'text-red-500' : ''}>
+                  <span
+                    className={
+                      formatExpiryTime(invitation.expiresAt).includes('만료')
+                        ? 'text-red-500'
+                        : ''
+                    }
+                  >
                     {formatExpiryTime(invitation.expiresAt)}
                   </span>
                 </div>
@@ -283,7 +329,12 @@ function InvitationNotifications() {
 
               <div className="flex gap-2 ml-4">
                 <button
-                  onClick={() => handleAcceptInvitation(invitation.invitationToken, invitation.pageId)}
+                  onClick={() =>
+                    handleAcceptInvitation(
+                      invitation.invitationToken,
+                      invitation.pageId
+                    )
+                  }
                   disabled={processing[invitation.invitationToken]}
                   className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -296,9 +347,11 @@ function InvitationNotifications() {
                     '수락'
                   )}
                 </button>
-                
+
                 <button
-                  onClick={() => handleDeclineInvitation(invitation.invitationToken)}
+                  onClick={() =>
+                    handleDeclineInvitation(invitation.invitationToken)
+                  }
                   disabled={processing[invitation.invitationToken]}
                   className="px-3 py-1.5 bg-slate-100 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -320,4 +373,4 @@ function InvitationNotifications() {
   );
 }
 
-export default InvitationNotifications; 
+export default InvitationNotifications;
