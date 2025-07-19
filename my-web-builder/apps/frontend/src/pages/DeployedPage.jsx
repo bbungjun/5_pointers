@@ -3,28 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import ddukddakLogo from '../assets/page-cube-logo.png';
 import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
-
-// 페이지 멤버 정보를 가져오는 함수
-const fetchPageMembers = async (pageId, userId) => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return [];
-
-    const response = await fetch(`${API_BASE_URL}/users/pages/${pageId}/members?userId=${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      return data;
-    }
-  } catch (error) {
-    console.error('페이지 멤버 조회 실패:', error);
-  }
-  return [];
-};
 function DeployedPage({ user, onLogout }) {
   const navigate = useNavigate();
   const [myPages, setMyPages] = useState([]);
@@ -43,7 +21,6 @@ function DeployedPage({ user, onLogout }) {
     title: '',
     data: null,
   });
-  const [pageMembers, setPageMembers] = useState({});
   // 페이지 submissions 데이터 조회
   const fetchPageSubmissions = async (pageId) => {
     try {
@@ -126,14 +103,6 @@ function DeployedPage({ user, onLogout }) {
           }
         }
         setSubmissions(submissionsData);
-
-        // 각 페이지의 멤버 정보 조회
-        const membersData = {};
-        for (const page of uniquePages.filter((p) => p.status === 'DEPLOYED')) {
-          const members = await fetchPageMembers(page.id, user.id);
-          membersData[page.id] = members;
-        }
-        setPageMembers(membersData);
       }
     } catch (error) {
       console.error('페이지 목록 조회 실패:', error);
@@ -322,99 +291,7 @@ function DeployedPage({ user, onLogout }) {
             </p>
           )}
 
-
-          {/* 멤버 정보 표시 */}
-          {pageMembers[page.id] && pageMembers[page.id].length > 0 && (
-            <div className="mt-2 flex items-center gap-2">
-              <span className="text-xs text-slate-500">멤버:</span>
-              <div className="flex flex-wrap gap-1">
-                {pageMembers[page.id]
-                  .slice(0, 3)
-                  .map((member, index) => (
-                    <span
-                      key={member.id}
-                      className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
-                    >
-                      {member.nickname || member.email?.split('@')[0] || '알 수 없음'}
-                    </span>
-                  ))}
-                {pageMembers[page.id].length > 3 && (
-                  <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                    +{pageMembers[page.id].length - 3}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Submissions 통계 정보 */}
-          {submissions[page.id] && (
-            <div className="mt-3 p-3 bg-white/70 rounded-lg border border-slate-400">
-              <p className="text-sm font-medium text-slate-700 mb-2">제출된 응답</p>
-              <div className="flex flex-wrap gap-2">
-                {submissions[page.id].typeStats.attendance > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    참석/가입: {submissions[page.id].typeStats.attendance}
-                  </span>
-                )}
-                {submissions[page.id].typeStats.comment > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    댓글: {submissions[page.id].typeStats.comment}
-                  </span>
-                )}
-                {submissions[page.id].typeStats.slido > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-                    </svg>
-                    의견: {submissions[page.id].typeStats.slido}
-                  </span>
-                )}
-                {submissions[page.id].typeStats.other > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    동아리 가입: {submissions[page.id].typeStats.other}
-                  </span>
-                )}
-              </div>
-              {submissions[page.id].totalCount > 0 && (
-                <button
-                  onClick={() => openSubmissionsModal(page.id, page.title)}
-                  className="mt-2 text-xs text-emerald-600 hover:text-emerald-800 font-medium"
-                >
-                  전체 {submissions[page.id].totalCount}개 응답 보기 →
-                </button>
-              )}
-            </div>
-          )}
+          {/* Submissions 버튼 - 여기에는 아무것도 표시하지 않음 */}
         </div>
         {/* 편집/삭제 버튼을 절대 위치로 고정 */}
         <div className="absolute top-0 right-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -463,11 +340,16 @@ function DeployedPage({ user, onLogout }) {
         {submissions[page.id] && (
           <button
             onClick={() => openSubmissionsModal(page.id, page.title)}
-            className="w-full py-2 px-3 bg-white hover:bg-blue-100 text-slate-700 rounded-lg border border-slate-400 hover:border-slate-600 transition-all duration-200 flex items-center justify-between"
+            className="w-full py-2 px-3 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-300 hover:border-slate-500 transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow"
           >
-            <span className="font-medium">제출된 응답</span>
+            <span className="font-medium flex items-center gap-2">
+              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              제출된 응답
+            </span>
             <div className="flex items-center gap-2">
-              <span className="bg-white px-2 py-1 rounded-full text-xs font-bold text-slate-700">
+              <span className="bg-slate-700 text-white px-2 py-1 rounded-md text-xs font-medium">
                 {submissions[page.id].totalCount}개
               </span>
               <svg
@@ -776,19 +658,20 @@ function DeployedPage({ user, onLogout }) {
 
       {/* Submissions 모달 */}
       {submissionsModal.isOpen && submissionsModal.data && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-hidden border border-gray-100">
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white">
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-slate-800">
-                  {submissionsModal.title} - 제출된 응답
+                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                  <span className="inline-block w-1.5 h-6 bg-slate-700 rounded-full"></span>
+                  제출된 응답
                 </h3>
                 <button
                   onClick={closeSubmissionsModal}
-                  className="p-2 hover:bg-gray-100 rounded-lg"
+                  className="p-2 hover:bg-slate-100 rounded-full transition-all duration-200"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="w-5 h-5 text-slate-500"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -804,55 +687,85 @@ function DeployedPage({ user, onLogout }) {
               </div>
 
               {/* 통계 요약 */}
-              <div className="mt-4 flex flex-wrap gap-4">
-                <div className="bg-green-50 px-3 py-2 rounded-lg">
-                  <span className="text-sm font-medium text-green-800">
-                    참석/가입: {submissionsModal.data.typeStats.attendance}
-                  </span>
+              <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div className="bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-slate-700"></div>
+                    <span className="text-sm font-medium text-slate-700">
+                      참석/가입
+                    </span>
+                  </div>
+                  <p className="text-xl font-semibold text-slate-800 mt-1">
+                    {submissionsModal.data.typeStats.attendance}
+                  </p>
                 </div>
-                <div className="bg-blue-50 px-3 py-2 rounded-lg">
-                  <span className="text-sm font-medium text-blue-800">
-                    댓글: {submissionsModal.data.typeStats.comment}
-                  </span>
+                <div className="bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-slate-700"></div>
+                    <span className="text-sm font-medium text-slate-700">
+                      댓글
+                    </span>
+                  </div>
+                  <p className="text-xl font-semibold text-slate-800 mt-1">
+                    {submissionsModal.data.typeStats.comment}
+                  </p>
                 </div>
-                <div className="bg-purple-50 px-3 py-2 rounded-lg">
-                  <span className="text-sm font-medium text-purple-800">
-                    의견: {submissionsModal.data.typeStats.slido}
-                  </span>
+                <div className="bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-slate-700"></div>
+                    <span className="text-sm font-medium text-slate-700">
+                      의견
+                    </span>
+                  </div>
+                  <p className="text-xl font-semibold text-slate-800 mt-1">
+                    {submissionsModal.data.typeStats.slido}
+                  </p>
                 </div>
-                <div className="bg-orange-50 px-3 py-2 rounded-lg">
-                  <span className="text-sm font-medium text-orange-800">
-                    동아리 가입: {submissionsModal.data.typeStats.other}
-                  </span>
+                <div className="bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-slate-700"></div>
+                    <span className="text-sm font-medium text-slate-700">
+                      동아리 가입
+                    </span>
+                  </div>
+                  <p className="text-xl font-semibold text-slate-800 mt-1">
+                    {submissionsModal.data.typeStats.other}
+                  </p>
                 </div>
-                <div className="bg-gray-50 px-3 py-2 rounded-lg">
-                  <span className="text-sm font-medium text-gray-800">
-                    전체: {submissionsModal.data.totalCount}
-                  </span>
+                <div className="bg-slate-700 text-white px-4 py-3 rounded-lg shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-white"></div>
+                    <span className="text-sm font-medium text-slate-100">
+                      전체
+                    </span>
+                  </div>
+                  <p className="text-xl font-semibold text-white mt-1">
+                    {submissionsModal.data.totalCount}
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="overflow-auto max-h-96">
+            <div className="overflow-auto max-h-[calc(90vh-200px)]">
               <div className="p-6 space-y-4">
                 {submissionsModal.data.submissions.map((submission) => (
                   <div
                     key={submission.id}
-                    className="border border-gray-200 rounded-lg p-4"
+                    className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-white"
                   >
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                          className={`inline-block px-3 py-1 rounded-md text-xs font-medium border ${
                             submission.type === 'attendance'
-                              ? 'bg-green-100 text-green-700'
+                              ? 'border-slate-300 bg-slate-50 text-slate-700'
                               : submission.type === 'comment'
-                                ? 'bg-blue-100 text-blue-700'
+                                ? 'border-slate-300 bg-slate-50 text-slate-700'
                                 : submission.type === 'slido'
-                                  ? 'bg-purple-100 text-purple-700'
+                                  ? 'border-slate-300 bg-slate-50 text-slate-700'
                                   : submission.type === 'other'
-                                    ? 'bg-orange-100 text-orange-700'
-                                    : 'bg-gray-100 text-gray-700'
+                                    ? 'border-slate-300 bg-slate-50 text-slate-700'
+                                    : 'border-slate-300 bg-slate-50 text-slate-700'
                           }`}
                         >
                           {submission.type === 'attendance'
@@ -865,161 +778,169 @@ function DeployedPage({ user, onLogout }) {
                                   ? '동아리 가입'
                                   : '기타'}
                         </span>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-slate-500">
                           {submission.componentId}
                         </span>
                       </div>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
                         {new Date(submission.createdAt).toLocaleString()}
                       </span>
                     </div>
 
-                    <div className="bg-gray-50 p-3 rounded-lg">
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
                       {submission.type === 'attendance' && (
-                        <div className="space-y-2">
-                          <p>
-                            <strong>이름:</strong>{' '}
-                            {submission.data.attendeeName}
-                          </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="flex flex-col">
+                            <span className="text-xs text-slate-500 mb-1">이름</span>
+                            <p className="font-medium">{submission.data.attendeeName}</p>
+                          </div>
                           {submission.data.guestSide && (
-                            <p>
-                              <strong>구분:</strong> {submission.data.guestSide}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">구분</span>
+                              <p className="font-medium">{submission.data.guestSide}</p>
+                            </div>
                           )}
                           {submission.data.attendeeCount && (
-                            <p>
-                              <strong>참석 인원:</strong>{' '}
-                              {submission.data.attendeeCount}명
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">참석 인원</span>
+                              <p className="font-medium">{submission.data.attendeeCount}명</p>
+                            </div>
                           )}
                           {submission.data.contact && (
-                            <p>
-                              <strong>연락처:</strong> {submission.data.contact}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">연락처</span>
+                              <p className="font-medium">{submission.data.contact}</p>
+                            </div>
                           )}
                           {submission.data.studentId && (
-                            <p>
-                              <strong>학번:</strong> {submission.data.studentId}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">학번</span>
+                              <p className="font-medium">{submission.data.studentId}</p>
+                            </div>
                           )}
                           {submission.data.major && (
-                            <p>
-                              <strong>전공:</strong> {submission.data.major}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">전공</span>
+                              <p className="font-medium">{submission.data.major}</p>
+                            </div>
                           )}
                           {submission.data.email && (
-                            <p>
-                              <strong>이메일:</strong> {submission.data.email}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">이메일</span>
+                              <p className="font-medium">{submission.data.email}</p>
+                            </div>
                           )}
                           {submission.data.motivation && (
-                            <p>
-                              <strong>지원 동기:</strong>{' '}
-                              {submission.data.motivation}
-                            </p>
+                            <div className="flex flex-col col-span-full">
+                              <span className="text-xs text-slate-500 mb-1">지원 동기</span>
+                              <p className="font-medium">{submission.data.motivation}</p>
+                            </div>
                           )}
                           {submission.data.experience && (
-                            <p>
-                              <strong>관련 경험:</strong>{' '}
-                              {submission.data.experience}
-                            </p>
+                            <div className="flex flex-col col-span-full">
+                              <span className="text-xs text-slate-500 mb-1">관련 경험</span>
+                              <p className="font-medium">{submission.data.experience}</p>
+                            </div>
                           )}
                         </div>
                       )}
                       {submission.type === 'comment' && (
-                        <div className="space-y-2">
-                          <p>
-                            <strong>작성자:</strong> {submission.data.author}
-                          </p>
-                          <p>
-                            <strong>내용:</strong> {submission.data.content}
-                          </p>
+                        <div className="grid grid-cols-1 gap-3">
+                          <div className="flex flex-col">
+                            <span className="text-xs text-slate-500 mb-1">작성자</span>
+                            <p className="font-medium">{submission.data.author}</p>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xs text-slate-500 mb-1">내용</span>
+                            <p className="font-medium">{submission.data.content}</p>
+                          </div>
                         </div>
                       )}
                       {submission.type === 'slido' && (
-                        <div className="space-y-2">
-                          <p>
-                            <strong>의견:</strong> {submission.data.content}
-                          </p>
+                        <div className="grid grid-cols-1 gap-3">
+                          <div className="flex flex-col">
+                            <span className="text-xs text-slate-500 mb-1">의견</span>
+                            <p className="font-medium">{submission.data.content}</p>
+                          </div>
                         </div>
                       )}
                       {submission.type === 'other' && (
-                        <div className="space-y-2">
-                          <p>
-                            <strong>이름:</strong>{' '}
-                            {submission.data.attendeeName}
-                          </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="flex flex-col">
+                            <span className="text-xs text-slate-500 mb-1">이름</span>
+                            <p className="font-medium">{submission.data.attendeeName}</p>
+                          </div>
                           {submission.data.guestSide && (
-                            <p>
-                              <strong>학년/구분:</strong>{' '}
-                              {submission.data.guestSide}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">학년/구분</span>
+                              <p className="font-medium">{submission.data.guestSide}</p>
+                            </div>
                           )}
                           {submission.data.contact && (
-                            <p>
-                              <strong>연락처:</strong> {submission.data.contact}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">연락처</span>
+                              <p className="font-medium">{submission.data.contact}</p>
+                            </div>
                           )}
                           {submission.data.studentId && (
-                            <p>
-                              <strong>학번:</strong> {submission.data.studentId}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">학번</span>
+                              <p className="font-medium">{submission.data.studentId}</p>
+                            </div>
                           )}
                           {submission.data.major && (
-                            <p>
-                              <strong>전공:</strong> {submission.data.major}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">전공</span>
+                              <p className="font-medium">{submission.data.major}</p>
+                            </div>
                           )}
                           {submission.data.email && (
-                            <p>
-                              <strong>이메일:</strong> {submission.data.email}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">이메일</span>
+                              <p className="font-medium">{submission.data.email}</p>
+                            </div>
                           )}
                           {submission.data.attendeeCount && (
-                            <p>
-                              <strong>참석 인원:</strong>{' '}
-                              {submission.data.attendeeCount}명
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">참석 인원</span>
+                              <p className="font-medium">{submission.data.attendeeCount}명</p>
+                            </div>
                           )}
                           {submission.data.companionCount && (
-                            <p>
-                              <strong>동반 인원:</strong>{' '}
-                              {submission.data.companionCount}명
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">동반 인원</span>
+                              <p className="font-medium">{submission.data.companionCount}명</p>
+                            </div>
                           )}
                           {submission.data.mealOption && (
-                            <p>
-                              <strong>식사 옵션:</strong>{' '}
-                              {submission.data.mealOption}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">식사 옵션</span>
+                              <p className="font-medium">{submission.data.mealOption}</p>
+                            </div>
                           )}
                           {submission.data.privacyConsent && (
-                            <p>
-                              <strong>개인정보 동의:</strong>{' '}
-                              {submission.data.privacyConsent
-                                ? '동의'
-                                : '미동의'}
-                            </p>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-500 mb-1">개인정보 동의</span>
+                              <p className="font-medium">
+                                {submission.data.privacyConsent ? '동의' : '미동의'}  
+                              </p>
+                            </div>
                           )}
                           {submission.data.motivation !== undefined &&
                           submission.data.motivation !== null ? (
-                            <div className="mt-3">
-                              <p>
-                                <strong>지원 동기:</strong>
-                              </p>
-                              <div className="bg-white p-3 rounded border mt-1">
+                            <div className="flex flex-col col-span-full mt-2">
+                              <span className="text-xs text-slate-500 mb-1">지원 동기</span>
+                              <div className="bg-white p-3 rounded-md border border-slate-200">
                                 <p className="text-sm whitespace-pre-wrap">
                                   {submission.data.motivation}
                                 </p>
                               </div>
                             </div>
                           ) : (
-                            <div className="mt-3">
-                              <p>
-                                <strong>지원 동기:</strong>
-                              </p>
-                              <div className="bg-gray-100 p-3 rounded border mt-1">
-                                <p className="text-sm text-gray-500 italic">
+                            <div className="flex flex-col col-span-full mt-2">
+                              <span className="text-xs text-slate-500 mb-1">지원 동기</span>
+                              <div className="bg-slate-50 p-3 rounded-md border border-slate-100">
+                                <p className="text-sm text-slate-400 italic">
                                   지원 동기 정보가 없습니다.
                                 </p>
                               </div>
@@ -1027,23 +948,19 @@ function DeployedPage({ user, onLogout }) {
                           )}
                           {submission.data.experience !== undefined &&
                           submission.data.experience !== null ? (
-                            <div className="mt-3">
-                              <p>
-                                <strong>관련 경험:</strong>
-                              </p>
-                              <div className="bg-white p-3 rounded border mt-1">
+                            <div className="flex flex-col col-span-full mt-2">
+                              <span className="text-xs text-slate-500 mb-1">관련 경험</span>
+                              <div className="bg-white p-3 rounded-md border border-slate-200">
                                 <p className="text-sm whitespace-pre-wrap">
                                   {submission.data.experience}
                                 </p>
                               </div>
                             </div>
                           ) : (
-                            <div className="mt-3">
-                              <p>
-                                <strong>관련 경험:</strong>
-                              </p>
-                              <div className="bg-gray-100 p-3 rounded border mt-1">
-                                <p className="text-sm text-gray-500 italic">
+                            <div className="flex flex-col col-span-full mt-2">
+                              <span className="text-xs text-slate-500 mb-1">관련 경험</span>
+                              <div className="bg-slate-50 p-3 rounded-md border border-slate-100">
+                                <p className="text-sm text-slate-400 italic">
                                   관련 경험 정보가 없습니다.
                                 </p>
                               </div>
@@ -1055,6 +972,14 @@ function DeployedPage({ user, onLogout }) {
                   </div>
                 ))}
               </div>
+            </div>
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+              <button
+                onClick={closeSubmissionsModal}
+                className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                닫기
+              </button>
             </div>
           </div>
         </div>
