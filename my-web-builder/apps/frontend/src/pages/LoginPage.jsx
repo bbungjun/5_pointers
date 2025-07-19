@@ -9,6 +9,7 @@ import {
 import googleLoginImg from '../assets/web_light_sq_ctn@1x.png';
 import kakaoLoginImg from '../assets/kakao_login_medium_wide.png';
 import ddukddakLogo from '/ddukddak-logo.png';
+import Footer from '../components/Footer';
 
 function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -57,12 +58,14 @@ function LoginPage({ onLogin }) {
   };
 
   return (
-    <div
-      className="h-screen relative overflow-hidden"
-      style={{
-        background: 'linear-gradient(to bottom right, #FF969A, #9E9EE6)',
-      }}
-    >
+    <div className="min-h-screen flex flex-col">
+      <div
+        className="flex-1 relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(to bottom right, #FF969A, #9E9EE6)',
+          minHeight: '100vh',
+        }}
+      >
       {/* Simple Header */}
       <div className="bg-transparent relative z-10">
         <div className="max-w-8xl mx-auto px-6 py-4">
@@ -192,6 +195,10 @@ function LoginPage({ onLogin }) {
           </div>
         </div>
       </div>
+      </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
