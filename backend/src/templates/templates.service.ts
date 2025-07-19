@@ -223,7 +223,6 @@ export class TemplatesService {
       subdomain: subdomain || this.generateRandomSubdomain(),
       content: newContent,
       owner: user,
-      userId,
       status: PageStatus.DRAFT,
       editingMode: template.editingMode, // 템플릿의 편집 기준을 페이지에 저장
     });

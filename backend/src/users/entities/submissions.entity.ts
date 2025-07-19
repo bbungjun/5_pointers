@@ -4,6 +4,7 @@ import {
   ManyToOne,
   Column,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Pages } from './pages.entity';
 
@@ -13,10 +14,8 @@ export class Submissions {
   id: number;
 
   @ManyToOne(() => Pages, (page) => page.submissions, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'pageId' })
   page: Pages;
-
-  @Column({ name: 'pageId' })
-  pageId: string;
 
   @Column()
   component_id: string;

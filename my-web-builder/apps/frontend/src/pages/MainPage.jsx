@@ -1,8 +1,41 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const MainPage = () => {
   const navigate = useNavigate();
+  const [leftClickCount, setLeftClickCount] = useState(0);
+  const [rightClickCount, setRightClickCount] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState(0);
+
+  // 비밀 페이지로 이동하는 함수
+  const handleSecretClick = (side) => {
+    const currentTime = Date.now();
+    
+    // 5초 내에 클릭하지 않으면 카운트 리셋
+    if (currentTime - lastClickTime > 5000) {
+      setLeftClickCount(0);
+      setRightClickCount(0);
+    }
+    
+    setLastClickTime(currentTime);
+    
+    if (side === 'left') {
+      setLeftClickCount(prev => prev + 1);
+    } else if (side === 'right') {
+      setRightClickCount(prev => prev + 1);
+    }
+    
+    // 양쪽 모두 한 번씩 클릭했는지 확인
+    if ((side === 'left' && leftClickCount === 0 && rightClickCount === 1) ||
+        (side === 'right' && rightClickCount === 0 && leftClickCount === 1) ||
+        (leftClickCount === 1 && rightClickCount === 1)) {
+      // 비밀 페이지로 이동
+      navigate('/secret');
+      // 카운트 리셋
+      setLeftClickCount(0);
+      setRightClickCount(0);
+    }
+  };
 
   // 로그인 상태 확인 함수
   const checkLoginStatus = () => {
@@ -196,6 +229,27 @@ const MainPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Secret Click Areas */}
+      <div 
+        className="absolute bottom-4 left-4 w-8 h-8 cursor-pointer z-20"
+        onClick={() => handleSecretClick('left')}
+        style={{ 
+          background: 'transparent',
+          borderRadius: '50%'
+        }}
+        title="비밀 영역"
+      />
+      
+      <div 
+        className="absolute bottom-4 right-4 w-8 h-8 cursor-pointer z-20"
+        onClick={() => handleSecretClick('right')}
+        style={{ 
+          background: 'transparent',
+          borderRadius: '50%'
+        }}
+        title="비밀 영역"
+      />
 
       {/* CSS Animations */}
       <style>{`

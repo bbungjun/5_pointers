@@ -12,6 +12,7 @@ import AppEditor from './pages/AppEditor';
 import NoCodeEditor from './pages/NoCodeEditorWithRecovery';
 import InvitationHandler from './pages/InvitationHandler';
 import RecoveryTest from './pages/RecoveryTest';
+import SecretPage from './pages/SecretPage';
 
 function App() {
   // JWT 토큰 기반으로 로그인 상태 확인
@@ -223,6 +224,7 @@ function App() {
         <Route path="/no-code-editor" element={<NoCodeEditor />} />
         <Route path="/invitation/:inviteCode" element={<InvitationHandler />} />
         <Route path="/recovery-test" element={<RecoveryTest />} />
+        <Route path="/secret" element={<SecretPage />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </BrowserRouter>

@@ -47,8 +47,10 @@ export class UsersController {
   // 페이지 멤버 목록 조회 API
   @UseGuards(JwtAuthGuard)
   @Get('pages/:pageId/members')
-  async getPageMembers(@Request() req, @Param('pageId') pageId: string) {
-    return this.usersService.getPageMembers(pageId, req.user.userId);
+  async getPageMembers(@Request() req, @Param('pageId') pageId: string, @Query('userId') queryUserId?: string) {
+    // 쿼리 파라미터로 전달된 userId가 있으면 사용, 없으면 JWT에서 추출
+    const userId = queryUserId ? parseInt(queryUserId) : req.user.userId;
+    return this.usersService.getPageMembers(pageId, userId);
   }
 
   // 페이지 제목 수정 API

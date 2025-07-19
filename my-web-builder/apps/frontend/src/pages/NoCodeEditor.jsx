@@ -45,11 +45,10 @@ const throttle = (func, limit) => {
 };
 
 function NoCodeEditor({ pageId }) {
-  const { roomId } = useParams();
   const [searchParams] = useSearchParams();
   
-  // roomId가 없으면 임시 ID 생성
-  const effectiveRoomId = roomId || `room-${Date.now()}`;
+  // pageId가 없으면 임시 ID 생성 (하지만 실제로는 pageId가 항상 있어야 함)
+  const effectivePageId = pageId || `room-${Date.now()}`;
   
   // URL 파라미터는 더 이상 사용하지 않음 (페이지의 editingMode 사용)
   const initialViewport = 'desktop'; // 기본값만 설정
@@ -77,7 +76,7 @@ function NoCodeEditor({ pageId }) {
     isLoading,
     isFromTemplate,
     decodeJWTPayload,
-  } = usePageDataManager(pageId, initialViewport);
+  } = usePageDataManager(effectivePageId, initialViewport);
 
   // 2. 사용자 정보 처리 (단순화)
   const [userInfo] = useState(() => {
@@ -117,7 +116,7 @@ function NoCodeEditor({ pageId }) {
 
   // 4. 협업 동기화 로직 (항상 호출되도록 보장)
   const collaboration = useCollaboration({
-    roomId: pageId || 'default-room',
+    roomId: effectivePageId,
     userInfo: userInfo || { id: 'anonymous', name: 'Anonymous', color: '#000000' },
     canvasRef,
     selectedComponentId: interaction.selectedId,
@@ -134,7 +133,7 @@ function NoCodeEditor({ pageId }) {
   // 템플릿 시작 시 모든 사용자에게 즉시 동기화 (최초 한 번만)
   const [hasInitialSync, setHasInitialSync] = useState(false);
   useEffect(() => {
-    if (isFromTemplate && pageId && !isLoading && collaboration.isConnected && components.length > 0 && !hasInitialSync) {
+    if (isFromTemplate && effectivePageId && !isLoading && collaboration.isConnected && components.length > 0 && !hasInitialSync) {
       console.log('🎨 템플릿이 로드되었습니다. 모든 사용자에게 즉시 동기화 준비 완료');
       
       // 모든 사용자에게 즉시 동기화를 위해 updateAllComponents 호출
@@ -145,7 +144,7 @@ function NoCodeEditor({ pageId }) {
         console.log('✅ 템플릿 초기 동기화 완료. 이후 Y.js가 실시간 협업을 처리합니다.');
       }
     }
-  }, [isFromTemplate, pageId, isLoading, collaboration.isConnected, components.length, collaboration.updateAllComponents, hasInitialSync]);
+  }, [isFromTemplate, effectivePageId, isLoading, collaboration.isConnected, components.length, collaboration.updateAllComponents, hasInitialSync]);
 
         // collaboration이 undefined일 수 있으므로 기본값 제공
   const {
@@ -540,7 +539,7 @@ function NoCodeEditor({ pageId }) {
         onTemplateSaveOpen={interaction.handleTemplateSaveOpen}
         onInviteOpen={interaction.handleInviteOpen}
         pageId={pageId}
-        roomId={effectiveRoomId}
+        roomId={effectivePageId}
         isConnected={isConnected}
         connectionError={connectionError}
         isAdmin={isAdmin}
@@ -570,7 +569,7 @@ function NoCodeEditor({ pageId }) {
             e.dataTransfer.setData('componentType', type);
           }}
           components={components}
-          roomId={effectiveRoomId}
+          roomId={effectivePageId}
           isOpen={interaction.isLibraryOpen}
           onToggle={interaction.handleLibraryToggle}
           isReady={true} // 항상 준비 상태로 설정 (Y.js 연결과 독립적)

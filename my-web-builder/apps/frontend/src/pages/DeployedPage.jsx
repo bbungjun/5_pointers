@@ -3,6 +3,28 @@ import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import ddukddakLogo from '../assets/page-cube-logo.png';
 import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
+
+// 페이지 멤버 정보를 가져오는 함수
+const fetchPageMembers = async (pageId, userId) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return [];
+
+    const response = await fetch(`${API_BASE_URL}/users/pages/${pageId}/members?userId=${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+  } catch (error) {
+    console.error('페이지 멤버 조회 실패:', error);
+  }
+  return [];
+};
 function DeployedPage({ user, onLogout }) {
   const navigate = useNavigate();
   const [myPages, setMyPages] = useState([]);
@@ -21,6 +43,7 @@ function DeployedPage({ user, onLogout }) {
     title: '',
     data: null,
   });
+  const [pageMembers, setPageMembers] = useState({});
   // 페이지 submissions 데이터 조회
   const fetchPageSubmissions = async (pageId) => {
     try {
@@ -84,6 +107,14 @@ function DeployedPage({ user, onLogout }) {
           }
         }
         setSubmissions(submissionsData);
+
+        // 각 페이지의 멤버 정보 조회
+        const membersData = {};
+        for (const page of uniquePages.filter((p) => p.status === 'DEPLOYED')) {
+          const members = await fetchPageMembers(page.id, user.id);
+          membersData[page.id] = members;
+        }
+        setPageMembers(membersData);
       }
     } catch (error) {
       console.error('페이지 목록 조회 실패:', error);
@@ -273,6 +304,30 @@ function DeployedPage({ user, onLogout }) {
             </p>
           )}
 
+          {/* 멤버 정보 표시 */}
+          {pageMembers[page.id] && pageMembers[page.id].length > 0 && (
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-xs text-slate-500">멤버:</span>
+              <div className="flex flex-wrap gap-1">
+                {pageMembers[page.id]
+                  .slice(0, 3)
+                  .map((member, index) => (
+                    <span
+                      key={member.id}
+                      className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                    >
+                      {member.nickname || member.email?.split('@')[0] || '알 수 없음'}
+                    </span>
+                  ))}
+                {pageMembers[page.id].length > 3 && (
+                  <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                    +{pageMembers[page.id].length - 3}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Submissions 통계 정보 */}
           {submissions[page.id] && (
             <div className="mt-3 p-3 bg-white/70 rounded-lg border border-slate-400">
@@ -386,9 +441,7 @@ function DeployedPage({ user, onLogout }) {
       <div className="flex gap-2">
         <button
           onClick={() => {
-            const viewport =
-              page.editingMode === 'mobile' ? 'mobile' : 'desktop';
-            navigate(`/editor/${page.id}?viewport=${viewport}`);
+            navigate(`/editor/${page.id}`);
           }}
           className="flex-1 px-4 py-2 bg-slate-400 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"
         >

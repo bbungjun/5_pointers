@@ -6,6 +6,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Users } from './users.entity';
 import { PageMembers } from './page_members.entity';
@@ -23,10 +24,8 @@ export class Pages {
   id: string;
 
   @ManyToOne(() => Users, (user) => user.pages, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
   owner: Users;
-
-  @Column({ name: 'user_id' })
-userId: number;
 
   @Column({ unique: true })
   subdomain: string;
