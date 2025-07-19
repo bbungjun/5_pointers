@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../../../config';
-import { useToastContext } from '../../../contexts/ToastContext';
 
 // 사용 가능한 폰트 목록
 const AVAILABLE_FONTS = [
@@ -30,7 +29,17 @@ function CommentRenderer({
   viewport = 'desktop',
   pageId,
 }) {
-  const { showError } = useToastContext();
+  // Toast Context를 안전하게 사용
+  let showError = null;
+  try {
+    const { useToastContext } = require('../../../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showError = toastContext?.showError;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showError = (message) => alert(message);
+  }
+
   const {
     title,
     placeholder,

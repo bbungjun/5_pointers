@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { useToastContext } from '../../../contexts/ToastContext';
 
 function BankAccountRenderer({
   comp,
@@ -9,7 +8,17 @@ function BankAccountRenderer({
   mode = 'live',
   setModalOpen,
 }) {
-  const { showSuccess } = useToastContext();
+  // Toast Context를 안전하게 사용
+  let showSuccess = null;
+  try {
+    const { useToastContext } = require('../../../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showSuccess = toastContext?.showSuccess;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showSuccess = (message) => alert(message);
+  }
+
   const { title, groomSide, brideSide, backgroundColor } = comp.props;
   const [groomModalOpen, setGroomModalOpen] = useState(false);
   const [brideModalOpen, setBrideModalOpen] = useState(false);

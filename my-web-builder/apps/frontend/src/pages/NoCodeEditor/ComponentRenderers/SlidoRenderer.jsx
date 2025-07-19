@@ -1,9 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../../config';
-import { useToastContext } from '../../../contexts/ToastContext';
 
 function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
-  const { showError } = useToastContext();
+  // Toast Context를 안전하게 사용
+  let showError = null;
+  try {
+    const { useToastContext } = require('../../../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showError = toastContext?.showError;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showError = (message) => alert(message);
+  }
+
   const {
     question,
     placeholder,

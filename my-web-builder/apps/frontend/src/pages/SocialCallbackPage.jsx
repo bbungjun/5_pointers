@@ -1,13 +1,22 @@
-import { useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
-import { useToastContext } from '../contexts/ToastContext';
 
-function SocialCallbackPage({ onLogin }) {
+function SocialCallbackPage() {
+  // Toast Context를 안전하게 사용
+  let showError = null;
+  try {
+    const { useToastContext } = require('../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showError = toastContext?.showError;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showError = (message) => alert(message);
+  }
+
   const navigate = useNavigate();
   const location = useLocation();
   const hasFetched = useRef(false);
-  const { showError } = useToastContext();
 
   useEffect(() => {
     if (hasFetched.current) {
@@ -79,7 +88,7 @@ function SocialCallbackPage({ onLogin }) {
             }
 
             console.log('SocialCallbackPage - 최종 사용할 nickname:', nickname);
-            onLogin({ nickname });
+            // onLogin({ nickname }); // This line was removed as per the new_code
 
             // 초대 링크에서 왔는지 확인하고 리디렉션
             const redirectUrl = localStorage.getItem('redirectUrl');

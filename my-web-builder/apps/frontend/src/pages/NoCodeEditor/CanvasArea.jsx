@@ -12,14 +12,23 @@ import {
   LiveCursors,
   CollaborativeSelections,
 } from '../../components/collaboration/LiveCursors';
-import { useToastContext } from '../../contexts/ToastContext';
 
 // 그리드 크기 상수 import 또는 선언
 const GRID_SIZE = 50;
 
 // 섹션 추가 버튼 컴포넌트
 function AddSectionButton({ canvasHeight, viewport, onAddSection }) {
-  const { showSuccess } = useToastContext();
+  // Toast Context를 안전하게 사용
+  let showSuccess = null;
+  try {
+    const { useToastContext } = require('../../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showSuccess = toastContext?.showSuccess;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showSuccess = (message) => alert(message);
+  }
+
   // 현재 캔버스의 높이 사용 (더미 컴포넌트 필요 없음)
   const currentMaxY = canvasHeight;
 

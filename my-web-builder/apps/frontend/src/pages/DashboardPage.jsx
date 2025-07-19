@@ -7,15 +7,24 @@ import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
 import { getUserColor } from '../utils/userColors';
 import { getCurrentUser } from '../utils/userUtils';
 import Footer from '../components/Footer';
-import { useToastContext } from '../contexts/ToastContext';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 10);
 }
 
 function DashboardPage({ user, onLogout }) {
+  // Toast Context를 안전하게 사용
+  let showError = null;
+  try {
+    const { useToastContext } = require('../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showError = toastContext?.showError;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showError = (message) => alert(message);
+  }
+
   const navigate = useNavigate();
-  const { showError } = useToastContext();
   const [myPages, setMyPages] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');

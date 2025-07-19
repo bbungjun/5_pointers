@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useToastContext } from '../../../contexts/ToastContext';
 
 function AttendRenderer({ comp, mode = 'editor', pageId, isEditor = true }) {
-  const { showSuccess, showError } = useToastContext();
+  // Toast Context를 안전하게 사용
+  let showSuccess = null;
+  let showError = null;
+  try {
+    const { useToastContext } = require('../../../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showSuccess = toastContext?.showSuccess;
+    showError = toastContext?.showError;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showSuccess = (message) => alert(message);
+    showError = (message) => alert(message);
+  }
+
   const formType = comp.props?.formType || 'attendance';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

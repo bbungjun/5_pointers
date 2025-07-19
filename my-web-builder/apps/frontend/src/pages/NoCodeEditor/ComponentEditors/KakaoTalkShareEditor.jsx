@@ -1,9 +1,17 @@
 import React, { useRef } from 'react';
 import { API_BASE_URL } from '../../../config.js';
-import { useToastContext } from '../../../contexts/ToastContext';
 
 export default function KakaoTalkShareEditor({ selectedComp, onUpdate }) {
-  const { showError } = useToastContext();
+  // Toast Context를 안전하게 사용
+  let showError = null;
+  try {
+    const { useToastContext } = require('../../../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showError = toastContext?.showError;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showError = (message) => alert(message);
+  }
 
   // selectedComp가 undefined인 경우 방어 코드
   if (!selectedComp || !selectedComp.props) {

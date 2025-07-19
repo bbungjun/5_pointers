@@ -9,8 +9,6 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import useAutoSave from '../hooks/useAutoSave';
 import SaveStatusIndicator from '../components/SaveStatusIndicator';
 import { YJS_WEBSOCKET_URL } from '../config';
-import { useToastContext } from '../contexts/ToastContext';
-
 // 모듈화된 컴포넌트들
 import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
 import CanvasArea from './NoCodeEditor/CanvasArea';
@@ -53,8 +51,19 @@ const throttle = (func, limit) => {
 function NoCodeEditor({ pageId }) {
   const [searchParams] = useSearchParams();
 
-  // Toast 훅 추가
-  const { showSuccess, showError } = useToastContext();
+  // Toast Context를 안전하게 사용
+  let showSuccess = null;
+  let showError = null;
+  try {
+    const { useToastContext } = require('../contexts/ToastContext');
+    const toastContext = useToastContext();
+    showSuccess = toastContext?.showSuccess;
+    showError = toastContext?.showError;
+  } catch (error) {
+    // ToastProvider가 없는 경우 기본 alert 사용
+    showSuccess = (message) => alert(message);
+    showError = (message) => alert(message);
+  }
 
   // pageId가 없으면 임시 ID 생성 (하지만 실제로는 pageId가 항상 있어야 함)
   const effectivePageId = pageId || `room-${Date.now()}`;
