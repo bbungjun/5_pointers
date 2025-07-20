@@ -1068,16 +1068,17 @@ function DashboardPage({ user, onLogout }) {
                             </div>
                           )}
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 px-4 w-full justify-items-center">
                           {mobileTemplates.map((template) => (
                             <div
                               key={template.id}
                               onClick={() => handleCreateFromTemplate(template)}
                               className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
+                              style={{ width: '240px' }}
                             >
-                              <div className="p-3">
+                              <div className="p-3 flex flex-col items-center">
                                 {/* 기기 타입과 테마 표시 */}
-                                <div className="flex items-center gap-2 mb-2">
+                                <div className="flex items-center gap-2 mb-2 self-start">
                                   <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-blue-800">
                                     <svg
                                       className="w-3 h-3 mr-1"
@@ -1102,11 +1103,16 @@ function DashboardPage({ user, onLogout }) {
                                 </div>
                                 {/* 템플릿 캔버스 미리보기 */}
                                 <div
-                                  className={`relative rounded-lg overflow-hidden mb-1 ${
+                                  className={`relative rounded-lg overflow-hidden ${
                                     template.editingMode === 'mobile'
-                                      ? 'aspect-[9/13.5]' // 모바일: 9:16 비율 (세로로 긴 화면)
+                                      ? 'flex justify-center items-center' // 모바일: 중앙 정렬
                                       : 'aspect-video' // 데스크톱: 16:9 비율
                                   }`}
+                                  style={
+                                    template.editingMode === 'mobile'
+                                      ? { width: '240px', height: '380px' }
+                                      : {}
+                                  }
                                 >
                                   <TemplateCanvasPreview
                                     template={template}
@@ -1240,16 +1246,17 @@ function DashboardPage({ user, onLogout }) {
                             </div>
                           )}
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 px-4 w-full justify-items-center">
                           {desktopTemplates.map((template) => (
                             <div
                               key={template.id}
                               onClick={() => handleCreateFromTemplate(template)}
                               className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
+                              style={{ width: '240px' }}
                             >
-                              <div className="p-3">
+                              <div className="p-3 flex flex-col items-center">
                                 {/* 기기 타입과 테마 표시 */}
-                                <div className="flex items-center gap-2 mb-2">
+                                <div className="flex items-center gap-2 mb-2 self-start">
                                   <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                     <svg
                                       className="w-3 h-3 mr-1"
@@ -1273,10 +1280,16 @@ function DashboardPage({ user, onLogout }) {
                                   </div>
                                 </div>
                                 {/* 템플릿 캔버스 미리보기 */}
-                                <div className="relative rounded-lg overflow-hidden mb-2">
+                                <div className="relative rounded-lg overflow-hidden mb-3">
                                   {template.editingMode === 'mobile' ? (
-                                    // 모바일은 기존 코드 유지
-                                    <div className="relative rounded-lg overflow-hidden aspect-[9/16]">
+                                    // 모바일 고정 높이
+                                    <div
+                                      className="relative rounded-lg overflow-hidden"
+                                      style={{
+                                        width: '240px',
+                                        height: '380px',
+                                      }}
+                                    >
                                       <TemplateCanvasPreview
                                         template={template}
                                         className="w-full h-full object-cover"
@@ -1491,16 +1504,17 @@ function DashboardPage({ user, onLogout }) {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 px-4 w-full justify-items-center">
                       {templates.map((template) => (
                         <div
                           key={template.id}
                           onClick={() => handleCreateFromTemplate(template)}
                           className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
+                          style={{ width: '260px' }}
                         >
-                          <div className="p-3">
+                          <div className="p-3 flex flex-col items-center">
                             {/* 기기 타입과 테마 표시 */}
-                            <div className="flex items-center gap-2 mb-2">
+                            <div className="flex items-center gap-2 mb-2 self-start">
                               <div
                                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                                   template.editingMode === 'mobile'
@@ -1543,9 +1557,14 @@ function DashboardPage({ user, onLogout }) {
                             <div
                               className={`relative rounded-lg overflow-hidden mb-2 ${
                                 template.editingMode === 'mobile'
-                                  ? 'aspect-[9/16]' // 모바일: 9:16 비율 (세로로 긴 화면)
+                                  ? 'flex justify-center items-center' // 모바일: 중앙 정렬
                                   : 'aspect-video' // 데스크톱: 16:9 비율
                               }`}
+                              style={
+                                template.editingMode === 'mobile'
+                                  ? { width: '240px', height: '380px' }
+                                  : {}
+                              }
                             >
                               <TemplateCanvasPreview
                                 template={template}

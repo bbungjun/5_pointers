@@ -118,8 +118,8 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   const getPreviewDimensions = () => {
     if (editingMode === 'mobile') {
       return {
-        width: 200, // 모바일 화면 영역 크기 확대
-        height: 400, // 더 길게 만든 높이 확대
+        width: 200, // 모바일 고정 너비 (더 넓게)
+        height: 400, // 모바일 고정 높이 (더 길게)
         aspectRatio: '1/2',
       };
     } else {
@@ -138,8 +138,11 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
   // 편집 기준에 따른 스케일 전략
   let finalScale;
   if (editingMode === 'mobile') {
-    // 모바일: 화면 너비를 꽉 채우도록 스케일 조정
-    finalScale = Math.max(scaleX, scaleY, 0.4);
+    // 모바일: 가로에 꽉 차고 세로는 넘치는 부분 hidden
+    const mobileWidth = 375;
+    const mobileHeight = 795; // 스크린 높이 (사용자가 설정한 값)
+    const scaleX = mobileWidth / contentWidth;
+    finalScale = scaleX; // 가로 기준으로 스케일 고정
   } else {
     // 데스크톱: 너비를 기준으로 스케일 고정하여 높이 변화에 영향받지 않도록
     finalScale = Math.min(scaleX, 0.8);
@@ -147,23 +150,64 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
 
   return (
     <div
-      className={`relative overflow-hidden ${className}`}
+      className={`relative overflow-hidden flex items-center justify-center ${className}`}
     >
       {editingMode === 'mobile' ? (
-        // 모바일 휴대폰 프레임 (단순화된 버전)
-        <div className="flex items-center justify-center py-0">
-          <div className="relative">
-            {/* 휴대폰 외곽 프레임 */}
-            <div className="relative bg-gradient-to-b from-gray-800 to-gray-900 rounded-[1.5rem] p-1">
-              {/* 상단 노치 (단순화) */}
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-3 bg-gray-900 rounded-b-lg z-20"></div>
-
-              {/* 스크린 영역 (세로로 길게) */}
+        // 모바일 휴대폰 프레임 (PreviewModal과 동일한 스타일)
+        <div
+          className="flex items-center justify-center w-full h-full"
+          style={{ width: '240px', height: '380px' }}
+        >
+          <div
+            className="relative flex items-center justify-center"
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+          >
+            {/* iPhone 프레임 (PreviewModal과 동일) */}
+            <div
+              className="relative bg-black rounded-[2.5rem] p-2.5"
+              style={{
+                width: '395px',
+                height: '812px',
+                transform: 'scale(0.42)',
+                transformOrigin: 'center center',
+                boxShadow:
+                  '0 0 0 2px #1a1a1a, 0 0 0 7px #2a2a2a, 0 20px 40px rgba(0, 0, 0, 0.4)',
+              }}
+            >
+              {/* 상단 노치 (PreviewModal과 정확히 동일) */}
               <div
-                className="relative bg-white rounded-[1.25rem] overflow-hidden border border-gray-600"
+                className="absolute bg-black z-10"
                 style={{
-                  width: `${previewDimensions.width}px`,
-                  height: `${previewDimensions.height}px`,
+                  top: '10px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '164px',
+                  height: '32px',
+                  borderRadius: '0 0 20px 20px',
+                }}
+              >
+                <div
+                  className="absolute bg-gray-700"
+                  style={{
+                    top: '6px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '60px',
+                    height: '6px',
+                    borderRadius: '3px',
+                  }}
+                ></div>
+              </div>
+
+              {/* 스크린 영역 */}
+              <div
+                className="relative bg-white rounded-[2rem] overflow-hidden"
+                style={{
+                  width: '375px',
+                  height: '795px',
                 }}
               >
                 {/* 컨텐츠 영역 */}
@@ -268,13 +312,18 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
                 </div>
               </div>
 
-              {/* 홈 인디케이터 (하단) */}
-              <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gray-600 rounded-full"></div>
-
-              {/* 사이드 버튼들 (단순화) */}
-              <div className="absolute left-0 top-12 w-0.5 h-4 bg-gray-700 rounded-r-full"></div>
-              <div className="absolute left-0 top-20 w-0.5 h-8 bg-gray-700 rounded-r-full"></div>
-              <div className="absolute right-0 top-16 w-0.5 h-8 bg-gray-700 rounded-l-full"></div>
+              {/* 홈 인디케이터 (PreviewModal과 정확히 동일) */}
+              <div
+                className="absolute bg-white opacity-80"
+                style={{
+                  bottom: '10px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '134px',
+                  height: '5px',
+                  borderRadius: '3px',
+                }}
+              ></div>
             </div>
           </div>
         </div>
