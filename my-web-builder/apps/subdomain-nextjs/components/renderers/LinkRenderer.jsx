@@ -1,13 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 function LinkRenderer({ comp, mode = 'live', width, height }) {
-  
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
-      
-      const handleResize = () => {
-      };
-      
+      const handleResize = () => {};
+
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }
@@ -64,12 +61,12 @@ function LinkRenderer({ comp, mode = 'live', width, height }) {
     }
   };
 
-      if (editing && mode === 'editor') {
+  if (editing && mode === 'editor') {
     return (
       <input
         ref={inputRef}
         value={editValue}
-        onChange={e => setEditValue(e.target.value)}
+        onChange={(e) => setEditValue(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         className="w-32 border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
@@ -79,18 +76,25 @@ function LinkRenderer({ comp, mode = 'live', width, height }) {
   }
 
   return (
-    <div 
-        className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
+    <div
+      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[150px] min-h-[50px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
       style={{
-        color: comp.props.color || '#D8BFD8', 
-        fontSize: mode === 'live' ? `clamp(${Math.max(10, (comp.props.fontSize || 16) * 0.7)}px, ${((comp.props.fontSize || 16) / 375) * 100}vw, ${comp.props.fontSize || 16}px)` : comp.props.fontSize || '16px',
+        color: comp.props.color || '#D8BFD8',
+        fontSize:
+          mode === 'live'
+            ? `clamp(${Math.max(10, (comp.props.fontSize || 16) * 0.7)}px, ${((comp.props.fontSize || 16) / 375) * 100}vw, ${comp.props.fontSize || 16}px)`
+            : comp.props.fontSize || '16px',
         whiteSpace: 'pre-wrap',
         textDecoration: 'underline',
-        fontFamily: comp.props.fontFamily || 'Montserrat, sans-serif'
+        fontFamily: comp.props.fontFamily || 'Montserrat, sans-serif',
       }}
       onDoubleClick={handleDoubleClick}
       onClick={handleClick}
-      title={comp.props.href ? `링크: ${comp.props.href}` : '링크 URL이 설정되지 않았습니다'}
+      title={
+        comp.props.href
+          ? `링크: ${comp.props.href}`
+          : '링크 URL이 설정되지 않았습니다'
+      }
     >
       {comp.props.text || '링크 텍스트'}
     </div>
