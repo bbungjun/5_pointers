@@ -108,8 +108,8 @@ export function getComponentDimensions(type) {
     slido: {
       defaultWidth: 375,
       defaultHeight: 450,
-      minWidth: 300,
-      minHeight: 200,
+      minWidth: 375,
+      minHeight: 400,
     },
     linkCopy: {
       defaultWidth: 50,

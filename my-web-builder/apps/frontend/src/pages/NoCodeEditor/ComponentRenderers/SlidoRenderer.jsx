@@ -452,7 +452,7 @@ function SlidoRenderer({ comp, isEditor = false, mode = 'editor', pageId }) {
       style={{
         width: '100%',
         height: '100%',
-        minHeight: '400px',
+        minHeight: '200px', // 400px에서 200px로 줄여서 리사이즈 핸들러와 맞춤
         padding: '20px',
         borderRadius: borderRadius || 0,
         border: border === 'none' ? 'none' : border || '1px solid #000000',
