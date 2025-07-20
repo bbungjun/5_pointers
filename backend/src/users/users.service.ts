@@ -179,35 +179,38 @@ export class UsersService {
 
   // 페이지 멤버 목록 조회
   async getPageMembers(pageId: string, userId: number): Promise<any[]> {
-    // 먼저 페이지 정보와 소유자 정보 가져오기
-    let page = await this.pagesRepository.findOne({
-      where: { id: pageId },
-      relations: ['owner'],
-    });
-
-    if (!page) {
-      throw new Error('Page not found');
-    }
-
-    // 페이지 소유자인지 확인
-    const isOwner = page.owner.id === userId;
-
-    // 페이지 소유자가 아니면 멤버 권한 확인
-    if (!isOwner) {
-      const pageMembersRepository =
-        this.pagesRepository.manager.getRepository('PageMembers');
-      const member = await pageMembersRepository.findOne({
-        where: {
-          page: { id: pageId },
-          user: { id: userId },
-          status: 'ACCEPTED',
-        },
+    try {
+      // 먼저 페이지 정보와 소유자 정보 가져오기
+      let page = await this.pagesRepository.findOne({
+        where: { id: pageId },
+        relations: ['owner'],
       });
 
-      if (!member) {
-        throw new Error('Page not found');
+      if (!page) {
+        console.log(`Page not found: ${pageId}`);
+        return []; // 빈 배열 반환으로 변경
       }
-    }
+
+      // 페이지 소유자인지 확인
+      const isOwner = page.owner.id === userId;
+
+      // 페이지 소유자가 아니면 멤버 권한 확인
+      if (!isOwner) {
+        const pageMembersRepository =
+          this.pagesRepository.manager.getRepository('PageMembers');
+        const member = await pageMembersRepository.findOne({
+          where: {
+            page: { id: pageId },
+            user: { id: userId },
+            status: 'ACCEPTED',
+          },
+        });
+
+        if (!member) {
+          console.log(`User ${userId} has no access to page ${pageId}`);
+          return []; // 빈 배열 반환으로 변경
+        }
+      }
 
     // 페이지 멤버 목록 가져오기 (초대받은 사람들)
     const pageMembersRepository =
@@ -258,9 +261,13 @@ export class UsersService {
       isOwner: true,
     };
 
-    // 현재 사용자를 제외한 멤버 목록 반환
-    const allMembers = [ownerMember, ...invitedMembersList];
-    return allMembers.filter((member) => member.userId !== userId);
+      // 현재 사용자를 제외한 멤버 목록 반환
+      const allMembers = [ownerMember, ...invitedMembersList];
+      return allMembers.filter((member) => member.userId !== userId);
+    } catch (error) {
+      console.error('Error in getPageMembers:', error);
+      return []; // 에러 발생 시 빈 배열 반환
+    }
   }
 
   // 페이지 제목 수정
@@ -268,17 +275,23 @@ export class UsersService {
     userId: number,
     pageId: string,
     title: string,
-  ): Promise<Pages> {
-    const page = await this.pagesRepository.findOne({
-      where: { id: pageId, owner: { id: userId } },
-    });
+  ): Promise<Pages | null> {
+    try {
+      const page = await this.pagesRepository.findOne({
+        where: { id: pageId, owner: { id: userId } },
+      });
 
-    if (!page) {
-      throw new Error('Page not found');
+      if (!page) {
+        console.log(`Page not found for title update: ${pageId}, userId: ${userId}`);
+        return null;
+      }
+
+      page.title = title;
+      return this.pagesRepository.save(page);
+    } catch (error) {
+      console.error('Error in updatePageTitle:', error);
+      return null;
     }
-
-    page.title = title;
-    return this.pagesRepository.save(page);
   }
 
   // 페이지 컨텐츠 업데이트 (자동저장용)

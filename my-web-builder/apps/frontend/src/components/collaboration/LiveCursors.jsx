@@ -2,17 +2,17 @@ import React from 'react';
 import { addUserColor } from '../../utils/userColors';
 
 /**
- * 채팅 메시지 컴포넌트
+ * 채팅 메시지 컴포넌트 - 줌 레벨과 관계없이 고정 크기
  */
 const ChatMessage = React.memo(({ userWithColor, message }) => {
   if (!message) {
-    return <span>{userWithColor.name || '사용자'}</span>;
+    return <span style={{ fontSize: '12px' }}>{userWithColor.name || '사용자'}</span>;
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-      <span style={{ fontWeight: 'bold', fontSize: '13px' }}>{userWithColor.name}</span>
-      <span style={{ fontSize: '16px' }}>{message}</span>
+      <span style={{ fontWeight: 'bold', fontSize: '12px' }}>{userWithColor.name}</span>
+      <span style={{ fontSize: '14px' }}>{message}</span>
     </div>
   );
 });
@@ -81,14 +81,16 @@ export const LiveCursors = React.memo(({
               transition: 'left 0.1s ease-out, top 0.1s ease-out',
             }}
           >
-            {/* 커서 아이콘 */}
+            {/* 커서 아이콘 - 줌 레벨과 관계없이 고정 크기 */}
             <svg
               width="20"
               height="20"
               viewBox="0 0 24 24"
               fill="none"
               style={{
-                filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))'
+                filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))',
+                transform: `scale(${1 / scale})`, // 줌 레벨에 반비례하여 크기 조정
+                transformOrigin: 'left top' // 왼쪽 상단 기준으로 변환
               }}
             >
               <path
@@ -99,7 +101,7 @@ export const LiveCursors = React.memo(({
               />
             </svg>
             
-            {/* 사용자 이름표 */}
+            {/* 사용자 이름표 - 줌 레벨과 관계없이 고정 크기 */}
             <div
               style={{
                 position: 'absolute',
@@ -114,7 +116,9 @@ export const LiveCursors = React.memo(({
                 whiteSpace: 'nowrap',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                 maxWidth: '200px',
-                wordWrap: 'break-word'
+                wordWrap: 'break-word',
+                transform: `scale(${1 / scale})`, // 줌 레벨에 반비례하여 크기 조정
+                transformOrigin: 'left top' // 왼쪽 상단 기준으로 변환
               }}
             >
               <ChatMessage userWithColor={userWithColor} message={chatMessage} />
