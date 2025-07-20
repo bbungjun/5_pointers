@@ -122,7 +122,7 @@ const DynamicPageRenderer = ({
       image: { width: 200, height: 150 },
       map: { width: 400, height: 300 },
       attend: { width: 300, height: 200 },
-      dday: { width: 250, height: 100 },
+      dday: { width: 350, height: 150 },
       default: { width: 200, height: 100 },
     };
     return defaultSizes[componentType] || defaultSizes.default;
@@ -313,67 +313,67 @@ const DynamicPageRenderer = ({
   };
 
   return (
-      <div
-        className="page-container"
-        style={{
-          width: '100%',
-          minHeight: '100vh',
-          background: '#ffffff',
-          overflowX: 'hidden',
-          overflowY: 'auto',
-        }}
-      >
-        {components && components.length > 0 ? (
-          isMobileView ? (
-            renderMobileLayout()
-          ) : (
-            renderDesktopLayout()
-          )
+    <div
+      className="page-container"
+      style={{
+        width: '100%',
+        minHeight: '100vh',
+        background: '#ffffff',
+        overflowX: 'hidden',
+        overflowY: 'auto',
+      }}
+    >
+      {components && components.length > 0 ? (
+        isMobileView ? (
+          renderMobileLayout()
         ) : (
+          renderDesktopLayout()
+        )
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh',
+            textAlign: 'center',
+            padding: '40px',
+          }}
+        >
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '100vh',
-              textAlign: 'center',
-              padding: '40px',
+              background: 'rgba(255, 255, 255, 0.95)',
+              padding: '60px 40px',
+              borderRadius: '20px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
             }}
           >
-            <div
+            <div style={{ fontSize: '64px', marginBottom: '20px' }}>🎨</div>
+            <h2
               style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                padding: '60px 40px',
-                borderRadius: '20px',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#2d3748',
+                marginBottom: '12px',
               }}
             >
-              <div style={{ fontSize: '64px', marginBottom: '20px' }}>🎨</div>
-              <h2
-                style={{
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  color: '#2d3748',
-                  marginBottom: '12px',
-                }}
-              >
-                빈 페이지입니다
-              </h2>
-              <p
-                style={{
-                  fontSize: '16px',
-                  color: '#718096',
-                  lineHeight: '1.6',
-                }}
-              >
-                아직 컴포넌트가 추가되지 않았습니다.
-                <br />
-                에디터에서 컴포넌트를 추가해보세요!
-              </p>
-            </div>
+              빈 페이지입니다
+            </h2>
+            <p
+              style={{
+                fontSize: '16px',
+                color: '#718096',
+                lineHeight: '1.6',
+              }}
+            >
+              아직 컴포넌트가 추가되지 않았습니다.
+              <br />
+              에디터에서 컴포넌트를 추가해보세요!
+            </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -453,27 +453,50 @@ const RenderedPage = ({
   return (
     <>
       <Head>
-        <title>{pageTitle || `${subdomain || '페이지'} - My Web Builder`}</title>
+        <title>
+          {pageTitle || `${subdomain || '페이지'} - My Web Builder`}
+        </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        
+
         {/* Open Graph 메타태그 */}
-        <meta property="og:title" content={pageTitle || `${subdomain || '페이지'}`} />
-        <meta property="og:description" content={pageDescription || '개인화된 웹페이지입니다.'} />
+        <meta
+          property="og:title"
+          content={pageTitle || `${subdomain || '페이지'}`}
+        />
+        <meta
+          property="og:description"
+          content={pageDescription || '개인화된 웹페이지입니다.'}
+        />
         {pageImageUrl && <meta property="og:image" content={pageImageUrl} />}
-        <meta property="og:url" content={currentUrl || `https://${subdomain}.ddukddak.org`} />
+        <meta
+          property="og:url"
+          content={currentUrl || `https://${subdomain}.ddukddak.org`}
+        />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Ddukddak" />
-        
+
         {/* Twitter Card 메타태그 */}
-        <meta name="twitter:card" content={pageImageUrl ? "summary_large_image" : "summary"} />
-        <meta name="twitter:title" content={pageTitle || `${subdomain || '페이지'}`} />
-        <meta name="twitter:description" content={pageDescription || '개인화된 웹페이지입니다.'} />
+        <meta
+          name="twitter:card"
+          content={pageImageUrl ? 'summary_large_image' : 'summary'}
+        />
+        <meta
+          name="twitter:title"
+          content={pageTitle || `${subdomain || '페이지'}`}
+        />
+        <meta
+          name="twitter:description"
+          content={pageDescription || '개인화된 웹페이지입니다.'}
+        />
         {pageImageUrl && <meta name="twitter:image" content={pageImageUrl} />}
-        
+
         {/* 추가 메타태그 */}
-        <meta name="description" content={pageDescription || '개인화된 웹페이지입니다.'} />
+        <meta
+          name="description"
+          content={pageDescription || '개인화된 웹페이지입니다.'}
+        />
         <meta name="keywords" content="웹페이지, 개인화, 커스텀" />
-        
+
         {/* 파비콘 */}
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -556,12 +579,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
 
       // 테스트 데이터에서 메타 정보 추출
-      const titleComponent = mockPageData.components.find((comp: any) => comp.type === 'text');
-      const pageTitle = titleComponent?.props?.text || `${subdomain || '페이지'}`;
-      
-      const imageComponent = mockPageData.components.find((comp: any) => comp.type === 'image');
+      const titleComponent = mockPageData.components.find(
+        (comp: any) => comp.type === 'text'
+      );
+      const pageTitle =
+        titleComponent?.props?.text || `${subdomain || '페이지'}`;
+
+      const imageComponent = mockPageData.components.find(
+        (comp: any) => comp.type === 'image'
+      );
       const pageImageUrl = (imageComponent?.props as any)?.src || '';
-      
+
       const currentUrl = `https://${subdomain}.ddukddak.org`;
 
       return {
@@ -612,13 +640,18 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
 
       // 데스크톱 테스트 데이터에서 메타 정보 추출
-      const titleComponent = mockPageData.components.find((comp: any) => comp.type === 'text');
-      const pageTitle = titleComponent?.props?.text || `${subdomain || '페이지'}`;
+      const titleComponent = mockPageData.components.find(
+        (comp: any) => comp.type === 'text'
+      );
+      const pageTitle =
+        titleComponent?.props?.text || `${subdomain || '페이지'}`;
       const pageDescription = '개인화된 웹페이지입니다.';
-      
-      const imageComponent = mockPageData.components.find((comp: any) => comp.type === 'image');
+
+      const imageComponent = mockPageData.components.find(
+        (comp: any) => comp.type === 'image'
+      );
       const pageImageUrl = (imageComponent?.props as any)?.src || '';
-      
+
       const currentUrl = `https://${subdomain}.ddukddak.org`;
 
       return {
@@ -670,13 +703,18 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 
     // 메타 정보 추출
-    const titleComponent = pageData.components.find((comp: ComponentData) => comp.type === 'text');
+    const titleComponent = pageData.components.find(
+      (comp: ComponentData) => comp.type === 'text'
+    );
     const pageTitle = titleComponent?.props?.text || `${subdomain || '페이지'}`;
-    const pageDescription = titleComponent?.props?.description || '개인화된 웹페이지입니다.';
-    
-    const imageComponent = pageData.components.find((comp: ComponentData) => comp.type === 'image');
+    const pageDescription =
+      titleComponent?.props?.description || '개인화된 웹페이지입니다.';
+
+    const imageComponent = pageData.components.find(
+      (comp: ComponentData) => comp.type === 'image'
+    );
     const pageImageUrl = imageComponent?.props?.src || '';
-    
+
     const currentUrl = `https://${subdomain}.ddukddak.org`;
 
     // 컴포넌트 크기 데이터 확인
