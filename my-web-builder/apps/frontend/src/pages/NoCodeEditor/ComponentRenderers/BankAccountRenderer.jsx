@@ -19,7 +19,17 @@ function BankAccountRenderer({
     showSuccess = (message) => alert(message);
   }
 
-  const { title, groomSide, brideSide, backgroundColor } = comp.props;
+  const { 
+    title, 
+    groomSide, 
+    brideSide, 
+    backgroundColor,
+    groomSideTitle = '신랑 측',
+    brideSideTitle = '신부 측',
+    groomSideColor = '#87CEEB',
+    brideSideColor = '#F4C2C2'
+  } = comp.props;
+  
   const [groomModalOpen, setGroomModalOpen] = useState(false);
   const [brideModalOpen, setBrideModalOpen] = useState(false);
   const ref = useRef();
@@ -45,11 +55,12 @@ function BankAccountRenderer({
     showSuccess(`${name}의 계좌번호가 복사되었습니다.`);
   };
 
-  const renderAccountInfo = (person, label, isBrideSide = false) => {
-    if (!person.enabled && label !== '신랑' && label !== '신부') return null;
+  const renderAccountInfo = (person, defaultRole, sideColor) => {
+    // 신랑/신부는 항상 표시, 나머지는 enabled가 true일 때만 표시
+    const isMainPerson = defaultRole === '신랑' || defaultRole === '신부';
+    if (!isMainPerson && !person.enabled) return null;
 
-    // 신부측인지 확인 (신부, 신부 아버지, 신부 어머니)
-    const isForBride = isBrideSide || label.includes('신부');
+    const displayRole = person.role || defaultRole;
 
     return (
       <div
@@ -71,7 +82,7 @@ function BankAccountRenderer({
               fontFamily: 'Playfair Display, serif',
             }}
           >
-            {label} {person.name}
+            {displayRole} {person.name}
           </span>
         </div>
         <div
@@ -146,16 +157,14 @@ function BankAccountRenderer({
           <button
             style={{
               padding: 'clamp(6px, 2vw, 8px) clamp(12px, 4vw, 16px)',
-              background: isForBride ? '#F4C2C2' : '#87CEEB',
+              background: sideColor,
               color: '#FFFFFF',
               borderRadius: '6px',
               fontSize: 'clamp(12px, 3vw, 14px)',
               fontWeight: '600',
               fontFamily: 'Montserrat, sans-serif',
               border: 'none',
-              boxShadow: isForBride
-                ? '0 2px 8px rgba(244, 194, 194, 0.3)'
-                : '0 2px 8px rgba(135, 206, 235, 0.3)',
+              boxShadow: `0 2px 8px ${sideColor}50`,
               transition: 'all 0.2s ease',
               cursor: 'pointer',
               userSelect: 'none',
@@ -167,26 +176,12 @@ function BankAccountRenderer({
               copyToClipboard(person.account, person.name);
             }}
             onMouseEnter={(e) => {
-              if (isForBride) {
-                e.target.style.background = '#F8D4D4';
-                e.target.style.boxShadow =
-                  '0 4px 12px rgba(244, 194, 194, 0.4)';
-              } else {
-                e.target.style.background = '#98D7F0';
-                e.target.style.boxShadow =
-                  '0 4px 12px rgba(135, 206, 235, 0.4)';
-              }
               e.target.style.transform = 'translateY(-1px)';
+              e.target.style.boxShadow = `0 4px 12px ${sideColor}70`;
             }}
             onMouseLeave={(e) => {
-              if (isForBride) {
-                e.target.style.background = '#F4C2C2';
-                e.target.style.boxShadow = '0 2px 8px rgba(244, 194, 194, 0.3)';
-              } else {
-                e.target.style.background = '#87CEEB';
-                e.target.style.boxShadow = '0 2px 8px rgba(135, 206, 235, 0.3)';
-              }
               e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = `0 2px 8px ${sideColor}50`;
             }}
           >
             복사
@@ -196,7 +191,7 @@ function BankAccountRenderer({
     );
   };
 
-  const renderModal = (sideData, title, isOpen, setIsOpen) => {
+  const renderModal = (sideData, modalTitle, isOpen, setIsOpen, sideColor, isGroomSide = true) => {
     if (!isOpen) return null;
 
     const modalRoot = document.getElementById('modal-root');
@@ -251,7 +246,7 @@ function BankAccountRenderer({
                 fontFamily: 'Playfair Display, serif',
               }}
             >
-              {title}
+              {modalTitle}
             </h3>
             <button
               style={{
@@ -291,24 +286,25 @@ function BankAccountRenderer({
                 gap: 'clamp(8px, 2vw, 12px)',
               }}
             >
-              {title.includes('신랑') &&
-                sideData?.groom &&
-                renderAccountInfo(sideData.groom, '신랑', false)}
-              {title.includes('신랑') &&
-                sideData?.groomFather?.enabled &&
-                renderAccountInfo(sideData.groomFather, '신랑 아버지', false)}
-              {title.includes('신랑') &&
-                sideData?.groomMother?.enabled &&
-                renderAccountInfo(sideData.groomMother, '신랑 어머니', false)}
-              {title.includes('신부') &&
-                sideData?.bride &&
-                renderAccountInfo(sideData.bride, '신부', true)}
-              {title.includes('신부') &&
-                sideData?.brideFather?.enabled &&
-                renderAccountInfo(sideData.brideFather, '신부 아버지', true)}
-              {title.includes('신부') &&
-                sideData?.brideMother?.enabled &&
-                renderAccountInfo(sideData.brideMother, '신부 어머니', true)}
+              {isGroomSide ? (
+                <>
+                  {sideData?.groom &&
+                    renderAccountInfo(sideData.groom, '신랑', sideColor)}
+                  {sideData?.groomFather?.enabled &&
+                    renderAccountInfo(sideData.groomFather, '아버지', sideColor)}
+                  {sideData?.groomMother?.enabled &&
+                    renderAccountInfo(sideData.groomMother, '어머니', sideColor)}
+                </>
+              ) : (
+                <>
+                  {sideData?.bride &&
+                    renderAccountInfo(sideData.bride, '신부', sideColor)}
+                  {sideData?.brideFather?.enabled &&
+                    renderAccountInfo(sideData.brideFather, '아버지', sideColor)}
+                  {sideData?.brideMother?.enabled &&
+                    renderAccountInfo(sideData.brideMother, '어머니', sideColor)}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -356,12 +352,12 @@ function BankAccountRenderer({
           style={{
             width: '100%',
             padding: '16px 24px',
-            background: '#87CEEB',
+            background: groomSideColor,
             color: '#FFFFFF',
             borderRadius: '8px',
             fontWeight: '600',
-            border: '1px solid rgba(135, 206, 235, 0.3)',
-            boxShadow: '0 4px 16px rgba(135, 206, 235, 0.3)',
+            border: `1px solid ${groomSideColor}50`,
+            boxShadow: `0 4px 16px ${groomSideColor}50`,
             transition: 'all 0.3s ease',
             display: 'flex',
             alignItems: 'center',
@@ -376,14 +372,12 @@ function BankAccountRenderer({
             setGroomModalOpen(true);
           }}
           onMouseEnter={(e) => {
-            e.target.style.background = '#98D7F0';
             e.target.style.transform = 'translateY(-2px)';
-            e.target.style.boxShadow = '0 8px 24px rgba(135, 206, 235, 0.4)';
+            e.target.style.boxShadow = `0 8px 24px ${groomSideColor}70`;
           }}
           onMouseLeave={(e) => {
-            e.target.style.background = '#87CEEB';
             e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 4px 16px rgba(135, 206, 235, 0.3)';
+            e.target.style.boxShadow = `0 4px 16px ${groomSideColor}50`;
           }}
         >
           <svg
@@ -407,7 +401,7 @@ function BankAccountRenderer({
               userSelect: 'none',
             }}
           >
-            신랑 측 계좌번호
+            {groomSideTitle} 계좌번호
           </span>
         </button>
       </div>
@@ -417,12 +411,12 @@ function BankAccountRenderer({
           style={{
             width: '100%',
             padding: '16px 24px',
-            background: '#F4C2C2',
+            background: brideSideColor,
             color: '#FFFFFF',
             borderRadius: '8px',
             fontWeight: '600',
-            border: '1px solid rgba(244, 194, 194, 0.3)',
-            boxShadow: '0 4px 16px rgba(244, 194, 194, 0.3)',
+            border: `1px solid ${brideSideColor}50`,
+            boxShadow: `0 4px 16px ${brideSideColor}50`,
             transition: 'all 0.3s ease',
             display: 'flex',
             alignItems: 'center',
@@ -437,14 +431,12 @@ function BankAccountRenderer({
             setBrideModalOpen(true);
           }}
           onMouseEnter={(e) => {
-            e.target.style.background = '#F8D4D4';
             e.target.style.transform = 'translateY(-2px)';
-            e.target.style.boxShadow = '0 8px 24px rgba(244, 194, 194, 0.4)';
+            e.target.style.boxShadow = `0 8px 24px ${brideSideColor}70`;
           }}
           onMouseLeave={(e) => {
-            e.target.style.background = '#F4C2C2';
             e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 4px 16px rgba(244, 194, 194, 0.3)';
+            e.target.style.boxShadow = `0 4px 16px ${brideSideColor}50`;
           }}
         >
           <svg
@@ -468,7 +460,7 @@ function BankAccountRenderer({
               userSelect: 'none',
             }}
           >
-            신부 측 계좌번호
+            {brideSideTitle} 계좌번호
           </span>
         </button>
       </div>
@@ -476,15 +468,19 @@ function BankAccountRenderer({
       {/* 모달들 */}
       {renderModal(
         groomSide,
-        '신랑 측 계좌번호',
+        `${groomSideTitle} 계좌번호`,
         groomModalOpen,
-        setGroomModalOpen
+        setGroomModalOpen,
+        groomSideColor,
+        true
       )}
       {renderModal(
         brideSide,
-        '신부 측 계좌번호',
+        `${brideSideTitle} 계좌번호`,
         brideModalOpen,
-        setBrideModalOpen
+        setBrideModalOpen,
+        brideSideColor,
+        false
       )}
     </div>
   );
