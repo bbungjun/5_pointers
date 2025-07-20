@@ -114,7 +114,9 @@ function CanvasComponent({
         width:
           comp.props?.width || comp.width || componentDimensions.defaultWidth,
         height:
-          comp.props?.height || comp.height || componentDimensions.defaultHeight,
+          comp.props?.height ||
+          comp.height ||
+          componentDimensions.defaultHeight,
       };
     }
 
@@ -229,7 +231,13 @@ function CanvasComponent({
           />
         );
       case 'map':
-        return <MapView {...(comp.props || {})} comp={componentWithFinalStyles} mode="editor" />;
+        return (
+          <MapView
+            {...(comp.props || {})}
+            comp={componentWithFinalStyles}
+            mode="editor"
+          />
+        );
       case 'dday':
         return (
           <DdayRenderer
@@ -375,102 +383,115 @@ function CanvasComponent({
     });
   };
 
-  const handleResize = useCallback((e) => {
-    if (!isResizing) return;
+  const handleResize = useCallback(
+    (e) => {
+      if (!isResizing) return;
 
-    // 리사이즈 중에도 커서 위치 업데이트
-    if (updateCursorPosition) {
-      updateCursorPosition(e.clientX, e.clientY, zoom, viewport);
-    }
+      // 리사이즈 중에도 커서 위치 업데이트
+      if (updateCursorPosition) {
+        updateCursorPosition(e.clientX, e.clientY, zoom, viewport);
+      }
 
-    const deltaX = e.clientX - resizeStart.x;
-    const deltaY = e.clientY - resizeStart.y;
+      const deltaX = e.clientX - resizeStart.x;
+      const deltaY = e.clientY - resizeStart.y;
 
-    // 줌 레벨에 맞는 그리드에 스냅된 크기 계산
-    let newWidth = resizeStart.width;
-    let newHeight = resizeStart.height;
+      // 줌 레벨에 맞는 그리드에 스냅된 크기 계산
+      let newWidth = resizeStart.width;
+      let newHeight = resizeStart.height;
 
-    // 모서리별 리사이즈 로직
-    switch (resizeStart.corner) {
-      case 'se':
-        newWidth = Math.max(
-          componentDimensions.minWidth,
-          Math.round((resizeStart.width + deltaX) / effectiveGridSize) *
-          effectiveGridSize
-        );
-        newHeight = Math.max(
-          componentDimensions.minHeight,
-          Math.round((resizeStart.height + deltaY) / effectiveGridSize) *
-          effectiveGridSize
-        );
-        break;
-      case 'sw':
-        newWidth = Math.max(
-          componentDimensions.minWidth,
-          Math.round((resizeStart.width - deltaX) / effectiveGridSize) *
-          effectiveGridSize
-        );
-        newHeight = Math.max(
-          componentDimensions.minHeight,
-          Math.round((resizeStart.height + deltaY) / effectiveGridSize) *
-          effectiveGridSize
-        );
-        break;
-      case 'ne':
-        newWidth = Math.max(
-          componentDimensions.minWidth,
-          Math.round((resizeStart.width + deltaX) / effectiveGridSize) *
-          effectiveGridSize
-        );
-        newHeight = Math.max(
-          componentDimensions.minHeight,
-          Math.round((resizeStart.height - deltaY) / effectiveGridSize) *
-          effectiveGridSize
-        );
-        break;
-      case 'nw':
-        newWidth = Math.max(
-          componentDimensions.minWidth,
-          Math.round((resizeStart.width - deltaX) / effectiveGridSize) *
-          effectiveGridSize
-        );
-        newHeight = Math.max(
-          componentDimensions.minHeight,
-          Math.round((resizeStart.height - deltaY) / effectiveGridSize) *
-          effectiveGridSize
-        );
-        break;
-    }
+      // 모서리별 리사이즈 로직
+      switch (resizeStart.corner) {
+        case 'se':
+          newWidth = Math.max(
+            componentDimensions.minWidth,
+            Math.round((resizeStart.width + deltaX) / effectiveGridSize) *
+              effectiveGridSize
+          );
+          newHeight = Math.max(
+            componentDimensions.minHeight,
+            Math.round((resizeStart.height + deltaY) / effectiveGridSize) *
+              effectiveGridSize
+          );
+          break;
+        case 'sw':
+          newWidth = Math.max(
+            componentDimensions.minWidth,
+            Math.round((resizeStart.width - deltaX) / effectiveGridSize) *
+              effectiveGridSize
+          );
+          newHeight = Math.max(
+            componentDimensions.minHeight,
+            Math.round((resizeStart.height + deltaY) / effectiveGridSize) *
+              effectiveGridSize
+          );
+          break;
+        case 'ne':
+          newWidth = Math.max(
+            componentDimensions.minWidth,
+            Math.round((resizeStart.width + deltaX) / effectiveGridSize) *
+              effectiveGridSize
+          );
+          newHeight = Math.max(
+            componentDimensions.minHeight,
+            Math.round((resizeStart.height - deltaY) / effectiveGridSize) *
+              effectiveGridSize
+          );
+          break;
+        case 'nw':
+          newWidth = Math.max(
+            componentDimensions.minWidth,
+            Math.round((resizeStart.width - deltaX) / effectiveGridSize) *
+              effectiveGridSize
+          );
+          newHeight = Math.max(
+            componentDimensions.minHeight,
+            Math.round((resizeStart.height - deltaY) / effectiveGridSize) *
+              effectiveGridSize
+          );
+          break;
+      }
 
-    const canvasSize = getExtendedCanvasSize();
+      const canvasSize = getExtendedCanvasSize();
 
-    // 캔버스 경계 제한 (확장된 캔버스 크기 사용)
-    const maxWidth = Math.max(0, canvasSize.width - comp.x);
-    const maxHeight = Math.max(0, canvasSize.height - comp.y);
+      // 캔버스 경계 제한 (확장된 캔버스 크기 사용)
+      const maxWidth = Math.max(0, canvasSize.width - comp.x);
+      const maxHeight = Math.max(0, canvasSize.height - comp.y);
 
-    newWidth = Math.min(newWidth, maxWidth);
-    newHeight = Math.min(newHeight, maxHeight);
+      newWidth = Math.min(newWidth, maxWidth);
+      newHeight = Math.min(newHeight, maxHeight);
 
-    // 단일 좌표계로 크기 업데이트
-    const updatedComp = {
-      ...comp,
-      width: newWidth,
-      height: newHeight,
-    };
-
-    // 컴포넌트 타입에 따라 다르게 업데이트
-    if (comp.type === 'image') {
-      // 이미지 컴포넌트는 props에도 크기 저장
-      updatedComp.props = {
-        ...comp.props,
+      // 단일 좌표계로 크기 업데이트
+      const updatedComp = {
+        ...comp,
         width: newWidth,
         height: newHeight,
       };
-    }
 
-    // 협업 시스템을 통한 업데이트
-    onUpdate(updatedComp);
-  }, [isResizing, updateCursorPosition, zoom, viewport, resizeStart, currentWidth, currentHeight, setSnapLines, onUpdate]);
+      // 컴포넌트 타입에 따라 다르게 업데이트
+      if (comp.type === 'image') {
+        // 이미지 컴포넌트는 props에도 크기 저장
+        updatedComp.props = {
+          ...comp.props,
+          width: newWidth,
+          height: newHeight,
+        };
+      }
+
+      // 협업 시스템을 통한 업데이트
+      onUpdate(updatedComp);
+    },
+    [
+      isResizing,
+      updateCursorPosition,
+      zoom,
+      viewport,
+      resizeStart,
+      currentWidth,
+      currentHeight,
+      setSnapLines,
+      onUpdate,
+    ]
+  );
 
   const handleResizeEnd = useCallback(() => {
     setIsResizing(false);
@@ -486,12 +507,12 @@ function CanvasComponent({
 
     e.stopPropagation();
     console.log('드래그 시작:', comp.id, '현재 위치:', currentX, currentY);
-    
+
     // 🔧 드래그 상태 설정 (다른 사용자의 업데이트 방지)
     if (setComponentDragging) {
       setComponentDragging(comp.id, true);
     }
-    
+
     setIsDragging(true);
     setDragStart({
       x: e.clientX,
@@ -501,130 +522,153 @@ function CanvasComponent({
     });
   };
 
-  const handleDrag = useCallback((e) => {
-    if (!isDragging) return;
+  const handleDrag = useCallback(
+    (e) => {
+      if (!isDragging) return;
 
-    // 드래그 중에도 커서 위치 업데이트
-    if (updateCursorPosition) {
-      updateCursorPosition(e.clientX, e.clientY, zoom, viewport);
-    }
+      // 드래그 중에도 커서 위치 업데이트
+      if (updateCursorPosition) {
+        updateCursorPosition(e.clientX, e.clientY, zoom, viewport);
+      }
 
-    const deltaX = e.clientX - dragStart.x;
-    const deltaY = e.clientY - dragStart.y;
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
 
-    const canvasSize = getExtendedCanvasSize();
+      const canvasSize = getExtendedCanvasSize();
 
-    // 뷰포트에 따른 드래그 경계 제한 (확장된 캔버스 크기 사용)
-    const maxX = Math.max(0, canvasSize.width - currentWidth);
-    const maxY = Math.max(0, canvasSize.height - currentHeight);
+      // 뷰포트에 따른 드래그 경계 제한 (확장된 캔버스 크기 사용)
+      const maxX = Math.max(0, canvasSize.width - currentWidth);
+      const maxY = Math.max(0, canvasSize.height - currentHeight);
 
-    // 기본 위치 계산 (그리드 스냅 적용)
-    let newX =
-      Math.round((dragStart.compX + deltaX) / effectiveGridSize) *
-      effectiveGridSize;
-    let newY =
-      Math.round((dragStart.compY + deltaY) / effectiveGridSize) *
-      effectiveGridSize;
+      // 기본 위치 계산 (그리드 스냅 적용)
+      let newX =
+        Math.round((dragStart.compX + deltaX) / effectiveGridSize) *
+        effectiveGridSize;
+      let newY =
+        Math.round((dragStart.compY + deltaY) / effectiveGridSize) *
+        effectiveGridSize;
 
-    // 다른 컴포넌트들과 스냅라인 계산
-    const tempComp = { ...comp, x: newX, y: newY };
-    const otherComponents = components?.filter((c) => c.id !== comp.id) || [];
+      // 다른 컴포넌트들과 스냅라인 계산
+      const tempComp = { ...comp, x: newX, y: newY };
+      const otherComponents = components?.filter((c) => c.id !== comp.id) || [];
 
-    // 스냅라인 계산
-    const snapResult = calculateSnapPosition(
-      tempComp,
-      otherComponents,
-      effectiveGridSize,
-      viewport,
-      getComponentDimensions
-    );
-    if (snapResult.snapped) {
-      newX = snapResult.x;
-      newY = snapResult.y;
-    }
-
-    // 충돌 방지 계산
-    const collisionResult = resolveCollision(
-      { ...comp, x: newX, y: newY },
-      otherComponents,
-      getComponentDimensions
-    );
-    newX = collisionResult.x;
-    newY = collisionResult.y;
-
-    // 경계 제한 적용
-    newX = clamp(newX, 0, maxX);
-    newY = clamp(newY, 0, maxY);
-
-    // 스냅라인 업데이트 (드래그 중에 실시간으로)
-    if (setSnapLines) {
-      const lines = calculateSnapLines(
-        { ...comp, x: newX, y: newY },
+      // 스냅라인 계산
+      const snapResult = calculateSnapPosition(
+        tempComp,
         otherComponents,
-        zoom,
+        effectiveGridSize,
         viewport,
         getComponentDimensions
       );
-      setSnapLines(lines);
-    }
-
-    // 🔧 실시간 Y.js 동기화 (협업 개선)
-    if (newX !== currentX || newY !== currentY) {
-      // 드래그 중에도 실시간으로 Y.js 동기화
-      const updatedComponent = {
-        ...comp,
-        x: newX,
-        y: newY,
-      };
-      
-      // 쓰로틀링을 적용하여 성능 최적화
-      if (!dragUpdateTimeoutRef.current) {
-        dragUpdateTimeoutRef.current = setTimeout(() => {
-          onUpdate(updatedComponent);
-          dragUpdateTimeoutRef.current = null;
-        }, 16); // 60fps로 제한
+      if (snapResult.snapped) {
+        newX = snapResult.x;
+        newY = snapResult.y;
       }
-    }
-    
-    // 임시 위치도 업데이트 (시각적 피드백)
-    setDragStart(prev => ({
-      ...prev,
-      tempX: newX,
-      tempY: newY
-    }));
-  }, [isDragging, updateCursorPosition, zoom, viewport, dragStart, currentX, currentY, setSnapLines, onUpdate, setComponentDragging, comp]);
+
+      // 충돌 방지 계산
+      const collisionResult = resolveCollision(
+        { ...comp, x: newX, y: newY },
+        otherComponents,
+        getComponentDimensions
+      );
+      newX = collisionResult.x;
+      newY = collisionResult.y;
+
+      // 경계 제한 적용
+      newX = clamp(newX, 0, maxX);
+      newY = clamp(newY, 0, maxY);
+
+      // 스냅라인 업데이트 (드래그 중에 실시간으로)
+      if (setSnapLines) {
+        const lines = calculateSnapLines(
+          { ...comp, x: newX, y: newY },
+          otherComponents,
+          zoom,
+          viewport,
+          getComponentDimensions
+        );
+        setSnapLines(lines);
+      }
+
+      // 🔧 실시간 Y.js 동기화 (협업 개선)
+      if (newX !== currentX || newY !== currentY) {
+        // 드래그 중에도 실시간으로 Y.js 동기화
+        const updatedComponent = {
+          ...comp,
+          x: newX,
+          y: newY,
+        };
+
+        // 쓰로틀링을 적용하여 성능 최적화
+        if (!dragUpdateTimeoutRef.current) {
+          dragUpdateTimeoutRef.current = setTimeout(() => {
+            onUpdate(updatedComponent);
+            dragUpdateTimeoutRef.current = null;
+          }, 16); // 60fps로 제한
+        }
+      }
+
+      // 임시 위치도 업데이트 (시각적 피드백)
+      setDragStart((prev) => ({
+        ...prev,
+        tempX: newX,
+        tempY: newY,
+      }));
+    },
+    [
+      isDragging,
+      updateCursorPosition,
+      zoom,
+      viewport,
+      dragStart,
+      currentX,
+      currentY,
+      setSnapLines,
+      onUpdate,
+      setComponentDragging,
+      comp,
+    ]
+  );
 
   // 드래그 종료 핸들러 (snapLines 항상 초기화)
   const handleDragEnd = useCallback(() => {
     console.log('드래그 종료:', comp.id);
-    
+
     // 🔧 드래그 상태 해제 (다른 사용자의 업데이트 허용)
     if (setComponentDragging) {
       setComponentDragging(comp.id, false);
     }
-    
+
     // 드래그 업데이트 타임아웃 정리
     if (dragUpdateTimeoutRef.current) {
       clearTimeout(dragUpdateTimeoutRef.current);
       dragUpdateTimeoutRef.current = null;
     }
-    
+
     // 최종 위치 계산
     const finalX = dragStart.tempX !== undefined ? dragStart.tempX : currentX;
     const finalY = dragStart.tempY !== undefined ? dragStart.tempY : currentY;
-    
+
     // 🔧 드래그 완료 시 최종 동기화 (실시간 업데이트와 중복 방지)
     if (finalX !== currentX || finalY !== currentY) {
-      console.log('드래그 완료, 최종 동기화:', comp.id, `(${currentX}, ${currentY}) -> (${finalX}, ${finalY})`);
-      
+      console.log(
+        '드래그 완료, 최종 동기화:',
+        comp.id,
+        `(${currentX}, ${currentY}) -> (${finalX}, ${finalY})`
+      );
+
       // 다중 선택된 컴포넌트들과 함께 이동
-      if (selectedIds && selectedIds.length > 1 && selectedIds.includes(comp.id)) {
+      if (
+        selectedIds &&
+        selectedIds.length > 1 &&
+        selectedIds.includes(comp.id)
+      ) {
         const deltaX = finalX - currentX;
         const deltaY = finalY - currentY;
 
-        selectedIds.forEach(selectedId => {
+        selectedIds.forEach((selectedId) => {
           if (selectedId !== comp.id) {
-            const selectedComp = components.find(c => c.id === selectedId);
+            const selectedComp = components.find((c) => c.id === selectedId);
             if (selectedComp) {
               onMultiUpdate({
                 ...selectedComp,
@@ -642,17 +686,28 @@ function CanvasComponent({
         x: finalX,
         y: finalY,
       };
-      
+
       onUpdate(updatedComponent);
     }
-    
+
     setIsDragging(false);
-    
+
     // 드래그가 끝나면 snapLines를 항상 초기화 (숨김)
     if (setSnapLines) {
       setSnapLines({ vertical: [], horizontal: [] });
     }
-  }, [comp.id, setComponentDragging, dragStart, currentX, currentY, selectedIds, components, onUpdate, onMultiUpdate, setSnapLines]);
+  }, [
+    comp.id,
+    setComponentDragging,
+    dragStart,
+    currentX,
+    currentY,
+    selectedIds,
+    components,
+    onUpdate,
+    onMultiUpdate,
+    setSnapLines,
+  ]);
 
   // 리사이즈 이벤트 리스너
   useEffect(() => {
@@ -704,8 +759,14 @@ function CanvasComponent({
       style={{
         position: 'absolute',
         // 🔧 드래그 중에는 임시 위치 사용, 아니면 실제 위치 사용
-        left: isDragging && dragStart.tempX !== undefined ? dragStart.tempX : currentX,
-        top: isDragging && dragStart.tempY !== undefined ? dragStart.tempY : currentY,
+        left:
+          isDragging && dragStart.tempX !== undefined
+            ? dragStart.tempX
+            : currentX,
+        top:
+          isDragging && dragStart.tempY !== undefined
+            ? dragStart.tempY
+            : currentY,
         width: currentWidth,
         //height: currentHeight,
         height: comp.type === 'bankAccount' ? 'auto' : currentHeight,
@@ -799,45 +860,6 @@ function CanvasComponent({
             }}
             onMouseDown={(e) => handleResizeStart(e, 'se')}
           />
-
-          {/* 삭제 버튼 - 실제 컴포넌트 크기에 맞게 배치 */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(comp.id);
-            }}
-            style={{
-              position: 'absolute',
-              top: -20 / scale,
-              left: currentWidth + 4 / scale,
-              background: '#FF3B3B',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '50%',
-              width: 24 / scale,
-              height: 24 / scale,
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: 14 / scale,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: `0 ${2 / scale}px ${8 / scale}px rgba(255, 59, 59, 0.3)`,
-              transition: 'all 0.2s',
-              zIndex: 12,
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'scale(1.1)';
-              e.target.style.background = '#ff5252';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'scale(1)';
-              e.target.style.background = '#FF3B3B';
-            }}
-            title="Delete"
-          >
-            ×
-          </button>
         </>
       )}
     </div>
