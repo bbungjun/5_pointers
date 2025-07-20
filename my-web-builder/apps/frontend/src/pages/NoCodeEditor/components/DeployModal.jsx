@@ -91,7 +91,7 @@ function DeployModal({
               color: '#1f2937',
             }}
           >
-            사용할 주소 입력
+            {deployedUrl ? '접속 안내' : '주소 입력'}
           </h2>
           <button
             onClick={onClose}
@@ -118,7 +118,7 @@ function DeployModal({
                 marginBottom: '20px',
               }}
             >
-              게시 완료!
+              QR 코드 접속
             </p>
 
             {/* QR 코드 중앙 배치 */}
@@ -143,16 +143,6 @@ function DeployModal({
                     backgroundColor: '#ffffff',
                   }}
                 />
-                <p
-                  style={{
-                    fontSize: '16px',
-                    color: '#6b7280',
-                    marginTop: '12px',
-                    margin: 0,
-                  }}
-                >
-                  QR 코드로 접속
-                </p>
               </div>
             )}
 
@@ -174,7 +164,7 @@ function DeployModal({
                   fontWeight: 600,
                 }}
               >
-                배포된 페이지
+                내가 만든 페이지 주소
               </p>
               <a
                 href={deployedUrl}
@@ -280,7 +270,7 @@ function DeployModal({
                     fontWeight: 500,
                   }}
                 >
-                  배포될 주소
+                  사용할 주소
                 </p>
                 <p
                   style={{
