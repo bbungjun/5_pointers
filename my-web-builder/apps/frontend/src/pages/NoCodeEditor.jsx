@@ -210,6 +210,9 @@ function NoCodeEditor({ pageId }) {
     redo = () => {},
     getHistory = () => ({ canUndo: false, canRedo: false }),
     setHistory = () => {},
+    setComponentDragging = () => {},
+    isComponentDragging = () => false,
+    syncComponentAfterDrag = () => {},
     // 채팅 관련 기본값
     chatMessages = [],
     isChatInputOpen = false,
@@ -306,6 +309,23 @@ function NoCodeEditor({ pageId }) {
       console.log('🟡 Y.js 협업 연결 중...');
     }
   }, [connectionError, isConnected]);
+
+  // 연결 상태 변경 시 데이터 안정성 보장
+  useEffect(() => {
+    if (isConnected && !hasInitialSync) {
+      console.log('🔗 연결 복구 감지, 데이터 안정성 확인...');
+      
+      // 연결 복구 시 기존 데이터가 있는지 확인
+      if (components.length > 0) {
+        console.log('✅ 연결 복구 시 기존 데이터 유지:', components.length, '개 컴포넌트');
+        // 기존 데이터를 YJS에 동기화하여 다른 사용자와 일치시킴
+        setTimeout(() => {
+          console.log('🔄 연결 복구 후 데이터 동기화...');
+          updateAllComponents(components);
+        }, 500);
+      }
+    }
+  }, [isConnected, hasInitialSync, components.length, updateAllComponents]);
 
   // 키보드 단축키 처리 (Delete, Ctrl+C, Ctrl+V)
   useEffect(() => {
@@ -562,6 +582,7 @@ function NoCodeEditor({ pageId }) {
       getHistory,
       setHistory,
       isConnected,
+      syncComponentAfterDrag,
     }),
     [
       otherCursors,
@@ -577,6 +598,7 @@ function NoCodeEditor({ pageId }) {
       getHistory,
       setHistory,
       isConnected,
+      syncComponentAfterDrag,
     ]
   );
 
@@ -716,6 +738,7 @@ function NoCodeEditor({ pageId }) {
             }
             openChatInput={openChatInput}
             cursorChatMessages={cursorChatMessages}
+            syncComponentAfterDrag={syncComponentAfterDrag}
           />
         </div>
 
@@ -848,6 +871,64 @@ function NoCodeEditor({ pageId }) {
           />
         </div>
       )}
+
+      {/* 줌 슬라이더 - 화면 중앙 하단 */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)', // 정확히 중앙 정렬
+          zIndex: 1000,
+          background: 'white',
+          borderRadius: '8px',
+          padding: '8px 12px',
+          boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+          border: '1px solid #e1e5e9',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          minWidth: '120px',
+        }}
+      >
+        {/* 줌 레벨 표시 */}
+        <div
+          style={{
+            fontSize: '12px',
+            fontWeight: '600',
+            color: '#374151',
+            minWidth: '35px',
+          }}
+        >
+          {interaction.zoom}%
+        </div>
+
+        {/* 줌 슬라이더 */}
+        <input
+          type="range"
+          min="60"
+          max="150"
+          value={interaction.zoom}
+          onChange={(e) => {
+            const newZoom = parseInt(e.target.value);
+            interaction.handleZoomChange(newZoom);
+          }}
+          style={{
+            width: '80px',
+            height: '4px',
+            borderRadius: '2px',
+            background: '#e1e5e9',
+            outline: 'none',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = '#3B4EFF';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = '#e1e5e9';
+          }}
+        />
+      </div>
     </div>
   );
 }

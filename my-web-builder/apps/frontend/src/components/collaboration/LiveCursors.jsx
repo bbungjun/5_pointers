@@ -196,7 +196,7 @@ export const CollaborativeSelections = React.memo(({
           border: `2px solid ${userWithColor.color}`,
           borderRadius: '4px',
           pointerEvents: 'none',
-          zIndex: 8,
+          zIndex: 9999, // 높은 z-index로 설정하여 컴포넌트 위에 표시
           animation: 'pulseSelection 2s infinite'
         }}
       >
@@ -213,7 +213,9 @@ export const CollaborativeSelections = React.memo(({
             fontSize: '11px',
             fontWeight: '500',
             whiteSpace: 'nowrap',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            zIndex: 10000, // 최상위로 설정하여 다른 요소들 위에 표시
+            pointerEvents: 'none', // 마우스 이벤트 방지
           }}
         >
           {userWithColor.name || '사용자'}님이 편집 중
