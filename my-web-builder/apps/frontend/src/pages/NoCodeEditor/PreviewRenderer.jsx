@@ -99,6 +99,40 @@ const groupOverlappingComponents = (components, defaultSizeGetter) => {
   return groups;
 };
 
+// 수직 스택 우선 그룹화 함수 (새로 추가)
+const groupComponentsByVerticalStacks = (components, defaultSizeGetter) => {
+  if (!components || components.length === 0) return [];
+
+  const sorted = [...components].sort(
+    (a, b) => (a.y || 0) - (b.y || 0) || (a.x || 0) - (b.x || 0)
+  );
+  const groups = [];
+  const visited = new Set();
+
+  for (let i = 0; i < sorted.length; i++) {
+    if (visited.has(sorted[i].id)) continue;
+
+    const currentGroup = [sorted[i]];
+    visited.add(sorted[i].id);
+    const queue = [sorted[i]];
+
+    while (queue.length > 0) {
+      const currentComp = queue.shift();
+      for (let j = 0; j < sorted.length; j++) {
+        // 전체를 다시 순회하여 모든 겹침 가능성 확인
+        if (i === j || visited.has(sorted[j].id)) continue;
+        if (doComponentsOverlap(currentComp, sorted[j], defaultSizeGetter)) {
+          visited.add(sorted[j].id);
+          currentGroup.push(sorted[j]);
+          queue.push(sorted[j]);
+        }
+      }
+    }
+    groups.push(currentGroup);
+  }
+  return groups;
+};
+
 // 컴포넌트 타입별 렌더러 매핑 함수
 const getRendererByType = (type) => {
   const renderers = {
@@ -224,11 +258,6 @@ const PreviewRenderer = ({
                     ...comp,
                     width: originalWidth,
                     height: originalHeight,
-                    props: {
-                      ...comp.props,
-                      dynamicScale: desktopScale,
-                      isMobile: false, // ❗️ 데스크톱 뷰임을 명시
-                    },
                   }}
                   mode="preview"
                   isEditor={false}
@@ -278,14 +307,7 @@ const PreviewRenderer = ({
               >
                 <RendererComponent
                   {...comp.props}
-                  comp={{
-                    ...comp,
-                    props: {
-                      ...comp.props,
-                      dynamicScale: mobileScale,
-                      isMobile: true, // ❗️ 모바일 뷰임을 명시
-                    },
-                  }}
+                  comp={{ ...comp }}
                   mode="preview"
                   isEditor={false}
                   pageId={pageId}
@@ -298,24 +320,23 @@ const PreviewRenderer = ({
     );
   };
 
-  // ✅ 메인 모바일 렌더링 함수: 그룹화 파이프라인 추가
+  // ✅ 메인 모바일 렌더링 함수: 폰트 크기 재계산 로직 포함
   const renderMobileLayout = () => {
-    if (editingViewport === 'mobile') {
+    const currentEditingMode = editingViewport || 'desktop';
+
+    if (currentEditingMode === 'mobile') {
       return renderMobileScalingLayout(components);
     } else {
-      // 1. 겹치는 컴포넌트들을 먼저 그룹화합니다.
-      const componentGroups = groupOverlappingComponents(
+      const componentGroups = groupComponentsByVerticalStacks(
         components,
         getComponentDefaultSize
       );
-
       const repositionedComponents = [];
       const PAGE_VERTICAL_PADDING = 16;
       let currentY = PAGE_VERTICAL_PADDING;
 
-      // 2. 개별 컴포넌트가 아닌, '그룹' 단위로 순회합니다.
       for (const group of componentGroups) {
-        // 3. 그룹의 전체 경계 상자(Bounding Box)를 계산합니다.
+        // 그룹 경계 상자 계산
         let minX = Infinity,
           minY = Infinity,
           maxX = -Infinity,
@@ -334,54 +355,57 @@ const PreviewRenderer = ({
         const groupWidth = maxX - minX;
         const groupHeight = maxY - minY;
 
-        // 4. 그룹 전체를 하나의 컴포넌트처럼 취급하여 조건부 리사이징을 적용합니다.
-        let newGroupWidth = groupWidth;
+        // 그룹 리사이징
         let newGroupHeight = groupHeight;
-        let newGroupX = 0;
         let scaleRatio = 1;
-
         if (groupWidth > BASE_MOBILE_WIDTH) {
-          newGroupWidth = BASE_MOBILE_WIDTH;
-          scaleRatio = groupWidth > 0 ? newGroupWidth / groupWidth : 1;
+          scaleRatio = BASE_MOBILE_WIDTH / groupWidth;
           newGroupHeight = groupHeight * scaleRatio;
-          newGroupX = 0;
-        } else {
-          newGroupX = (BASE_MOBILE_WIDTH - groupWidth) / 2;
         }
 
-        // 5. 그룹 내의 각 컴포넌트 위치와 크기를 그룹의 변환에 맞춰 재계산합니다.
         group.forEach((comp) => {
-          const defaultSize = getComponentDefaultSize(comp.type);
-          const originalX = comp.x || 0;
-          const originalY = comp.y || 0;
-          const originalWidth = comp.width || defaultSize.width;
-          const originalHeight = comp.height || defaultSize.height;
+          const originalWidth =
+            comp.width || getComponentDefaultSize(comp.type).width;
+          const originalHeight =
+            comp.height || getComponentDefaultSize(comp.type).height;
+          const relativeX = (comp.x || 0) - minX;
+          const relativeY = (comp.y || 0) - minY;
 
-          const relativeX = originalX - minX;
-          const relativeY = originalY - minY;
+          // ✅ 텍스트 크기 재계산을 위한 newProps 생성
+          const newProps = { ...comp.props };
 
-          // ❗️ 2. 새로운 props 객체를 만들어 dynamicScale을 주입합니다.
-          const newProps = {
-            ...comp.props,
-            dynamicScale: scaleRatio, // 축소 비율을 props에 전달
-            isMobile: true, // ❗️ 모바일 뷰임을 명시
-          };
+          // ❗️ 모든 텍스트 관련 props 키를 배열로 관리
+          const FONT_SIZE_KEYS = [
+            'fontSize',
+            'titleFontSize',
+            'contentFontSize',
+            'descriptionFontSize',
+            'ddayFontSize',
+            'dateFontSize',
+          ];
+
+          // ❗️ newProps 객체 내부의 모든 폰트 크기를 재계산하여 덮어씀
+          FONT_SIZE_KEYS.forEach((key) => {
+            if (newProps[key]) {
+              newProps[key] = newProps[key] * scaleRatio;
+            }
+          });
 
           repositionedComponents.push({
             ...comp,
-            props: newProps, // ❗️ 수정된 props로 교체
-            x: newGroupX + relativeX * scaleRatio,
+            props: newProps, // ✅ 최종 계산된 props 주입
+            x:
+              (groupWidth > BASE_MOBILE_WIDTH
+                ? 0
+                : (BASE_MOBILE_WIDTH - groupWidth) / 2) +
+              relativeX * scaleRatio,
             y: currentY + relativeY * scaleRatio,
             width: originalWidth * scaleRatio,
             height: originalHeight * scaleRatio,
           });
         });
-
-        // ❗️ 3. 다음 그룹의 Y 위치를 업데이트할 때 여백을 추가합니다.
         currentY += newGroupHeight + PAGE_VERTICAL_PADDING;
       }
-
-      // 6. 최종적으로 재배치된 컴포넌트들을 렌더링합니다.
       return renderMobileScalingLayout(repositionedComponents);
     }
   };

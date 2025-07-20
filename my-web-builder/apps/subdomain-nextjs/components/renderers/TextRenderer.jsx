@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useScaledFontSize } from '../../hooks/useScaledFontSize';
 
 // 사용 가능한 폰트 목록
 const AVAILABLE_FONTS = [
@@ -23,7 +22,14 @@ const AVAILABLE_FONTS = [
   'Underland',
 ];
 
-function TextRenderer({ comp, mode = 'live', width, height }) {
+function TextRenderer({
+  comp,
+  mode = 'live',
+  width,
+  height,
+  textAlign: propTextAlign,
+  ...otherProps
+}) {
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
       const handleResize = () => {};
@@ -92,17 +98,21 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
     }
   };
 
-  // ❗️ 기존 계산 로직을 Hook 호출로 대체
-  const finalFontSize = useScaledFontSize(
-    comp.props?.fontSize,
-    comp.props?.dynamicScale,
-    comp.props?.isMobile // ❗️ isMobile prop 전달
-  );
+  // ❗️ 부모가 계산해준 최종 폰트 크기를 props에서 바로 사용
+  const finalFontSize = comp.props?.fontSize || 16;
 
   // 폰트 관련 속성들
   const fontFamily = comp?.props?.fontFamily || 'Playfair Display, serif';
-  const textAlign = comp?.props?.textAlign || 'left';
+  // textAlign 우선순위: 1. 직접 전달된 prop, 2. comp.props에서, 3. 기본값
+  const textAlign = propTextAlign || comp?.props?.textAlign || 'center';
   const lineHeight = comp?.props?.lineHeight || 1.2;
+
+  // 디버깅: props 확인
+  console.log('TextRenderer all props:', {
+    propTextAlign,
+    compProps: comp?.props,
+    finalTextAlign: textAlign,
+  });
   const letterSpacing = comp?.props?.letterSpacing || 0;
   const fontWeight = comp?.props?.fontWeight ? 'bold' : 'normal';
   const textDecoration = comp?.props?.textDecoration ? 'underline' : 'none';
@@ -166,14 +176,8 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
         ...(textAlign === 'right' && { justifyContent: 'flex-end' }),
         ...(textAlign === 'center' && { justifyContent: 'center' }),
         zIndex: Math.min(Math.max(comp.props?.zIndex || 1000, 1000), 9999999),
-        ...(mode === 'live'
-          ? {
-              width: '100%',
-              fontSize: `${finalFontSize}px`,
-            }
-          : {
-              fontSize: `${finalFontSize}px`,
-            }),
+        // ❗️ mode에 따른 분기 없이, finalFontSize를 직접 사용
+        fontSize: `${finalFontSize}px`,
       }}
       onDoubleClick={handleDoubleClick}
     >

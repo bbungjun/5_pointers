@@ -6,28 +6,12 @@ export default function WeddingInviteRenderer({
   width,
   height,
 }) {
-  // 컨테이너 크기 기준으로 스케일 팩터 계산
-  const baseWidth = 375; // 기준 너비
-  const actualWidth = comp.width || baseWidth;
-  const scaleFactor = actualWidth / baseWidth;
-
-  useEffect(() => {
-    if (mode === 'live' && typeof window !== 'undefined') {
-      const handleResize = () => {};
-
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [mode]);
-
-  // 원본 크기 정보
-  const containerWidth = comp.width || 450;
-  const containerHeight = comp.height || 400;
+  // ❗️ 자체적인 scaleFactor 계산 로직을 완전히 삭제합니다.
 
   const {
     title = 'Our Love Story',
     titleFontFamily = 'Playfair Display, serif',
-    titleFontSize = 30,
+    titleFontSize = 24,
     titleFontStyle = 'italic',
     titleFontWeight = '600',
     titleTextDecoration = 'none',
@@ -44,7 +28,7 @@ export default function WeddingInviteRenderer({
       '축복해 주시면 감사하겠습니다.',
     ],
     contentFontFamily = 'Montserrat, sans-serif',
-    contentFontSize = 18,
+    contentFontSize = 14,
     contentFontWeight = '400',
     contentFontStyle = 'normal',
     contentTextDecoration = 'none',
@@ -77,35 +61,23 @@ export default function WeddingInviteRenderer({
         border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`,
         boxShadow: '0 8px 32px rgba(189, 181, 166, 0.15)',
         width: '100%',
-        height: mode === 'live' ? `${containerHeight * scaleFactor}px` : '100%',
-        ...(mode === 'live'
-          ? {
-              borderRadius: `${borderRadius * scaleFactor}px`,
-              padding: `${40 * scaleFactor}px`,
-              minWidth: `${200 * scaleFactor}px`,
-              minHeight: `${containerHeight * scaleFactor}px`, // 높이도 스케일링 적용
-            }
-          : {
-              borderRadius: 0,
-              padding: 40,
-              minWidth: 200,
-              minHeight: 120,
-            }),
+        height: '100%',
+        borderRadius: borderRadius,
+        padding: '30px', // ❗️ scaleFactor 제거, 고정값 사용 (컨테이너 크기는 부모가 조절)
+        minWidth: 200,
+        minHeight: 120,
       }}
     >
       {/* 제목 */}
       <div
         style={{
           fontFamily: titleFontFamily,
-          fontSize:
-            mode === 'live'
-              ? `${titleFontSize * scaleFactor}px`
-              : toPx(titleFontSize),
+          fontSize: toPx(titleFontSize), // ❗️ scaleFactor 곱셈 제거
           fontStyle: titleFontStyle,
           fontWeight: titleFontWeight,
           textDecoration: titleTextDecoration,
           color: titleColor,
-          marginBottom: mode === 'live' ? `${28 * scaleFactor}px` : 28,
+          marginBottom: '20px', // ❗️ scaleFactor 제거
           textAlign: titleAlign,
           width: '100%',
           letterSpacing: 1,
@@ -124,10 +96,7 @@ export default function WeddingInviteRenderer({
       <div
         style={{
           fontFamily: contentFontFamily,
-          fontSize:
-            mode === 'live'
-              ? `${contentFontSize * scaleFactor}px`
-              : toPx(contentFontSize),
+          fontSize: toPx(contentFontSize), // ❗️ scaleFactor 곱셈 제거
           fontWeight: contentFontWeight,
           fontStyle: contentFontStyle,
           textDecoration: contentTextDecoration,
@@ -149,7 +118,7 @@ export default function WeddingInviteRenderer({
           <div
             key={idx}
             style={{
-              minHeight: mode === 'live' ? `${24 * scaleFactor}px` : 24,
+              minHeight: '24px', // ❗️ scaleFactor 제거
               whiteSpace: 'pre-wrap',
             }}
           >

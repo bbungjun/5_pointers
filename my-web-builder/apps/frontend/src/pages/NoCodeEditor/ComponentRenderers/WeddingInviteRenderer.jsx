@@ -1,12 +1,12 @@
 import React from 'react';
 
 export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
+  // ❗️ 자체적인 scaleFactor 계산 로직을 완전히 삭제합니다.
+
   const {
-    containerWidth = comp.width || 450,
-    containerHeight = comp.height || 400,
     title = 'Our Love Story',
     titleFontFamily = 'Playfair Display, serif',
-    titleFontSize = 30,
+    titleFontSize = 24,
     titleFontStyle = 'italic',
     titleFontWeight = '600',
     titleTextDecoration = 'none',
@@ -23,7 +23,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
       '축복해 주시면 감사하겠습니다.',
     ],
     contentFontFamily = 'Playfair Display, serif',
-    contentFontSize = 18,
+    contentFontSize = 14,
     contentFontWeight = '400',
     contentFontStyle = 'normal',
     contentTextDecoration = 'none',
@@ -46,7 +46,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
   return (
     <div
       style={{
-        padding: 40,
+        padding: '30px', // ❗️ scaleFactor 제거, 고정값 사용 (컨테이너 크기는 부모가 조절)
         background: backgroundColor,
         borderRadius: borderRadius,
         width: '100%',
@@ -66,12 +66,12 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
       <div
         style={{
           fontFamily: titleFontFamily,
-          fontSize: toPx(titleFontSize),
+          fontSize: toPx(titleFontSize), // ❗️ scaleFactor 곱셈 제거
           fontStyle: titleFontStyle,
           fontWeight: titleFontWeight,
           textDecoration: titleTextDecoration,
           color: titleColor,
-          marginBottom: 28,
+          marginBottom: '20px', // ❗️ scaleFactor 제거
           textAlign: titleAlign,
           width: '100%',
           letterSpacing: 1,
@@ -80,7 +80,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
           background: 'none',
           whiteSpace: 'pre-wrap',
           overflow: 'hidden',
-          textOverflow: 'ellipsis'
+          textOverflow: 'ellipsis',
         }}
       >
         {title || <span style={{ color: '#bbb' }}>제목 없음</span>}
@@ -90,7 +90,7 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
       <div
         style={{
           fontFamily: contentFontFamily,
-          fontSize: toPx(contentFontSize),
+          fontSize: toPx(contentFontSize), // ❗️ scaleFactor 곱셈 제거
           fontWeight: contentFontWeight,
           fontStyle: contentFontStyle,
           textDecoration: contentTextDecoration,
@@ -105,11 +105,17 @@ export default function WeddingInviteRenderer({ comp, mode = 'editor' }) {
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}
       >
         {contentLines.map((line, idx) => (
-          <div key={idx} style={{ minHeight: 24, whiteSpace: 'pre-wrap' }}>
+          <div
+            key={idx}
+            style={{
+              minHeight: '24px', // ❗️ scaleFactor 제거
+              whiteSpace: 'pre-wrap',
+            }}
+          >
             {line && line.trim().length > 0 ? (
               line
             ) : (

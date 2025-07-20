@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useScaledFontSize } from '../../../hooks/useScaledFontSize';
 
 // 사용 가능한 폰트 목록
 const AVAILABLE_FONTS = [
@@ -48,11 +47,7 @@ function ButtonRenderer({
   const isLiveMode = mode === 'live' && editingViewport !== 'mobile';
 
   // ❗️ 버튼 내부 텍스트에도 동일한 Hook 적용
-  const finalFontSize = useScaledFontSize(
-    actualComp?.props?.fontSize,
-    actualComp?.props?.dynamicScale,
-    actualComp?.props?.isMobile // ❗️ isMobile prop 전달
-  );
+  const finalFontSize = actualComp?.props?.fontSize || 16;
 
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(actualComp?.props?.text || '');

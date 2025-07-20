@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useScaledFontSize } from '../../../hooks/useScaledFontSize';
 
 // 사용 가능한 폰트 목록
 const AVAILABLE_FONTS = [
@@ -23,7 +22,15 @@ const AVAILABLE_FONTS = [
   'Underland',
 ];
 
-function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
+function TextRenderer({
+  comp,
+  mode = 'live',
+  width,
+  height,
+  onUpdate,
+  textAlign: propTextAlign,
+  ...otherProps
+}) {
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
       const handleResize = () => {};
@@ -125,16 +132,13 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
     }
   };
 
-  // ❗️ 기존 계산 로직을 Hook 호출로 대체
-  const finalFontSize = useScaledFontSize(
-    comp.props?.fontSize,
-    comp.props?.dynamicScale,
-    comp.props?.isMobile // ❗️ isMobile prop 전달
-  );
+  // ❗️ 부모가 계산해준 최종 폰트 크기를 props에서 바로 사용
+  const finalFontSize = comp.props?.fontSize || 16;
 
   // 폰트 관련 속성들
   const fontFamily = comp?.props?.fontFamily || 'Playfair Display, serif';
-  const textAlign = comp?.props?.textAlign || 'center';
+  // textAlign 우선순위: 1. 직접 전달된 prop, 2. comp.props에서, 3. 기본값
+  const textAlign = propTextAlign || comp?.props?.textAlign || 'center';
   const lineHeight = comp?.props?.lineHeight || 1.2;
   const letterSpacing = comp?.props?.letterSpacing || 0;
   const fontWeight = comp?.props?.fontWeight ? 'bold' : 'normal';
@@ -218,14 +222,8 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
         ...(textAlign === 'left' && { justifyContent: 'flex-start' }),
         ...(textAlign === 'right' && { justifyContent: 'flex-end' }),
         ...(textAlign === 'center' && { justifyContent: 'center' }),
-        ...(mode === 'live'
-          ? {
-              width: '100%',
-              fontSize: `${finalFontSize}px`,
-            }
-          : {
-              fontSize: `${finalFontSize}px`,
-            }),
+        // ❗️ mode에 따른 분기 없이, finalFontSize를 직접 사용
+        fontSize: `${finalFontSize}px`,
       }}
       onDoubleClick={handleDoubleClick}
     >
