@@ -66,13 +66,27 @@ export default function KakaoTalkShareRenderer({ comp, mode = 'live' }) {
 
   return (
     <button onClick={handleShare} style={{
-      padding: '8px 16px',
+      width: '100%',
+      height: '100%',
+      padding: 0,
       backgroundColor: '#FEE500',
-      border: 'none',
-      borderRadius: '4px',
+      color: '#191600', 
+      border: '1px solid #FEE500',
+      borderRadius: 0,
       cursor: 'pointer',
-      fontSize: '14px'
+      fontSize: '16px',
+      fontFamily: 'Montserrat, sans-serif',
+      fontWeight: '600',
+      boxShadow: '0 2px 8px rgba(189, 181, 166, 0.2)',
+      transition: 'all 0.3s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
     }}>
+      <span style={{
+        fontSize: '18px',
+      }}></span>
       {buttonTitle || "카카오톡 공유"}
     </button>
   );

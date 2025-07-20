@@ -80,7 +80,7 @@ export default function WeddingInviteRenderer({
         height: mode === 'live' ? `${containerHeight * scaleFactor}px` : '100%',
         ...(mode === 'live'
           ? {
-                              borderRadius: borderRadius,
+              borderRadius: `${borderRadius * scaleFactor}px`,
               padding: `${40 * scaleFactor}px`,
               minWidth: `${200 * scaleFactor}px`,
               minHeight: `${containerHeight * scaleFactor}px`, // 높이도 스케일링 적용
