@@ -85,7 +85,6 @@ const DynamicPageRenderer = ({
   subdomain?: string;
   editingMode?: 'desktop' | 'mobile';
 }) => {
-  const [isMounted, setIsMounted] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [mobileScale, setMobileScale] = useState(1);
   const [desktopScale, setDesktopScale] = useState(1);
@@ -93,8 +92,6 @@ const DynamicPageRenderer = ({
   const BASE_MOBILE_WIDTH = 375;
 
   useEffect(() => {
-    setIsMounted(true);
-
     const checkViewport = () => {
       const currentWidth = window.innerWidth;
       const isMobile = currentWidth <= 768;
@@ -116,27 +113,6 @@ const DynamicPageRenderer = ({
 
     return () => window.removeEventListener('resize', checkViewport);
   }, [editingMode]);
-
-  if (!isMounted) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-        }}
-      >
-        <div style={{ textAlign: 'center', padding: '40px' }}>
-          <div style={{ fontSize: '18px', fontWeight: '600' }}>
-            페이지를 불러오는 중...
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const getComponentDefaultSize = (componentType: string) => {
     const defaultSizes: { [key: string]: { width: number; height: number } } = {
@@ -337,23 +313,6 @@ const DynamicPageRenderer = ({
   };
 
   return (
-    <>
-      <Head>
-        <title>
-          {subdomain ? `${subdomain} - My Web Builder` : 'My Web Builder'}
-        </title>
-        <meta
-          name="description"
-          content={`${subdomain || pageId}에서 만든 웹사이트입니다.`}
-        />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-        />
-        <meta name="format-detection" content="telephone=no" />
-        <link rel="icon" href="/ddukddak-logo2.png" />
-      </Head>
-
       <div
         className="page-container"
         style={{
@@ -364,7 +323,7 @@ const DynamicPageRenderer = ({
           overflowY: 'auto',
         }}
       >
-        {isMounted && components && components.length > 0 ? (
+        {components && components.length > 0 ? (
           isMobileView ? (
             renderMobileLayout()
           ) : (
@@ -415,7 +374,6 @@ const DynamicPageRenderer = ({
           </div>
         )}
       </div>
-    </>
   );
 };
 
@@ -436,6 +394,11 @@ interface PageProps {
     editingMode?: 'desktop' | 'mobile';
   } | null;
   pageId: string;
+  subdomain?: string;
+  pageTitle?: string;
+  pageDescription?: string;
+  pageImageUrl?: string;
+  currentUrl?: string;
 }
 
 const ErrorPage = ({
@@ -473,7 +436,11 @@ const RenderedPage = ({
   pageData,
   pageId,
   subdomain,
-}: PageProps & { subdomain?: string }) => {
+  pageTitle,
+  pageDescription,
+  pageImageUrl,
+  currentUrl,
+}: PageProps) => {
   if (!pageData) {
     return (
       <ErrorPage
@@ -483,39 +450,28 @@ const RenderedPage = ({
     );
   }
 
-  // 페이지 제목과 설명 추출 (첫 번째 텍스트 컴포넌트에서)
-  const titleComponent = pageData.components.find(comp => comp.type === 'text');
-  const pageTitle = titleComponent?.props?.text || `${subdomain || '페이지'}`;
-  const pageDescription = titleComponent?.props?.description || '개인화된 웹페이지입니다.';
-
-  // 페이지에서 첫 번째 이미지 컴포넌트 찾기
-  const imageComponent = pageData.components.find(comp => comp.type === 'image');
-  const pageImageUrl = imageComponent?.props?.imageUrl || '';
-
-  const currentUrl = `https://${subdomain}.ddukddak.org`;
-
   return (
     <>
       <Head>
-        <title>{pageTitle}</title>
+        <title>{pageTitle || `${subdomain || '페이지'} - My Web Builder`}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
         {/* Open Graph 메타태그 */}
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={pageDescription} />
+        <meta property="og:title" content={pageTitle || `${subdomain || '페이지'}`} />
+        <meta property="og:description" content={pageDescription || '개인화된 웹페이지입니다.'} />
         {pageImageUrl && <meta property="og:image" content={pageImageUrl} />}
-        <meta property="og:url" content={currentUrl} />
+        <meta property="og:url" content={currentUrl || `https://${subdomain}.ddukddak.org`} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Ddukddak" />
         
         {/* Twitter Card 메타태그 */}
         <meta name="twitter:card" content={pageImageUrl ? "summary_large_image" : "summary"} />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:title" content={pageTitle || `${subdomain || '페이지'}`} />
+        <meta name="twitter:description" content={pageDescription || '개인화된 웹페이지입니다.'} />
         {pageImageUrl && <meta name="twitter:image" content={pageImageUrl} />}
         
         {/* 추가 메타태그 */}
-        <meta name="description" content={pageDescription} />
+        <meta name="description" content={pageDescription || '개인화된 웹페이지입니다.'} />
         <meta name="keywords" content="웹페이지, 개인화, 커스텀" />
         
         {/* 파비콘 */}
@@ -599,11 +555,23 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         ],
       };
 
+      // 테스트 데이터에서 메타 정보 추출
+      const titleComponent = mockPageData.components.find((comp: any) => comp.type === 'text');
+      const pageTitle = titleComponent?.props?.text || `${subdomain || '페이지'}`;
+      
+      const imageComponent = mockPageData.components.find((comp: any) => comp.type === 'image');
+      const pageImageUrl = (imageComponent?.props as any)?.src || '';
+      
+      const currentUrl = `https://${subdomain}.ddukddak.org`;
+
       return {
         props: {
           pageData: mockPageData,
           pageId: subdomain,
           subdomain,
+          pageTitle,
+          pageImageUrl,
+          currentUrl,
         },
       };
     }
@@ -643,11 +611,25 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         ],
       };
 
+      // 데스크톱 테스트 데이터에서 메타 정보 추출
+      const titleComponent = mockPageData.components.find((comp: any) => comp.type === 'text');
+      const pageTitle = titleComponent?.props?.text || `${subdomain || '페이지'}`;
+      const pageDescription = '개인화된 웹페이지입니다.';
+      
+      const imageComponent = mockPageData.components.find((comp: any) => comp.type === 'image');
+      const pageImageUrl = (imageComponent?.props as any)?.src || '';
+      
+      const currentUrl = `https://${subdomain}.ddukddak.org`;
+
       return {
         props: {
           pageData: mockPageData,
           pageId: subdomain,
           subdomain,
+          pageTitle,
+          pageDescription,
+          pageImageUrl,
+          currentUrl,
         },
       };
     }
@@ -687,6 +669,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       pageData.components = [];
     }
 
+    // 메타 정보 추출
+    const titleComponent = pageData.components.find((comp: ComponentData) => comp.type === 'text');
+    const pageTitle = titleComponent?.props?.text || `${subdomain || '페이지'}`;
+    const pageDescription = titleComponent?.props?.description || '개인화된 웹페이지입니다.';
+    
+    const imageComponent = pageData.components.find((comp: ComponentData) => comp.type === 'image');
+    const pageImageUrl = imageComponent?.props?.src || '';
+    
+    const currentUrl = `https://${subdomain}.ddukddak.org`;
+
     // 컴포넌트 크기 데이터 확인
     console.log(
       '🔧 API에서 받은 컴포넌트 데이터:',
@@ -709,6 +701,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         },
         pageId: subdomain,
         subdomain,
+        // 메타 정보 추가
+        pageTitle,
+        pageDescription,
+        pageImageUrl,
+        currentUrl,
       },
     };
   } catch (error) {
@@ -718,6 +715,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         pageId: pageId as string,
         subdomain: pageId as string,
         error: 'NETWORK_ERROR',
+        // 기본 메타 정보 추가
+        pageTitle: `${pageId} - My Web Builder`,
+        pageDescription: '개인화된 웹페이지입니다.',
+        pageImageUrl: '',
+        currentUrl: `https://${pageId}.ddukddak.org`,
       },
     };
   }
