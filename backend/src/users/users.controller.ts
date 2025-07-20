@@ -49,9 +49,15 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('pages/:pageId/members')
   async getPageMembers(@Request() req, @Param('pageId') pageId: string, @Query('userId') queryUserId?: string) {
-    // 쿼리 파라미터로 전달된 userId가 있으면 사용, 없으면 JWT에서 추출
-    const userId = queryUserId ? parseInt(queryUserId) : req.user.userId;
-    return this.usersService.getPageMembers(pageId, userId);
+    try {
+      // 쿼리 파라미터로 전달된 userId가 있으면 사용, 없으면 JWT에서 추출
+      const userId = queryUserId ? parseInt(queryUserId) : req.user.userId;
+      const members = await this.usersService.getPageMembers(pageId, userId);
+      return members;
+    } catch (error) {
+      console.error('Error in getPageMembers controller:', error);
+      return []; // 에러 발생 시 빈 배열 반환
+    }
   }
 
   // 페이지 제목 수정 API
@@ -62,7 +68,16 @@ export class UsersController {
     @Param('pageId') pageId: string,
     @Body() body: { title: string },
   ) {
-    return this.usersService.updatePageTitle(req.user.userId, pageId, body.title);
+    try {
+      const result = await this.usersService.updatePageTitle(req.user.userId, pageId, body.title);
+      if (!result) {
+        return { success: false, message: 'Page not found or access denied' };
+      }
+      return result;
+    } catch (error) {
+      console.error('Error in updatePage controller:', error);
+      return { success: false, message: 'Failed to update page' };
+    }
   }
 
   // 페이지 컨텐츠 업데이트 API (Y.js 백업용)
