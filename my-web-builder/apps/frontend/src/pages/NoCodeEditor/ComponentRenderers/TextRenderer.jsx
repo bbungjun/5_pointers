@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useScaledFontSize } from '../../../hooks/useScaledFontSize';
 
 // 사용 가능한 폰트 목록
 const AVAILABLE_FONTS = [
@@ -124,10 +125,12 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
     }
   };
 
-  // 2. props에서 값 추출 및 새 fontSize 계산
-  const originalFontSize = comp.props?.fontSize || 16;
-  const dynamicScale = comp.props?.dynamicScale || 1;
-  const scaledFontSize = originalFontSize * dynamicScale;
+  // ❗️ 기존 계산 로직을 Hook 호출로 대체
+  const finalFontSize = useScaledFontSize(
+    comp.props?.fontSize,
+    comp.props?.dynamicScale,
+    comp.props?.isMobile // ❗️ isMobile prop 전달
+  );
 
   // 폰트 관련 속성들
   const fontFamily = comp?.props?.fontFamily || 'Playfair Display, serif';
@@ -218,10 +221,10 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
         ...(mode === 'live'
           ? {
               width: '100%',
-              fontSize: `clamp(${Math.max(10, scaledFontSize * 0.7)}px, ${(scaledFontSize / 375) * 100}vw, ${scaledFontSize}px)`,
+              fontSize: `${finalFontSize}px`,
             }
           : {
-              fontSize: `${scaledFontSize}px`,
+              fontSize: `${finalFontSize}px`,
             }),
       }}
       onDoubleClick={handleDoubleClick}

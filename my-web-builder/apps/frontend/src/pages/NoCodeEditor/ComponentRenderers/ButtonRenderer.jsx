@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useScaledFontSize } from '../../../hooks/useScaledFontSize';
 
 // 사용 가능한 폰트 목록
 const AVAILABLE_FONTS = [
@@ -19,7 +20,7 @@ const AVAILABLE_FONTS = [
   'Montserrat',
   'Pinyon Script',
   'Prata',
-  'Underland'
+  'Underland',
 ];
 
 // 유틸리티 함수 내장
@@ -33,11 +34,26 @@ const pxToVw = (px, minPx, maxPx) => {
   return `${vw.toFixed(4)}vw`;
 };
 
-function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPreview = false, editingViewport = 'desktop' }) {
+function ButtonRenderer({
+  comp,
+  component,
+  mode = 'live',
+  isEditor = false,
+  isPreview = false,
+  editingViewport = 'desktop',
+}) {
   // comp 또는 component 중 하나를 사용 (하위 호환성)
   const actualComp = comp || component;
   // 모바일 편집 기준일 때 미리보기에서도 모바일 화면 그대로 보여야 함
   const isLiveMode = mode === 'live' && editingViewport !== 'mobile';
+
+  // ❗️ 버튼 내부 텍스트에도 동일한 Hook 적용
+  const finalFontSize = useScaledFontSize(
+    actualComp?.props?.fontSize,
+    actualComp?.props?.dynamicScale,
+    actualComp?.props?.isMobile // ❗️ isMobile prop 전달
+  );
+
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(actualComp?.props?.text || '');
   const inputRef = useRef();
@@ -51,7 +67,11 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
 
   useEffect(() => {
     if (buttonRef.current && actualComp?.props?.fontFamily) {
-      buttonRef.current.style.setProperty('font-family', actualComp.props.fontFamily, 'important');
+      buttonRef.current.style.setProperty(
+        'font-family',
+        actualComp.props.fontFamily,
+        'important'
+      );
     }
   }, [actualComp?.props?.fontFamily]);
 
@@ -84,7 +104,9 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
   const lineHeight = actualComp?.props?.lineHeight || 1.2;
   const letterSpacing = actualComp?.props?.letterSpacing || 0;
   const fontWeight = actualComp?.props?.fontWeight ? 'bold' : 'normal';
-  const textDecoration = actualComp?.props?.textDecoration ? 'underline' : 'none';
+  const textDecoration = actualComp?.props?.textDecoration
+    ? 'underline'
+    : 'none';
   const isItalic = actualComp?.props?.fontStyle;
   const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
 
@@ -93,15 +115,17 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
       <input
         ref={inputRef}
         value={editValue}
-        onChange={e => setEditValue(e.target.value)}
+        onChange={(e) => setEditValue(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         style={{
-          fontSize: isLiveMode ? pxToVw(actualComp?.props?.fontSize || 18, 14, 22) : (actualComp?.props?.fontSize || 18) + 'px',
+          fontSize: `${finalFontSize}px`,
           fontFamily: fontStyle,
           textAlign: textAlign,
           lineHeight: lineHeight,
-          letterSpacing: isLiveMode ? pxToVw(letterSpacing) : letterSpacing + 'px',
+          letterSpacing: isLiveMode
+            ? pxToVw(letterSpacing)
+            : letterSpacing + 'px',
           fontWeight: fontWeight,
           textDecoration: textDecoration,
           transform: italicTransform,
@@ -110,7 +134,7 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
           border: '1px solid #000000',
           borderRadius: isLiveMode ? pxToVw(4) : '4px',
           padding: isLiveMode ? `${pxToVw(8)} ${pxToVw(12)}` : '8px 12px',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
         }}
       />
     );
@@ -119,22 +143,28 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
   const textContent = actualComp?.props?.text || '클릭하세요';
 
   return (
-    <div 
+    <div
       ref={buttonRef}
       style={{
-        width: '100%', 
+        width: '100%',
         height: '100%',
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: textAlign === 'left' ? 'flex-start' : 
-                       textAlign === 'right' ? 'flex-end' : 'center',
-        background: comp.props?.bg || 'linear-gradient(135deg, #D8BFD8 0%, #C8A2C8 50%, #B794B7 100%)', 
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent:
+          textAlign === 'left'
+            ? 'flex-start'
+            : textAlign === 'right'
+              ? 'flex-end'
+              : 'center',
+        background:
+          comp.props?.bg ||
+          'linear-gradient(135deg, #D8BFD8 0%, #C8A2C8 50%, #B794B7 100%)',
         color: comp.props?.color || '#FFFFFF',
-        fontSize: (comp.props?.fontSize || 18) + 'px', 
+        fontSize: `${finalFontSize}px`,
         fontFamily: fontStyle || 'Playfair Display, serif',
         fontWeight: fontWeight || '600',
         textDecoration: textDecoration,
-        borderRadius: 0, 
+        borderRadius: 0,
         cursor: 'pointer',
         border: '1px solid rgba(216, 191, 216, 0.3)',
         outline: 'none',
@@ -143,13 +173,15 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
         userSelect: 'none',
         textTransform: 'none',
         lineHeight: lineHeight,
-        letterSpacing: isLiveMode ? pxToVw(letterSpacing) : letterSpacing + 'px',
+        letterSpacing: isLiveMode
+          ? pxToVw(letterSpacing)
+          : letterSpacing + 'px',
         //padding: isLiveMode ? `${pxToVw(8)} ${pxToVw(12)}` : '8px 12px',
         padding: 0,
         boxSizing: 'border-box',
         textAlign: textAlign,
         overflow: 'visible',
-        position: 'relative'
+        position: 'relative',
       }}
       onDoubleClick={handleDoubleClick}
       // onMouseEnter={(e) => {
@@ -167,17 +199,27 @@ function ButtonRenderer({ comp, component, mode = 'live', isEditor = false, isPr
         style={{
           display: 'inline-block', // 핵심!
           textAlign: textAlign,
-          letterSpacing: isLiveMode ? pxToVw(letterSpacing) : letterSpacing + 'px',
+          letterSpacing: isLiveMode
+            ? pxToVw(letterSpacing)
+            : letterSpacing + 'px',
           lineHeight: lineHeight,
           fontWeight: fontWeight,
           textDecoration: textDecoration,
           transform: italicTransform,
           overflow: 'visible',
           whiteSpace: 'pre-wrap',
-          textIndent: textAlign === 'center' && letterSpacing !== 0 ? 
-                     (isLiveMode ? pxToVw(letterSpacing / 2) : (letterSpacing / 2) + 'px') : '0',
-          marginRight: textAlign === 'center' && letterSpacing !== 0 ? 
-                      (isLiveMode ? pxToVw(-letterSpacing / 2) : (-letterSpacing / 2) + 'px') : '0'
+          textIndent:
+            textAlign === 'center' && letterSpacing !== 0
+              ? isLiveMode
+                ? pxToVw(letterSpacing / 2)
+                : letterSpacing / 2 + 'px'
+              : '0',
+          marginRight:
+            textAlign === 'center' && letterSpacing !== 0
+              ? isLiveMode
+                ? pxToVw(-letterSpacing / 2)
+                : -letterSpacing / 2 + 'px'
+              : '0',
         }}
       >
         {textContent}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useScaledFontSize } from '../../hooks/useScaledFontSize';
 
 function AttendRenderer({ comp, mode = 'live', pageId }) {
   const isEditor = mode === 'editor';
@@ -341,7 +342,7 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
       >
         <h3
           style={{
-            fontSize: comp.props?.titleFontSize || '18px',
+            fontSize: `${useScaledFontSize(comp.props?.titleFontSize || 18, comp.props?.dynamicScale)}px`,
             fontWeight: '600',
             color: comp.props?.titleColor || '#1f2937',
             margin: '0 0 20px 0', // 8px → 6px로 줄임
@@ -353,7 +354,7 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
         {comp.props?.description && (
           <p
             style={{
-              fontSize: comp.props?.descriptionFontSize || '14px',
+              fontSize: `${useScaledFontSize(comp.props?.descriptionFontSize || 14, comp.props?.dynamicScale)}px`,
               color: comp.props?.descriptionColor || '#6b7280',
               margin: '0',
               lineHeight: '1.4', // 1.5 → 1.4로 줄임
@@ -390,7 +391,7 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
             borderRadius: '10px',
             padding: '12px 24px',
             marginBottom: '10px',
-            fontSize: comp.props?.fontSize || '16px',
+            fontSize: `${useScaledFontSize(comp.props?.fontSize || 16, comp.props?.dynamicScale)}px`,
             fontWeight: '500',
             fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
             cursor:
@@ -710,33 +711,60 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
   );
 }
 
-const labelStyle = (comp) => ({
-  display: 'block',
-  marginBottom: '8px',
-  fontSize: '16px',
-  fontWeight: '500',
-  color: '#374151',
-  fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
-});
+const labelStyle = (comp) => {
+  // ❗️ Hook을 사용한 폰트 크기 계산
+  const finalFontSize = useScaledFontSize(
+    16,
+    comp.props?.dynamicScale,
+    comp.props?.isMobile
+  );
 
-const textStyle = (comp) => ({
-  fontSize: '16px',
-  fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
-});
+  return {
+    display: 'block',
+    marginBottom: '8px',
+    fontSize: `${finalFontSize}px`,
+    fontWeight: '500',
+    color: '#374151',
+    fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+  };
+};
 
-const buttonStyle = (bg, color, comp, disabled = false) => ({
-  padding: '12px 24px',
+const textStyle = (comp) => {
+  // ❗️ Hook을 사용한 폰트 크기 계산
+  const finalFontSize = useScaledFontSize(
+    16,
+    comp.props?.dynamicScale,
+    comp.props?.isMobile
+  );
 
-  backgroundColor: bg,
-  color,
-  border: 'none',
-  borderRadius: '8px',
-  fontSize: '16px',
-  fontWeight: '500',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-  fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
-  transition: 'all 0.2s ease',
-});
+  return {
+    fontSize: `${finalFontSize}px`,
+    fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+  };
+};
+
+const buttonStyle = (bg, color, comp, disabled = false) => {
+  // ❗️ Hook을 사용한 폰트 크기 계산
+  const finalFontSize = useScaledFontSize(
+    16,
+    comp.props?.dynamicScale,
+    comp.props?.isMobile
+  );
+
+  return {
+    padding: '12px 24px',
+
+    backgroundColor: bg,
+    color,
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: `${finalFontSize}px`,
+    fontWeight: '500',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+    transition: 'all 0.2s ease',
+  };
+};
 
 const DynamicFormInput = ({ field, value, onChange, comp }) => (
   <>

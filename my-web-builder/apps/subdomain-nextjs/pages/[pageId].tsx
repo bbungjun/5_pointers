@@ -261,6 +261,11 @@ const DynamicPageRenderer = ({
                     ...comp,
                     width: originalWidth,
                     height: originalHeight,
+                    props: {
+                      ...comp.props,
+                      dynamicScale: desktopScale,
+                      isMobile: false, // ❗️ 데스크톱 뷰임을 명시
+                    },
                   }}
                   mode="live"
                   isEditor={false}
@@ -314,7 +319,14 @@ const DynamicPageRenderer = ({
               >
                 <RendererComponent
                   {...comp.props}
-                  comp={{ ...comp }}
+                  comp={{
+                    ...comp,
+                    props: {
+                      ...comp.props,
+                      dynamicScale: mobileScale,
+                      isMobile: true, // ❗️ 모바일 뷰임을 명시
+                    },
+                  }}
                   mode="live"
                   isEditor={false}
                   pageId={pageId}
@@ -393,6 +405,7 @@ const DynamicPageRenderer = ({
           const newProps = {
             ...comp.props,
             dynamicScale: scaleRatio, // 축소 비율을 props에 전달
+            isMobile: true, // ❗️ 모바일 뷰임을 명시
           };
 
           repositionedComponents.push({
@@ -416,7 +429,7 @@ const DynamicPageRenderer = ({
 
   return (
     <div
-      className="page-container"
+      className="page-container hide-scrollbar"
       style={{
         width: '100%',
         minHeight: '100vh',

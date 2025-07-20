@@ -224,6 +224,11 @@ const PreviewRenderer = ({
                     ...comp,
                     width: originalWidth,
                     height: originalHeight,
+                    props: {
+                      ...comp.props,
+                      dynamicScale: desktopScale,
+                      isMobile: false, // ❗️ 데스크톱 뷰임을 명시
+                    },
                   }}
                   mode="preview"
                   isEditor={false}
@@ -273,7 +278,14 @@ const PreviewRenderer = ({
               >
                 <RendererComponent
                   {...comp.props}
-                  comp={{ ...comp }}
+                  comp={{
+                    ...comp,
+                    props: {
+                      ...comp.props,
+                      dynamicScale: mobileScale,
+                      isMobile: true, // ❗️ 모바일 뷰임을 명시
+                    },
+                  }}
                   mode="preview"
                   isEditor={false}
                   pageId={pageId}
@@ -352,6 +364,7 @@ const PreviewRenderer = ({
           const newProps = {
             ...comp.props,
             dynamicScale: scaleRatio, // 축소 비율을 props에 전달
+            isMobile: true, // ❗️ 모바일 뷰임을 명시
           };
 
           repositionedComponents.push({
@@ -377,7 +390,15 @@ const PreviewRenderer = ({
   return (
     <div
       ref={containerRef}
-      style={{ width: '100%', height: '100%', overflow: 'hidden' }}
+      style={{
+        width: '100%',
+        height: '100%',
+        overflow: isMobileView ? 'auto' : 'hidden',
+        // 스크롤바 숨기기
+        scrollbarWidth: 'none', // Firefox
+        msOverflowStyle: 'none', // IE/Edge
+      }}
+      className={isMobileView ? 'hide-scrollbar' : ''}
     >
       {containerWidth > 0
         ? isMobileView
