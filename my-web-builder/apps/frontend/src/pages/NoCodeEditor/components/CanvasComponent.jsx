@@ -599,12 +599,12 @@ function CanvasComponent({
           y: newY,
         };
 
-        // 쓰로틀링을 적용하여 성능 최적화
+        // 쓰로틀링을 적용하여 성능 최적화 (더 빠른 업데이트)
         if (!dragUpdateTimeoutRef.current) {
           dragUpdateTimeoutRef.current = setTimeout(() => {
             onUpdate(updatedComponent);
             dragUpdateTimeoutRef.current = null;
-          }, 16); // 60fps로 제한
+          }, 8); // 120fps로 제한 (더 부드러운 동기화)
         }
       }
 
@@ -632,8 +632,6 @@ function CanvasComponent({
 
   // 드래그 종료 핸들러 (snapLines 항상 초기화)
   const handleDragEnd = useCallback(() => {
-    console.log('드래그 종료:', comp.id);
-
     // 🔧 드래그 상태 해제 (다른 사용자의 업데이트 허용)
     if (setComponentDragging) {
       setComponentDragging(comp.id, false);
@@ -651,12 +649,6 @@ function CanvasComponent({
 
     // 🔧 드래그 완료 시 최종 동기화 (실시간 업데이트와 중복 방지)
     if (finalX !== currentX || finalY !== currentY) {
-      console.log(
-        '드래그 완료, 최종 동기화:',
-        comp.id,
-        `(${currentX}, ${currentY}) -> (${finalX}, ${finalY})`
-      );
-
       // 다중 선택된 컴포넌트들과 함께 이동
       if (
         selectedIds &&

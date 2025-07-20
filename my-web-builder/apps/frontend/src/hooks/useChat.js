@@ -26,19 +26,19 @@ export function useChat(awareness, userInfo, onCursorChatUpdate) {
       position: position,
     };
 
-    // Awareness를 통해 다른 사용자에게 메시지 브로드캐스트
-    awareness.setLocalStateField('chatMessage', chatMessage);
-
-    // 커서에 채팅 메시지 표시 (자신의 메시지도 표시)
+    // 커서에 채팅 메시지 표시 (자신의 메시지도 표시) - 즉시 표시
     if (onCursorChatUpdate) {
       console.log('💬 채팅 메시지 전송 - 커서 업데이트:', userInfo.id, chatMessage.message);
       onCursorChatUpdate(userInfo.id, chatMessage.message);
-      // 10초 후 커서에서 채팅 메시지 제거 (더 오래 표시)
+      // 10초 후 커서에서 채팅 메시지 제거
       setTimeout(() => {
         console.log('🗑️ 채팅 메시지 제거 - 커서 업데이트:', userInfo.id);
         onCursorChatUpdate(userInfo.id, null);
       }, 10000);
     }
+
+    // Awareness를 통해 다른 사용자에게 메시지 브로드캐스트 (즉시 전송)
+    awareness.setLocalStateField('chatMessage', chatMessage);
 
     // 입력창 닫기
     setIsChatInputOpen(false);
@@ -107,44 +107,83 @@ export function useChat(awareness, userInfo, onCursorChatUpdate) {
     }, 3000);
   }, [isTyping]);
 
-  // 마우스 움직임 추적 (항상 추적)
+  // 마우스 움직임 추적 (더 강한 쓰로틀링 적용)
   useEffect(() => {
+    let timeoutId = null;
+    let lastPosition = { x: 0, y: 0 };
+    
     const handleMouseMove = (e) => {
-      setCursorPosition({ x: e.clientX, y: e.clientY });
+      if (timeoutId) return; // 쓰로틀링
+      
+      // 위치가 크게 변경된 경우에만 업데이트
+      const newPosition = { x: e.clientX, y: e.clientY };
+      const distance = Math.sqrt(
+        Math.pow(newPosition.x - lastPosition.x, 2) + 
+        Math.pow(newPosition.y - lastPosition.y, 2)
+      );
+      
+      if (distance > 5) { // 5px 이상 이동한 경우에만 업데이트
+        timeoutId = setTimeout(() => {
+          setCursorPosition(newPosition);
+          lastPosition = newPosition;
+          timeoutId = null;
+        }, 32); // 30fps로 제한 (더 부드러운 성능)
+      }
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
   // Awareness 변경 감지 (다른 사용자의 채팅 메시지 수신)
   useEffect(() => {
     if (!awareness) return;
+    
+    const processedMessages = new Set(); // 중복 처리 방지
+    
     const handleAwarenessChange = () => {
       const states = awareness.getStates();
       const now = Date.now();
+      
       states.forEach((state, clientId) => {
         // 자신의 상태는 제외
         if (clientId === awareness.clientID) return;
         const { chatMessage } = state;
-        // 채팅 메시지 처리 (최근 1초 내 데이터만)
-        if (chatMessage && (now - chatMessage.timestamp) < 1000) {
-          // 커서에 채팅 메시지 표시 (다른 사용자의 메시지)
+        
+        // 채팅 메시지 처리 (최근 1초 내 데이터만, 중복 처리 방지)
+        if (chatMessage && 
+            (now - chatMessage.timestamp) < 1000 && 
+            !processedMessages.has(chatMessage.id)) {
+          
+          processedMessages.add(chatMessage.id);
+          
+          // 다른 사용자의 메시지를 내 라이브 커서에 표시
           if (onCursorChatUpdate) {
-            console.log('💬 다른 사용자 채팅 메시지 수신 - 커서 업데이트:', chatMessage.user.id, chatMessage.message);
+            console.log('💬 다른 사용자 채팅 메시지 수신 - 라이브 커서 업데이트:', chatMessage.user.id, chatMessage.message);
             onCursorChatUpdate(chatMessage.user.id, chatMessage.message);
-            // 10초 후 커서에서 채팅 메시지 제거 (더 오래 표시)
+            // 10초 후 라이브 커서에서 채팅 메시지 제거
             setTimeout(() => {
-              console.log('🗑️ 다른 사용자 채팅 메시지 제거 - 커서 업데이트:', chatMessage.user.id);
+              console.log('🗑️ 다른 사용자 채팅 메시지 제거 - 라이브 커서 업데이트:', chatMessage.user.id);
               onCursorChatUpdate(chatMessage.user.id, null);
             }, 10000);
           }
-          // 메시지 처리 후 Awareness에서 제거
+          
+          // 메시지 처리 후 Awareness에서 제거 (즉시 제거)
           setTimeout(() => {
             awareness.setLocalStateField('chatMessage', null);
           }, 100);
+          
+          // 1초 후 중복 처리 방지 Set에서 제거
+          setTimeout(() => {
+            processedMessages.delete(chatMessage.id);
+          }, 1000);
         }
       });
     };
+    
     awareness.on('change', handleAwarenessChange);
     return () => {
       awareness.off('change', handleAwarenessChange);

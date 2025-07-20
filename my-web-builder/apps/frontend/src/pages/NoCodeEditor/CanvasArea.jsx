@@ -181,7 +181,7 @@ const CanvasArea = forwardRef(
     // 줌 핸들러
     const handleZoom = useCallback(
       (delta) => {
-        const newZoom = Math.max(60, Math.min(150, zoom + delta)); // localZoom 대신 부모의 zoom 사용
+        const newZoom = Math.max(35, Math.min(150, zoom + delta)); // 최소값을 35로 변경
         if (onZoomChange) onZoomChange(newZoom);
       },
       [zoom, onZoomChange] // localZoom 의존성 제거, zoom 의존성 추가
@@ -983,6 +983,7 @@ const CanvasArea = forwardRef(
               zoom={zoom}
               viewport={viewport}
               cursorChatMessages={cursorChatMessages}
+              canvasRef={canvasRefToUse}
             />
 
             {/* 협업 기능: 다른 사용자 선택 영역 */}

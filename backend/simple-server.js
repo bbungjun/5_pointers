@@ -37,7 +37,6 @@ app.get('/', (req, res) => {
 
 // 임시 회원가입 엔드포인트
 app.post('/auth/signup/local', (req, res) => {
-  console.log('Signup request:', req.body);
   res.json({
     success: true,
     message: 'Signup endpoint working - DB connection needed',
@@ -47,7 +46,6 @@ app.post('/auth/signup/local', (req, res) => {
 
 // 임시 로그인 엔드포인트
 app.post('/auth/login/local', (req, res) => {
-  console.log('Login request:', req.body);
   res.json({
     success: true,
     message: 'Login endpoint working - DB connection needed',
@@ -57,6 +55,5 @@ app.post('/auth/login/local', (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Simple 5Pointers Backend Server running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  // 서버 시작
 });

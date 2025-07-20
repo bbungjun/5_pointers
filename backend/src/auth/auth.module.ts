@@ -22,14 +22,7 @@ import { UsersModule } from '../users/users.module';
         const jwtSecret = configService.get<string>('JWT_SECRET');
         const jwtExpiresIn = configService.get<string>('JWT_EXPIRES_IN', '1d');
         
-        console.log('[Auth Module] JWT 설정:', {
-          secretExists: !!jwtSecret,
-          secretLength: jwtSecret?.length || 0,
-          expiresIn: jwtExpiresIn
-        });
-
         if (!jwtSecret) {
-          console.error('[Auth Module] JWT_SECRET이 설정되지 않았습니다!');
           throw new Error('JWT_SECRET 환경 변수가 필요합니다.');
         }
 

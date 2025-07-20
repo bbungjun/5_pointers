@@ -1,204 +1,144 @@
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { addUserColor } from '../utils/userColors';
 
 /**
- * 성능 최적화된 라이브 커서 훅
- * 
- * 최적화 사항:
- * 1. 커서 업데이트 쓰로틀링 (16ms = 60fps)
- * 2. 불필요한 리렌더링 방지
- * 3. 메모리 누수 방지
- * 4. 배치 업데이트 최적화
+ * 실시간 커서 및 선택 상태 관리 훅
+ * - 다른 사용자의 커서 위치 표시
+ * - 다른 사용자의 선택 상태 표시
+ * - 성능 최적화를 위한 쓰로틀링 적용
  */
 export function useLiveCursors(awareness, canvasRef, updateActivity) {
-  const [otherCursors, setOtherCursors] = useState(new Map());
-  const [otherSelections, setOtherSelections] = useState(new Map());
+  const [otherCursors, setOtherCursors] = useState([]);
+  const [otherSelections, setOtherSelections] = useState([]);
   
-  // 쓰로틀링을 위한 ref들
-  const lastCursorUpdateRef = useRef(0);
-  const cursorThrottleMs = 16; // 60fps
-  const lastSelectionUpdateRef = useRef(0);
-  const selectionThrottleMs = 100; // 선택 업데이트는 더 느리게
+  // 쓰로틀링을 위한 ref
+  const lastUpdateRef = useRef(0);
+  const throttleMs = 16; // 60fps
 
-  // 디바운스된 상태 업데이트
-  const updateStateRef = useRef(null);
+  // 커서 위치 업데이트 함수
+  const updateCursorPosition = useCallback((x, y, zoom = 100, viewport = 'desktop') => {
+    if (!awareness || !canvasRef?.current) return;
 
-  // 마우스 움직임을 Awareness에 브로드캐스트 (쓰로틀링 적용)
-  const updateCursorPosition = useCallback(
-    (
-      x,
-      y,
-      zoom = 100,
-      viewport = 'desktop',
-      containerRef = null,
-      isLibraryOpen = true
-    ) => {
-      if (!awareness) return;
+    // 쓰로틀링 체크
+    const now = Date.now();
+    if (now - lastUpdateRef.current < throttleMs) return;
+    lastUpdateRef.current = now;
 
-      const now = Date.now();
-      
-      // 쓰로틀링 체크
-      if (now - lastCursorUpdateRef.current < cursorThrottleMs) {
-        return;
-      }
-      lastCursorUpdateRef.current = now;
-
-      // 사용자 활동 감지 (커서 움직임)
-      if (updateActivity) {
-        updateActivity();
-      }
-
-      // 커서 숨기기 (x, y가 null인 경우)
-      if (x === null || y === null) {
-        awareness.setLocalStateField('cursor', null);
-        return;
-      }
-
-      // 실제 캔버스 프레임 기준 상대 좌표로 변환
-      const canvasRect = canvasRef?.current?.getBoundingClientRect();
-
-      if (canvasRect) {
-        const scale = zoom / 100;
-        
-        // 브라우저 화면 좌표를 캔버스의 실제 좌표로 변환
-        // 줌 스케일을 적용하여 캔버스 내부의 실제 위치 계산
-        const relativeX = (x - canvasRect.left) / scale;
-        const relativeY = (y - canvasRect.top) / scale;
-
-        // Awareness Protocol을 통해 커서 위치 브로드캐스트
-        awareness.setLocalStateField('cursor', {
-          x: relativeX,
-          y: relativeY,
-          zoom: zoom,
-          viewport: viewport,
-          timestamp: now,
-        });
-      }
-    },
-    [awareness, canvasRef, updateActivity]
-  );
-
-  // 컴포넌트 선택 상태를 Awareness에 브로드캐스트 (쓰로틀링 적용)
-  const updateSelection = useCallback(
-    (selectedComponentIds, viewport = 'desktop') => {
-      if (!awareness) return;
-
-      const now = Date.now();
-      
-      // 선택 업데이트는 더 느리게 쓰로틀링
-      if (now - lastSelectionUpdateRef.current < selectionThrottleMs) {
-        return;
-      }
-      lastSelectionUpdateRef.current = now;
-
-      // 사용자 활동 감지 (선택 변경)
-      if (updateActivity) {
-        updateActivity();
-      }
-
-      // 선택된 컴포넌트 ID 배열과 뷰포트 정보를 브로드캐스트
-      awareness.setLocalStateField('selection', {
-        componentIds: selectedComponentIds,
-        viewport: viewport,
-        timestamp: now,
-      });
-    },
-    [awareness, updateActivity]
-  );
-
-  // 디바운스된 상태 업데이트 함수
-  const debouncedUpdateState = useCallback((cursors, selections) => {
-    if (updateStateRef.current) {
-      clearTimeout(updateStateRef.current);
+    // 사용자 활동 감지
+    if (updateActivity) {
+      updateActivity();
     }
-    
-    updateStateRef.current = setTimeout(() => {
-      setOtherCursors(cursors);
-      setOtherSelections(selections);
-      updateStateRef.current = null;
-    }, 16); // 60fps
-  }, []);
 
-  // 다른 사용자들의 상태 변화 감지 및 처리 (최적화됨)
+    // 커서 숨기기
+    if (x === null || y === null) {
+      awareness.setLocalStateField('cursor', null);
+      return;
+    }
+
+    // 캔버스 기준 좌표 계산
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+    const scale = zoom / 100;
+    
+    // 스크롤 컨테이너 찾기 (캔버스의 부모 스크롤 컨테이너)
+    const scrollContainer = canvasRef.current.closest('[style*="overflow"]') || 
+                           canvasRef.current.parentElement;
+    const scrollLeft = scrollContainer?.scrollLeft || 0;
+    const scrollTop = scrollContainer?.scrollTop || 0;
+    
+    // 브라우저 좌표를 캔버스 좌표로 변환
+    // 스크롤 오프셋을 고려하여 정확한 위치 계산
+    const canvasX = (x - canvasRect.left + scrollLeft) / scale;
+    const canvasY = (y - canvasRect.top + scrollTop) / scale;
+
+    // Awareness에 커서 위치 저장
+    awareness.setLocalStateField('cursor', {
+      x: canvasX,
+      y: canvasY,
+      zoom,
+      viewport,
+      timestamp: now,
+    });
+  }, [awareness, canvasRef, updateActivity]);
+
+  // 선택 상태 업데이트 함수
+  const updateSelection = useCallback((selectedComponentIds, viewport = 'desktop') => {
+    if (!awareness) return;
+
+    // 사용자 활동 감지
+    if (updateActivity) {
+      updateActivity();
+    }
+
+    // Awareness에 선택 상태 저장
+    awareness.setLocalStateField('selection', {
+      componentIds: selectedComponentIds || [],
+      viewport,
+      timestamp: Date.now(),
+    });
+  }, [awareness, updateActivity]);
+
+  // 다른 사용자들의 상태 변화 감지
   useEffect(() => {
     if (!awareness) return;
 
-    let isProcessing = false;
-
     const handleAwarenessChange = () => {
-      // 중복 처리 방지
-      if (isProcessing) return;
-      isProcessing = true;
+      const states = awareness.getStates();
+      const cursors = [];
+      const selections = [];
+      const now = Date.now();
 
-      try {
-        const states = awareness.getStates();
-        const cursors = new Map();
-        const selections = new Map();
-        const now = Date.now();
+      states.forEach((state, clientId) => {
+        // 자신 제외
+        if (clientId === awareness.clientID) return;
 
-        // 모든 활성 사용자의 상태를 순회
-        states.forEach((state, clientId) => {
-          // 자신의 상태는 제외
-          if (clientId === awareness.clientID) return;
+        const { user, cursor, selection } = state;
 
-          const { user, cursor, selection } = state;
+        // 커서 정보 처리 (5초 내 데이터만)
+        if (user && cursor && (now - cursor.timestamp) < 5000) {
+          cursors.push({
+            id: clientId,
+            x: cursor.x,
+            y: cursor.y,
+            user: {
+              id: user.id,
+              name: user.name,
+              color: user.color,
+            },
+            timestamp: cursor.timestamp,
+          });
+        }
 
-          // 커서 정보 처리 (최근 5초 내 데이터만)
-          if (user && cursor && (now - cursor.timestamp) < 5000) {
-            cursors.set(clientId, {
-              x: cursor.x,
-              y: cursor.y,
-              user: {
-                id: user.id,
-                name: user.name,
-                color: user.color,
-              },
-              timestamp: cursor.timestamp,
-            });
-          }
+        // 선택 정보 처리 (10초 내 데이터만)
+        if (user && selection && (now - selection.timestamp) < 10000) {
+          selections.push({
+            id: clientId,
+            componentIds: selection.componentIds || [],
+            viewport: selection.viewport || 'desktop',
+            user: {
+              id: user.id,
+              name: user.name,
+              color: user.color,
+            },
+            timestamp: selection.timestamp,
+          });
+        }
+      });
 
-          // 선택 정보 처리 (최근 10초 내 데이터만)
-          if (user && selection && (now - selection.timestamp) < 10000) {
-            selections.set(clientId, {
-              componentIds: selection.componentIds || [],
-              viewport: selection.viewport || 'desktop',
-              user: {
-                id: user.id,
-                name: user.name,
-                color: user.color,
-              },
-              timestamp: selection.timestamp,
-            });
-          }
-        });
-
-        // 디바운스된 상태 업데이트
-        debouncedUpdateState(cursors, selections);
-      } catch (error) {
-        console.error('Awareness 상태 처리 오류:', error);
-      } finally {
-        isProcessing = false;
-      }
+      setOtherCursors(cursors);
+      setOtherSelections(selections);
     };
 
-    // Awareness 변화 이벤트 리스너 등록
     awareness.on('change', handleAwarenessChange);
 
     return () => {
       awareness.off('change', handleAwarenessChange);
-      if (updateStateRef.current) {
-        clearTimeout(updateStateRef.current);
-      }
     };
-  }, [awareness, debouncedUpdateState]);
-
-  // 메모이제이션된 반환값
-  const memoizedCursors = useMemo(() => Array.from(otherCursors.values()), [otherCursors]);
-  const memoizedSelections = useMemo(() => Array.from(otherSelections.values()), [otherSelections]);
+  }, [awareness]);
 
   return {
-    otherCursors: memoizedCursors,
-    otherSelections: memoizedSelections,
-    updateSelection,
+    otherCursors,
+    otherSelections,
     updateCursorPosition,
+    updateSelection,
   };
 }
