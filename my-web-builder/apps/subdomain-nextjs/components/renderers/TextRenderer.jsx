@@ -108,28 +108,39 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
 
   if (editing && mode === 'editor') {
     return (
-      <textarea
-        ref={inputRef}
-        value={editValue}
-        onChange={(e) => setEditValue(e.target.value)}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        className="w-32 border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+      <div
         style={{
-          fontSize: comp.props?.fontSize,
-          fontFamily: fontFamily,
-          textAlign: textAlign,
-          lineHeight: lineHeight,
-          letterSpacing: letterSpacing + 'px',
-          fontWeight: fontWeight,
-          textDecoration: textDecoration,
-          transform: italicTransform,
-          minHeight: '60px',
-          resize: 'both',
-          fontFamily: 'inherit',
+          width: '100%',
+          height: '100%',
+          padding: '0',
         }}
-        placeholder="텍스트를 입력하세요. Shift+Enter로 줄바꿈이 가능합니다."
-      />
+      >
+        <textarea
+          ref={inputRef}
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          className="border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          style={{
+            fontSize: comp.props?.fontSize,
+            fontFamily: fontFamily,
+            textAlign: textAlign,
+            lineHeight: lineHeight,
+            letterSpacing: letterSpacing + 'px',
+            fontWeight: fontWeight,
+            textDecoration: textDecoration,
+            transform: italicTransform,
+            width: '100%', // 리사이즈 핸들러 너비에 맞춤
+            height: '100%', // 리사이즈 핸들러 높이에 맞춤
+            minHeight: '60px',
+            resize: 'both',
+            fontFamily: 'inherit',
+            boxSizing: 'border-box', // 패딩과 보더를 포함한 크기 계산
+          }}
+          placeholder="텍스트를 입력하세요. Shift+Enter로 줄바꿈이 가능합니다."
+        />
+      </div>
     );
   }
 

@@ -145,7 +145,7 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
       <div
         style={{
           display: 'flex',
-          alignItems: 'flex-start', // textarea의 경우 상단 정렬이 더 자연스럽습니다
+          alignItems: 'flex-start',
           justifyContent:
             textAlign === 'left'
               ? 'flex-start'
@@ -154,7 +154,7 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
                 : 'center',
           width: '100%',
           height: '100%',
-          padding: '12px',
+          padding: '0', // 패딩 제거하여 리사이즈 핸들러와 딱 맞게
         }}
       >
         <textarea
@@ -177,14 +177,15 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
             padding: '8px 12px',
             outline: 'none',
             backgroundColor: 'white',
+            width: '100%', // 리사이즈 핸들러 너비에 맞춤
+            height: '100%', // 리사이즈 핸들러 높이에 맞춤
             minWidth: '120px',
-            maxWidth: '300px',
-            width: 'auto',
             minHeight: '60px',
-            resize: 'both', // 사용자가 크기를 조절할 수 있도록
+            resize: 'both',
             fontFamily: 'inherit',
+            boxSizing: 'border-box', // 패딩과 보더를 포함한 크기 계산
           }}
-          placeholder="텍스트를 입력하세요. 엔터로 줄바꿈이 가능합니다."
+          placeholder="텍스트를 입력하세요. Shift+Enter로 줄바꿈이 가능합니다."
         />
       </div>
     );
