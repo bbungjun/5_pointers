@@ -52,6 +52,22 @@ export const LiveCursors = React.memo(({
         const finalX = displayX - scrollLeft;
         const finalY = displayY - scrollTop;
 
+        // 디버깅을 위한 로그 (개발 환경에서만)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('커서 렌더링:', {
+            cursorId: cursor.id,
+            storedX: cursor.x,
+            storedY: cursor.y,
+            scale,
+            displayX,
+            displayY,
+            scrollOffset: { left: scrollLeft, top: scrollTop },
+            finalX,
+            finalY,
+            user: userWithColor.name
+          });
+        }
+
         return (
           <div
             key={`cursor-${cursor.id || index}`}

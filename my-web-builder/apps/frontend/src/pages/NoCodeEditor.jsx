@@ -317,10 +317,8 @@ function NoCodeEditor({ pageId }) {
       
       // 연결 복구 시 기존 데이터가 있는지 확인
       if (components.length > 0) {
-        console.log('✅ 연결 복구 시 기존 데이터 유지:', components.length, '개 컴포넌트');
         // 기존 데이터를 YJS에 동기화하여 다른 사용자와 일치시킴
         setTimeout(() => {
-          console.log('🔄 연결 복구 후 데이터 동기화...');
           updateAllComponents(components);
         }, 500);
       }
@@ -544,9 +542,7 @@ function NoCodeEditor({ pageId }) {
 
   // 컴포넌트 변경 시 자동저장 트리거
   useEffect(() => {
-    if (components.length > 0) {
-      // 자동저장 훅이 자동으로 처리
-    }
+    // 컴포넌트가 변경되면 자동저장 훅이 자동으로 처리
   }, [components]);
 
   // 컴포넌트 업데이트 핸들러
@@ -556,9 +552,7 @@ function NoCodeEditor({ pageId }) {
 
   // 연결 오류 시 로컬 상태 관리 활성화
   useEffect(() => {
-    if (connectionError) {
-      console.log('🔴 협업 연결 오류로 인해 로컬 상태 관리 활성화');
-    }
+    // 연결 오류 처리
   }, [connectionError]);
 
   // 컴포넌트와 선택된 컴포넌트
