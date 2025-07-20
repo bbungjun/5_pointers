@@ -78,8 +78,8 @@ export function getComponentDimensions(type) {
     calendar: {
       defaultWidth: 375,
       defaultHeight: 500,
-      minWidth: 300,
-      minHeight: 350,
+      minWidth: 375,
+      minHeight: 500,
     },
     bankAccount: {
       defaultWidth: 375,

@@ -1,11 +1,11 @@
 import React from 'react';
 
 export default function MapInfoRenderer({ comp, mode = 'editor' }) {
+  // ❗️ 자체적인 scaleFactor 계산 로직을 완전히 삭제합니다.
+
   const {
-    containerWidth = comp.width || 300,
-    containerHeight = comp.height || 275,
     sections = [],
-    fontSize = 16,
+    fontSize = 14,
     fontFamily = comp.props?.fontFamily || '"Playfair Display", serif',
     fontWeight = comp.props?.fontWeight ? 'bold' : 'normal',
     fontStyle = comp.props?.fontStyle ? 'italic' : 'normal',
@@ -18,72 +18,79 @@ export default function MapInfoRenderer({ comp, mode = 'editor' }) {
     noBorder = comp.props?.noBorder !== undefined ? comp.props.noBorder : true,
     borderColor = comp.props?.borderColor || '#e5e7eb',
     borderWidth = comp.props?.borderWidth || '1px',
-    borderRadius = comp.props?.borderRadius || 8
+    borderRadius = comp.props?.borderRadius || 8,
   } = comp.props;
 
-  const toPx = v => (typeof v === 'number' ? `${v}px` : v || undefined);
+  const toPx = (v) => (typeof v === 'number' ? `${v}px` : v || undefined);
   const italicTransform = fontStyle === 'italic' ? 'skewX(-15deg)' : 'none';
 
   return (
     <div
       style={{
-        padding: '28px 24px',
+        padding: '20px 18px', // ❗️ scaleFactor 제거, 고정값 사용 (컨테이너 크기는 부모가 조절)
         background: bgColor,
         borderRadius: borderRadius,
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
         overflow: 'hidden',
-        border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`
+        border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`,
       }}
     >
       {sections.map((sec, idx) => (
         <div
           key={idx}
           style={{
-            padding: '18px 0',
-            borderBottom: idx < sections.length - 1 ? '1px solid rgba(0, 0, 0, 0.08)' : 'none',
-            position: 'relative'
+            padding: '14px 0', // ❗️ scaleFactor 제거
+            borderBottom:
+              idx < sections.length - 1
+                ? '1px solid rgba(0, 0, 0, 0.08)'
+                : 'none',
+            position: 'relative',
           }}
         >
           {/* 제목 */}
-          <div style={{
-            fontSize: toPx(fontSize + 2),
-            fontWeight: fontWeight === 'bold' ? '700' : '600',
-            fontStyle: fontStyle,
-            textDecoration,
-            color: color,
-            fontFamily: fontFamily,
-            textAlign: textAlign,
-            lineHeight: lineHeight,
-            letterSpacing: letterSpacing + 'px',
-            transform: italicTransform,
-            marginBottom: '8px',
-            whiteSpace: 'pre-wrap',
-            background: 'linear-gradient(135deg, #2c2c2c 0%, #4a4a4a 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}>
+          <div
+            style={{
+              fontSize: toPx(fontSize + 1), // ❗️ scaleFactor 곱셈 제거
+              fontWeight: fontWeight === 'bold' ? '700' : '600',
+              fontStyle: fontStyle,
+              textDecoration,
+              color: color,
+              fontFamily: fontFamily,
+              textAlign: textAlign,
+              lineHeight: lineHeight,
+              letterSpacing: letterSpacing + 'px',
+              transform: italicTransform,
+              marginBottom: '6px', // ❗️ scaleFactor 제거
+              whiteSpace: 'pre-wrap',
+              background: 'linear-gradient(135deg, #2c2c2c 0%, #4a4a4a 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
             {sec.header || '제목 없음'}
           </div>
 
           {/* 내용 */}
-          <div style={{
-            fontSize: toPx(fontSize),
-            fontWeight: fontWeight === 'bold' ? '500' : '400',
-            fontStyle: fontStyle,
-            textDecoration,
-            color: color,
-            fontFamily: fontFamily,
-            textAlign: textAlign,
-            lineHeight: lineHeight,
-            letterSpacing: letterSpacing + 'px',
-            transform: italicTransform,
-            whiteSpace: 'pre-wrap',
-            opacity: 0.85,
-            paddingLeft: '4px'
-          }}>
+          <div
+            style={{
+              fontSize: toPx(fontSize), // ❗️ scaleFactor 곱셈 제거
+              fontWeight: fontWeight === 'bold' ? '500' : '400',
+              fontStyle: fontStyle,
+              textDecoration,
+              color: color,
+              fontFamily: fontFamily,
+              textAlign: textAlign,
+              lineHeight: lineHeight,
+              letterSpacing: letterSpacing + 'px',
+              transform: italicTransform,
+              whiteSpace: 'pre-wrap',
+              opacity: 0.85,
+              paddingLeft: '3px', // ❗️ scaleFactor 제거
+            }}
+          >
             {sec.content || '내용 없음'}
           </div>
         </div>

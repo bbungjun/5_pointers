@@ -29,6 +29,9 @@ const PREVIEW_CSS = `
     -webkit-overflow-scrolling: touch;
     margin: 0;
     padding: 0;
+    /* 스크롤바 완전히 숨기기 */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   .desktop-viewport {
     width: 100%;
@@ -37,17 +40,29 @@ const PREVIEW_CSS = `
     overflow-x: hidden;
     margin: 0;
     padding: 0;
+    /* 스크롤바 완전히 숨기기 */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   
-  /* 모바일 모드에서만 스크롤바 숨기기 */
-  .mobile-viewport::-webkit-scrollbar {
+  /* 모든 뷰포트에서 스크롤바 숨기기 */
+  .mobile-viewport::-webkit-scrollbar,
+  .desktop-viewport::-webkit-scrollbar {
     width: 0px;
     height: 0px;
     background: transparent;
     display: none;
   }
   
-  .mobile-viewport {
+  /* iframe 내부의 모든 스크롤바 숨기기 */
+  ::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    background: transparent;
+    display: none;
+  }
+  
+  * {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
@@ -272,7 +287,7 @@ const PreviewModal = ({
                 { className: 'iphone-screen' },
                 React.createElement('iframe', {
                   ref: iframeRef,
-                  className: 'preview-iframe mobile',
+                  className: 'preview-iframe mobile hide-scrollbar',
                   title: 'Mobile Preview',
                   style: {
                     scrollbarWidth: 'none',
@@ -287,7 +302,7 @@ const PreviewModal = ({
           )
         : React.createElement('iframe', {
             ref: iframeRef,
-            className: 'preview-iframe desktop',
+            className: 'preview-iframe desktop hide-scrollbar',
             title: 'Desktop Preview',
           })
     ),
@@ -389,6 +404,14 @@ const PreviewModal = ({
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      .preview-iframe.desktop::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
       }
 
       .preview-iframe.mobile {
@@ -466,6 +489,14 @@ const PreviewModal = ({
         flex-direction: column;
         align-items: flex-start;
         justify-content: flex-start;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      .iphone-screen::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
       }
 
       .iphone-home-indicator {
