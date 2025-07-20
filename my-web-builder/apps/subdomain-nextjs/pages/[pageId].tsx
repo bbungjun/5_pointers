@@ -303,10 +303,9 @@ const DynamicPageRenderer = ({
           width: newWidth,
           height: newHeight,
         });
-
-        // 컴포넌트 간 여백 추가
-        currentY += newHeight + 16; // 16px 여백 추가
       }
+       // ❗️ 컴포넌트 간 여백 없이 y좌표 업데이트
+       currentY += newHeight;
 
       // 2. 재배치된 새로운 데이터를 스케일링 함수에 전달하여 렌더링합니다.
       return renderMobileScalingLayout(repositionedComponents);
