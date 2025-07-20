@@ -1,0 +1,48 @@
+config:
+  target: 'ws://43.203.235.108:1234'  # 또는 wss://ws.ddukddak.org:1235
+  phases:
+    # 점진적 부하 증가 테스트
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up - 5 users/sec"
+    - duration: 120
+      arrivalRate: 10
+      name: "Ramp up - 10 users/sec"
+    - duration: 180
+      arrivalRate: 25
+      name: "Peak load - 25 users/sec"
+    - duration: 300
+      arrivalRate: 50
+      name: "Stress test - 50 users/sec"
+    - duration: 120
+      arrivalRate: 100
+      name: "Maximum load - 100 users/sec"
+  
+  # WebSocket 설정
+  ws:
+    # 연결 옵션
+    headers:
+      Origin: "http://localhost:3000"
+
+scenarios:
+  - name: "WebSocket Connection Test"
+    weight: 100
+    flow:
+      # WebSocket 연결
+      - ws:
+          url: "/page:test-room-{{ $randomNumber(1, 10) }}"
+      
+      # 초기 동기화 대기
+      - think: 2
+      
+      # 메시지 전송 시뮬레이션 (5분간)
+      - loop:
+        - ws:
+            send: |
+              {
+                "type": "sync",
+                "data": "test-data-{{ $randomString() }}",
+                "timestamp": {{ $timestamp() }}
+              }
+        - think: 1
+        count: 300

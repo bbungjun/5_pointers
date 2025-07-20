@@ -9,7 +9,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
  * 3. 메모리 누수 방지
  * 4. 배치 업데이트 최적화
  */
-export function useLiveCursors(awareness, canvasRef) {
+export function useLiveCursors(awareness, canvasRef, updateActivity) {
   const [otherCursors, setOtherCursors] = useState(new Map());
   const [otherSelections, setOtherSelections] = useState(new Map());
   
@@ -42,6 +42,11 @@ export function useLiveCursors(awareness, canvasRef) {
       }
       lastCursorUpdateRef.current = now;
 
+      // 사용자 활동 감지 (커서 움직임)
+      if (updateActivity) {
+        updateActivity();
+      }
+
       // 커서 숨기기 (x, y가 null인 경우)
       if (x === null || y === null) {
         awareness.setLocalStateField('cursor', null);
@@ -68,7 +73,7 @@ export function useLiveCursors(awareness, canvasRef) {
         });
       }
     },
-    [awareness, canvasRef]
+    [awareness, canvasRef, updateActivity]
   );
 
   // 컴포넌트 선택 상태를 Awareness에 브로드캐스트 (쓰로틀링 적용)
@@ -84,6 +89,11 @@ export function useLiveCursors(awareness, canvasRef) {
       }
       lastSelectionUpdateRef.current = now;
 
+      // 사용자 활동 감지 (선택 변경)
+      if (updateActivity) {
+        updateActivity();
+      }
+
       // 선택된 컴포넌트 ID 배열과 뷰포트 정보를 브로드캐스트
       awareness.setLocalStateField('selection', {
         componentIds: selectedComponentIds,
@@ -91,7 +101,7 @@ export function useLiveCursors(awareness, canvasRef) {
         timestamp: now,
       });
     },
-    [awareness]
+    [awareness, updateActivity]
   );
 
   // 디바운스된 상태 업데이트 함수
