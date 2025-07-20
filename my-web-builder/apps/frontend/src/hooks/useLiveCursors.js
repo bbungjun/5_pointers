@@ -58,8 +58,9 @@ export function useLiveCursors(awareness, canvasRef, updateActivity) {
 
       if (canvasRect) {
         const scale = zoom / 100;
-
-        // 브라우저 화면 좌표를 캔버스 프레임 내부 좌표로 직접 변환
+        
+        // 브라우저 화면 좌표를 캔버스의 실제 좌표로 변환
+        // 줌 스케일을 적용하여 캔버스 내부의 실제 위치 계산
         const relativeX = (x - canvasRect.left) / scale;
         const relativeY = (y - canvasRect.top) / scale;
 

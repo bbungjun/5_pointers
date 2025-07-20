@@ -153,7 +153,6 @@ const CanvasArea = forwardRef(
     const internalCanvasRef = useRef(null);
     const canvasRefToUse = externalCanvasRef || internalCanvasRef;
 
-    const [localZoom, setLocalZoom] = useState(zoom);
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
@@ -182,11 +181,10 @@ const CanvasArea = forwardRef(
     // 줌 핸들러
     const handleZoom = useCallback(
       (delta) => {
-        const newZoom = Math.max(60, Math.min(150, localZoom + delta));
-        setLocalZoom(newZoom);
+        const newZoom = Math.max(60, Math.min(150, zoom + delta)); // localZoom 대신 부모의 zoom 사용
         if (onZoomChange) onZoomChange(newZoom);
       },
-      [localZoom, onZoomChange]
+      [zoom, onZoomChange] // localZoom 의존성 제거, zoom 의존성 추가
     );
 
     // 마우스 휠로 줌 또는 스크롤
@@ -218,7 +216,7 @@ const CanvasArea = forwardRef(
     // 협업 커서 위치 업데이트 핸들러
     const handleCanvasMouseMove = (e) => {
       if (updateCursorPosition) {
-        updateCursorPosition(e.clientX, e.clientY, localZoom, viewport);
+        updateCursorPosition(e.clientX, e.clientY, zoom, viewport); // localZoom 대신 부모의 zoom 사용
       }
 
       // 다중 선택 업데이트
@@ -233,7 +231,7 @@ const CanvasArea = forwardRef(
     const handleCanvasMouseLeave = () => {
       if (updateCursorPosition) {
         // 커서 위치를 null로 설정하여 숨김
-        updateCursorPosition(null, null, localZoom, viewport);
+        updateCursorPosition(null, null, zoom, viewport); // localZoom 대신 부모의 zoom 사용
       }
     };
 
@@ -270,7 +268,7 @@ const CanvasArea = forwardRef(
         }
 
         const rect = canvasRefToUse.current.getBoundingClientRect();
-        const scale = localZoom / 100;
+        const scale = zoom / 100; // localZoom 대신 부모의 zoom 사용
         const x = (e.clientX - rect.left) / scale;
         const y = (e.clientY - rect.top) / scale;
 
@@ -292,7 +290,7 @@ const CanvasArea = forwardRef(
     const handleSelectionMove = (e) => {
       if (isSelecting && selectionStart) {
         const rect = canvasRefToUse.current.getBoundingClientRect();
-        const scale = localZoom / 100;
+        const scale = zoom / 100; // localZoom 대신 부모의 zoom 사용
         const x = (e.clientX - rect.left) / scale;
         const y = (e.clientY - rect.top) / scale;
 
@@ -681,24 +679,27 @@ const CanvasArea = forwardRef(
     //   return () => clearTimeout(timeoutId);
     // }, [viewport]);
 
-    // 줌 레벨 동기화
-    useEffect(() => {
-      setLocalZoom(zoom);
-    }, [zoom]);
+    // 줌 레벨 동기화 (개선됨) - localZoom 제거로 단순화
+    // useEffect(() => {
+    //   if (zoom !== zoom) {
+    //     console.log('🔍 줌 동기화:', { 부모: zoom, 로컬: zoom });
+    //     // setLocalZoom(zoom); // localZoom 제거
+    //   }
+    // }, [zoom, zoom]); // localZoom 의존성 제거, zoom 의존성 추가
 
-    // 초기 렌더링 시 줌을 60%로 강제 설정
+    // 초기 렌더링 시 줌을 100%로 강제 설정
     useEffect(() => {
-      setLocalZoom(100);
+      // setLocalZoom(100); // localZoom 제거
       if (onZoomChange) onZoomChange(100);
     }, []); // 빈 의존성 배열로 초기 렌더링 시에만 실행
 
     // 스타일링 변수들
-    const zoomScale = localZoom / 100;
+    const zoomScale = zoom / 100; // localZoom 대신 부모의 zoom 사용
 
     // 슬라이더 핸들러
     const handleSliderChange = (e) => {
       const newZoom = parseInt(e.target.value);
-      setLocalZoom(newZoom);
+      // setLocalZoom(newZoom); // localZoom 제거
       if (onZoomChange) onZoomChange(newZoom);
     };
 
@@ -910,7 +911,7 @@ const CanvasArea = forwardRef(
                     onMultiUpdate={onUpdate} // 다중 선택된 컴포넌트들 업데이트
                     onDelete={onDelete}
                     setSnapLines={setSnapLines}
-                    zoom={localZoom}
+                    zoom={zoom}
                     viewport={viewport}
                     components={components}
                     getComponentDimensions={getComponentDimensions}
@@ -979,7 +980,7 @@ const CanvasArea = forwardRef(
             {/* 협업 기능: 라이브 커서 */}
             <LiveCursors
               cursors={otherCursors}
-              zoom={localZoom}
+              zoom={zoom}
               viewport={viewport}
               cursorChatMessages={cursorChatMessages}
             />
@@ -988,7 +989,7 @@ const CanvasArea = forwardRef(
             <CollaborativeSelections
               selections={otherSelections}
               components={components}
-              zoom={localZoom}
+              zoom={zoom}
               viewport={viewport}
               getComponentDimensions={getComponentDimensions}
             />

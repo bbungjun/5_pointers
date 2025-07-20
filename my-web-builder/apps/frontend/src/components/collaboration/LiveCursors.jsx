@@ -36,6 +36,7 @@ export const LiveCursors = React.memo(({ cursors = [], zoom = 100, viewport = 'd
       .filter(cursor => cursor && cursor.user)
       .map((cursor, index) => {
         const userWithColor = addUserColor(cursor.user);
+        // 저장된 캔버스 좌표를 그대로 사용 (줌 스케일 적용)
         const displayX = cursor.x * scale;
         const displayY = cursor.y * scale;
         const chatMessage = cursorChatMessages[userWithColor.id] || cursorChatMessages[String(userWithColor.id)];
