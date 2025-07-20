@@ -52,13 +52,11 @@ export function useCollaboration({
 
   // 커서 채팅 업데이트 콜백
   const handleCursorChatUpdate = useCallback((userId, message) => {
-    console.log('🔄 커서 채팅 업데이트:', userId, message);
     setCursorChatMessages(prev => {
       const newState = {
         ...prev,
         [userId]: message
       };
-      console.log('📝 cursorChatMessages 상태 업데이트:', newState);
       return newState;
     });
   }, []);
@@ -92,7 +90,7 @@ export function useCollaboration({
     batchUpdateRef.current = setTimeout(() => {
       safeOnComponentsUpdate(components);
       batchUpdateRef.current = null;
-    }, 4); // 240fps로 더 빠른 업데이트
+    }, 2); // 500fps로 더 빠른 업데이트
   }, [safeOnComponentsUpdate]);
 
   // DB에서 복구하는 함수 (최적화됨)
@@ -101,38 +99,26 @@ export function useCollaboration({
     isProcessingRef.current = true;
 
     try {
-      console.log('🔄 DB에서 복구 시도...');
       const response = await fetch(
         `${API_BASE_URL}/users/pages/room/${roomId}/content`
       );
       if (response.ok) {
         const data = await response.json();
-        console.log('📊 DB 응답 데이터 구조:', {
-          hasContent: !!data.content,
-          contentType: typeof data.content,
-          isArray: Array.isArray(data.content),
-          hasComponents: !!(data.content && data.content.components),
-          componentsLength: data.content?.components?.length || 0
-        });
 
         // content 구조 처리 (템플릿과 페이지 구조 모두 지원)
         let components = [];
         if (data.content && typeof data.content === 'object' && !Array.isArray(data.content)) {
           // 새로운 구조: {components: [], canvasSettings: {}}
           components = data.content.components || [];
-          console.log('📋 새로운 구조에서 컴포넌트 추출:', components.length, '개');
         } else if (Array.isArray(data.content)) {
           // 기존 구조: 컴포넌트 배열
           components = data.content;
-          console.log('📋 기존 배열 구조에서 컴포넌트 추출:', components.length, '개');
         } else if (Array.isArray(data.components)) {
           // 대체 구조: data.components
           components = data.components;
-          console.log('📋 대체 구조에서 컴포넌트 추출:', components.length, '개');
         }
 
         if (components.length > 0) {
-          console.log('✅ DB에서 복구:', components.length, '개 컴포넌트');
 
           // 기존 ID를 유지하되, 없는 경우에만 새로 생성
           const componentsWithIds = components.map((component) => {
@@ -150,7 +136,6 @@ export function useCollaboration({
             // 로컬 모드: 즉시 업데이트
             safeOnComponentsUpdate(componentsWithIds);
           }
-          console.log('✅ DB에서 복구 완료:', componentsWithIds.length, '개 컴포넌트');
           return true;
         }
       }
@@ -159,7 +144,6 @@ export function useCollaboration({
     } finally {
       isProcessingRef.current = false;
     }
-    console.log('📝 새 문서 시작 (복구 실패 또는 데이터 없음)');
     return false;
   }, [safeUserInfo, safeOnComponentsUpdate]);
 
@@ -172,8 +156,6 @@ export function useCollaboration({
   // 템플릿 전용 강제 동기화 함수
   const forceTemplateSync = useCallback(async () => {
     if (!ydoc || !componentsArrayRef.current) return;
-    
-    console.log('🎯 템플릿 강제 동기화 시작...');
     
     try {
       const response = await fetch(
@@ -202,15 +184,6 @@ export function useCollaboration({
             yComponents.insert(0, components);
           });
           
-          console.log('✅ 템플릿 강제 동기화 완료:', components.length, '개 컴포넌트');
-          
-          // 모든 클라이언트에게 즉시 전파
-          setTimeout(() => {
-            const syncedData = yComponents.toArray();
-            safeOnComponentsUpdate(syncedData);
-            console.log('📡 모든 클라이언트에게 동기화 전파 완료');
-          }, 100);
-          
           return true;
         }
       }
@@ -219,13 +192,11 @@ export function useCollaboration({
     }
     
     return false;
-  }, [ydoc, safeRoomId, safeOnComponentsUpdate]);
+  }, [ydoc, safeRoomId]);
 
   // 초기 데이터를 Y.js로 동기화하는 함수
   const syncInitialDataToYjs = useCallback(async () => {
     if (!ydoc || !componentsArrayRef.current || initialSyncRef.current) return;
-    
-    console.log('🔄 초기 데이터를 Y.js로 동기화 시작...');
     
     try {
       const response = await fetch(
@@ -234,13 +205,6 @@ export function useCollaboration({
       
       if (response.ok) {
         const data = await response.json();
-        console.log('📊 초기 동기화 데이터 구조:', {
-          hasContent: !!data.content,
-          contentType: typeof data.content,
-          isArray: Array.isArray(data.content),
-          hasComponents: !!(data.content && data.content.components),
-          componentsLength: data.content?.components?.length || 0
-        });
         
         let components = [];
         
@@ -248,15 +212,12 @@ export function useCollaboration({
         if (data.content && typeof data.content === 'object' && !Array.isArray(data.content)) {
           // 새로운 구조: {components: [], canvasSettings: {}}
           components = data.content.components || [];
-          console.log('📋 새로운 구조에서 컴포넌트 추출:', components.length, '개');
         } else if (Array.isArray(data.content)) {
           // 기존 구조: 컴포넌트 배열
           components = data.content;
-          console.log('📋 기존 배열 구조에서 컴포넌트 추출:', components.length, '개');
         } else if (Array.isArray(data.components)) {
           // 대체 구조: data.components
           components = data.components;
-          console.log('📋 대체 구조에서 컴포넌트 추출:', components.length, '개');
         }
 
         if (components.length > 0) {
@@ -269,7 +230,6 @@ export function useCollaboration({
           });
           
           initialSyncRef.current = true;
-          console.log('✅ 초기 데이터 Y.js 동기화 완료:', components.length, '개 컴포넌트');
           
           // 모든 사용자에게 즉시 동기화 완료 알림
           setTimeout(() => {
@@ -304,14 +264,19 @@ export function useCollaboration({
       try {
         const componentsData = yComponents.toArray();
 
-        // 초기 로드 시에는 즉시 업데이트, 이후에는 배치 업데이트
-        if (!initialLoadRef.current) {
-          console.log('🎨 Y.js 초기 데이터 로드:', componentsData.length, '개 컴포넌트');
-          safeOnComponentsUpdate(componentsData);
-          initialLoadRef.current = true;
-        } else {
-          batchUpdate(componentsData);
-        }
+              // 중복 ID 제거 (같은 ID를 가진 첫 번째 컴포넌트만 유지)
+      const uniqueComponents = componentsData.filter((comp, index, arr) => {
+        const firstIndex = arr.findIndex((c) => c.id === comp.id);
+        return firstIndex === index;
+      });
+
+      // 초기 로드 시에는 즉시 업데이트, 이후에는 배치 업데이트
+      if (!initialLoadRef.current) {
+        safeOnComponentsUpdate(uniqueComponents);
+        initialLoadRef.current = true;
+      } else {
+        batchUpdate(uniqueComponents);
+      }
       } catch (error) {
         console.error('컴포넌트 데이터 업데이트 중 오류:', error);
       } finally {
@@ -326,14 +291,12 @@ export function useCollaboration({
         
         // 빈 객체가 아닐 때만 로그 출력
         if (Object.keys(settings).length > 0) {
-          console.log('🔄 캔버스 설정 동기화:', settings);
         }
         
         // 캔버스 높이 변경사항을 부모 컴포넌트에 알림
         if (settings.canvasHeight !== undefined) {
           // 부모 컴포넌트에서 캔버스 높이를 업데이트할 수 있도록 콜백 호출
           safeOnCanvasSettingsUpdate(settings);
-          console.log('📏 캔버스 높이 동기화:', settings.canvasHeight);
         }
       } catch (error) {
         console.error('캔버스 설정 업데이트 중 오류:', error);
@@ -366,19 +329,15 @@ export function useCollaboration({
   // Y.js 연결 완료 후 초기 데이터 동기화
   useEffect(() => {
     if (isConnected && ydoc && !initialSyncRef.current) {
-      console.log('🔗 Y.js 연결 완료, 초기 데이터 동기화 시작...');
       
       // 연결 완료 후 즉시 기존 데이터 확인
       const yComponents = ydoc.getArray('components');
       if (yComponents && yComponents.length > 0) {
-        console.log('✅ Y.js에 기존 데이터 발견:', yComponents.length, '개 컴포넌트');
-        // 기존 데이터가 있으면 즉시 로드
         const componentsData = yComponents.toArray();
         safeOnComponentsUpdate(componentsData);
         initialSyncRef.current = true;
         initialLoadRef.current = true;
       } else {
-        console.log('🔄 Y.js에 데이터 없음, DB에서 복구 시도...');
         // 데이터가 없으면 DB에서 복구
         setTimeout(() => {
           syncInitialDataToYjs();
@@ -396,19 +355,16 @@ export function useCollaboration({
       const forceSyncTimer = setTimeout(async () => {
         // 이미 동기화가 완료되었으면 건너뜀
         if (initialSyncRef.current) {
-          console.log('✅ 이미 동기화 완료됨');
           return;
         }
 
         if (yComponents.length > 0) {
-          console.log('🔄 기존 Y.js 데이터 강제 동기화:', yComponents.length, '개 컴포넌트');
           const componentsData = yComponents.toArray();
           safeOnComponentsUpdate(componentsData);
           initialSyncRef.current = true;
           initialLoadRef.current = true;
         } else {
           // Y.js에 데이터가 없으면 DB에서 복구 시도
-          console.log('🎯 Y.js 데이터 없음, DB에서 복구 시도...');
           const synced = await forceTemplateSync();
           if (synced) {
             initialSyncRef.current = true;
@@ -430,12 +386,9 @@ export function useCollaboration({
 
   //   // 연결 완료 후 Y.js 문서가 비어있으면 복구
   //   if (yComponents.length === 0) {
-  //     console.log('🔗 Y.js 연결 완료, 복구 시작...');
   //     hasRestoredRef.current = true;
   //     restoreFromDatabase(roomId, yComponents);
   //   } else {
-  //     console.log('🔗 Y.js 연결 완료, 기존 데이터 있음:', yComponents.length, '개 컴포넌트');
-  //     hasRestoredRef.current = true;
   //     // 기존 데이터가 있으면 즉시 로드 (중복 방지)
   //     if (!initialLoadRef.current) {
   //       const componentsData = yComponents.toArray();
@@ -445,7 +398,6 @@ export function useCollaboration({
   //     // 템플릿 시작 시 모든 사용자에게 즉시 동기화 (한 번만)
   //     if (isConnected && !initialSyncRef.current) {
   //       setTimeout(() => {
-  //         console.log('🔄 기존 데이터를 모든 사용자에게 동기화...');
   //         const currentData = yComponents.toArray();
   //         safeOnComponentsUpdate(currentData);
   //         initialSyncRef.current = true;
@@ -457,7 +409,6 @@ export function useCollaboration({
   // 연결 오류 시 로컬 모드 활성화
   useEffect(() => {
     if (connectionError) {
-      console.log('🔴 협업 연결 오류로 인해 로컬 모드로 전환');
       // 로컬 상태에서 컴포넌트 데이터를 유지하기 위해 DB에서 복구 시도
       if (!hasRestoredRef.current) {
         hasRestoredRef.current = true;
@@ -472,17 +423,11 @@ export function useCollaboration({
   // 컴포넌트 업데이트 함수들 (메모이제이션됨, 실시간 동기화 개선)
   const updateComponent = useCallback((componentId, updates) => {
     if (!componentsArrayRef.current) {
-      console.warn('Y.js 컴포넌트 배열이 초기화되지 않음');
       return;
     }
 
     // 사용자 활동 감지
     updateActivity();
-
-    // 실시간 동기화를 위해 드래그 중에도 업데이트 허용
-    if (dragStateRef.current.has(componentId)) {
-      console.log('드래그 중인 컴포넌트 실시간 업데이트:', componentId);
-    }
 
     const yComponents = componentsArrayRef.current;
     const components = yComponents.toArray();
@@ -496,9 +441,6 @@ export function useCollaboration({
         yComponents.delete(index, 1);
         yComponents.insert(index, [updatedComponent]);
       });
-      console.log('🔄 컴포넌트 업데이트 동기화:', componentId, updates);
-    } else {
-      console.warn('업데이트할 컴포넌트를 찾을 수 없음:', componentId);
     }
   }, [ydoc, updateActivity]);
 
@@ -506,10 +448,8 @@ export function useCollaboration({
   const setComponentDragging = useCallback((componentId, isDragging) => {
     if (isDragging) {
       dragStateRef.current.add(componentId);
-      console.log('드래그 시작:', componentId);
     } else {
       dragStateRef.current.delete(componentId);
-      console.log('드래그 종료:', componentId);
     }
     
     // 드래그 활동 감지
@@ -520,39 +460,25 @@ export function useCollaboration({
     return dragStateRef.current.has(componentId);
   }, []);
 
-  // 컴포넌트 업데이트 함수 (전체 컴포넌트 객체로 업데이트) - 드래그 중 제한
+  // 컴포넌트 업데이트 함수 (전체 컴포넌트 객체로 업데이트) - 드래그 중에도 동기화 허용
   const updateComponentObject = useCallback((updatedComponent) => {
     if (!componentsArrayRef.current) {
-      console.warn('Y.js 컴포넌트 배열이 초기화되지 않음');
       return;
     }
 
     // 사용자 활동 감지
     updateActivity();
 
-    // 드래그 중인 컴포넌트인지 확인
-    const isDragging = dragStateRef.current.has(updatedComponent.id);
-
-    // 드래그 중에는 YJS 동기화를 제한하여 연결 안정성 확보
-    if (isDragging) {
-      console.log('드래그 중인 컴포넌트 - YJS 동기화 제한:', updatedComponent.id);
-      // 드래그 중에는 로컬 상태만 업데이트하고 YJS 동기화는 건너뜀
-      return;
-    }
-
     const yComponents = componentsArrayRef.current;
     const components = yComponents.toArray();
     const index = components.findIndex((comp) => comp.id === updatedComponent.id);
 
     if (index !== -1) {
-      // Y.js 트랜잭션으로 원자적 업데이트
+      // Y.js 트랜잭션으로 원자적 업데이트 (드래그 중에도 동기화 허용)
       ydoc.transact(() => {
         yComponents.delete(index, 1);
         yComponents.insert(index, [updatedComponent]);
       });
-      console.log('🔄 컴포넌트 객체 업데이트 동기화:', updatedComponent.id);
-    } else {
-      console.warn('업데이트할 컴포넌트를 찾을 수 없음:', updatedComponent.id);
     }
   }, [ydoc, updateActivity]);
 
@@ -562,8 +488,6 @@ export function useCollaboration({
       return;
     }
 
-    console.log('🔄 드래그 종료 후 컴포넌트 동기화:', componentId);
-    
     // 드래그 상태에서 제거
     dragStateRef.current.delete(componentId);
     
@@ -580,14 +504,11 @@ export function useCollaboration({
         yComponents.delete(index, 1);
         yComponents.insert(index, [currentComponent]);
       });
-      
-      console.log('✅ 드래그 종료 후 동기화 완료:', componentId);
     }
   }, [ydoc]);
 
   const addComponent = useCallback((component) => {
     if (!componentsArrayRef.current) {
-      console.warn('Y.js 컴포넌트 배열이 초기화되지 않음');
       return;
     }
 
@@ -595,17 +516,25 @@ export function useCollaboration({
     updateActivity();
 
     const yComponents = componentsArrayRef.current;
+    const existingComponents = yComponents.toArray();
     
-    // Y.js 트랜잭션으로 원자적 추가
-    ydoc.transact(() => {
-      yComponents.push([component]);
-    });
-    console.log('➕ 컴포넌트 추가 동기화:', component.id);
+    // 중복 ID 체크 및 제거
+    const existingIndex = existingComponents.findIndex(comp => comp.id === component.id);
+    if (existingIndex !== -1) {
+      ydoc.transact(() => {
+        yComponents.delete(existingIndex, 1);
+        yComponents.push([component]);
+      });
+    } else {
+      // Y.js 트랜잭션으로 원자적 추가
+      ydoc.transact(() => {
+        yComponents.push([component]);
+      });
+    }
   }, [ydoc, updateActivity]);
 
   const removeComponent = useCallback((componentId) => {
     if (!componentsArrayRef.current) {
-      console.warn('Y.js 컴포넌트 배열이 초기화되지 않음');
       return;
     }
 
@@ -621,15 +550,11 @@ export function useCollaboration({
       ydoc.transact(() => {
         yComponents.delete(index, 1);
       });
-      console.log('🗑️ 컴포넌트 삭제 동기화:', componentId);
-    } else {
-      console.warn('삭제할 컴포넌트를 찾을 수 없음:', componentId);
     }
   }, [ydoc, updateActivity]);
 
   const updateAllComponents = useCallback((newComponents) => {
     if (!componentsArrayRef.current) {
-      console.warn('Y.js 컴포넌트 배열이 초기화되지 않음');
       return;
     }
 
@@ -642,10 +567,6 @@ export function useCollaboration({
       return firstIndex === index;
     });
 
-    if (uniqueComponents.length !== newComponents.length) {
-      console.log('🔧 중복 컴포넌트 제거:', newComponents.length - uniqueComponents.length, '개');
-    }
-
     const yComponents = componentsArrayRef.current;
     
     // Y.js 트랜잭션으로 원자적 전체 업데이트
@@ -653,7 +574,6 @@ export function useCollaboration({
       yComponents.delete(0, yComponents.length);
       yComponents.insert(0, uniqueComponents);
     });
-    console.log('🔄 전체 컴포넌트 업데이트 동기화:', uniqueComponents.length, '개');
   }, [ydoc, updateActivity]);
 
   // 캔버스 설정 업데이트
