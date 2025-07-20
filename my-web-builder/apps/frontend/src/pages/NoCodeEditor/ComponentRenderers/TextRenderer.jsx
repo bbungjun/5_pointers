@@ -91,7 +91,22 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && e.shiftKey) {
+      // Shift + Enter: 줄바꿈 추가
+      e.preventDefault();
+      const cursorPosition = e.target.selectionStart;
+      const newValue =
+        editValue.slice(0, cursorPosition) +
+        '\n' +
+        editValue.slice(cursorPosition);
+      setEditValue(newValue);
+      // 커서 위치 조정
+      setTimeout(() => {
+        e.target.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
+      }, 0);
+    } else if (e.key === 'Enter' && !e.shiftKey) {
+      // Enter만: 편집 완료
+      e.preventDefault();
       setEditing(false);
       if (editValue !== (comp.props?.text || '') && onUpdate) {
         onUpdate({
@@ -130,7 +145,7 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'flex-start', // textarea의 경우 상단 정렬이 더 자연스럽습니다
           justifyContent:
             textAlign === 'left'
               ? 'flex-start'
@@ -142,7 +157,7 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
           padding: '12px',
         }}
       >
-        <input
+        <textarea
           ref={inputRef}
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
@@ -165,7 +180,11 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
             minWidth: '120px',
             maxWidth: '300px',
             width: 'auto',
+            minHeight: '60px',
+            resize: 'both', // 사용자가 크기를 조절할 수 있도록
+            fontFamily: 'inherit',
           }}
+          placeholder="텍스트를 입력하세요. 엔터로 줄바꿈이 가능합니다."
         />
       </div>
     );

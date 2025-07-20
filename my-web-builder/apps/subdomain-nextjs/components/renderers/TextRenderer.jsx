@@ -68,7 +68,22 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && e.shiftKey) {
+      // Shift + Enter: 줄바꿈 추가
+      e.preventDefault();
+      const cursorPosition = e.target.selectionStart;
+      const newValue =
+        editValue.slice(0, cursorPosition) +
+        '\n' +
+        editValue.slice(cursorPosition);
+      setEditValue(newValue);
+      // 커서 위치 조정
+      setTimeout(() => {
+        e.target.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
+      }, 0);
+    } else if (e.key === 'Enter' && !e.shiftKey) {
+      // Enter만: 편집 완료
+      e.preventDefault();
       setEditing(false);
       if (editValue !== (comp.props?.text || '')) {
         alert('텍스트가 변경되었습니다.');
@@ -93,7 +108,7 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
 
   if (editing && mode === 'editor') {
     return (
-      <input
+      <textarea
         ref={inputRef}
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
@@ -109,7 +124,11 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
           fontWeight: fontWeight,
           textDecoration: textDecoration,
           transform: italicTransform,
+          minHeight: '60px',
+          resize: 'both',
+          fontFamily: 'inherit',
         }}
+        placeholder="텍스트를 입력하세요. Shift+Enter로 줄바꿈이 가능합니다."
       />
     );
   }
