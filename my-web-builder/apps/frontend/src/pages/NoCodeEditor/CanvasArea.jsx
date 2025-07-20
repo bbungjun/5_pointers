@@ -686,11 +686,10 @@ const CanvasArea = forwardRef(
       setLocalZoom(zoom);
     }, [zoom]);
 
-    // 초기 렌더링 시 줌을 60%로 강제 설정
+    // 줌 레벨 동기화 (부모 컴포넌트의 줌 상태와 동기화)
     useEffect(() => {
-      setLocalZoom(100);
-      if (onZoomChange) onZoomChange(100);
-    }, []); // 빈 의존성 배열로 초기 렌더링 시에만 실행
+      setLocalZoom(zoom);
+    }, [zoom]);
 
     // 스타일링 변수들
     const zoomScale = localZoom / 100;
