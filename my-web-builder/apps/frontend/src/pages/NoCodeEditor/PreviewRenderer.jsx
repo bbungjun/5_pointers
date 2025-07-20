@@ -264,8 +264,8 @@ const PreviewRenderer = ({
           height: newHeight,
         });
 
-        // ❗️ 컴포넌트 간 여백 없이 y좌표 업데이트
-        currentY += newHeight;
+        // 컴포넌트 간 여백 추가
+        currentY += newHeight + 16; // 16px 여백 추가
       }
       return renderMobileScalingLayout(repositionedComponents);
     }
