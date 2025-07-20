@@ -21,8 +21,12 @@
     "qrcode": "^1.5.4",
     "react-datepicker": "^8.4.0",
     "socket.io": "^4.8.1",
+    "y-protocols": "^1.0.6"
+  },
+  "devDependencies": {
+    "autocannon": "^8.0.0",
+    "clinic": "^13.0.0",
     "ws": "^8.18.3",
-    "y-protocols": "^1.0.6",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.27"
   }

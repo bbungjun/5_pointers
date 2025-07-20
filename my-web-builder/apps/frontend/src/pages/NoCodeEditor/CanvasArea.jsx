@@ -139,6 +139,7 @@ const CanvasArea = forwardRef(
       collaboration, // 협업 객체 추가
       openChatInput, // 채팅 입력 열기 함수
       cursorChatMessages = {}, // 커서 채팅 메시지 추가
+      syncComponentAfterDrag, // 드래그 종료 후 동기화 함수 추가
     },
     ref
   ) => {
@@ -181,7 +182,7 @@ const CanvasArea = forwardRef(
     // 줌 핸들러
     const handleZoom = useCallback(
       (delta) => {
-        const newZoom = Math.max(25, Math.min(400, localZoom + delta));
+        const newZoom = Math.max(60, Math.min(150, localZoom + delta));
         setLocalZoom(newZoom);
         if (onZoomChange) onZoomChange(newZoom);
       },
@@ -370,6 +371,22 @@ const CanvasArea = forwardRef(
       if (isSelecting) {
         // console.log('캔버스에서 선택 완료');
         handleSelectionEnd();
+      }
+
+      // 드래그 종료 시 동기화 호출
+      if (isLocalComponentDragging && syncComponentAfterDrag) {
+        // 현재 선택된 컴포넌트가 있다면 해당 컴포넌트 동기화
+        if (selectedId) {
+          console.log('🔄 드래그 종료, 컴포넌트 동기화 호출:', selectedId);
+          syncComponentAfterDrag(selectedId);
+        }
+        // 다중 선택된 컴포넌트들도 동기화
+        if (selectedIds && selectedIds.length > 0) {
+          selectedIds.forEach(id => {
+            console.log('🔄 드래그 종료, 다중 선택 컴포넌트 동기화 호출:', id);
+            syncComponentAfterDrag(id);
+          });
+        }
       }
 
       if (onMouseUp) onMouseUp(e);

@@ -22,6 +22,7 @@ import { UsersService } from './users.service';
 import { S3Service } from '../s3/s3.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import * as fs from 'fs';
+import * as sharp from 'sharp';
 
 @Controller('users')
 export class UsersController {
@@ -139,22 +140,23 @@ export class UsersController {
         useS3Local: process.env.USE_S3_LOCAL
       });
 
-      let imageUrl: string;
+      let imageUrls: { originalUrl: string; thumbUrl: string };
 
       if (useS3) {
-        // S3 업로드
+        // S3 업로드 (원본 + 썸네일)
         console.log('📤 S3 업로드 시작...');
-        imageUrl = await this.s3Service.uploadImage(file);
-        console.log('✅ S3 업로드 완료:', imageUrl);
+        imageUrls = await this.s3Service.uploadImageWithThumbnail(file);
+        console.log('✅ S3 업로드 완료:', imageUrls);
       } else {
-        // 로컬 업로드 (기존 로직)
+        // 로컬 업로드 (원본 + 썸네일)
         console.log('💾 로컬 업로드 시작...');
-        imageUrl = await this.uploadToLocal(file);
+        imageUrls = await this.uploadToLocal(file);
       }
 
       return {
         success: true,
-        imageUrl: imageUrl,
+        imageUrl: imageUrls.originalUrl,  // 원본 URL (기존 호환성 유지)
+        thumbUrl: imageUrls.thumbUrl,     // 썸네일 URL (새로 추가)
         originalName: file.originalname,
         size: file.size,
       };
@@ -164,8 +166,36 @@ export class UsersController {
     }
   }
 
-  // 기존 로컬 업로드 로직을 별도 메서드로 분리
-  private async uploadToLocal(file: Express.Multer.File): Promise<string> {
+  // 이미지를 500KB 이하로 압축하는 유틸리티 함수
+  private async compressImageToMaxSize(buffer: Buffer, maxSizeKB: number = 500): Promise<Buffer> {
+    let quality = 80; // 시작 품질
+    let width = 800;  // 시작 너비
+    
+    let compressedBuffer = await sharp(buffer)
+      .resize({ width, withoutEnlargement: true })
+      .jpeg({ quality })
+      .toBuffer();
+    
+    // 500KB = 512000 bytes
+    while (compressedBuffer.length > maxSizeKB * 1024 && quality > 10) {
+      quality -= 10; // 품질 단계적 감소
+      
+      if (quality < 30 && width > 400) {
+        width -= 100; // 품질이 낮아지면 크기도 줄임
+      }
+      
+      compressedBuffer = await sharp(buffer)
+        .resize({ width, withoutEnlargement: true })
+        .jpeg({ quality })
+        .toBuffer();
+    }
+    
+    console.log(`이미지 압축 완료: ${buffer.length} -> ${compressedBuffer.length} bytes (품질: ${quality}%, 너비: ${width}px)`);
+    return compressedBuffer;
+  }
+
+  // 로컬 업로드 로직을 수정하여 썸네일도 생성
+  private async uploadToLocal(file: Express.Multer.File): Promise<{ originalUrl: string; thumbUrl: string }> {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -185,15 +215,26 @@ export class UsersController {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const ext = extname(file.originalname);
     const filename = uniqueSuffix + ext;
+    const thumbFilename = uniqueSuffix + '_thumb' + ext;
+    
     const filePath = join(uploadPath, filename);
+    const thumbPath = join(uploadPath, thumbFilename);
 
+    // 원본 저장
     fs.writeFileSync(filePath, file.buffer);
+    
+    // 썸네일 생성 (500KB 이하)
+    const compressedBuffer = await this.compressImageToMaxSize(file.buffer);
+    fs.writeFileSync(thumbPath, compressedBuffer);
 
     const baseUrl = process.env.NODE_ENV === 'production'
       ? 'https://ddukddak.org'
       : 'http://localhost:3000';
 
-    return `${baseUrl}/uploads/images/${year}/${month}/${day}/${filename}`;
+    return {
+      originalUrl: `${baseUrl}/uploads/images/${year}/${month}/${day}/${filename}`,
+      thumbUrl: `${baseUrl}/uploads/images/${year}/${month}/${day}/${thumbFilename}`
+    };
   }
 
   @UseGuards(JwtAuthGuard)

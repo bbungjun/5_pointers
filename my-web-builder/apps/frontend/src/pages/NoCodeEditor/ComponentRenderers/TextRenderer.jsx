@@ -114,9 +114,6 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
   const isItalic = comp?.props?.fontStyle;
   const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
 
-  // 무한 렌더링 방지를 위한 조건 추가
-  console.log('TextRenderer 렌더링:', { editing, mode, text: comp.props?.text, componentId: comp.id });
-
   if (editing && mode === 'editor') {
     console.log('편집 모드로 렌더링');
     return (

@@ -161,9 +161,12 @@ function handleConnection(ws, req, isSecure = false) {
   // 연결된 클라이언트 수 로깅
   console.log(`📊 Room ${roomname} 현재 연결 수: ${roomClients.get(roomname).size}`);
   
-  // Y.js 문서 가져오기 또는 생성
+  // Y.js 문서 가져오기 또는 생성 (기존 문서 보존)
   if (!docs.has(roomname)) {
+    console.log(`📄 새로운 Y.js 문서 생성: Room ${roomname}`);
     docs.set(roomname, new Y.Doc());
+  } else {
+    console.log(`📄 기존 Y.js 문서 사용: Room ${roomname} (${docs.get(roomname).getArray('components')?.length || 0}개 컴포넌트)`);
   }
   const doc = docs.get(roomname);
   
@@ -201,11 +204,12 @@ function handleConnection(ws, req, isSecure = false) {
       
       console.log(`📊 Room ${roomname} 남은 연결 수: ${currentRoomClients.size}`);
       
-      // 룸에 클라이언트가 없으면 룸 정리
+      // 룸에 클라이언트가 없으면 룸 정리 (문서는 보존)
       if (currentRoomClients.size === 0) {
         roomClients.delete(roomname);
+        // 문서는 보존하지 않고 정리 (메모리 절약)
         docs.delete(roomname);
-        console.log(`🧹 Room ${roomname} 정리됨`);
+        console.log(`🧹 Room ${roomname} 정리됨 (문서 삭제)`);
       }
     }
   });
