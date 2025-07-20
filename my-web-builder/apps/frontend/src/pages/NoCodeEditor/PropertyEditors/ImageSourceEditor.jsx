@@ -53,8 +53,11 @@ function ImageSourceEditor({ label, value, onChange }) {
       const result = await response.json();
 
       if (result.success) {
-        // 서버에서 반환된 URL을 사용
-        onChange(result.imageUrl);
+        // 서버에서 반환된 URL을 사용 (원본 및 썸네일)
+        onChange({
+          original: result.imageUrl,
+          thumbnail: result.thumbUrl || result.imageUrl // 썸네일이 없으면 원본 사용
+        });
         console.log('이미지 업로드 성공:', result);
       } else {
         throw new Error('서버에서 업로드 실패 응답');
@@ -184,7 +187,7 @@ function ImageSourceEditor({ label, value, onChange }) {
           {value && !isUploading && (
             <div style={{ marginTop: '12px', textAlign: 'center' }}>
               <img
-                src={value}
+                src={typeof value === 'object' ? value.thumbnail : value}
                 alt="미리보기"
                 style={{
                   maxWidth: '200px',

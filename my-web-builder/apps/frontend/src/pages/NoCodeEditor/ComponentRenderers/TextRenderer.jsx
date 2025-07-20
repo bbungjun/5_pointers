@@ -19,16 +19,13 @@ const AVAILABLE_FONTS = [
   'Montserrat',
   'Pinyon Script',
   'Prata',
-  'Underland'
+  'Underland',
 ];
 
 function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
-
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
-
-      const handleResize = () => {
-      };
+      const handleResize = () => {};
 
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
@@ -53,13 +50,21 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
 
   useEffect(() => {
     if (textRef.current && comp?.props?.fontFamily) {
-      textRef.current.style.setProperty('font-family', comp.props.fontFamily, 'important');
+      textRef.current.style.setProperty(
+        'font-family',
+        comp.props.fontFamily,
+        'important'
+      );
     }
   }, [comp?.props?.fontFamily]);
 
   useEffect(() => {
     if (textRef.current && comp?.props?.textAlign) {
-      textRef.current.style.setProperty('text-align', comp.props.textAlign, 'important');
+      textRef.current.style.setProperty(
+        'text-align',
+        comp.props.textAlign,
+        'important'
+      );
     }
   }, [comp?.props?.textAlign, width, height]);
 
@@ -79,22 +84,37 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
         ...comp,
         props: {
           ...comp.props,
-          text: editValue
-        }
+          text: editValue,
+        },
       });
     }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && e.shiftKey) {
+      // Shift + Enter: 줄바꿈 추가
+      e.preventDefault();
+      const cursorPosition = e.target.selectionStart;
+      const newValue =
+        editValue.slice(0, cursorPosition) +
+        '\n' +
+        editValue.slice(cursorPosition);
+      setEditValue(newValue);
+      // 커서 위치 조정
+      setTimeout(() => {
+        e.target.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
+      }, 0);
+    } else if (e.key === 'Enter' && !e.shiftKey) {
+      // Enter만: 편집 완료
+      e.preventDefault();
       setEditing(false);
       if (editValue !== (comp.props?.text || '') && onUpdate) {
         onUpdate({
           ...comp,
           props: {
             ...comp.props,
-            text: editValue
-          }
+            text: editValue,
+          },
         });
       }
     }
@@ -103,6 +123,11 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
       setEditValue(comp.props?.text || '');
     }
   };
+
+  // 2. props에서 값 추출 및 새 fontSize 계산
+  const originalFontSize = comp.props?.fontSize || 16;
+  const dynamicScale = comp.props?.dynamicScale || 1;
+  const scaledFontSize = originalFontSize * dynamicScale;
 
   // 폰트 관련 속성들
   const fontFamily = comp?.props?.fontFamily || 'Playfair Display, serif';
@@ -117,19 +142,25 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
   if (editing && mode === 'editor') {
     console.log('편집 모드로 렌더링');
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: textAlign === 'left' ? 'flex-start' :
-          textAlign === 'right' ? 'flex-end' : 'center',
-        width: '100%',
-        height: '100%',
-        padding: '12px'
-      }}>
-        <input
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent:
+            textAlign === 'left'
+              ? 'flex-start'
+              : textAlign === 'right'
+                ? 'flex-end'
+                : 'center',
+          width: '100%',
+          height: '100%',
+          padding: '0', // 패딩 제거하여 리사이즈 핸들러와 딱 맞게
+        }}
+      >
+        <textarea
           ref={inputRef}
           value={editValue}
-          onChange={e => setEditValue(e.target.value)}
+          onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           style={{
@@ -146,10 +177,15 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
             padding: '8px 12px',
             outline: 'none',
             backgroundColor: 'white',
+            width: '100%', // 리사이즈 핸들러 너비에 맞춤
+            height: '100%', // 리사이즈 핸들러 높이에 맞춤
             minWidth: '120px',
-            maxWidth: '300px',
-            width: 'auto'
+            minHeight: '60px',
+            resize: 'both',
+            fontFamily: 'inherit',
+            boxSizing: 'border-box', // 패딩과 보더를 포함한 크기 계산
           }}
+          placeholder="텍스트를 입력하세요. Shift+Enter로 줄바꿈이 가능합니다."
         />
       </div>
     );
@@ -170,42 +206,50 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
         padding: mode === 'editor' ? '12px' : '8px',
         minHeight: mode === 'editor' ? '60px' : 'auto',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'center', // 세로 가운데 정렬
+        justifyContent: 'center', // 가로 가운데 정렬 (기본값)
         textAlign: textAlign,
         width: width ? width : '100%',
         height: height ? height : 'auto',
-        justifyContent:
-          textAlign === 'left'
-            ? 'flex-start'
-            : textAlign === 'right'
-              ? 'flex-end'
-              : 'center',
-        ...(mode === 'live' ? {
-          width: '100%',
-          fontSize: `clamp(${Math.max(10, (comp.props?.fontSize || 16) * 0.7)}px, ${((comp.props?.fontSize || 16) / 375) * 100}vw, ${comp.props?.fontSize || 16}px)`
-        } : {
-          fontSize: comp.props?.fontSize
-        })
+        // 가로 정렬에 따른 justifyContent 조정
+        ...(textAlign === 'left' && { justifyContent: 'flex-start' }),
+        ...(textAlign === 'right' && { justifyContent: 'flex-end' }),
+        ...(textAlign === 'center' && { justifyContent: 'center' }),
+        ...(mode === 'live'
+          ? {
+              width: '100%',
+              fontSize: `clamp(${Math.max(10, scaledFontSize * 0.7)}px, ${(scaledFontSize / 375) * 100}vw, ${scaledFontSize}px)`,
+            }
+          : {
+              fontSize: `${scaledFontSize}px`,
+            }),
       }}
       onDoubleClick={handleDoubleClick}
     >
-      <div style={{
-        whiteSpace: 'pre-wrap',
-        width: '100%',
-        flexShrink: 0,
-        // 강제로 텍스트 정렬 적용
-        textAlign: textAlign + ' !important',
-        transform: italicTransform,
-        // 텍스트가 없을 때도 클릭 가능한 영역 확보
-        minHeight: '1em',
-        // 플레이스홀더 텍스트가 있을 때 시각적 피드백
-        ...((!comp.props?.text || comp.props?.text.trim() === '') && mode === 'editor' && {
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          borderRadius: '4px'
-        })
-      }}
+      <div
+        style={{
+          whiteSpace: 'pre-wrap',
+          width: '100%',
+          height: '100%',
+          flexShrink: 0,
+          // 강제로 텍스트 정렬 적용
+          textAlign: textAlign + ' !important',
+          transform: italicTransform,
+          // 텍스트가 없을 때도 클릭 가능한 영역 확보
+          minHeight: '1em',
+          // 3. 계산된 값 적용 및 overflow 방지
+          overflowWrap: 'break-word',
+          wordBreak: 'keep-all', // 단어 단위 줄바꿈
+          // 플레이스홀더 텍스트가 있을 때 시각적 피드백
+          ...((!comp.props?.text || comp.props?.text.trim() === '') &&
+            mode === 'editor' && {
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              borderRadius: '4px',
+            }),
+        }}
       >
-        {comp.props?.text || (mode === 'editor' ? '텍스트를 입력하려면 더블클릭하세요' : '')}
+        {comp.props?.text ||
+          (mode === 'editor' ? '텍스트를 입력하려면 더블클릭하세요' : '')}
       </div>
     </div>
   );

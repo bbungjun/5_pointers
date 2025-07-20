@@ -245,9 +245,16 @@ function ImageRenderer({ comp, component, isEditor = false, mode = 'editor', isP
         </div>
       )}
 
-      {/* 실제 이미지 */}
+      {/* 실제 이미지 - 에디터에서는 썸네일, 배포에서는 원본 사용 */}
       <img
-        src={actualComp?.props?.src}
+        src={
+          // 이미지 URL이 객체인 경우 (새 형식)
+          typeof actualComp?.props?.src === 'object' 
+            ? (mode === 'preview' || isPreview) 
+              ? actualComp.props.src.original  // 미리보기/배포에서는 원본 사용
+              : actualComp.props.src.thumbnail // 에디터에서는 썸네일 사용
+            : actualComp?.props?.src  // 문자열인 경우 (기존 형식) 그대로 사용
+        }
         alt={actualComp?.props?.alt || '이미지'}
         onLoad={handleImageLoad}
         onError={handleImageError}
