@@ -156,12 +156,12 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
         letterSpacing: letterSpacing + 'px',
         fontWeight: fontWeight,
         textDecoration: textDecoration,
-        justifyContent:
-          textAlign === 'left'
-            ? 'flex-start'
-            : textAlign === 'right'
-              ? 'flex-end'
-              : 'center',
+        alignItems: 'center', // 세로 가운데 정렬
+        justifyContent: 'center', // 가로 가운데 정렬 (기본값)
+        // 가로 정렬에 따른 justifyContent 조정
+        ...(textAlign === 'left' && { justifyContent: 'flex-start' }),
+        ...(textAlign === 'right' && { justifyContent: 'flex-end' }),
+        ...(textAlign === 'center' && { justifyContent: 'center' }),
         zIndex: Math.min(Math.max(comp.props?.zIndex || 1000, 1000), 9999999),
         ...(mode === 'live'
           ? {

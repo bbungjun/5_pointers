@@ -206,16 +206,15 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
         padding: mode === 'editor' ? '12px' : '8px',
         minHeight: mode === 'editor' ? '60px' : 'auto',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'center', // 세로 가운데 정렬
+        justifyContent: 'center', // 가로 가운데 정렬 (기본값)
         textAlign: textAlign,
         width: width ? width : '100%',
         height: height ? height : 'auto',
-        justifyContent:
-          textAlign === 'left'
-            ? 'flex-start'
-            : textAlign === 'right'
-              ? 'flex-end'
-              : 'center',
+        // 가로 정렬에 따른 justifyContent 조정
+        ...(textAlign === 'left' && { justifyContent: 'flex-start' }),
+        ...(textAlign === 'right' && { justifyContent: 'flex-end' }),
+        ...(textAlign === 'center' && { justifyContent: 'center' }),
         ...(mode === 'live'
           ? {
               width: '100%',
