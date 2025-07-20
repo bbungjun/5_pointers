@@ -162,6 +162,9 @@ function ImageRenderer({ comp, onUpdate, mode = 'live', width, height }) {
   const finalWidth = comp.width || comp.props?.width || 200;
   const finalHeight = comp.height || comp.props?.height || 150;
 
+  // 이미지 비율 계산
+  const aspectRatio = finalWidth / finalHeight;
+  
   const containerStyle = {
     borderRadius: `${(comp.props?.borderRadius || 0) * scaleFactor}px`, // 스케일링 적용
     overflow: 'hidden',
@@ -173,8 +176,9 @@ function ImageRenderer({ comp, onUpdate, mode = 'live', width, height }) {
     border: mode === 'editor' ? '1px solid #e5e7eb' : 'none',
     ...(mode === 'live'
       ? {
-          width: '100%', // maxWidth 제거로 확대 허용
-          height: `${finalHeight * scaleFactor}px`, // 높이도 스케일링 적용
+          width: '100%', // 너비는 100%
+          height: '0', // 높이는 0으로 설정
+          paddingBottom: `${(100 / aspectRatio)}%`, // 비율에 맞게 패딩 설정
         }
       : {
           width: finalWidth + 'px',
@@ -265,9 +269,14 @@ function ImageRenderer({ comp, onUpdate, mode = 'live', width, height }) {
         </div>
       )}
 
-      {/* 실제 이미지 */}
+      {/* 실제 이미지 - 배포 페이지에서는 원본 이미지 사용 */}
       <img
-        src={comp.props?.src}
+        src={
+          // 이미지 URL이 객체인 경우 (새 형식)
+          typeof comp.props?.src === 'object' 
+            ? comp.props.src.original  // 배포에서는 원본 사용
+            : comp.props?.src  // 문자열인 경우 (기존 형식) 그대로 사용
+        }
         alt={comp.props?.alt || '이미지'}
         onLoad={handleImageLoad}
         onError={handleImageError}
