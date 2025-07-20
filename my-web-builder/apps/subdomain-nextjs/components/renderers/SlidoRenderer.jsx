@@ -451,8 +451,8 @@ function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         transition: 'all 0.2s ease',
         boxSizing: 'border-box',
-        width: `${comp?.width || 300}px`,
-        height: `${comp?.height || 400}px`,
+        width: '100%',
+        height: '100%',
         minHeight: '400px',
         padding: mode === 'live' ? `clamp(12px, 3vw, 20px)` : '20px',
       }}

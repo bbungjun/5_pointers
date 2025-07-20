@@ -129,6 +129,75 @@ const DynamicPageRenderer = ({
     return defaultSizes[componentType] || defaultSizes.default;
   };
 
+  // --- 새로운 Helper 함수 ---
+
+  // 두 컴포넌트의 경계 상자가 겹치는지 확인하는 함수
+  const doComponentsOverlap = (
+    compA: ComponentData,
+    compB: ComponentData,
+    defaultSizeGetter: (type: string) => { width: number; height: number }
+  ) => {
+    const getRect = (comp: ComponentData) => {
+      const defaultSize = defaultSizeGetter(comp.type);
+      return {
+        x: comp.x || 0,
+        y: comp.y || 0,
+        width: comp.width || defaultSize.width,
+        height: comp.height || defaultSize.height,
+      };
+    };
+
+    const rectA = getRect(compA);
+    const rectB = getRect(compB);
+
+    if (
+      rectA.x + rectA.width <= rectB.x ||
+      rectB.x + rectB.width <= rectA.x ||
+      rectA.y + rectA.height <= rectB.y ||
+      rectB.y + rectB.height <= rectA.y
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  // 겹치는 컴포넌트들을 그룹으로 묶는 함수
+  const groupOverlappingComponents = (
+    components: ComponentData[],
+    defaultSizeGetter: (type: string) => { width: number; height: number }
+  ) => {
+    if (!components || components.length === 0) return [];
+
+    const sorted = [...components].sort(
+      (a, b) => (a.y || 0) - (b.y || 0) || (a.x || 0) - (b.x || 0)
+    );
+    const groups: ComponentData[][] = [];
+    const visited = new Set<string>();
+
+    for (let i = 0; i < sorted.length; i++) {
+      if (visited.has(sorted[i].id)) continue;
+
+      const currentGroup: ComponentData[] = [sorted[i]];
+      visited.add(sorted[i].id);
+      const queue: ComponentData[] = [sorted[i]];
+
+      while (queue.length > 0) {
+        const currentComp = queue.shift()!;
+        for (let j = 0; j < sorted.length; j++) {
+          // 전체를 다시 순회하여 모든 겹침 가능성 확인
+          if (i === j || visited.has(sorted[j].id)) continue;
+          if (doComponentsOverlap(currentComp, sorted[j], defaultSizeGetter)) {
+            visited.add(sorted[j].id);
+            currentGroup.push(sorted[j]);
+            queue.push(sorted[j]);
+          }
+        }
+      }
+      groups.push(currentGroup);
+    }
+    return groups;
+  };
+
   // 3. renderDesktopLayout 함수 정의
   const renderDesktopLayout = () => {
     // (a) 콘텐츠 높이 계산
@@ -258,56 +327,89 @@ const DynamicPageRenderer = ({
     );
   };
 
-  // ✅ 메인 모바일 렌더링 함수: 데이터 변환 후 스케일링 함수를 호출하는 역할
+  // ✅ 메인 모바일 렌더링 함수: 그룹화 파이프라인 추가
   const renderMobileLayout = () => {
     if (editingMode === 'mobile') {
-      // 시나리오 1: mobile 편집 -> mobile 뷰. 원본 데이터 그대로 스케일링
       return renderMobileScalingLayout(components);
     } else {
-      // 시나리오 2: desktop 편집 -> mobile 뷰.
-      // 1. 먼저 데이터를 모바일용으로 재배치합니다.
-      const sortedComponents = [...components].sort(
-        (a, b) => (a.y || 0) - (b.y || 0) || (a.x || 0) - (b.x || 0)
+      // 1. 겹치는 컴포넌트들을 먼저 그룹화합니다.
+      const componentGroups = groupOverlappingComponents(
+        components,
+        getComponentDefaultSize
       );
 
-      const repositionedComponents = [];
-
-      const PAGE_VERTICAL_PADDING = 16; // 상단 여백
+      const repositionedComponents: ComponentData[] = [];
+      const PAGE_VERTICAL_PADDING = 16;
       let currentY = PAGE_VERTICAL_PADDING;
 
-      for (const comp of sortedComponents) {
-        const originalWidth =
-          comp.width || getComponentDefaultSize(comp.type).width;
-        const originalHeight =
-          comp.height || getComponentDefaultSize(comp.type).height;
+      // 2. 개별 컴포넌트가 아닌, '그룹' 단위로 순회합니다.
+      for (const group of componentGroups) {
+        // 3. 그룹의 전체 경계 상자(Bounding Box)를 계산합니다.
+        let minX = Infinity,
+          minY = Infinity,
+          maxX = -Infinity,
+          maxY = -Infinity;
+        group.forEach((comp) => {
+          const defaultSize = getComponentDefaultSize(comp.type);
+          const x = comp.x || 0;
+          const y = comp.y || 0;
+          const width = comp.width || defaultSize.width;
+          const height = comp.height || defaultSize.height;
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x + width);
+          maxY = Math.max(maxY, y + height);
+        });
+        const groupWidth = maxX - minX;
+        const groupHeight = maxY - minY;
 
-        let newWidth = originalWidth;
-        let newHeight = originalHeight;
-        let newX = 0;
+        // 4. 그룹 전체를 하나의 컴포넌트처럼 취급하여 조건부 리사이징을 적용합니다.
+        let newGroupWidth = groupWidth;
+        let newGroupHeight = groupHeight;
+        let newGroupX = 0;
+        let scaleRatio = 1;
 
-        if (originalWidth > BASE_MOBILE_WIDTH) {
-          newWidth = BASE_MOBILE_WIDTH;
-          if (originalWidth > 0) {
-            const aspectRatio = originalHeight / originalWidth;
-            newHeight = newWidth * aspectRatio;
-          }
-          newX = 0;
+        if (groupWidth > BASE_MOBILE_WIDTH) {
+          newGroupWidth = BASE_MOBILE_WIDTH;
+          scaleRatio = groupWidth > 0 ? newGroupWidth / groupWidth : 1;
+          newGroupHeight = groupHeight * scaleRatio;
+          newGroupX = 0;
         } else {
-          newX = (BASE_MOBILE_WIDTH - originalWidth) / 2;
+          newGroupX = (BASE_MOBILE_WIDTH - groupWidth) / 2;
         }
 
-        repositionedComponents.push({
-          ...comp,
-          x: newX,
-          y: currentY,
-          width: newWidth,
-          height: newHeight,
+        // 5. 그룹 내의 각 컴포넌트 위치와 크기를 그룹의 변환에 맞춰 재계산합니다.
+        group.forEach((comp) => {
+          const defaultSize = getComponentDefaultSize(comp.type);
+          const originalX = comp.x || 0;
+          const originalY = comp.y || 0;
+          const originalWidth = comp.width || defaultSize.width;
+          const originalHeight = comp.height || defaultSize.height;
+
+          const relativeX = originalX - minX;
+          const relativeY = originalY - minY;
+
+          // ❗️ 2. 새로운 props 객체를 만들어 dynamicScale을 주입합니다.
+          const newProps = {
+            ...comp.props,
+            dynamicScale: scaleRatio, // 축소 비율을 props에 전달
+          };
+
+          repositionedComponents.push({
+            ...comp,
+            props: newProps, // ❗️ 수정된 props로 교체
+            x: newGroupX + relativeX * scaleRatio,
+            y: currentY + relativeY * scaleRatio,
+            width: originalWidth * scaleRatio,
+            height: originalHeight * scaleRatio,
+          });
         });
-               // ❗️ 컴포넌트 간 여백 없이 y좌표 업데이트
-       currentY += newHeight;
+
+        // ❗️ 3. 다음 그룹의 Y 위치를 업데이트할 때 여백을 추가합니다.
+        currentY += newGroupHeight + PAGE_VERTICAL_PADDING;
       }
 
-      // 2. 재배치된 새로운 데이터를 스케일링 함수에 전달하여 렌더링합니다.
+      // 6. 최종적으로 재배치된 컴포넌트들을 렌더링합니다.
       return renderMobileScalingLayout(repositionedComponents);
     }
   };
