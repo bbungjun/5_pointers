@@ -29,6 +29,7 @@ const getComponentDefaultSize = (componentType) => {
     text: { width: 200, height: 50 },
     image: { width: 200, height: 150 },
     map: { width: 400, height: 300 },
+    link: { width: 200, height: 50 },
     attend: { width: 300, height: 200 },
     dday: { width: 350, height: 150 },
     default: { width: 200, height: 100 },
@@ -263,9 +264,8 @@ const PreviewRenderer = ({
           width: newWidth,
           height: newHeight,
         });
-
-        // ❗️ 컴포넌트 간 여백 없이 y좌표 업데이트
-        currentY += newHeight;
+               // ❗️ 컴포넌트 간 여백 없이 y좌표 업데이트
+       currentY += newHeight;
       }
       return renderMobileScalingLayout(repositionedComponents);
     }

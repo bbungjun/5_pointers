@@ -53,6 +53,7 @@ function CanvasComponent({
   isComponentDragging, // 드래그 상태 확인 함수
 }) {
   const ref = useRef();
+  const contentRef = useRef(); // 실제 컨텐츠 크기 측정용 ref
 
   const handleComponentUpdate = (updatedComp) => {
     if (onUpdate) {
@@ -106,24 +107,67 @@ function CanvasComponent({
     return { width: baseWidth, height: effectiveHeight };
   };
 
-  // 컴포넌트별 실제 크기 계산 (finalStyles 기반으로 수정)
+  // 실제 컨텐츠 크기 측정 함수
+  const getContentSize = () => {
+    if (!contentRef.current) {
+      return { width: 0, height: 0 };
+    }
+
+    const rect = contentRef.current.getBoundingClientRect();
+    const scale = zoom / 100;
+
+    return {
+      width: rect.width / scale,
+      height: rect.height / scale,
+    };
+  };
+
+  // 컴포넌트별 실제 크기 계산 (resizeHandler 크기와 컨텐츠 크기 중 더 큰 것 선택)
   const getActualSize = () => {
+    const resizeWidth = comp.width || componentDimensions.defaultWidth;
+    const resizeHeight = comp.height || componentDimensions.defaultHeight;
+
+    // 실제 컨텐츠 크기 측정
+    const contentSize = getContentSize();
+
     // 이미지 컴포넌트의 경우 props에서 크기를 가져옴
     if (comp.type === 'image') {
       return {
-        width:
-          comp.props?.width || comp.width || componentDimensions.defaultWidth,
-        height:
-          comp.props?.height ||
-          comp.height ||
-          componentDimensions.defaultHeight,
+        width: comp.props?.width || resizeWidth,
+        height: comp.props?.height || resizeHeight,
       };
     }
 
-    // 기본 컴포넌트들
+    // 텍스트 컴포넌트의 경우 컨텐츠 크기와 resize 크기 중 더 큰 것 선택
+    if (comp.type === 'text') {
+      const contentWidth = contentSize.width || 0;
+      const contentHeight = contentSize.height || 0;
+
+      return {
+        width: Math.max(
+          resizeWidth,
+          contentWidth,
+          componentDimensions.minWidth
+        ),
+        height: Math.max(
+          resizeHeight,
+          contentHeight,
+          componentDimensions.minHeight
+        ),
+      };
+    }
+
+    // 기본 컴포넌트들: resize 크기와 컨텐츠 크기 중 더 큰 것 선택
+    const contentWidth = contentSize.width || 0;
+    const contentHeight = contentSize.height || 0;
+
     return {
-      width: comp.width || componentDimensions.defaultWidth,
-      height: comp.height || componentDimensions.defaultHeight,
+      width: Math.max(resizeWidth, contentWidth, componentDimensions.minWidth),
+      height: Math.max(
+        resizeHeight,
+        contentHeight,
+        componentDimensions.minHeight
+      ),
     };
   };
 
@@ -460,11 +504,16 @@ function CanvasComponent({
       newWidth = Math.min(newWidth, maxWidth);
       newHeight = Math.min(newHeight, maxHeight);
 
+      // 실제 컨텐츠 크기와 비교하여 더 큰 것 선택
+      const contentSize = getContentSize();
+      const finalWidth = Math.max(newWidth, contentSize.width || 0, componentDimensions.minWidth);
+      const finalHeight = Math.max(newHeight, contentSize.height || 0, componentDimensions.minHeight);
+
       // 단일 좌표계로 크기 업데이트
       const updatedComp = {
         ...comp,
-        width: newWidth,
-        height: newHeight,
+        width: finalWidth,
+        height: finalHeight,
       };
 
       // 컴포넌트 타입에 따라 다르게 업데이트
@@ -472,8 +521,8 @@ function CanvasComponent({
         // 이미지 컴포넌트는 props에도 크기 저장
         updatedComp.props = {
           ...comp.props,
-          width: newWidth,
-          height: newHeight,
+          width: finalWidth,
+          height: finalHeight,
         };
       }
 
@@ -741,6 +790,40 @@ function CanvasComponent({
     }
   }, [isDragging]);
 
+  // 컨텐츠 크기 변화 감지 및 자동 크기 조정
+  useEffect(() => {
+    if (!contentRef.current || isResizing || isDragging) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        const contentSize = getContentSize();
+        const currentResizeWidth = comp.width || componentDimensions.defaultWidth;
+        const currentResizeHeight = comp.height || componentDimensions.defaultHeight;
+        
+        // 컨텐츠가 현재 크기보다 크면 자동으로 크기 조정
+        if (contentSize.width > currentResizeWidth || contentSize.height > currentResizeHeight) {
+          const newWidth = Math.max(contentSize.width, currentResizeWidth, componentDimensions.minWidth);
+          const newHeight = Math.max(contentSize.height, currentResizeHeight, componentDimensions.minHeight);
+          
+          const updatedComp = {
+            ...comp,
+            width: newWidth,
+            height: newHeight,
+          };
+          
+          onUpdate(updatedComp);
+        }
+      }
+    });
+
+    resizeObserver.observe(contentRef.current);
+    
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [comp.id, comp.props, isResizing, isDragging, zoom]);
+
   // 컴포넌트 정리 시 타임아웃 정리
   useEffect(() => {
     return () => {
@@ -794,7 +877,9 @@ function CanvasComponent({
         onSelect(comp.id, isCtrlPressed);
       }}
     >
-      {renderContent()}
+      <div ref={contentRef} style={{ width: '100%', height: '100%' }}>
+        {renderContent()}
+      </div>
 
       {/* Figma 스타일 선택 핸들 */}
       {selected && (

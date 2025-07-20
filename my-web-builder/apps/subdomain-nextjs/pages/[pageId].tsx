@@ -121,6 +121,7 @@ const DynamicPageRenderer = ({
       text: { width: 200, height: 50 },
       image: { width: 200, height: 150 },
       map: { width: 400, height: 300 },
+      link: { width: 200, height: 50 },
       attend: { width: 300, height: 200 },
       dday: { width: 350, height: 150 },
       default: { width: 200, height: 100 },
@@ -302,9 +303,8 @@ const DynamicPageRenderer = ({
           width: newWidth,
           height: newHeight,
         });
-
-        // ❗️ 컴포넌트 간 여백 없이 y좌표 업데이트
-        currentY += newHeight;
+               // ❗️ 컴포넌트 간 여백 없이 y좌표 업데이트
+       currentY += newHeight;
       }
 
       // 2. 재배치된 새로운 데이터를 스케일링 함수에 전달하여 렌더링합니다.

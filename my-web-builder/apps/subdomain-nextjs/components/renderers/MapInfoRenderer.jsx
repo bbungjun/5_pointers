@@ -19,7 +19,11 @@ export default function MapInfoRenderer({ comp, mode = 'live' }) {
     lineHeight = comp.props?.lineHeight || 1.6,
     letterSpacing = comp.props?.letterSpacing || 0,
     color = comp.props?.color || '#2c2c2c',
-    bgColor = comp.props?.bgColor || '#ffffff'
+    bgColor = comp.props?.bgColor || '#ffffff',
+    noBorder = comp.props?.noBorder !== undefined ? comp.props.noBorder : true,
+    borderColor = comp.props?.borderColor || '#e5e7eb',
+    borderWidth = comp.props?.borderWidth || '1px',
+    borderRadius = comp.props?.borderRadius || 8
   } = comp.props;
 
   const toPx = v => (typeof v === 'number' ? `${v}px` : v || undefined);
@@ -29,14 +33,13 @@ export default function MapInfoRenderer({ comp, mode = 'live' }) {
     <div
       style={{
         padding: mode === 'live' ? `${28 * scaleFactor}px ${24 * scaleFactor}px` : '28px 24px',
-        background: `linear-gradient(135deg, ${bgColor} 0%, #f9f9f9 100%)`,
-        borderRadius: mode === 'live' ? `${8 * scaleFactor}px` : '0px',
+        background: bgColor,
+        borderRadius: mode === 'live' ? `${borderRadius * scaleFactor}px` : borderRadius,
         width: mode === 'live' ? '100%' : `${comp?.width || 300}px`,
         height: mode === 'live' ? `${(comp?.height || 275) * scaleFactor}px` : `${comp?.height || 200}px`,
         boxSizing: 'border-box',
         overflow: 'hidden',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-        border: '1px solid rgba(0, 0, 0, 0.05)'
+        border: noBorder ? 'none' : `${borderWidth} solid ${borderColor}`
       }}
     >
       {sections.map((sec, idx) => (

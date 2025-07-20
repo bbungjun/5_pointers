@@ -84,7 +84,7 @@ function LinkRenderer({ comp, mode = 'editor' }) {
 
   return (
     <div
-      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
+      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[150px] min-h-[50px]' : 'w-full h-full'} flex items-center justify-center underline cursor-pointer transition-all duration-200 hover:opacity-70 hover:scale-105 active:scale-95`}
       style={{
         color: comp.props.color || '#D8BFD8',
         fontSize: comp.props.fontSize || '16px',

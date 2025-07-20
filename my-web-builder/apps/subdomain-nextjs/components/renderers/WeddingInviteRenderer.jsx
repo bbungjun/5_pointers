@@ -80,7 +80,7 @@ export default function WeddingInviteRenderer({
         height: mode === 'live' ? `${containerHeight * scaleFactor}px` : '100%',
         ...(mode === 'live'
           ? {
-                              borderRadius: borderRadius,
+              borderRadius: `${borderRadius * scaleFactor}px`,
               padding: `${40 * scaleFactor}px`,
               minWidth: `${200 * scaleFactor}px`,
               minHeight: `${containerHeight * scaleFactor}px`, // 높이도 스케일링 적용
@@ -113,6 +113,8 @@ export default function WeddingInviteRenderer({
           wordBreak: 'keep-all',
           background: 'none',
           whiteSpace: 'pre-wrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
         }}
       >
         {title || <span style={{ color: '#bbb' }}>제목 없음</span>}
@@ -136,6 +138,11 @@ export default function WeddingInviteRenderer({
           wordBreak: 'keep-all',
           background: 'none',
           whiteSpace: 'pre-wrap',
+          overflow: 'hidden',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
         }}
       >
         {contentLines.map((line, idx) => (
