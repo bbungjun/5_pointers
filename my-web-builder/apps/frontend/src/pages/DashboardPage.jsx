@@ -750,7 +750,7 @@ function DashboardPage({ user, onLogout }) {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-8xl mx-auto px-6 relative z-10">
+      <div className="max-w-8xl mx-auto px-8 relative z-10">
         {/* 메인 헤더 */}
         <div className="text-center mb-8">
           <p className="text-3xl text-white font-light">
@@ -1301,8 +1301,8 @@ function DashboardPage({ user, onLogout }) {
                                       <div
                                         className="relative bg-gray-50 overflow-hidden rounded-lg border border-gray-200"
                                         style={{
-                                          width: '240px',
-                                          height: '180px',
+                                          width: '220px',
+                                          height: '150px',
                                         }}
                                       >
                                         <TemplateCanvasPreview

@@ -124,8 +124,8 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
       };
     } else {
       return {
-        width: 240, // 데스크톱 비율 (16:9) 확대
-        height: 180,
+        width: 220, // 데스크톱 컨테이너 너비에 맞춤
+        height: 150, // 데스크톱 컨테이너 높이에 맞춤
         aspectRatio: '16/9',
       };
     }
@@ -144,8 +144,8 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
     const scaleX = mobileWidth / contentWidth;
     finalScale = scaleX; // 가로 기준으로 스케일 고정
   } else {
-    // 데스크톱: 너비를 기준으로 스케일 고정하여 높이 변화에 영향받지 않도록
-    finalScale = Math.min(scaleX, 0.8);
+    // 데스크톱: 가로를 정확히 220px에 맞추고, 세로는 아래쪽이 짤리도록
+    finalScale = scaleX; // 가로 기준으로 정확히 맞춤
   }
 
   return (
@@ -330,11 +330,10 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
       ) : (
         // 데스크톱 미리보기 (기존)
         <div
-          className="relative bg-gray-50 w-full overflow-hidden"
+          className="relative bg-gray-50 w-full h-full overflow-hidden"
           style={{
-            width: `${previewDimensions.width}px`,
-            height: `${previewDimensions.height}px`,
-            minHeight: '200px',
+            width: '100%',
+            height: '100%',
           }}
         >
           {/* 캔버스 배경 */}

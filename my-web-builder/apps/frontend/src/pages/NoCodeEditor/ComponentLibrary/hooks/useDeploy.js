@@ -164,7 +164,7 @@ export function useDeploy() {
       if (errorMsg.includes('cannot read properties of undefined') || 
           (errorMsg.includes('undefined') && errorMsg.includes('id')) || 
           errorMsg.includes('데이터베이스 저장 실패')) {
-        setErrorMessage('이미 존재하는 주소입니다. 다른 주소를 입력해주세요.');
+        setErrorMessage('이미 사용중인 주소입니다. 다른 주소를 입력해주세요.');
       }
       // 이미 존재하는 도메인 관련 오류 처리
       else if (errorMsg.includes('이미 존재') || 
@@ -172,7 +172,7 @@ export function useDeploy() {
           errorMsg.includes('already') || 
           errorMsg.includes('exist') || 
           errorMsg.includes('duplicate')) {
-        setErrorMessage('이미 존재하는 주소입니다. 다른 주소를 입력해주세요.');
+        setErrorMessage('이미 사용중인 주소입니다. 다른 주소를 입력해주세요.');
       } else {
         setErrorMessage(`배포 중 오류가 발생했습니다: ${error.message}`);
       }
