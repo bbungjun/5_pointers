@@ -19,17 +19,14 @@ const AVAILABLE_FONTS = [
   'Montserrat',
   'Pinyon Script',
   'Prata',
-  'Underland'
+  'Underland',
 ];
 
 function TextRenderer({ comp, mode = 'live', width, height }) {
-  
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
-      
-      const handleResize = () => {
-      };
-      
+      const handleResize = () => {};
+
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }
@@ -47,7 +44,11 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
 
   useEffect(() => {
     if (textRef.current && comp?.props?.fontFamily) {
-      textRef.current.style.setProperty('font-family', comp.props.fontFamily, 'important');
+      textRef.current.style.setProperty(
+        'font-family',
+        comp.props.fontFamily,
+        'important'
+      );
     }
   }, [comp?.props?.fontFamily]);
 
@@ -75,6 +76,11 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
     }
   };
 
+  // 2. props에서 값 추출 및 새 fontSize 계산
+  const originalFontSize = comp.props?.fontSize || 16;
+  const dynamicScale = comp.props?.dynamicScale || 1;
+  const scaledFontSize = originalFontSize * dynamicScale;
+
   // 폰트 관련 속성들
   const fontFamily = comp?.props?.fontFamily || 'Playfair Display, serif';
   const textAlign = comp?.props?.textAlign || 'left';
@@ -90,11 +96,11 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
       <input
         ref={inputRef}
         value={editValue}
-        onChange={e => setEditValue(e.target.value)}
+        onChange={(e) => setEditValue(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         className="w-32 border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-        style={{ 
+        style={{
           fontSize: comp.props?.fontSize,
           fontFamily: fontFamily,
           textAlign: textAlign,
@@ -102,14 +108,14 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
           letterSpacing: letterSpacing + 'px',
           fontWeight: fontWeight,
           textDecoration: textDecoration,
-          transform: italicTransform
+          transform: italicTransform,
         }}
       />
     );
   }
 
   return (
-    <div 
+    <div
       ref={textRef}
       className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center transition-all duration-200 hover:opacity-80`}
       style={{
@@ -120,25 +126,37 @@ function TextRenderer({ comp, mode = 'live', width, height }) {
         letterSpacing: letterSpacing + 'px',
         fontWeight: fontWeight,
         textDecoration: textDecoration,
-        justifyContent: textAlign === 'left' ? 'flex-start' : 
-                       textAlign === 'right' ? 'flex-end' : 'center',
+        justifyContent:
+          textAlign === 'left'
+            ? 'flex-start'
+            : textAlign === 'right'
+              ? 'flex-end'
+              : 'center',
         zIndex: Math.min(Math.max(comp.props?.zIndex || 1000, 1000), 9999999),
-        ...(mode === 'live' ? {
-          width: '100%',
-          fontSize: `clamp(${Math.max(10, (comp.props?.fontSize || 16) * 0.7)}px, ${((comp.props?.fontSize || 16) / 375) * 100}vw, ${comp.props?.fontSize || 16}px)`
-        } : {
-          fontSize: comp.props?.fontSize
-        })
+        ...(mode === 'live'
+          ? {
+              width: '100%',
+              fontSize: `clamp(${Math.max(10, scaledFontSize * 0.7)}px, ${(scaledFontSize / 375) * 100}vw, ${scaledFontSize}px)`,
+            }
+          : {
+              fontSize: `${scaledFontSize}px`,
+            }),
       }}
       onDoubleClick={handleDoubleClick}
     >
-      <span style={{ 
-        whiteSpace: 'pre-wrap', 
-        width: '100%',
-        textAlign: textAlign,
-        transform: italicTransform,
-        display: 'inline-block'
-      }}>
+      <span
+        style={{
+          whiteSpace: 'pre-wrap',
+          width: '100%',
+          height: '100%',
+          textAlign: textAlign,
+          transform: italicTransform,
+          display: 'inline-block',
+          // 3. 계산된 값 적용 및 overflow 방지
+          overflowWrap: 'break-word',
+          wordBreak: 'keep-all', // 단어 단위 줄바꿈
+        }}
+      >
         {comp.props?.text || ''}
       </span>
     </div>

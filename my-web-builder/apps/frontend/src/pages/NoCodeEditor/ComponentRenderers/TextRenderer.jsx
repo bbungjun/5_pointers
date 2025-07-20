@@ -19,16 +19,13 @@ const AVAILABLE_FONTS = [
   'Montserrat',
   'Pinyon Script',
   'Prata',
-  'Underland'
+  'Underland',
 ];
 
 function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
-
   useEffect(() => {
     if (mode === 'live' && typeof window !== 'undefined') {
-
-      const handleResize = () => {
-      };
+      const handleResize = () => {};
 
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
@@ -53,13 +50,21 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
 
   useEffect(() => {
     if (textRef.current && comp?.props?.fontFamily) {
-      textRef.current.style.setProperty('font-family', comp.props.fontFamily, 'important');
+      textRef.current.style.setProperty(
+        'font-family',
+        comp.props.fontFamily,
+        'important'
+      );
     }
   }, [comp?.props?.fontFamily]);
 
   useEffect(() => {
     if (textRef.current && comp?.props?.textAlign) {
-      textRef.current.style.setProperty('text-align', comp.props.textAlign, 'important');
+      textRef.current.style.setProperty(
+        'text-align',
+        comp.props.textAlign,
+        'important'
+      );
     }
   }, [comp?.props?.textAlign, width, height]);
 
@@ -79,8 +84,8 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
         ...comp,
         props: {
           ...comp.props,
-          text: editValue
-        }
+          text: editValue,
+        },
       });
     }
   };
@@ -93,8 +98,8 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
           ...comp,
           props: {
             ...comp.props,
-            text: editValue
-          }
+            text: editValue,
+          },
         });
       }
     }
@@ -103,6 +108,11 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
       setEditValue(comp.props?.text || '');
     }
   };
+
+  // 2. props에서 값 추출 및 새 fontSize 계산
+  const originalFontSize = comp.props?.fontSize || 16;
+  const dynamicScale = comp.props?.dynamicScale || 1;
+  const scaledFontSize = originalFontSize * dynamicScale;
 
   // 폰트 관련 속성들
   const fontFamily = comp?.props?.fontFamily || 'Playfair Display, serif';
@@ -117,19 +127,25 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
   if (editing && mode === 'editor') {
     console.log('편집 모드로 렌더링');
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: textAlign === 'left' ? 'flex-start' :
-          textAlign === 'right' ? 'flex-end' : 'center',
-        width: '100%',
-        height: '100%',
-        padding: '12px'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent:
+            textAlign === 'left'
+              ? 'flex-start'
+              : textAlign === 'right'
+                ? 'flex-end'
+                : 'center',
+          width: '100%',
+          height: '100%',
+          padding: '12px',
+        }}
+      >
         <input
           ref={inputRef}
           value={editValue}
-          onChange={e => setEditValue(e.target.value)}
+          onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           style={{
@@ -148,7 +164,7 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
             backgroundColor: 'white',
             minWidth: '120px',
             maxWidth: '300px',
-            width: 'auto'
+            width: 'auto',
           }}
         />
       </div>
@@ -180,32 +196,41 @@ function TextRenderer({ comp, mode = 'live', width, height, onUpdate }) {
             : textAlign === 'right'
               ? 'flex-end'
               : 'center',
-        ...(mode === 'live' ? {
-          width: '100%',
-          fontSize: `clamp(${Math.max(10, (comp.props?.fontSize || 16) * 0.7)}px, ${((comp.props?.fontSize || 16) / 375) * 100}vw, ${comp.props?.fontSize || 16}px)`
-        } : {
-          fontSize: comp.props?.fontSize
-        })
+        ...(mode === 'live'
+          ? {
+              width: '100%',
+              fontSize: `clamp(${Math.max(10, scaledFontSize * 0.7)}px, ${(scaledFontSize / 375) * 100}vw, ${scaledFontSize}px)`,
+            }
+          : {
+              fontSize: `${scaledFontSize}px`,
+            }),
       }}
       onDoubleClick={handleDoubleClick}
     >
-      <div style={{
-        whiteSpace: 'pre-wrap',
-        width: '100%',
-        flexShrink: 0,
-        // 강제로 텍스트 정렬 적용
-        textAlign: textAlign + ' !important',
-        transform: italicTransform,
-        // 텍스트가 없을 때도 클릭 가능한 영역 확보
-        minHeight: '1em',
-        // 플레이스홀더 텍스트가 있을 때 시각적 피드백
-        ...((!comp.props?.text || comp.props?.text.trim() === '') && mode === 'editor' && {
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          borderRadius: '4px'
-        })
-      }}
+      <div
+        style={{
+          whiteSpace: 'pre-wrap',
+          width: '100%',
+          height: '100%',
+          flexShrink: 0,
+          // 강제로 텍스트 정렬 적용
+          textAlign: textAlign + ' !important',
+          transform: italicTransform,
+          // 텍스트가 없을 때도 클릭 가능한 영역 확보
+          minHeight: '1em',
+          // 3. 계산된 값 적용 및 overflow 방지
+          overflowWrap: 'break-word',
+          wordBreak: 'keep-all', // 단어 단위 줄바꿈
+          // 플레이스홀더 텍스트가 있을 때 시각적 피드백
+          ...((!comp.props?.text || comp.props?.text.trim() === '') &&
+            mode === 'editor' && {
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              borderRadius: '4px',
+            }),
+        }}
       >
-        {comp.props?.text || (mode === 'editor' ? '텍스트를 입력하려면 더블클릭하세요' : '')}
+        {comp.props?.text ||
+          (mode === 'editor' ? '텍스트를 입력하려면 더블클릭하세요' : '')}
       </div>
     </div>
   );
