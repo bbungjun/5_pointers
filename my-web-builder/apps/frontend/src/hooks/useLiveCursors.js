@@ -50,6 +50,8 @@ export function useLiveCursors(awareness, canvasRef, updateActivity) {
     const canvasX = (x - canvasRect.left + scrollLeft) / scale;
     const canvasY = (y - canvasRect.top + scrollTop) / scale;
 
+
+
     // Awareness에 커서 위치 저장
     awareness.setLocalStateField('cursor', {
       x: canvasX,
