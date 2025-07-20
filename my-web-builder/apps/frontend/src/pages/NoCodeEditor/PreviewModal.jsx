@@ -95,6 +95,7 @@ const PreviewModal = ({
       <html style="overflow-x: hidden; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link rel="stylesheet" href="/src/styles/global.css" />
           <style>${PREVIEW_CSS}</style>
         </head>
         <body style="overflow-x: hidden; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
