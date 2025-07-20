@@ -41,12 +41,13 @@ export class GeneratorService {
     try {
       // 4. 서브도메인 소유권 확인 및 프로젝트 페이지 확인
       const existingPageBySubdomain = await this.pagesRepository.findOne({
-        where: { subdomain: requestedSubdomain, status: PageStatus.DEPLOYED }
+        where: { subdomain: requestedSubdomain, status: PageStatus.DEPLOYED },
+        relations: ['owner']
       });
       
       // 서브도메인이 이미 사용 중인 경우 소유권 확인
       if (existingPageBySubdomain) {
-        if (existingPageBySubdomain.owner.id !== numericUserId) {
+        if (!existingPageBySubdomain.owner || existingPageBySubdomain.owner.id !== numericUserId) {
           // 다른 사용자가 사용 중인 서브도메인인 경우 - 에러 발생
           throw new BadRequestException('이미 존재하는 서브도메인입니다');
         }
