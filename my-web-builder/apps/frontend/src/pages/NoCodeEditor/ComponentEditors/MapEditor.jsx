@@ -94,7 +94,7 @@ function MapEditor({ selectedComp, onUpdate }) {
   }, [props.address]);
 
   return (
-    <div style={{ marginTop: 100 }}>
+    <div style={{ marginTop: 20 }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 16 }}>
         <div style={{ flex: 1 }}>
           <TextEditor
