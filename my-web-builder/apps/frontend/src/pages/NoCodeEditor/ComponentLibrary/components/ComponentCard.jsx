@@ -43,7 +43,8 @@ function ComponentCard({ component, onDragStart }) {
         marginBottom: 10, 
         textAlign: 'center',
         flexShrink: 0,
-        whiteSpace: 'nowrap', 
+        whiteSpace: 'nowrap',
+        fontFamily: 'Pretendard, sans-serif',
       }}>
         {component.label}
       </div>
