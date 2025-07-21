@@ -599,6 +599,29 @@ function CanvasComponent({
           y: newY,
         };
 
+        // 다중 선택된 컴포넌트들과 함께 이동
+        if (
+          selectedIds &&
+          selectedIds.length > 1 &&
+          selectedIds.includes(comp.id)
+        ) {
+          const deltaX = newX - currentX;
+          const deltaY = newY - currentY;
+
+          selectedIds.forEach((selectedId) => {
+            if (selectedId !== comp.id) {
+              const selectedComp = components.find((c) => c.id === selectedId);
+              if (selectedComp) {
+                onMultiUpdate({
+                  ...selectedComp,
+                  x: selectedComp.x + deltaX,
+                  y: selectedComp.y + deltaY,
+                });
+              }
+            }
+          });
+        }
+
         // 쓰로틀링을 적용하여 성능 최적화 (더 빠른 업데이트)
         if (!dragUpdateTimeoutRef.current) {
           dragUpdateTimeoutRef.current = setTimeout(() => {
@@ -627,6 +650,9 @@ function CanvasComponent({
       onUpdate,
       setComponentDragging,
       comp,
+      selectedIds,
+      components,
+      onMultiUpdate,
     ]
   );
 
@@ -657,29 +683,6 @@ function CanvasComponent({
         `(${currentX}, ${currentY}) -> (${finalX}, ${finalY})`
       );
 
-      // 다중 선택된 컴포넌트들과 함께 이동
-      if (
-        selectedIds &&
-        selectedIds.length > 1 &&
-        selectedIds.includes(comp.id)
-      ) {
-        const deltaX = finalX - currentX;
-        const deltaY = finalY - currentY;
-
-        selectedIds.forEach((selectedId) => {
-          if (selectedId !== comp.id) {
-            const selectedComp = components.find((c) => c.id === selectedId);
-            if (selectedComp) {
-              onMultiUpdate({
-                ...selectedComp,
-                x: selectedComp.x + deltaX,
-                y: selectedComp.y + deltaY,
-              });
-            }
-          }
-        });
-      }
-
       // 메인 컴포넌트 최종 위치 업데이트
       const updatedComponent = {
         ...comp,
@@ -702,10 +705,7 @@ function CanvasComponent({
     dragStart,
     currentX,
     currentY,
-    selectedIds,
-    components,
     onUpdate,
-    onMultiUpdate,
     setSnapLines,
   ]);
 
