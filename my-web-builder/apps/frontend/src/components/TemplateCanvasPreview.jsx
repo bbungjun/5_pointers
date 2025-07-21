@@ -156,7 +156,7 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
         // 모바일 휴대폰 프레임 (PreviewModal과 동일한 스타일)
         <div
           className="flex items-center justify-center w-full h-full"
-          style={{ width: '240px', height: '380px' }}
+          style={{ width: '200px', height: '360px' }}
         >
           <div
             className="relative flex items-center justify-center"
@@ -165,13 +165,13 @@ const TemplateCanvasPreview = ({ template, className = '' }) => {
               height: '100%',
             }}
           >
-            {/* iPhone 프레임 (PreviewModal과 동일) */}
+            {/* iPhone 프레임 (크기 조정) */}
             <div
               className="relative bg-black rounded-[2.5rem] p-2.5"
               style={{
                 width: '395px',
                 height: '812px',
-                transform: 'scale(0.42)',
+                transform: 'scale(0.35)', // 더 작게 조정
                 transformOrigin: 'center center',
                 boxShadow:
                   '0 0 0 2px #1a1a1a, 0 0 0 7px #2a2a2a, 0 20px 40px rgba(0, 0, 0, 0.4)',
