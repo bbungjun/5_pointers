@@ -212,40 +212,15 @@ function DeployedPage({ user, onLogout }) {
       {/* 미리보기 영역 */}
       <div className="mb-4 flex items-center justify-center">
         {isMobile ? (
-          // 모바일 휴대폰 프레임 (TemplateCanvasPreview와 동일한 스타일)
+          // 모바일 미리보기 - TemplateCanvasPreview가 자체 프레임을 제공
           <div className="flex items-center justify-center">
-            <div className="relative">
-              {/* 휴대폰 외곽 프레임 */}
-              <div className="relative bg-gradient-to-b from-gray-800 to-gray-900 rounded-[1.5rem] p-1">
-                {/* 상단 노치 */}
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-3 bg-gray-900 rounded-b-lg z-20"></div>
-
-                {/* 스크린 영역 */}
-                <div
-                  className="relative bg-white rounded-[1.25rem] overflow-hidden border border-gray-600"
-                  style={{
-                    width: '200px',
-                    height: '400px',
-                  }}
-                >
-                  <TemplateCanvasPreview
-                    template={page}
-                    className="w-full h-full"
-                  />
-                </div>
-
-                {/* 홈 인디케이터 (하단) */}
-                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gray-600 rounded-full"></div>
-
-                {/* 사이드 버튼들 */}
-                <div className="absolute left-0 top-12 w-0.5 h-4 bg-gray-700 rounded-r-full"></div>
-                <div className="absolute left-0 top-20 w-0.5 h-8 bg-gray-700 rounded-r-full"></div>
-                <div className="absolute right-0 top-16 w-0.5 h-8 bg-gray-700 rounded-l-full"></div>
-              </div>
-            </div>
+            <TemplateCanvasPreview
+              template={page}
+              className="w-full h-full"
+            />
           </div>
         ) : (
-          // 데스크톱 화면 프레임 (TemplateCanvasPreview와 동일한 스타일)
+          // 데스크톱 화면 프레임
           <div className="flex items-center justify-center">
             <div
               className="relative bg-gray-50 overflow-hidden rounded-lg border border-gray-200"
