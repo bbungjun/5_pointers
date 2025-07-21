@@ -36,7 +36,7 @@ function TextComponentEditor({ selectedComp, onUpdate }) {
         onChange={(value) => updateProperty('fontSize', value)}
         label="글자 크기"
         min={8}
-        max={72}
+        max={300}
         suffix="px"
       />
 
