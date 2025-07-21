@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 function AttendRenderer({ comp, mode = 'live', pageId }) {
@@ -7,6 +7,9 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [privacyConsent, setPrivacyConsent] = useState(false);
+  const [modalPosition, setModalPosition] = useState({ top: '50%', left: '50%' });
+  const [isMobile, setIsMobile] = useState(false);
+  const containerRef = useRef(null);
 
   // 폼 타입별 설정
   const formConfigs = {
@@ -100,6 +103,43 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
   useEffect(() => {
     setFormData(getInitialFormData());
   }, [formType]);
+
+  // 모바일 감지 및 리사이즈 이벤트 처리
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // 모달 위치 계산 함수
+  const calculateModalPosition = () => {
+    if (!containerRef.current || !isMobile) {
+      return { top: '50%', left: '50%' };
+    }
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    
+    // 컴포넌트의 절대 위치 계산
+    const componentTop = rect.top + scrollTop;
+    const componentLeft = rect.left + scrollLeft;
+    const componentCenter = componentLeft + rect.width / 2;
+    
+    // 모달을 컴포넌트 바로 아래에 위치시키기
+    const modalTop = componentTop + rect.height + 10; // 10px 간격
+    
+    return {
+      top: `${modalTop}px`,
+      left: `${componentCenter}px`,
+      transform: 'translateX(-50%)', // 가로 중앙 정렬
+    };
+  };
 
   const handleSubmit = async () => {
     // 필수 필드 검증
@@ -321,13 +361,20 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
       </div>
 
       {/* 버튼 영역 - 맨 아래 배치 */}
-      <div style={{ marginTop: 'auto' }}>
+      <div style={{ marginTop: 'auto' }} ref={containerRef}>
         <button
           onClick={
             mode === 'editor' || isEditor === true
               ? undefined
               : (e) => {
                   e.stopPropagation();
+                  
+                  // 모바일에서 모달 위치 계산
+                  if (isMobile) {
+                    const position = calculateModalPosition();
+                    setModalPosition(position);
+                  }
+                  
                   setIsModalOpen(true);
                 }
           }
@@ -399,11 +446,12 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
                 backgroundColor: 'white',
                 borderRadius: '12px',
                 padding: '32px',
-                width: '90%',
+                width: isMobile ? '90%' : '90%',
                 maxWidth: '400px',
                 maxHeight: '90vh',
                 overflow: 'auto',
-                position: 'relative',
+                position: isMobile ? 'absolute' : 'relative',
+                ...(isMobile ? modalPosition : {}),
                 zIndex: 99999999,
                 boxShadow:
                   '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
