@@ -161,18 +161,25 @@ function AttendRenderer({
     },
   };
 
-  const currentConfig = formConfigs[formType] || formConfigs['wedding-attendance'];
+  const currentConfig = formConfigs[formType] || formConfigs['wedding-attendance'] || {
+    title: '참석 정보 입력',
+    buttonText: '참석 의사 전달',
+    apiEndpoint: 'attendance',
+    fields: []
+  };
 
   // 폼 데이터 초기화
   const getInitialFormData = () => {
     const initialData = {};
     // currentConfig가 존재하고 fields가 있는지 확인
-    if (currentConfig && currentConfig.fields) {
+    if (currentConfig && currentConfig.fields && Array.isArray(currentConfig.fields)) {
       currentConfig.fields.forEach((field) => {
-        if (field.defaultValue !== undefined) {
-          initialData[field.name] = field.defaultValue;
-        } else {
-          initialData[field.name] = '';
+        if (field && field.name) {
+          if (field.defaultValue !== undefined) {
+            initialData[field.name] = field.defaultValue;
+          } else {
+            initialData[field.name] = '';
+          }
         }
       });
     }
@@ -188,14 +195,14 @@ function AttendRenderer({
 
   const handleSubmit = async () => {
     // currentConfig가 존재하는지 확인
-    if (!currentConfig || !currentConfig.fields) {
-      console.error('Form configuration is missing');
+    if (!currentConfig || !currentConfig.fields || !Array.isArray(currentConfig.fields)) {
+      console.error('Form configuration is missing or invalid');
       return;
     }
 
     // 필수 필드 검증
     const requiredFields = currentConfig.fields.filter(
-      (field) => field.required
+      (field) => field && field.required
     );
     const missingFields = requiredFields.filter(
       (field) =>
@@ -328,12 +335,14 @@ function AttendRenderer({
 
         // 폼 데이터 초기화
         const initialData = {};
-        if (currentConfig && currentConfig.fields) {
+        if (currentConfig && currentConfig.fields && Array.isArray(currentConfig.fields)) {
           currentConfig.fields.forEach((field) => {
-            if (field.defaultValue !== undefined) {
-              initialData[field.name] = field.defaultValue;
-            } else {
-              initialData[field.name] = '';
+            if (field && field.name) {
+              if (field.defaultValue !== undefined) {
+                initialData[field.name] = field.defaultValue;
+              } else {
+                initialData[field.name] = '';
+              }
             }
           });
         }
@@ -463,7 +472,9 @@ function AttendRenderer({
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 999999,
+            zIndex: 2147483647,
+            padding: '20px',
+            boxSizing: 'border-box',
           }}
           onClick={() => setIsModalOpen(false)}
         >
@@ -471,12 +482,13 @@ function AttendRenderer({
             style={{
               backgroundColor: 'white',
               borderRadius: '12px',
-              padding: '32px',
-              width: '90%',
-              maxWidth: '400px',
-              maxHeight: '90vh',
+              padding: '24px',
+              width: '100%',
+              maxWidth: '450px',
+              maxHeight: 'calc(100vh - 40px)',
               overflow: 'auto',
               position: 'relative',
+              boxSizing: 'border-box',
               boxShadow:
                 '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
             }}
@@ -497,7 +509,7 @@ function AttendRenderer({
             </h2>
 
             {/* 동적 필드 렌더링 */}
-            {currentConfig && currentConfig.fields && currentConfig.fields.map((field) => (
+            {currentConfig && currentConfig.fields && Array.isArray(currentConfig.fields) && currentConfig.fields.map((field) => (
               <div key={field.name} style={{ marginBottom: '20px' }}>
                 {field.type === 'radio' ? (
                   <>
@@ -664,14 +676,14 @@ function AttendRenderer({
               <button
                 onClick={handleSubmit}
                 disabled={(() => {
-                  if (!currentConfig || !currentConfig.fields) return true;
+                  if (!currentConfig || !currentConfig.fields || !Array.isArray(currentConfig.fields)) return true;
                   const requiredFields = currentConfig.fields.filter(
-                    (field) => field.required
+                    (field) => field && field.required
                   );
                   const missingFields = requiredFields.filter(
                     (field) =>
-                      !formData[field.name] ||
-                      formData[field.name].toString().trim() === ''
+                      field && field.name && (!formData[field.name] ||
+                      formData[field.name].toString().trim() === '')
                   );
                   return (
                     missingFields.length > 0 || !privacyConsent || isSubmitting
@@ -679,14 +691,14 @@ function AttendRenderer({
                 })()}
                 style={buttonStyle(
                   (() => {
-                    if (!currentConfig || !currentConfig.fields) return '#d1d5db';
+                    if (!currentConfig || !currentConfig.fields || !Array.isArray(currentConfig.fields)) return '#d1d5db';
                     const requiredFields = currentConfig.fields.filter(
-                      (field) => field.required
+                      (field) => field && field.required
                     );
                     const missingFields = requiredFields.filter(
                       (field) =>
-                        !formData[field.name] ||
-                        formData[field.name].toString().trim() === ''
+                        field && field.name && (!formData[field.name] ||
+                        formData[field.name].toString().trim() === '')
                     );
                     return missingFields.length > 0 ||
                       !privacyConsent ||
@@ -697,14 +709,14 @@ function AttendRenderer({
                   'white',
                   comp,
                   (() => {
-                    if (!currentConfig || !currentConfig.fields) return true;
+                    if (!currentConfig || !currentConfig.fields || !Array.isArray(currentConfig.fields)) return true;
                     const requiredFields = currentConfig.fields.filter(
-                      (field) => field.required
+                      (field) => field && field.required
                     );
                     const missingFields = requiredFields.filter(
                       (field) =>
-                        !formData[field.name] ||
-                        formData[field.name].toString().trim() === ''
+                        field && field.name && (!formData[field.name] ||
+                        formData[field.name].toString().trim() === '')
                     );
                     return (
                       missingFields.length > 0 ||

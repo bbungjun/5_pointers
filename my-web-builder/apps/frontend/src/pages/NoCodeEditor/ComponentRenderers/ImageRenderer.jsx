@@ -208,21 +208,6 @@ function ImageRenderer({ comp, component, isEditor = false, mode = 'editor', isP
 
   return (
     <div style={containerStyle}>
-      {/* 로딩 상태 */}
-      {isLoading && (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
-          color: '#6b7280',
-          fontSize: '14px'
-        }}>
-          <div style={{ fontSize: '20px', marginBottom: '8px' }}>⏳</div>
-          <div>로딩 중...</div>
-        </div>
-      )}
 
       {/* 에러 상태 */}
       {imageError && (

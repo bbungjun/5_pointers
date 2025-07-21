@@ -203,18 +203,24 @@ function AttendanceSummary({ pageId, onClose }) {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           성함
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          구분
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          참석 인원
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          동행자
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          식사 여부
-                        </th>
+                        {/* 생일파티가 아닌 경우에만 추가 컬럼들 표시 */}
+                        {attendanceData.attendances.length > 0 && 
+                         attendanceData.attendances.some(attendance => attendance.formType !== 'birthday-party') && (
+                          <>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              구분
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              참석 인원
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              동행자
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              식사 여부
+                            </th>
+                          </>
+                        )}
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           연락처
                         </th>
@@ -231,36 +237,45 @@ function AttendanceSummary({ pageId, onClose }) {
                               {attendance.attendeeName}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                attendance.guestSide === '신부측'
-                                  ? 'bg-pink-100 text-pink-800'
-                                  : 'bg-pink-100 text-blue-800'
-                              }`}
-                            >
-                              {attendance.guestSide}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {attendance.attendeeCount}명
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {attendance.companionCount}명
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                attendance.mealOption === '식사함'
-                                  ? 'bg-green-100 text-green-800'
-                                  : attendance.mealOption === '식사안함'
-                                    ? 'bg-gray-100 text-gray-800'
-                                    : 'bg-yellow-100 text-yellow-800'
-                              }`}
-                            >
-                              {attendance.mealOption || '미선택'}
-                            </span>
-                          </td>
+                          {/* 생일파티 폼타입인 경우 구분과 식사여부 숨기기 */}
+                          {attendance.formType !== 'birthday-party' && (
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span
+                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                  attendance.guestSide === '신부측'
+                                    ? 'bg-pink-100 text-pink-800'
+                                    : 'bg-pink-100 text-blue-800'
+                                }`}
+                              >
+                                {attendance.guestSide}
+                              </span>
+                            </td>
+                          )}
+                          {attendance.formType !== 'birthday-party' && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {attendance.attendeeCount}명
+                            </td>
+                          )}
+                          {attendance.formType !== 'birthday-party' && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {attendance.companionCount}명
+                            </td>
+                          )}
+                          {attendance.formType !== 'birthday-party' && (
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span
+                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                  attendance.mealOption === '식사함'
+                                    ? 'bg-green-100 text-green-800'
+                                    : attendance.mealOption === '식사안함'
+                                      ? 'bg-gray-100 text-gray-800'
+                                      : 'bg-yellow-100 text-yellow-800'
+                                }`}
+                              >
+                                {attendance.mealOption || '미선택'}
+                              </span>
+                            </td>
+                          )}
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {attendance.contact || '-'}
                           </td>
