@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 2, width = 400, height = 300 }) {
+function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 3, width = 400, height = 300 }) {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 

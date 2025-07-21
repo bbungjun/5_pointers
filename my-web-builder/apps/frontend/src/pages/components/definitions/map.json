@@ -5,7 +5,7 @@
   "defaultProps": {
     "lat": 37.5665,
     "lng": 126.9780,
-    "zoom": 13,
+    "zoom": 3,
     "width": 400,
     "height": 300
   },

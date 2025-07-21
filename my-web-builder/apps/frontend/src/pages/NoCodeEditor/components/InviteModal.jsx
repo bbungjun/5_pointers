@@ -53,7 +53,9 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
       if (response.ok) {
         if (data.success) {
           // 초대 링크 생성 성공
-          setMessage('초대를 보냈습니다!');
+          // 이메일 앞부분 추출 (예: test@example.com -> test님)
+          const emailPrefix = email.trim().split('@')[0];
+          setMessage(`${emailPrefix}님을 초대했습니다!`);
           setMessageType('success');
           setEmail('');
 
@@ -62,11 +64,11 @@ function InviteModal({ isOpen, onClose, pageId, onInviteSuccess }) {
             onInviteSuccess();
           }
 
-          // 5초 후 모달 닫기 (링크 복사 시간 고려)
-          setTimeout(() => {
-            onClose();
-            setMessage('');
-          }, 5000);
+          // 자동 모달 닫기 제거 - 사용자가 직접 닫도록 함
+          // setTimeout(() => {
+          //   onClose();
+          //   setMessage('');
+          // }, 5000);
         } else {
           // 초대 링크 생성 실패
           setMessage(data.message || '초대에 실패했습니다.');

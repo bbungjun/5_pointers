@@ -2,7 +2,6 @@ import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { useYjsCollaboration } from './useYjsCollaboration';
 import { useLiveCursors } from './useLiveCursors';
 import { useChat } from './useChat';
-import { useMasterSystem } from './useMasterSystem';
 import { API_BASE_URL } from '../config';
 
 /**
@@ -39,17 +38,6 @@ export function useCollaboration({
     safeRoomId,
     safeUserInfo
   );
-
-  // 마스터 시스템 관리 (접속 순서 기준)
-  const { 
-    isMaster, 
-    masterUserId, 
-    connectedUsers, 
-    totalUsers,
-    getJoinOrder,
-    getNextMaster,
-    myJoinOrder
-  } = useMasterSystem(awareness, safeUserInfo);
 
   // 라이브 커서 관리 (항상 호출)
   const {
@@ -677,14 +665,6 @@ export function useCollaboration({
     connectionError,
     ydoc,
     provider,
-    // 마스터 시스템 정보
-    isMaster,
-    masterUserId,
-    connectedUsers,
-    totalUsers,
-    getJoinOrder,
-    getNextMaster,
-    myJoinOrder,
   }), [
     otherCursors,
     otherSelections,
