@@ -16,6 +16,7 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
   const [isLoading, setIsLoading] = useState(true);
   const [canvasHeight, setCanvasHeight] = useState(1080);
   const [isFromTemplate, setIsFromTemplate] = useState(false); // 템플릿으로부터 생성된 페이지인지 여부
+  const [pageCreatorId, setPageCreatorId] = useState(null); // 페이지 생성자 ID 추가
 
   // 자동 저장 훅
   const autoSave = useAutoSave(roomId, components, canvasHeight);
@@ -67,6 +68,25 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
         if (response.ok) {
           const pageData = await response.json();
           console.log('📄 페이지 데이터 로딩 성공:', pageData);
+          console.log('🔍 페이지 데이터 구조 분석:', {
+            hasCreatedBy: !!pageData.createdBy,
+            hasUserId: !!pageData.userId,
+            hasOwnerId: !!pageData.ownerId,
+            createdBy: pageData.createdBy,
+            userId: pageData.userId,
+            ownerId: pageData.ownerId,
+            allKeys: Object.keys(pageData)
+          });
+
+          // 페이지 생성자 정보 추출
+          if (pageData.createdBy || pageData.userId || pageData.ownerId) {
+            const creatorId = pageData.createdBy || pageData.userId || pageData.ownerId;
+            setPageCreatorId(creatorId);
+            console.log('👑 페이지 생성자 ID 설정:', creatorId);
+          } else {
+            console.log('⚠️ 페이지 생성자 정보를 찾을 수 없습니다. 첫 번째 접속자를 마스터로 설정합니다.');
+            setPageCreatorId(null);
+          }
 
           // 페이지의 editingMode를 우선적으로 사용하여 편집 기준 설정
           if (pageData.editingMode) {
@@ -215,6 +235,7 @@ export function usePageDataManager(roomId, initialViewport = 'desktop') {
     setCanvasHeight,
     isLoading,
     isFromTemplate, // 템플릿으로부터 생성된 페이지인지 여부
+    pageCreatorId, // 페이지 생성자 ID 추가
 
     // 유틸리티
     autoSave,

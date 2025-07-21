@@ -13,6 +13,7 @@ import MusicEditor from './ComponentEditors/MusicEditor';
 import KakaoTalkShareEditor from './ComponentEditors/KakaoTalkShareEditor.jsx';
 import PageButtonEditor from './ComponentEditors/PageButtonEditor';
 import LinkCopyEditor from './ComponentEditors/LinkCopyEditor';
+import RectangleLayerEditor from './ComponentEditors/RectangleLayerEditor';
 
 
 
@@ -52,6 +53,8 @@ export default function ComponentEditor({ selectedComp, onUpdate }) {
             return <PageButtonEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
         case 'linkCopy':
             return <LinkCopyEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
+        case 'rectangleLayer':
+            return <RectangleLayerEditor selectedComp={selectedComp} onUpdate={onUpdate} />;
         default:
             return <p>Select a component to edit its properties.</p>;
     }

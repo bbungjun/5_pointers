@@ -208,7 +208,6 @@ function ImageRenderer({ comp, component, isEditor = false, mode = 'editor', isP
 
   return (
     <div style={containerStyle}>
-
       {/* 에러 상태 */}
       {imageError && (
         <div style={{

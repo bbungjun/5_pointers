@@ -137,8 +137,6 @@ function ImageRenderer({ comp, onUpdate, mode = 'live', width, height }) {
           textAlign: 'center',
           color: '#666'
         }}>
-          <div>⏳</div>
-          <div>로딩 중...</div>
         </div>
       )}
 

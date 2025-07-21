@@ -7,7 +7,9 @@ import React, {
 } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import useAutoSave from '../hooks/useAutoSave';
+import useMasterAutoSave from '../hooks/useMasterAutoSave';
 import SaveStatusIndicator from '../components/SaveStatusIndicator';
+import MasterStatusIndicator from '../components/MasterStatusIndicator';
 import { YJS_WEBSOCKET_URL } from '../config';
 // 모듈화된 컴포넌트들
 import ComponentLibrary from './NoCodeEditor/ComponentLibrary';
@@ -97,6 +99,7 @@ function NoCodeEditor({ pageId }) {
     pageTitle,
     setPageTitle,
     updatePageTitle,
+    pageCreatorId, // 페이지 생성자 ID 추가
   } = usePageDataManager(effectivePageId, initialViewport);
 
   // 2. 사용자 정보 처리 (단순화)
@@ -161,6 +164,17 @@ function NoCodeEditor({ pageId }) {
     },
     viewport: interaction.viewport,
   });
+
+  // 마스터 자동저장 (마스터만 저장 수행)
+  const masterAutoSave = useMasterAutoSave(
+    effectivePageId, 
+    components, 
+    canvasHeight, 
+    collaboration.isMaster
+  );
+
+  // 기존 자동저장은 비활성화하고 마스터 자동저장 사용
+  const { isSaving, lastSaved, saveError, saveCount } = masterAutoSave;
 
   // 템플릿 시작 시 모든 사용자에게 즉시 동기화 (최초 한 번만)
   const [hasInitialSync, setHasInitialSync] = useState(false);
@@ -532,15 +546,7 @@ function NoCodeEditor({ pageId }) {
     ]
   );
 
-  // 자동저장 훅 (컴포넌트 변경 시에만 저장)
-  const { isSaving, lastSaved, saveError, saveCount, saveNow } = useAutoSave(
-    pageId, // roomId (페이지 ID)
-    components, // 컴포넌트 배열
-    canvasHeight, // 현재 캔버스 높이
-    2000 // 디바운스 시간 (2초)
-  );
-
-  // 컴포넌트 변경 시 자동저장 트리거
+  // 기존 자동저장 코드는 제거됨 (마스터 자동저장으로 대체)
   useEffect(() => {
     // 컴포넌트가 변경되면 자동저장 훅이 자동으로 처리
   }, [components]);
@@ -658,16 +664,29 @@ function NoCodeEditor({ pageId }) {
         lastSaved={lastSaved}
         saveError={saveError}
         saveCount={saveCount}
-        onSaveNow={saveNow}
+        onSaveNow={masterAutoSave.saveNow}
       />
 
+      {/* 마스터 상태 표시 - 주석 처리 */}
+      {/* <MasterStatusIndicator
+        isMaster={collaboration.isMaster}
+        masterUserId={collaboration.masterUserId}
+        userInfo={userInfo}
+        connectedUsers={collaboration.connectedUsers || []}
+        totalUsers={collaboration.totalUsers || 0}
+        myJoinOrder={collaboration.myJoinOrder}
+        getNextMaster={collaboration.getNextMaster}
+      /> */}
+
       {/* 연결 상태 표시 (헤더 밖) */}
+      {/**
       <div className="absolute top-20 right-6 z-20">
         <ConnectionStatus
           isConnected={isConnected}
           connectionError={connectionError}
         />
       </div>
+      */}
 
       {/* 메인 에디터 영역 */}
       <div className="flex flex-1 overflow-hidden">
