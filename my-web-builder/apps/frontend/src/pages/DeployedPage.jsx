@@ -758,9 +758,6 @@ function DeployedPage({ user, onLogout }) {
                       if (submission.data.guestSide || submission.data.mealOption || submission.data.companionCount !== undefined) {
                         return 'wedding-attendance';
                       }
-                      if (submission.data.arrivalTime) {
-                        return 'birthday-party';
-                      }
                       if (submission.data.studentId && submission.data.major && submission.data.motivation) {
                         return 'club-application';
                       }
@@ -854,9 +851,6 @@ function DeployedPage({ user, onLogout }) {
                       // 데이터 필드 기반으로 폼 타입 추론
                       if (submissionData.guestSide || submissionData.mealOption || submissionData.companionCount !== undefined) {
                         return 'wedding-attendance'; // 결혼식 참석 (신랑/신부측, 식사여부, 동행인수)
-                      }
-                      if (submissionData.arrivalTime) {
-                        return 'birthday-party'; // 생일파티 (도착시간)
                       }
                       if (submissionData.studentId && submissionData.major && submissionData.motivation) {
                         return 'club-application'; // 동아리 가입 (학번, 전공, 지원동기)
@@ -991,9 +985,6 @@ function DeployedPage({ user, onLogout }) {
                     // 데이터 필드 기반으로 폼 타입 추론
                     if (submissionData.guestSide || submissionData.mealOption || submissionData.companionCount !== undefined) {
                       return 'wedding-attendance'; // 결혼식 참석 (신랑/신부측, 식사여부, 동행인수)
-                    }
-                    if (submissionData.arrivalTime) {
-                      return 'birthday-party'; // 생일파티 (도착시간)
                     }
                     if (submissionData.studentId && submissionData.major && submissionData.motivation) {
                       return 'club-application'; // 동아리 가입 (학번, 전공, 지원동기)

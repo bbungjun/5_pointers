@@ -101,13 +101,6 @@ function AttendRenderer({
           placeholder: '전화번호를 입력해주세요',
           required: true,
         },
-        {
-          name: 'arrivalTime',
-          label: '도착 예정시간',
-          type: 'time',
-          placeholder: '도착 예정시간을 선택해주세요',
-          required: true,
-        },
       ],
     },
     'club-application': {
