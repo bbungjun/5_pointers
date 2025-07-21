@@ -3,15 +3,15 @@ import { createPortal } from 'react-dom';
 
 function AttendRenderer({ comp, mode = 'live', pageId }) {
   const isEditor = mode === 'editor';
-  const formType = comp.props?.formType || 'attendance';
+  const formType = comp.props?.formType || 'wedding-attendance';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [privacyConsent, setPrivacyConsent] = useState(false);
 
   // 폼 타입별 설정
   const formConfigs = {
-    attendance: {
-      title: '참석 정보 입력',
+    'wedding-attendance': {
+      title: '결혼식 참석 정보 입력',
       buttonText: '참석 의사 전달',
       apiEndpoint: 'attendance',
       fields: [
@@ -56,37 +56,16 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
         },
       ],
     },
-    'club-registration': {
-      title: '동아리 가입 신청서',
-      buttonText: '가입 신청하기',
+    'birthday-party': {
+      title: '생일파티 참석 정보 입력',
+      buttonText: '참석 의사 전달',
       apiEndpoint: 'attendance',
       fields: [
         {
-          name: 'studentName',
-          label: '이름',
+          name: 'attendeeName',
+          label: '참석자 성함',
           type: 'text',
-          placeholder: '이름을 입력해주세요',
-          required: true,
-        },
-        {
-          name: 'studentId',
-          label: '학번',
-          type: 'text',
-          placeholder: '학번을 입력해주세요',
-          required: true,
-        },
-        {
-          name: 'major',
-          label: '전공',
-          type: 'text',
-          placeholder: '전공을 입력해주세요',
-          required: true,
-        },
-        {
-          name: 'grade',
-          label: '학년',
-          type: 'radio',
-          options: ['1학년', '2학년', '3학년', '4학년'],
+          placeholder: '성함을 입력해주세요',
           required: true,
         },
         {
@@ -95,26 +74,6 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
           type: 'tel',
           placeholder: '전화번호를 입력해주세요',
           required: true,
-        },
-        {
-          name: 'email',
-          label: '이메일',
-          type: 'email',
-          placeholder: '이메일을 입력해주세요',
-          required: true,
-        },
-        {
-          name: 'motivation',
-          label: '지원 동기',
-          type: 'textarea',
-          placeholder: '동아리 지원 동기를 입력해주세요',
-          required: true,
-        },
-        {
-          name: 'experience',
-          label: '관련 경험',
-          type: 'textarea',
-          placeholder: '관련 경험이나 특기사항을 입력해주세요',
         },
       ],
     },
@@ -202,26 +161,22 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
       // 폼 데이터 변환 (백엔드 호환성을 위해)
       let submitData = { ...formData, privacyConsent };
 
-      // 동아리 가입 폼의 경우 attendance 엔드포인트와 호환되도록 필드명 변환
-      if (formType === 'club-registration') {
-        console.log('🔍 Club registration form data:', formData);
+      // 생일파티 폼의 경우 attendance 엔드포인트와 호환되도록 필드명 변환
+      if (formType === 'birthday-party') {
+        console.log('🔍 Birthday party form data:', formData);
         submitData = {
-          attendeeName: formData.studentName || '',
+          attendeeName: formData.attendeeName || '',
           attendeeCount: 1,
-          guestSide: formData.grade || '',
+          guestSide: '',
           contact: formData.contact || '',
           companionCount: 0,
           mealOption: '',
           privacyConsent,
-          // 동아리 가입 전용 필드들
-          studentId: formData.studentId || '',
-          major: formData.major || '',
-          email: formData.email || '',
-          motivation: formData.motivation || '',
-          experience: formData.experience || '',
-          formType: 'club-registration', // 구분을 위한 필드
+          // 생일파티 전용 필드들
+          arrivalTime: formData.arrivalTime || '',
+          formType: 'birthday-party', // 구분을 위한 필드
         };
-        console.log('📤 Sending club registration data:', submitData);
+        console.log('📤 Sending birthday party data:', submitData);
       }
 
       const response = await fetch(url, {
@@ -234,9 +189,9 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
 
       if (response.ok) {
         const successMessage =
-          formType === 'attendance'
-            ? '참석 의사가 성공적으로 전달되었습니다!'
-            : '가입 신청이 성공적으로 제출되었습니다!';
+          formType === 'wedding-attendance'
+            ? '결혼식 참석 의사가 성공적으로 전달되었습니다!'
+            : '생일파티 참석 의사가 성공적으로 전달되었습니다!';
 
         // 간단한 인라인 알림 표시
         const notification = document.createElement('div');

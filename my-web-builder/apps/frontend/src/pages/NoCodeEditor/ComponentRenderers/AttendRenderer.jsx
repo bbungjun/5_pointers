@@ -27,15 +27,17 @@ function AttendRenderer({
     return `${baseSize}px`;
   };
 
-  const formType = comp.props?.formType || 'attendance';
+  const formType = comp.props?.formType || 'wedding-attendance';
+  
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [privacyConsent, setPrivacyConsent] = useState(false);
 
   // 폼 타입별 설정
   const formConfigs = {
-    attendance: {
-      title: '참석 정보 입력',
+    'wedding-attendance': {
+      title: '결혼식 참석 정보 입력',
       buttonText: '참석 의사 전달',
       apiEndpoint: 'attendance',
       fields: [
@@ -80,13 +82,34 @@ function AttendRenderer({
         },
       ],
     },
-    'club-registration': {
-      title: '동아리 가입 신청서',
+    'birthday-party': {
+      title: '생일파티 참석 정보 입력',
+      buttonText: '참석 의사 전달',
+      apiEndpoint: 'attendance',
+      fields: [
+        {
+          name: 'attendeeName',
+          label: '참석자 성함',
+          type: 'text',
+          placeholder: '성함을 입력해주세요',
+          required: true,
+        },
+        {
+          name: 'contact',
+          label: '연락처',
+          type: 'tel',
+          placeholder: '전화번호를 입력해주세요',
+          required: true,
+        },
+      ],
+    },
+    'club-application': {
+      title: '동아리 가입 신청',
       buttonText: '가입 신청하기',
       apiEndpoint: 'attendance',
       fields: [
         {
-          name: 'studentName',
+          name: 'attendeeName',
           label: '이름',
           type: 'text',
           placeholder: '이름을 입력해주세요',
@@ -107,13 +130,6 @@ function AttendRenderer({
           required: true,
         },
         {
-          name: 'grade',
-          label: '학년',
-          type: 'radio',
-          options: ['1학년', '2학년', '3학년', '4학년'],
-          required: true,
-        },
-        {
           name: 'contact',
           label: '연락처',
           type: 'tel',
@@ -131,31 +147,35 @@ function AttendRenderer({
           name: 'motivation',
           label: '지원 동기',
           type: 'textarea',
-          placeholder: '동아리 지원 동기를 입력해주세요',
+          placeholder: '동아리 지원 동기를 작성해주세요',
           required: true,
         },
         {
           name: 'experience',
           label: '관련 경험',
           type: 'textarea',
-          placeholder: '관련 경험이나 특기사항을 입력해주세요',
+          placeholder: '관련 경험이나 특기사항을 작성해주세요',
+          required: false,
         },
       ],
     },
   };
 
-  const currentConfig = formConfigs[formType];
+  const currentConfig = formConfigs[formType] || formConfigs['wedding-attendance'];
 
   // 폼 데이터 초기화
   const getInitialFormData = () => {
     const initialData = {};
-    currentConfig.fields.forEach((field) => {
-      if (field.defaultValue !== undefined) {
-        initialData[field.name] = field.defaultValue;
-      } else {
-        initialData[field.name] = '';
-      }
-    });
+    // currentConfig가 존재하고 fields가 있는지 확인
+    if (currentConfig && currentConfig.fields) {
+      currentConfig.fields.forEach((field) => {
+        if (field.defaultValue !== undefined) {
+          initialData[field.name] = field.defaultValue;
+        } else {
+          initialData[field.name] = '';
+        }
+      });
+    }
     return initialData;
   };
 
@@ -167,6 +187,12 @@ function AttendRenderer({
   }, [formType]);
 
   const handleSubmit = async () => {
+    // currentConfig가 존재하는지 확인
+    if (!currentConfig || !currentConfig.fields) {
+      console.error('Form configuration is missing');
+      return;
+    }
+
     // 필수 필드 검증
     const requiredFields = currentConfig.fields.filter(
       (field) => field.required
@@ -214,7 +240,7 @@ function AttendRenderer({
             ? 'http://jungle-backend-prod-env.eba-ftfwcygq.ap-northeast-2.elasticbeanstalk.com/api'
             : '/api';
 
-      const url = `${apiBaseUrl}/users/pages/${targetPageId}/${currentConfig.apiEndpoint}/${comp.id}`;
+      const url = `${apiBaseUrl}/users/pages/${targetPageId}/${currentConfig?.apiEndpoint || 'attendance'}/${comp.id}`;
       console.log('🎯 Form API Request:', {
         targetPageId,
         componentId: comp.id,
@@ -226,12 +252,36 @@ function AttendRenderer({
       // 폼 데이터 변환 (백엔드 호환성을 위해)
       let submitData = { ...formData, privacyConsent };
 
-      // 동아리 가입 폼의 경우 attendance 엔드포인트와 호환되도록 필드명 변환
-      if (formType === 'club-registration') {
+      // 결혼식 참석 폼의 경우 formType 추가
+      if (formType === 'wedding-attendance') {
         submitData = {
-          attendeeName: formData.studentName || '',
+          ...submitData,
+          formType: 'wedding-attendance'
+        };
+      }
+
+      // 생일파티 폼의 경우 attendance 엔드포인트와 호환되도록 필드명 변환
+      if (formType === 'birthday-party') {
+        submitData = {
+          attendeeName: formData.attendeeName || '',
           attendeeCount: 1,
-          guestSide: formData.grade || '',
+          guestSide: '',
+          contact: formData.contact || '',
+          companionCount: 0,
+          mealOption: '',
+          privacyConsent,
+          // 생일파티 전용 필드들
+          arrivalTime: formData.arrivalTime || '',
+          formType: 'birthday-party', // 구분을 위한 필드
+        };
+      }
+
+      // 동아리 가입 폼의 경우 attendance 엔드포인트와 호환되도록 필드명 변환
+      if (formType === 'club-application') {
+        submitData = {
+          attendeeName: formData.attendeeName || '',
+          attendeeCount: 1,
+          guestSide: '',
           contact: formData.contact || '',
           companionCount: 0,
           mealOption: '',
@@ -242,7 +292,7 @@ function AttendRenderer({
           email: formData.email || '',
           motivation: formData.motivation || '',
           experience: formData.experience || '',
-          formType: 'club-registration', // 구분을 위한 필드
+          formType: 'club-application', // 구분을 위한 필드
         };
       }
 
@@ -254,23 +304,39 @@ function AttendRenderer({
         body: JSON.stringify(submitData),
       });
 
+      console.log('📤 Form submission response:', {
+        status: response.status,
+        ok: response.ok,
+        url,
+        submitData
+      });
+
       if (response.ok) {
+        const responseData = await response.json();
+        console.log('✅ Form submission successful:', responseData);
+        
         const successMessage =
-          formType === 'attendance'
-            ? '참석 의사가 성공적으로 전달되었습니다!'
-            : '가입 신청이 성공적으로 제출되었습니다!';
+          formType === 'wedding-attendance'
+            ? '결혼식 참석 의사가 성공적으로 전달되었습니다!'
+            : formType === 'birthday-party'
+            ? '생일파티 참석 의사가 성공적으로 전달되었습니다!'
+            : formType === 'club-application'
+            ? '동아리 가입 신청이 성공적으로 전달되었습니다!'
+            : '참석 의사가 성공적으로 전달되었습니다!';
         showSuccess(successMessage);
         setIsModalOpen(false);
 
         // 폼 데이터 초기화
         const initialData = {};
-        currentConfig.fields.forEach((field) => {
-          if (field.defaultValue !== undefined) {
-            initialData[field.name] = field.defaultValue;
-          } else {
-            initialData[field.name] = '';
-          }
-        });
+        if (currentConfig && currentConfig.fields) {
+          currentConfig.fields.forEach((field) => {
+            if (field.defaultValue !== undefined) {
+              initialData[field.name] = field.defaultValue;
+            } else {
+              initialData[field.name] = '';
+            }
+          });
+        }
         setFormData(initialData);
         setPrivacyConsent(false);
       } else {
@@ -381,7 +447,7 @@ function AttendRenderer({
             }
           }}
         >
-          {comp.props.buttonText || currentConfig.buttonText}
+          {comp.props.buttonText || currentConfig?.buttonText || '참석 의사 전달'}
         </button>
       </div>
 
@@ -427,11 +493,11 @@ function AttendRenderer({
                   comp.props?.fontFamily || '"Playfair Display", serif',
               }}
             >
-              {currentConfig.title}
+              {currentConfig?.title || '참석 정보 입력'}
             </h2>
 
             {/* 동적 필드 렌더링 */}
-            {currentConfig.fields.map((field) => (
+            {currentConfig && currentConfig.fields && currentConfig.fields.map((field) => (
               <div key={field.name} style={{ marginBottom: '20px' }}>
                 {field.type === 'radio' ? (
                   <>
@@ -598,6 +664,7 @@ function AttendRenderer({
               <button
                 onClick={handleSubmit}
                 disabled={(() => {
+                  if (!currentConfig || !currentConfig.fields) return true;
                   const requiredFields = currentConfig.fields.filter(
                     (field) => field.required
                   );
@@ -612,6 +679,7 @@ function AttendRenderer({
                 })()}
                 style={buttonStyle(
                   (() => {
+                    if (!currentConfig || !currentConfig.fields) return '#d1d5db';
                     const requiredFields = currentConfig.fields.filter(
                       (field) => field.required
                     );
@@ -629,6 +697,7 @@ function AttendRenderer({
                   'white',
                   comp,
                   (() => {
+                    if (!currentConfig || !currentConfig.fields) return true;
                     const requiredFields = currentConfig.fields.filter(
                       (field) => field.required
                     );
@@ -646,7 +715,7 @@ function AttendRenderer({
                   mode
                 )}
               >
-                {isSubmitting ? '전송 중...' : currentConfig.buttonText}
+                {isSubmitting ? '전송 중...' : (currentConfig?.buttonText || '참석 의사 전달')}
               </button>
             </div>
           </div>

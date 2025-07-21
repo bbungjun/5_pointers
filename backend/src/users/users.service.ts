@@ -1235,7 +1235,7 @@ export class UsersService {
     const queryBuilder = this.submissionsRepository
       .createQueryBuilder('submission')
       .leftJoinAndSelect('submission.page', 'page')
-      .where('page.id = :pageId OR submission.component_id = :pageId', {
+      .where('page.id = :pageId', {
         pageId,
       })
       .orderBy('submission.createdAt', 'DESC');
@@ -1274,7 +1274,7 @@ export class UsersService {
     const totalCount = await this.submissionsRepository
       .createQueryBuilder('submission')
       .leftJoinAndSelect('submission.page', 'page')
-      .where('page.id = :pageId OR submission.component_id = :pageId', {
+      .where('page.id = :pageId', {
         pageId,
       })
       .getCount();
@@ -1285,7 +1285,7 @@ export class UsersService {
       .leftJoinAndSelect('submission.page', 'page')
       .select('submission.component_id', 'componentId')
       .addSelect('COUNT(*)', 'count')
-      .where('page.id = :pageId OR submission.component_id = :pageId', {
+      .where('page.id = :pageId', {
         pageId,
       })
       .groupBy('submission.component_id')
@@ -1378,6 +1378,13 @@ export class UsersService {
     const page = await this.pagesRepository.findOne({ where: { id: pageId } });
     if (!page) throw new Error('Page not found');
 
+    console.log('💾 Creating submission:', {
+      pageId,
+      componentId,
+      formType: attendanceData.formType,
+      attendeeName: attendanceData.attendeeName
+    });
+
     const submission = this.submissionsRepository.create({
       page: page,
       component_id: componentId,
@@ -1399,6 +1406,12 @@ export class UsersService {
     });
 
     const saved = await this.submissionsRepository.save(submission);
+    console.log('✅ Submission saved successfully:', {
+      id: saved.id,
+      pageId: saved.page.id,
+      componentId: saved.component_id,
+      formType: saved.data.formType
+    });
     return {
       id: saved.id,
       attendeeName: saved.data.attendeeName,
