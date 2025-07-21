@@ -20,6 +20,7 @@ import PageRenderer from './ComponentRenderers/PageRenderer';
 import KakaoTalkShareRenderer from './ComponentRenderers/KakaoTalkShareRenderer';
 import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
 import LinkCopyRenderer from './ComponentRenderers/LinkCopyRenderer';
+import RectangleLayerRenderer from './ComponentRenderers/RectangleLayerRenderer';
 
 // --- Helper Functions (배포 페이지와 동일한 로직) ---
 const getComponentDefaultSize = (componentType) => {
@@ -159,6 +160,7 @@ const getRendererByType = (type) => {
     kakaoTalkShare: KakaoTalkShareRenderer,
     pageButton: PageButtonRenderer,
     linkCopy: LinkCopyRenderer,
+    rectangleLayer: RectangleLayerRenderer,
   };
 
   return renderers[type] || null;

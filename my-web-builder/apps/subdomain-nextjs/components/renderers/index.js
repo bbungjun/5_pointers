@@ -19,3 +19,42 @@ export { default as KakaoTalkShareRenderer } from './KakaoTalkShareRenderer';
 export { default as MapView } from './MapView';
 export { default as PageRenderer } from './PageRenderer';
 export { default as PageButtonRenderer } from './PageButtonRenderer';
+export { default as RectangleLayerRenderer } from './RectangleLayerRenderer';
+
+// 컴포넌트 타입과 렌더러 매핑
+const renderers = {
+  'button': ButtonRenderer,
+  'text': TextRenderer,
+  'link': LinkRenderer,
+  'attend': AttendRenderer,
+  'image': ImageRenderer,
+  'map-info': MapInfoRenderer,
+  'map_info': MapInfoRenderer,
+  'mapInfo': MapInfoRenderer,
+  'map': MapView,
+  'd-day': DdayRenderer,
+  'dday': DdayRenderer,
+  'wedding-contact': WeddingContactRenderer,
+  'weddingContact': WeddingContactRenderer,
+  'grid-gallery': GridGalleryRenderer,
+  'gridGallery': GridGalleryRenderer,
+  'slide-gallery': SlideGalleryRenderer,
+  'slideGallery': SlideGalleryRenderer,
+  'calendar': CalendarRenderer,
+  'bank-account': BankAccountRenderer,
+  'bankAccount': BankAccountRenderer,
+  'comment': CommentRenderer,
+  'slido': SlidoRenderer,
+  'wedding-invite': WeddingInviteRenderer,
+  'weddingInvite': WeddingInviteRenderer,
+  'music': MusicRenderer,
+  'music-player': MusicRenderer,
+  'musicPlayer': MusicRenderer,
+  'kakaotalk-share': KakaoTalkShareRenderer,
+  'kakaotalkShare': KakaoTalkShareRenderer,
+  'page': PageRenderer,
+  'pageButton': PageButtonRenderer,
+  'rectangleLayer': RectangleLayerRenderer,
+};
+
+export default renderers;

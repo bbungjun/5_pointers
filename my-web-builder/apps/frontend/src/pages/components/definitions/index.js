@@ -19,8 +19,12 @@ import kakaotalkShareDef from './kakaotalk-share.json';
 import pageDef from "./page.json";
 import pageButtonDef from "./pageButton.json";
 import linkcopyDef from './linkcopy.json';
+import rectangleLayerDef from './rectangle-layer.json';
 
 export const ComponentList = [
+  // 최하단 배치 (z-index가 0인 배경 레이어)
+  rectangleLayerDef,   // 사각형 레이어
+  
   // 상단 우선순위 컴포넌트들
   mapDef,           // 지도
   imageDef,         // 이미지
