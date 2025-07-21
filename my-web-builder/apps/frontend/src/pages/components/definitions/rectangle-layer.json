@@ -1,0 +1,11 @@
+{
+  "type": "rectangleLayer",
+  "label": "사각형 레이어",
+  "defaultProps": {
+    "backgroundColor": "#f0f0f0",
+    "border": false,
+    "borderColor": "#d1d5db",
+    "borderRadius": 0,
+    "zIndex": 0
+  }
+}

@@ -276,8 +276,9 @@ export function resolveCollision(
   for (const other of otherComponents) {
     if (other.id === draggedComp.id) continue;
 
-    // 텍스트 컴포넌트와는 충돌 방지하지 않음
-    if (other.type === 'text' || draggedComp.type === 'text') continue;
+    // 텍스트 컴포넌트와 사각형 레이어와는 충돌 방지하지 않음
+    if (other.type === 'text' || draggedComp.type === 'text' || 
+        other.type === 'rectangleLayer' || draggedComp.type === 'rectangleLayer') continue;
 
     const tempComp = { ...draggedComp, x: resolvedX, y: resolvedY };
     if (checkCollision(tempComp, other, getComponentDimensionsFn)) {

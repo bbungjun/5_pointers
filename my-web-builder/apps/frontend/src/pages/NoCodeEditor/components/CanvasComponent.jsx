@@ -17,6 +17,7 @@ import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import SlidoRenderer from '../ComponentRenderers/SlidoRenderer';
 import PageButtonRenderer from '../ComponentRenderers/PageButtonRenderer';
 import LinkCopyRenderer from '../ComponentRenderers/LinkCopyRenderer';
+import RectangleLayerRenderer from '../ComponentRenderers/RectangleLayerRenderer';
 
 import {
   clamp,
@@ -359,6 +360,14 @@ function CanvasComponent({
         return (
           <LinkCopyRenderer
             component={componentWithFinalStyles}
+            mode="editor"
+            onUpdate={onUpdate}
+          />
+        );
+      case 'rectangleLayer':
+        return (
+          <RectangleLayerRenderer
+            comp={componentWithFinalStyles}
             mode="editor"
             onUpdate={onUpdate}
           />
@@ -774,7 +783,7 @@ function CanvasComponent({
         cursor: isDragging ? 'grabbing' : 'grab',
         background: selected ? 'rgba(59, 78, 255, 0.05)' : 'transparent',
         //zIndex: selected ? 2000 : (comp.type === 'text' ? Math.max(comp.props?.zIndex || 1000, 1000) : (comp.props?.zIndex || 1)),
-        zIndex: comp.type === 'text' ? 2000 : 1000,
+        zIndex: comp.type === 'rectangleLayer' ? -1 : (comp.type === 'text' ? 2000 : 1000),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

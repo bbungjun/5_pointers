@@ -27,6 +27,7 @@ function Inspector({ selectedComp, onUpdate, viewport }) {
     page: ComponentEditors.PageEditor,
     pageButton: ComponentEditors.PageButtonEditor,
     linkCopy: ComponentEditors.LinkCopyEditor,
+    rectangleLayer: ComponentEditors.RectangleLayerEditor,
   };
 
   const SpecificEditor = editorMap[selectedComp.type];
