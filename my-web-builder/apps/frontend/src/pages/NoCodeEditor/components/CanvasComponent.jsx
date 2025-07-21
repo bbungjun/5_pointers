@@ -599,12 +599,12 @@ function CanvasComponent({
           y: newY,
         };
 
-        // 쓰로틀링을 적용하여 성능 최적화
+        // 쓰로틀링을 적용하여 성능 최적화 (더 빠른 업데이트)
         if (!dragUpdateTimeoutRef.current) {
           dragUpdateTimeoutRef.current = setTimeout(() => {
             onUpdate(updatedComponent);
             dragUpdateTimeoutRef.current = null;
-          }, 16); // 60fps로 제한
+          }, 8); // 120fps로 제한 (더 부드러운 동기화)
         }
       }
 

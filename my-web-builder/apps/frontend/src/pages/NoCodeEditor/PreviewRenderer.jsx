@@ -29,11 +29,108 @@ const getComponentDefaultSize = (componentType) => {
     text: { width: 200, height: 50 },
     image: { width: 200, height: 150 },
     map: { width: 400, height: 300 },
+    link: { width: 200, height: 50 },
     attend: { width: 300, height: 200 },
     dday: { width: 350, height: 150 },
     default: { width: 200, height: 100 },
   };
   return defaultSizes[componentType] || defaultSizes.default;
+};
+
+// --- 새로운 Helper 함수 ---
+
+// 두 컴포넌트의 경계 상자가 겹치는지 확인하는 함수
+const doComponentsOverlap = (compA, compB, defaultSizeGetter) => {
+  const getRect = (comp) => {
+    const defaultSize = defaultSizeGetter(comp.type);
+    return {
+      x: comp.x || 0,
+      y: comp.y || 0,
+      width: comp.width || defaultSize.width,
+      height: comp.height || defaultSize.height,
+    };
+  };
+
+  const rectA = getRect(compA);
+  const rectB = getRect(compB);
+
+  if (
+    rectA.x + rectA.width <= rectB.x ||
+    rectB.x + rectB.width <= rectA.x ||
+    rectA.y + rectA.height <= rectB.y ||
+    rectB.y + rectB.height <= rectA.y
+  ) {
+    return false;
+  }
+  return true;
+};
+
+// 겹치는 컴포넌트들을 그룹으로 묶는 함수
+const groupOverlappingComponents = (components, defaultSizeGetter) => {
+  if (!components || components.length === 0) return [];
+
+  const sorted = [...components].sort(
+    (a, b) => (a.y || 0) - (b.y || 0) || (a.x || 0) - (b.x || 0)
+  );
+  const groups = [];
+  const visited = new Set();
+
+  for (let i = 0; i < sorted.length; i++) {
+    if (visited.has(sorted[i].id)) continue;
+
+    const currentGroup = [sorted[i]];
+    visited.add(sorted[i].id);
+    const queue = [sorted[i]];
+
+    while (queue.length > 0) {
+      const currentComp = queue.shift();
+      for (let j = 0; j < sorted.length; j++) {
+        // 전체를 다시 순회하여 모든 겹침 가능성 확인
+        if (i === j || visited.has(sorted[j].id)) continue;
+        if (doComponentsOverlap(currentComp, sorted[j], defaultSizeGetter)) {
+          visited.add(sorted[j].id);
+          currentGroup.push(sorted[j]);
+          queue.push(sorted[j]);
+        }
+      }
+    }
+    groups.push(currentGroup);
+  }
+  return groups;
+};
+
+// 수직 스택 우선 그룹화 함수 (새로 추가)
+const groupComponentsByVerticalStacks = (components, defaultSizeGetter) => {
+  if (!components || components.length === 0) return [];
+
+  const sorted = [...components].sort(
+    (a, b) => (a.y || 0) - (b.y || 0) || (a.x || 0) - (b.x || 0)
+  );
+  const groups = [];
+  const visited = new Set();
+
+  for (let i = 0; i < sorted.length; i++) {
+    if (visited.has(sorted[i].id)) continue;
+
+    const currentGroup = [sorted[i]];
+    visited.add(sorted[i].id);
+    const queue = [sorted[i]];
+
+    while (queue.length > 0) {
+      const currentComp = queue.shift();
+      for (let j = 0; j < sorted.length; j++) {
+        // 전체를 다시 순회하여 모든 겹침 가능성 확인
+        if (i === j || visited.has(sorted[j].id)) continue;
+        if (doComponentsOverlap(currentComp, sorted[j], defaultSizeGetter)) {
+          visited.add(sorted[j].id);
+          currentGroup.push(sorted[j]);
+          queue.push(sorted[j]);
+        }
+      }
+    }
+    groups.push(currentGroup);
+  }
+  return groups;
 };
 
 // 컴포넌트 타입별 렌더러 매핑 함수
@@ -223,49 +320,91 @@ const PreviewRenderer = ({
     );
   };
 
+  // ✅ 메인 모바일 렌더링 함수: 폰트 크기 재계산 로직 포함
   const renderMobileLayout = () => {
-    if (editingViewport === 'mobile') {
+    const currentEditingMode = editingViewport || 'desktop';
+
+    if (currentEditingMode === 'mobile') {
       return renderMobileScalingLayout(components);
     } else {
-      const sortedComponents = [...components].sort(
-        (a, b) => (a.y || 0) - (b.y || 0) || (a.x || 0) - (b.x || 0)
+      const componentGroups = groupComponentsByVerticalStacks(
+        components,
+        getComponentDefaultSize
       );
       const repositionedComponents = [];
-
-      const PAGE_VERTICAL_PADDING = 16; // 상단 여백
+      const PAGE_VERTICAL_PADDING = 16;
       let currentY = PAGE_VERTICAL_PADDING;
 
-      for (const comp of sortedComponents) {
-        const originalWidth =
-          comp.width || getComponentDefaultSize(comp.type).width;
-        const originalHeight =
-          comp.height || getComponentDefaultSize(comp.type).height;
+      for (const group of componentGroups) {
+        // 그룹 경계 상자 계산
+        let minX = Infinity,
+          minY = Infinity,
+          maxX = -Infinity,
+          maxY = -Infinity;
+        group.forEach((comp) => {
+          const defaultSize = getComponentDefaultSize(comp.type);
+          const x = comp.x || 0;
+          const y = comp.y || 0;
+          const width = comp.width || defaultSize.width;
+          const height = comp.height || defaultSize.height;
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x + width);
+          maxY = Math.max(maxY, y + height);
+        });
+        const groupWidth = maxX - minX;
+        const groupHeight = maxY - minY;
 
-        let newWidth = originalWidth;
-        let newHeight = originalHeight;
-        let newX = 0;
-
-        if (originalWidth > BASE_MOBILE_WIDTH) {
-          newWidth = BASE_MOBILE_WIDTH;
-          if (originalWidth > 0) {
-            const aspectRatio = originalHeight / originalWidth;
-            newHeight = newWidth * aspectRatio;
-          }
-          newX = 0;
-        } else {
-          newX = (BASE_MOBILE_WIDTH - originalWidth) / 2;
+        // 그룹 리사이징
+        let newGroupHeight = groupHeight;
+        let scaleRatio = 1;
+        if (groupWidth > BASE_MOBILE_WIDTH) {
+          scaleRatio = BASE_MOBILE_WIDTH / groupWidth;
+          newGroupHeight = groupHeight * scaleRatio;
         }
 
-        repositionedComponents.push({
-          ...comp,
-          x: newX,
-          y: currentY,
-          width: newWidth,
-          height: newHeight,
-        });
+        group.forEach((comp) => {
+          const originalWidth =
+            comp.width || getComponentDefaultSize(comp.type).width;
+          const originalHeight =
+            comp.height || getComponentDefaultSize(comp.type).height;
+          const relativeX = (comp.x || 0) - minX;
+          const relativeY = (comp.y || 0) - minY;
 
-        // ❗️ 컴포넌트 간 여백 없이 y좌표 업데이트
-        currentY += newHeight;
+          // ✅ 텍스트 크기 재계산을 위한 newProps 생성
+          const newProps = { ...comp.props };
+
+          // ❗️ 모든 텍스트 관련 props 키를 배열로 관리
+          const FONT_SIZE_KEYS = [
+            'fontSize',
+            'titleFontSize',
+            'contentFontSize',
+            'descriptionFontSize',
+            'ddayFontSize',
+            'dateFontSize',
+          ];
+
+          // ❗️ newProps 객체 내부의 모든 폰트 크기를 재계산하여 덮어씀
+          FONT_SIZE_KEYS.forEach((key) => {
+            if (newProps[key]) {
+              newProps[key] = newProps[key] * scaleRatio;
+            }
+          });
+
+          repositionedComponents.push({
+            ...comp,
+            props: newProps, // ✅ 최종 계산된 props 주입
+            x:
+              (groupWidth > BASE_MOBILE_WIDTH
+                ? 0
+                : (BASE_MOBILE_WIDTH - groupWidth) / 2) +
+              relativeX * scaleRatio,
+            y: currentY + relativeY * scaleRatio,
+            width: originalWidth * scaleRatio,
+            height: originalHeight * scaleRatio,
+          });
+        });
+        currentY += newGroupHeight + PAGE_VERTICAL_PADDING;
       }
       return renderMobileScalingLayout(repositionedComponents);
     }
@@ -275,7 +414,15 @@ const PreviewRenderer = ({
   return (
     <div
       ref={containerRef}
-      style={{ width: '100%', height: '100%', overflow: 'hidden' }}
+      style={{
+        width: '100%',
+        height: '100%',
+        overflow: isMobileView ? 'auto' : 'hidden',
+        // 스크롤바 숨기기
+        scrollbarWidth: 'none', // Firefox
+        msOverflowStyle: 'none', // IE/Edge
+      }}
+      className={isMobileView ? 'hide-scrollbar' : ''}
     >
       {containerWidth > 0
         ? isMobileView

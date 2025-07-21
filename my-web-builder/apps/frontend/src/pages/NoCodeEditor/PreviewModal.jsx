@@ -29,6 +29,9 @@ const PREVIEW_CSS = `
     -webkit-overflow-scrolling: touch;
     margin: 0;
     padding: 0;
+    /* 스크롤바 완전히 숨기기 */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   .desktop-viewport {
     width: 100%;
@@ -37,17 +40,29 @@ const PREVIEW_CSS = `
     overflow-x: hidden;
     margin: 0;
     padding: 0;
+    /* 스크롤바 완전히 숨기기 */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   
-  /* 모바일 모드에서만 스크롤바 숨기기 */
-  .mobile-viewport::-webkit-scrollbar {
+  /* 모든 뷰포트에서 스크롤바 숨기기 */
+  .mobile-viewport::-webkit-scrollbar,
+  .desktop-viewport::-webkit-scrollbar {
     width: 0px;
     height: 0px;
     background: transparent;
     display: none;
   }
   
-  .mobile-viewport {
+  /* iframe 내부의 모든 스크롤바 숨기기 */
+  ::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    background: transparent;
+    display: none;
+  }
+  
+  * {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
@@ -71,84 +86,102 @@ const PreviewModal = ({
     setViewMode(editingViewport === 'mobile' ? 'mobile' : 'desktop');
   }, [editingViewport]);
 
-  // iframe 초기화
+  // ❗️ 이 useEffect 하나로 모든 것을 처리합니다. (수정된 최종 버전)
   useEffect(() => {
     if (!isOpen || !iframeRef.current) return;
 
     const iframe = iframeRef.current;
-    const iframeDocument = iframe.contentDocument;
-    if (!iframeDocument) return;
+    let isMounted = true; // 클린업 후 비동기 작업 방지 플래그
 
-    // 기존 root 정리
-    if (rootRef.current) {
-      try {
-        rootRef.current.unmount();
-        rootRef.current = null;
-      } catch (error) {
-        console.warn('Failed to unmount existing root:', error);
+    const renderIframeContent = () => {
+      // isMounted 플래그를 확인하여 이미 unmount된 후에는 실행되지 않도록 함
+      if (!isMounted || !iframe.contentDocument) return;
+
+      const iframeDocument = iframe.contentDocument;
+
+      // document.write는 비우고 새로 쓰는 효과가 있으므로,
+      // iframe이 로드된 후에 호출하면 항상 깨끗한 상태로 시작할 수 있음.
+      iframeDocument.open();
+      iframeDocument.write(`
+        <!DOCTYPE html><html><head><style>${PREVIEW_CSS}</style></head>
+        <body><div id="preview-root"></div></body></html>
+      `);
+      iframeDocument.close();
+
+      const rootElement = iframeDocument.getElementById('preview-root');
+      if (rootElement) {
+        // 이전 root가 있다면 안전하게 unmount (이젠 클린업에서 처리)
+        // if (rootRef.current) rootRef.current.unmount();
+
+        const newRoot = createRoot(rootElement);
+        rootRef.current = newRoot;
+
+        const viewportClass =
+          viewMode === 'mobile' ? 'mobile-viewport' : 'desktop-viewport';
+
+        newRoot.render(
+          React.createElement(
+            'div',
+            { className: viewportClass },
+            React.createElement(PreviewRenderer, {
+              components,
+              forcedViewport: viewMode,
+              editingViewport,
+              pageId,
+            })
+          )
+        );
       }
-    }
+    };
 
-    iframeDocument.open();
-    iframeDocument.write(`
-      <!DOCTYPE html>
-      <html style="overflow-x: hidden; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>${PREVIEW_CSS}</style>
-        </head>
-        <body style="overflow-x: hidden; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
-          <div id="preview-root"></div>
-        </body>
-      </html>
-    `);
-    iframeDocument.close();
+    // iframe이 로드 완료된 후 렌더링 함수를 호출
+    iframe.addEventListener('load', renderIframeContent);
 
-    const rootElement = iframeDocument.getElementById('preview-root');
-    if (rootElement) {
-      rootRef.current = createRoot(rootElement);
-    }
+    // ❗️ 중요: 일부 브라우저(특히 Firefox)에서는 iframe의 src가 없을 때
+    // load 이벤트가 발생하지 않을 수 있습니다. 강제로 트리거합니다.
+    // 또한 viewMode 변경으로 iframe이 재생성될 때 재로딩을 유도합니다.
+    iframe.src = 'about:blank';
+
+    // ✅ 클린업 함수: 이 useEffect가 재실행되거나 컴포넌트가 사라질 때 호출
+    return () => {
+      isMounted = false; // 플래그를 false로 설정
+      iframe.removeEventListener('load', renderIframeContent); // 이벤트 리스너 제거
+
+      if (rootRef.current) {
+        // setTimeout으로 다음 이벤트 루프에서 안전하게 unmount
+        // 이것이 경고를 막는 핵심입니다.
+        setTimeout(() => {
+          rootRef.current.unmount();
+          rootRef.current = null;
+        }, 0);
+      }
+    };
+
+    // ❗️ 의존성 배열에는 iframe의 재생성을 유발하는 모든 값을 포함
   }, [isOpen, viewMode]);
 
-  // 컴포넌트 렌더링
+  // ❗️ 중요: components 데이터가 바뀔 때만 리렌더링하는 별도의 useEffect
   useEffect(() => {
-    if (!isOpen || !rootRef.current) return;
-
-    try {
+    // iframe이 준비되었고, root가 생성된 상태에서만 실행
+    if (isOpen && iframeRef.current && rootRef.current) {
       const viewportClass =
         viewMode === 'mobile' ? 'mobile-viewport' : 'desktop-viewport';
 
+      // 내용만 업데이트
       rootRef.current.render(
         React.createElement(
           'div',
           { className: viewportClass },
           React.createElement(PreviewRenderer, {
-            components: components,
+            components,
             forcedViewport: viewMode,
-            editingViewport: editingViewport,
-            pageId: pageId,
+            editingViewport,
+            pageId,
           })
         )
       );
-    } catch (error) {
-      console.error('Failed to render preview:', error);
     }
-  }, [isOpen, components, viewMode, editingViewport]);
-
-  // 모달 정리
-  useEffect(() => {
-    if (!isOpen && rootRef.current) {
-      const timeoutId = setTimeout(() => {
-        try {
-          rootRef.current.unmount();
-          rootRef.current = null;
-        } catch (error) {
-          console.warn('Failed to unmount preview:', error);
-        }
-      }, 0);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isOpen]);
+  }, [components]); // components 데이터가 바뀔 때만 실행
 
   // iframe 크기 조정 (수정)
   useEffect(() => {
@@ -254,7 +287,7 @@ const PreviewModal = ({
                 { className: 'iphone-screen' },
                 React.createElement('iframe', {
                   ref: iframeRef,
-                  className: 'preview-iframe mobile',
+                  className: 'preview-iframe mobile hide-scrollbar',
                   title: 'Mobile Preview',
                   style: {
                     scrollbarWidth: 'none',
@@ -269,7 +302,7 @@ const PreviewModal = ({
           )
         : React.createElement('iframe', {
             ref: iframeRef,
-            className: 'preview-iframe desktop',
+            className: 'preview-iframe desktop hide-scrollbar',
             title: 'Desktop Preview',
           })
     ),
@@ -371,6 +404,14 @@ const PreviewModal = ({
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      .preview-iframe.desktop::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
       }
 
       .preview-iframe.mobile {
@@ -448,6 +489,14 @@ const PreviewModal = ({
         flex-direction: column;
         align-items: flex-start;
         justify-content: flex-start;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      .iphone-screen::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
       }
 
       .iphone-home-indicator {

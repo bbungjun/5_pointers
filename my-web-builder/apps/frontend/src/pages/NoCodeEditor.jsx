@@ -317,10 +317,8 @@ function NoCodeEditor({ pageId }) {
       
       // 연결 복구 시 기존 데이터가 있는지 확인
       if (components.length > 0) {
-        console.log('✅ 연결 복구 시 기존 데이터 유지:', components.length, '개 컴포넌트');
         // 기존 데이터를 YJS에 동기화하여 다른 사용자와 일치시킴
         setTimeout(() => {
-          console.log('🔄 연결 복구 후 데이터 동기화...');
           updateAllComponents(components);
         }, 500);
       }
@@ -544,11 +542,7 @@ function NoCodeEditor({ pageId }) {
 
   // 컴포넌트 변경 시 자동저장 트리거
   useEffect(() => {
-    console.log('🎨 컴포넌트 상태 업데이트:', components.length, '개 컴포넌트');
-    if (components.length > 0) {
-      // 컴포넌트가 변경되면 자동저장 훅이 자동으로 처리
-      console.log('📝 컴포넌트 변경 감지, 자동저장 대기 중...');
-    }
+    // 컴포넌트가 변경되면 자동저장 훅이 자동으로 처리
   }, [components]);
 
   // 컴포넌트 업데이트 핸들러
@@ -558,9 +552,7 @@ function NoCodeEditor({ pageId }) {
 
   // 연결 오류 시 로컬 상태 관리 활성화
   useEffect(() => {
-    if (connectionError) {
-      console.log('🔴 협업 연결 오류로 인해 로컬 상태 관리 활성화');
-    }
+    // 연결 오류 처리
   }, [connectionError]);
 
   // 컴포넌트와 선택된 컴포넌트
@@ -800,30 +792,29 @@ function NoCodeEditor({ pageId }) {
         />
       ))}
 
-      {/* 커서 채팅 메시지들 (자신과 다른 사용자 모두) */}
+      {/* 커서 채팅 메시지들 (자신의 메시지만 표시) */}
       {Object.entries(cursorChatMessages).map(([userId, message]) => {
         if (!message) return null;
 
-        // 자신의 메시지인지 확인
+        // 자신의 메시지만 표시
         const isOwnMessage =
           userId === userInfo?.id || userId === String(userInfo?.id);
+
+        // 자신의 메시지가 아니면 표시하지 않음
+        if (!isOwnMessage) return null;
 
         return (
           <ChatBubble
             key={`cursor-chat-${userId}-${message}`}
             x={cursorPosition.x}
             y={cursorPosition.y}
-            user={
-              isOwnMessage
-                ? userInfo
-                : { id: userId, name: '사용자', color: '#3B4EFF' }
-            }
+            user={userInfo}
             message={message}
             timestamp={Date.now()}
             onClose={() => {
               // 메시지 제거는 useChat에서 자동으로 처리됨
             }}
-            isOwnMessage={isOwnMessage}
+            isOwnMessage={true}
             followCursor={true}
           />
         );
@@ -906,7 +897,7 @@ function NoCodeEditor({ pageId }) {
         {/* 줌 슬라이더 */}
         <input
           type="range"
-          min="60"
+          min="35"
           max="150"
           value={interaction.zoom}
           onChange={(e) => {

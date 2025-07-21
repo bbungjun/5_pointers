@@ -34,15 +34,11 @@ export function useYjsCollaboration(roomId, userInfo) {
 
   // 사용자 활동 감지 함수 - 다른 훅에서 호출 가능
   const updateActivity = useCallback(() => {
-    const previousTime = lastActivityRef.current;
     lastActivityRef.current = Date.now();
-    const timeDiff = lastActivityRef.current - previousTime;
-    console.log(`🔄 사용자 활동 감지, 활동 시간 업데이트 (${timeDiff}ms 경과)`);
   }, []);
 
   // 연결 정리 함수 (실제 정리가 필요한 경우에만 호출)
   const cleanupConnection = useCallback(() => {
-    console.log('🧹 Y.js 연결 정리 시작');
     try {
       // 하트비트 인터벌 정리
       if (heartbeatIntervalRef.current) {
@@ -70,22 +66,19 @@ export function useYjsCollaboration(roomId, userInfo) {
       }
       
       isInitializedRef.current = false;
-      console.log('✅ Y.js 연결 정리 완료');
     } catch (error) {
-      console.error('❌ Y.js 연결 정리 오류:', error);
+      // 연결 정리 오류는 조용히 처리
     }
   }, []);
 
   // 재연결 시도 함수
   const attemptReconnect = useCallback(() => {
     if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
-      console.log('🛑 최대 재연결 시도 횟수 초과');
       setIsLocalMode(true);
       return;
     }
 
     reconnectAttemptsRef.current++;
-    console.log(`🔄 재연결 시도 ${reconnectAttemptsRef.current}/${maxReconnectAttempts}`);
     
     if (providerRef.current) {
       providerRef.current.connect();
@@ -115,22 +108,16 @@ export function useYjsCollaboration(roomId, userInfo) {
   // 연결 상태 검증
   const validateConnection = useCallback(() => {
     if (!providerRef.current || !isConnected) {
-      console.log('❌ 연결 검증 실패: provider 또는 연결 상태 없음');
       return false;
     }
 
     // 마지막 활동으로부터 설정된 시간 이상 지났으면 연결 재확인
     const timeSinceLastActivity = Date.now() - lastActivityRef.current;
-    const timeoutSeconds = CONNECTION_CONFIG.INACTIVITY_TIMEOUT / 1000;
-    
-    console.log(`🔍 연결 상태 검증: 마지막 활동으로부터 ${Math.round(timeSinceLastActivity / 1000)}초 경과 (타임아웃: ${timeoutSeconds}초)`);
     
     if (timeSinceLastActivity > CONNECTION_CONFIG.INACTIVITY_TIMEOUT) {
-      console.log(`⚠️ 연결 상태 검증: ${timeoutSeconds}초간 활동 없음, 연결 재확인 필요`);
       return false;
     }
 
-    console.log('✅ 연결 상태 검증: 유효한 연결 유지');
     return true;
   }, [isConnected]);
 
@@ -154,20 +141,15 @@ export function useYjsCollaboration(roomId, userInfo) {
         currentRoomIdRef.current === safeRoomId && 
         currentUserInfoRef.current?.id === safeUserInfo.id) {
       
-      console.log('🔍 기존 연결 상태 확인 중...');
       const isValid = validateConnection();
       
       if (isValid) {
-        console.log('✅ 이미 같은 룸에 유효한 연결이 있음, 재연결 건너뜀');
         return;
-      } else {
-        console.log('⚠️ 기존 연결이 유효하지 않음, 재연결 필요');
       }
     }
 
     // 룸이나 사용자가 변경된 경우에만 기존 연결 정리
     if (isInitializedRef.current) {
-      console.log('🔄 룸 또는 사용자 변경 감지, 기존 연결 정리');
       cleanupConnection();
     }
 
@@ -185,12 +167,7 @@ export function useYjsCollaboration(roomId, userInfo) {
     // 환경에 따른 WebSocket URL 설정
     const wsUrl = YJS_WEBSOCKET_URL;
 
-    console.log('🔄 Y.js 서버 연결 시도:', {
-      wsUrl,
-      roomName,
-      YJS_WEBSOCKET_URL,
-      currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'server'
-    });
+
 
     // WebsocketProvider 초기화
     const provider = new WebsocketProvider(wsUrl, roomName, ydoc, {
@@ -211,8 +188,6 @@ export function useYjsCollaboration(roomId, userInfo) {
 
     // 연결 상태 모니터링 (최적화됨)
     provider.on('status', (event) => {
-      console.log('📡 Y.js 연결 상태 변경:', event.status);
-      
       if (event.status === 'connected') {
         setIsConnected(true);
         setConnectionError(null);
@@ -229,19 +204,13 @@ export function useYjsCollaboration(roomId, userInfo) {
         
         // 하트비트 시작
         startHeartbeat();
-        
-        console.log('✅ Y.js 연결 성공');
       } else if (event.status === 'disconnected') {
         setIsConnected(false);
-        console.log('❌ Y.js 연결 해제됨');
-      } else if (event.status === 'connecting') {
-        console.log('🔄 Y.js 연결 시도 중...');
       }
     });
 
     // 연결 오류 처리 (최적화됨)
     provider.on('connection-error', (error) => {
-      console.error('❌ WebSocket 연결 오류:', error);
       setConnectionError(error);
       setIsLocalMode(true);
       
@@ -255,16 +224,11 @@ export function useYjsCollaboration(roomId, userInfo) {
     // 연결 종료 처리
     provider.on('connection-close', () => {
       setIsConnected(false);
-      console.log('🔌 Y.js 연결 종료됨');
     });
 
     // 동기화 상태 모니터링 (로깅 최소화)
     provider.on('sync', (isSynced) => {
-      if (!isSynced) {
-        console.log('🔄 Y.js 동기화 진행중...');
-      } else {
-        console.log('✅ Y.js 동기화 완료');
-      }
+      // 동기화 상태는 조용히 처리
     });
 
     // 참조 저장
@@ -277,21 +241,11 @@ export function useYjsCollaboration(roomId, userInfo) {
     currentUserInfoRef.current = safeUserInfo;
     isInitializedRef.current = true;
     lastActivityRef.current = Date.now();
-    
-    console.log('✅ 연결 초기화 완료');
   }, []); // 의존성 제거하여 함수 재생성 방지
 
   // 메인 useEffect - 룸 ID나 사용자 정보가 변경될 때만 실행
   useEffect(() => {
-    console.log('🔄 useYjsCollaboration useEffect 실행:', {
-      roomId,
-      userId: userInfo?.id,
-      hasRoomId: !!roomId,
-      hasUserInfo: !!userInfo
-    });
-
     if (!roomId || !userInfo) {
-      console.log('⚠️ roomId 또는 userInfo가 없어 연결 초기화 건너뜀');
       return;
     }
 
@@ -301,7 +255,6 @@ export function useYjsCollaboration(roomId, userInfo) {
   // 컴포넌트 언마운트 시에만 정리
   useEffect(() => {
     return () => {
-      console.log('🔄 컴포넌트 언마운트, Y.js 연결 정리');
       cleanupConnection();
     };
   }, [cleanupConnection]);
@@ -310,7 +263,6 @@ export function useYjsCollaboration(roomId, userInfo) {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && isInitializedRef.current && !isConnected) {
-        console.log('🔄 페이지 포커스, 연결 상태 확인');
         if (providerRef.current) {
           providerRef.current.connect();
         }
@@ -319,7 +271,6 @@ export function useYjsCollaboration(roomId, userInfo) {
 
     const handleOnline = () => {
       if (isInitializedRef.current && !isConnected) {
-        console.log('🔄 네트워크 복구, 연결 재시도');
         reconnectAttemptsRef.current = 0;
         if (providerRef.current) {
           providerRef.current.connect();

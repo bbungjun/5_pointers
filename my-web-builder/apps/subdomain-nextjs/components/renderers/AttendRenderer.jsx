@@ -341,7 +341,7 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
       >
         <h3
           style={{
-            fontSize: comp.props?.titleFontSize || '18px',
+            fontSize: `${comp.props?.titleFontSize || 18}px`,
             fontWeight: '600',
             color: comp.props?.titleColor || '#1f2937',
             margin: '0 0 20px 0', // 8px → 6px로 줄임
@@ -353,7 +353,7 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
         {comp.props?.description && (
           <p
             style={{
-              fontSize: comp.props?.descriptionFontSize || '14px',
+              fontSize: `${comp.props?.descriptionFontSize || 14}px`,
               color: comp.props?.descriptionColor || '#6b7280',
               margin: '0',
               lineHeight: '1.4', // 1.5 → 1.4로 줄임
@@ -390,7 +390,7 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
             borderRadius: '10px',
             padding: '12px 24px',
             marginBottom: '10px',
-            fontSize: comp.props?.fontSize || '16px',
+            fontSize: `${comp.props?.fontSize || 16}px`,
             fontWeight: '500',
             fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
             cursor:
@@ -710,33 +710,39 @@ function AttendRenderer({ comp, mode = 'live', pageId }) {
   );
 }
 
-const labelStyle = (comp) => ({
-  display: 'block',
-  marginBottom: '8px',
-  fontSize: '16px',
-  fontWeight: '500',
-  color: '#374151',
-  fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
-});
+const labelStyle = (comp) => {
+  return {
+    display: 'block',
+    marginBottom: '8px',
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#374151',
+    fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+  };
+};
 
-const textStyle = (comp) => ({
-  fontSize: '16px',
-  fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
-});
+const textStyle = (comp) => {
+  return {
+    fontSize: '16px',
+    fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+  };
+};
 
-const buttonStyle = (bg, color, comp, disabled = false) => ({
-  padding: '12px 24px',
+const buttonStyle = (bg, color, comp, disabled = false) => {
+  return {
+    padding: '12px 24px',
 
-  backgroundColor: bg,
-  color,
-  border: 'none',
-  borderRadius: '8px',
-  fontSize: '16px',
-  fontWeight: '500',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-  fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
-  transition: 'all 0.2s ease',
-});
+    backgroundColor: bg,
+    color,
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '500',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    fontFamily: comp.props?.fontFamily || '"Playfair Display", serif',
+    transition: 'all 0.2s ease',
+  };
+};
 
 const DynamicFormInput = ({ field, value, onChange, comp }) => (
   <>
