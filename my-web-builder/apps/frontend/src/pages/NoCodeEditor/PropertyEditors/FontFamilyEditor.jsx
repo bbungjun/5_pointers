@@ -47,97 +47,7 @@ function FontFamilyEditor({ label, value, onChange }) {
       value: '"궁서", "Gungsuh", serif',
       label: '궁서',
       italicSupport: true
-    },
-    {
-      value: '"Ownglyph_corncorn-Rg", sans-serif',
-      label: '온글잎 콘콘',
-      italicSupport: true
-    },
-    {
-      value: '"ChosunGu", sans-serif',
-      label: '조선굴림체',
-      italicSupport: true
-    },
-    {
-      value: '"GowunDodum-Regular", sans-serif',
-      label: '고운돋움',
-      italicSupport: true
-    },
-    {
-      value: '"BMJUA", sans-serif',
-      label: '주아체',
-      italicSupport: true
-    },
-    {
-      value: '"neurimboGothicRegular", sans-serif',
-      label: '느림보고딕',
-      italicSupport: true
-    },
-    {
-      value: '"KCC-Ganpan", sans-serif',
-      label: 'KCC간판체',
-      italicSupport: true
-    },
-    {
-      value: '"GeekbleMalang2WOFF2", sans-serif',
-      label: '긱블 말랑이',
-      italicSupport: true
-    },
-    {
-      value: '"HSSummer", sans-serif',
-      label: 'HS여름물빛',
-      italicSupport: true
-    },
-    {
-      value: '"netmarbleB", sans-serif',
-      label: '넷마블',
-      italicSupport: true
-    },
-    {
-      value: '"MonoplexKR-Italic", sans-serif',
-      label: '모노플렉스KR Italic',
-      italicSupport: true
-    },
-    {
-      value: '"TAEBAEKmilkyway", sans-serif',
-      label: '태백 은하수',
-      italicSupport: true
-    },
-    {
-      value: '"TTCrownMychewR", sans-serif',
-      label: '마이쮸',
-      italicSupport: true
-    },
-    {
-      value: '"Cafe24Oneprettynight", serif',
-      label: '카페24 고운밤',
-      italicSupport: true
-    },
-    {
-      value: '"Cafe24Shiningstar", cursive',
-      label: '카페24 빛나는별',
-      italicSupport: true
-    },
-    {
-      value: '"KOTRAHOPE", cursive',
-      label: '코트라 희망',
-      italicSupport: true
-    },
-    {
-      value: '"Katuri", cursive',
-      label: '엄마까투리',
-      italicSupport: true
-    },
-    {
-      value: '"SinchonRhapsody", cursive',
-      label: '신촌랩소디',
-      italicSupport: true
-    },
-    {
-      value: '"YanoljaYacheR", cursive',
-      label: '야놀자',
-      italicSupport: true
-    },
+    }
   ];
 
   // 웨딩 테마 폰트 (우아하고 로맨틱한 폰트들)
@@ -284,16 +194,6 @@ function FontFamilyEditor({ label, value, onChange }) {
     {
       value: '"Lucida Console", Monaco, monospace',
       label: 'Lucida Console',
-      italicSupport: true
-    },
-    {
-      value: '"Cafe24Behappy", cursive',
-      label: 'Cafe24Behappy',
-      italicSupport: true
-    },
-    {
-      value: '"Cafe24Decobox", fantasy',
-      label: 'Cafe24 Decobox',
       italicSupport: true
     }
   ];
