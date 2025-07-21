@@ -146,7 +146,7 @@ function MapEditor({ selectedComp, onUpdate }) {
       {props.address && props.lat && props.lng && (
         <div style={{ margin: '16px 0' }}>
           {console.log('지도 렌더링:', { address: props.address, lat: props.lat, lng: props.lng })}
-          <KakaoMapView lat={props.lat} lng={props.lng} zoom={1} width={290} height={200} />
+          <KakaoMapView lat={props.lat} lng={props.lng} zoom={3} width={290} height={200} />
         </div>
       )}
       <TextEditor

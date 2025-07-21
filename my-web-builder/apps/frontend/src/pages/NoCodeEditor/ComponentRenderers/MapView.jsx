@@ -32,7 +32,7 @@ function loadKakaoMapsScript() {
 function KakaoMapView({
   lat = 37.5665,
   lng = 126.9780,
-  zoom = 1,                // 기본 확대 레벨 (1) – interactive: false인 경우엔 무조건 1로 강제
+  zoom = 3,                // 기본 확대 레벨 (3)
   comp,
   interactive = false,     // 기본적으로 캔버스에서는 상호작용을 막음
   mode = 'editor'          // 'editor', 'preview' 또는 'live'
@@ -41,8 +41,8 @@ function KakaoMapView({
   const markerRef = useRef(null);
 
   useEffect(() => {
-    // 캔버스(비인터랙티브)에서는 zoom 값을 무조건 1로 고정
-    const targetZoom = interactive ? zoom : 1;
+    // 캔버스(비인터랙티브)에서는 zoom 값을 무조건 3으로 고정
+    const targetZoom = interactive ? zoom : 3;
     loadKakaoMapsScript().then(() => {
       function renderMap() {
         if (!window.kakao || !window.kakao.maps || !window.kakao.maps.LatLng || !mapRef.current) {
