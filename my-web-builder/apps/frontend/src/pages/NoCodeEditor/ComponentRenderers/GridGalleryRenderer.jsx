@@ -55,7 +55,10 @@ function GridGalleryRenderer({ comp, isEditor = false, mode = 'editor', onUpdate
 
   // 이미지 클릭 핸들러
   const handleImageClick = (index) => {
-    if (enableModal) { // 임시: 편집모드에서도 모달 활성화
+    //에디터 모드에서 모달 비활성화
+    if (mode === 'editor') return;
+
+    if (enableModal) {
       setCurrentImageIndex(index);
       setModalOpen(true);
     }
@@ -153,7 +156,10 @@ function GridGalleryRenderer({ comp, isEditor = false, mode = 'editor', onUpdate
       slots.push(
         <div
           key={image.id || i}
-          style={imageItemStyle}
+          style={{imageItemStyle,
+            //에디터 모드에서 모달 비활성화
+            cursor: mode === 'editor' ? 'default' : (enableModal ? "pointer" : "default")
+          }}
           onClick={() => handleImageClick(i)}
           onMouseEnter={(e) => {
             if (enableModal) { // 임시: 편집모드에서도 모달 활성화
