@@ -194,9 +194,12 @@ export function useYjsCollaboration(roomId, userInfo) {
         setIsLocalMode(false);
         reconnectAttemptsRef.current = 0; // 연결 성공 시 재시도 횟수 리셋
         
-        // 사용자 정보 설정
+        // 사용자 정보 설정 (기존 정보 보존)
         const userWithColor = addUserColor(safeUserInfo);
+        const currentUserState = awareness.getLocalState().user || {};
+        
         awareness.setLocalStateField('user', {
+          ...currentUserState, // 기존 정보 보존 (joinTime 등)
           name: userWithColor.name,
           color: userWithColor.color,
           id: userWithColor.id,

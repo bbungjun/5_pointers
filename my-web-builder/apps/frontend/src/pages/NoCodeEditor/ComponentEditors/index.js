@@ -20,3 +20,4 @@ export { default as KakaoTalkShareEditor} from "./KakaoTalkShareEditor";
 export { default as PageEditor } from "./PageEditor";
 export { default as PageButtonEditor } from "./PageButtonEditor";
 export { default as LinkCopyEditor } from './LinkCopyEditor';
+export { default as RectangleLayerEditor } from './RectangleLayerEditor';

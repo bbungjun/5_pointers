@@ -20,6 +20,7 @@ import PageRenderer from './ComponentRenderers/PageRenderer';
 import KakaoTalkShareRenderer from './ComponentRenderers/KakaoTalkShareRenderer';
 import PageButtonRenderer from './ComponentRenderers/PageButtonRenderer';
 import LinkCopyRenderer from './ComponentRenderers/LinkCopyRenderer';
+import RectangleLayerRenderer from './ComponentRenderers/RectangleLayerRenderer';
 
 // --- Helper Functions (배포 페이지와 동일한 로직) ---
 const getComponentDefaultSize = (componentType) => {
@@ -159,6 +160,7 @@ const getRendererByType = (type) => {
     kakaoTalkShare: KakaoTalkShareRenderer,
     pageButton: PageButtonRenderer,
     linkCopy: LinkCopyRenderer,
+    rectangleLayer: RectangleLayerRenderer,
   };
 
   return renderers[type] || null;
@@ -207,6 +209,12 @@ const PreviewRenderer = ({
       if (editingViewport === 'desktop') {
         const newScale = currentWidth / BASE_DESKTOP_WIDTH;
         setDesktopScale(newScale);
+      } else if (editingViewport === 'mobile') {
+        // 편집 기준이 모바일일 때 데스크톱에서 보면 적절한 크기로 보여주기
+        // 데스크톱 너비의 1/3 정도 크기로 제한
+        const maxWidth = Math.min(currentWidth * 0.33, BASE_MOBILE_WIDTH);
+        const newScale = maxWidth / BASE_MOBILE_WIDTH;
+        setMobileScale(newScale);
       }
     }
   }, [containerWidth, forcedViewport, editingViewport]);
@@ -279,9 +287,21 @@ const PreviewRenderer = ({
         0,
         ...componentsToRender.map((c) => (c.y || 0) + (c.height || 0))
       ) + PAGE_VERTICAL_PADDING; // 하단 여백 추가
+
+    // 편집 기준이 모바일일 때 데스크톱에서 보면 가운데 정렬
+    const isMobileEditingInDesktopView =
+      editingViewport === 'mobile' && forcedViewport !== 'mobile';
+
     return (
       <div
-        style={{ width: '100%', height: `${contentHeight * mobileScale}px` }}
+        style={{
+          width: '100%',
+          height: `${contentHeight * mobileScale}px`,
+          display: 'flex',
+          justifyContent: isMobileEditingInDesktopView
+            ? 'center'
+            : 'flex-start',
+        }}
       >
         <div
           style={{
@@ -325,7 +345,16 @@ const PreviewRenderer = ({
     const currentEditingMode = editingViewport || 'desktop';
 
     if (currentEditingMode === 'mobile') {
-      return renderMobileScalingLayout(components);
+      // 편집 기준이 모바일일 때도 데스크톱에서 보면 가운데 정렬
+      const centeredComponents = components.map((comp) => ({
+        ...comp,
+        x:
+          comp.x +
+          (BASE_MOBILE_WIDTH -
+            (comp.width || getComponentDefaultSize(comp.type).width)) /
+            2,
+      }));
+      return renderMobileScalingLayout(centeredComponents);
     } else {
       const componentGroups = groupComponentsByVerticalStacks(
         components,
@@ -425,7 +454,7 @@ const PreviewRenderer = ({
       className={isMobileView ? 'hide-scrollbar' : ''}
     >
       {containerWidth > 0
-        ? isMobileView
+        ? isMobileView || editingViewport === 'mobile'
           ? renderMobileLayout()
           : renderDesktopLayout()
         : null}

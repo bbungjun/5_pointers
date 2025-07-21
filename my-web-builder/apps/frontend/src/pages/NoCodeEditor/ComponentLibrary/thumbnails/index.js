@@ -13,6 +13,7 @@ export { default as LinkThumbnail } from './LinkThumbnail';
 export { default as MapThumbnail } from './MapThumbnail';
 export { default as MapInfoThumbnail } from './MapInfoThumbnail';
 export { default as MusicThumbnail } from './MusicThumbnail';
+export { default as RectangleLayerThumbnail } from './RectangleLayerThumbnail';
 export { default as SlideGalleryThumbnail } from './SlideGalleryThumbnail';
 export { default as SlidoThumbnail } from './SlidoThumbnail';
 export { default as TextThumbnail } from './TextThumbnail';
@@ -37,6 +38,7 @@ import LinkThumbnail from './LinkThumbnail';
 import MapThumbnail from './MapThumbnail';
 import MapInfoThumbnail from './MapInfoThumbnail';
 import MusicThumbnail from './MusicThumbnail';
+import RectangleLayerThumbnail from './RectangleLayerThumbnail';
 import SlideGalleryThumbnail from './SlideGalleryThumbnail';
 import SlidoThumbnail from './SlidoThumbnail';
 import TextThumbnail from './TextThumbnail';
@@ -62,6 +64,7 @@ export const ThumbnailComponents = {
   map: MapThumbnail,
   mapInfo: MapInfoThumbnail,
   musicPlayer: MusicThumbnail,
+  rectangleLayer: RectangleLayerThumbnail,
   slideGallery: SlideGalleryThumbnail,
   slido: SlidoThumbnail,
   text: TextThumbnail,

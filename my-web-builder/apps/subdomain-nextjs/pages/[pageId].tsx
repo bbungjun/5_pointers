@@ -104,6 +104,12 @@ const DynamicPageRenderer = ({
         if (editingMode === 'desktop') {
           const newScale = currentWidth / BASE_DESKTOP_WIDTH;
           setDesktopScale(newScale);
+        } else if (editingMode === 'mobile') {
+          // 편집 기준이 모바일일 때 데스크톱에서 보면 적절한 크기로 보여주기
+          // 데스크톱 너비의 1/3 정도 크기로 제한
+          const maxWidth = Math.min(currentWidth * 0.33, BASE_MOBILE_WIDTH);
+          const newScale = maxWidth / BASE_MOBILE_WIDTH;
+          setMobileScale(newScale);
         }
       }
     };
@@ -323,9 +329,19 @@ const DynamicPageRenderer = ({
         )
       ) + PAGE_VERTICAL_PADDING; // 하단 여백 추가
 
+    // 편집 기준이 모바일일 때 데스크톱에서 보면 가운데 정렬
+    const isMobileEditingInDesktopView = editingMode === 'mobile';
+
     return (
       <div
-        style={{ width: '100%', height: `${contentHeight * mobileScale}px` }}
+        style={{
+          width: '100%',
+          height: `${contentHeight * mobileScale}px`,
+          display: 'flex',
+          justifyContent: isMobileEditingInDesktopView
+            ? 'center'
+            : 'flex-start',
+        }}
       >
         <div
           style={{
@@ -370,7 +386,16 @@ const DynamicPageRenderer = ({
     const currentEditingMode = editingMode;
 
     if (currentEditingMode === 'mobile') {
-      return renderMobileScalingLayout(components);
+      // 편집 기준이 모바일일 때도 데스크톱에서 보면 가운데 정렬
+      const centeredComponents = components.map((comp) => ({
+        ...comp,
+        x:
+          comp.x +
+          (BASE_MOBILE_WIDTH -
+            (comp.width || getComponentDefaultSize(comp.type).width)) /
+            2,
+      }));
+      return renderMobileScalingLayout(centeredComponents);
     } else {
       const componentGroups = groupComponentsByVerticalStacks(
         components,
@@ -467,7 +492,7 @@ const DynamicPageRenderer = ({
       }}
     >
       {components && components.length > 0 ? (
-        isMobileView ? (
+        isMobileView || editingMode === 'mobile' ? (
           renderMobileLayout()
         ) : (
           renderDesktopLayout()
