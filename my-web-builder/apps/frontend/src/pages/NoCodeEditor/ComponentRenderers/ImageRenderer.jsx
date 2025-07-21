@@ -219,8 +219,6 @@ function ImageRenderer({ comp, component, isEditor = false, mode = 'editor', isP
           color: '#6b7280',
           fontSize: '14px'
         }}>
-          <div style={{ fontSize: '20px', marginBottom: '8px' }}>⏳</div>
-          <div>로딩 중...</div>
         </div>
       )}
 
