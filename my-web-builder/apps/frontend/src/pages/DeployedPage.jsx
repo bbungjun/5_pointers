@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
-import ddukddakLogo from '../assets/page-cube-logo.png';
 import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
 function DeployedPage({ user, onLogout }) {
   const navigate = useNavigate();
@@ -26,24 +25,42 @@ function DeployedPage({ user, onLogout }) {
   const fetchPageSubmissions = async (pageId) => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) return null;
+      console.log('🔍 fetchPageSubmissions 시작:', { pageId, hasToken: !!token });
+      
+      if (!token) {
+        console.log('❌ 토큰이 없어서 submissions 조회 실패');
+        return null;
+      }
 
-      const response = await fetch(
-        `${API_BASE_URL}/users/pages/${pageId}/submissions`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const url = `${API_BASE_URL}/users/pages/${pageId}/submissions`;
+      console.log('🌐 API 호출 URL:', url);
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log('📡 API 응답 상태:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
 
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ submissions 데이터 조회 성공:', data);
         return data;
       } else {
+        const errorText = await response.text();
+        console.log('❌ API 응답 실패:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText
+        });
       }
     } catch (error) {
-      console.error('Submissions 조회 실패:', error);
+      console.error('💥 Submissions 조회 중 예외 발생:', error);
     }
     return null;
   };
@@ -481,7 +498,7 @@ function DeployedPage({ user, onLogout }) {
                 onClick={() => navigate('/dashboard')}
               >
                 <img 
-                  src={ddukddakLogo} 
+                  src="/ddukddak-logo.png" 
                   alt="DDUKDDAK" 
                   style={{ height: '36px', objectFit: 'contain' }} 
                 />
@@ -740,6 +757,11 @@ function DeployedPage({ user, onLogout }) {
                   <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                     <span className="inline-block w-1.5 h-6 bg-slate-700 rounded-full"></span>
                     제출된 응답
+                    {submissionsModal.data.submissions.length > 5 && (
+                      <span className="text-sm font-normal text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+                        스크롤하여 더 보기
+                      </span>
+                    )}
                   </h3>
                   {(() => {
                     // 폼 타입 분석 (추론 로직 적용) - attendance와 other 타입 모두 포함
@@ -969,7 +991,13 @@ function DeployedPage({ user, onLogout }) {
               </div>
             </div>
 
-            <div className="overflow-auto max-h-[calc(90vh-200px)]">
+            <div 
+              className={`overflow-auto ${submissionsModal.data.submissions.length > 5 ? 'max-h-[400px]' : 'max-h-[calc(90vh-200px)]'}`}
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#cbd5e1 #f1f5f9'
+              }}
+            >
               <div className="p-6 space-y-4">
                 {submissionsModal.data.submissions.map((submission) => {
                   // formType이 없는 경우 데이터 기반으로 추론
@@ -1019,39 +1047,21 @@ function DeployedPage({ user, onLogout }) {
                           }`}
                         >
                           {(() => {
-                            let displayText = '';
-                            if (submission.type === 'attendance' || submission.type === 'other') {
-                              const formType = inferredFormType || submission.data.formType;
-                              
-                              
-                              // 명시적인 문자열 비교
-                              if (String(formType) === 'birthday-party') {
-                                displayText = '생일파티 참석';
-                              } else if (String(formType) === 'club-application') {
-                                displayText = '동아리 가입';
-                              } else if (String(formType) === 'wedding-attendance') {
-                                displayText = '결혼식 참석';
-                              } else if (String(formType) === 'general-attendance') {
-                                displayText = '일반 참석';
-                              } else if (!formType || formType === '' || formType === null || formType === undefined || formType === 'unknown') {
-                                displayText = '참석/가입';
-                              } else {
-                                displayText = `참석/가입 (${formType})`;
-                              }
+                            // AttendRenderer 관련 모든 응답을 참석/가입으로 통일
+                            if (submission.type === 'attendance' || 
+                                submission.type === 'other' ||
+                                submission.componentId?.includes('attend') ||
+                                submission.componentId?.includes('Attend') ||
+                                submission.data?.attendeeName) {
+                              return '참석/가입';
                             } else if (submission.type === 'comment') {
-                              displayText = '댓글';
+                              return '댓글';
                             } else if (submission.type === 'slido') {
-                              displayText = '의견';
+                              return '의견';
                             } else {
-                              displayText = '기타';
+                              return '기타';
                             }
-                            
-                            
-                            return displayText;
                           })()}
-                        </span>
-                        <span className="text-sm text-slate-500">
-                          {submission.componentId}
                         </span>
                       </div>
                       <span className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
@@ -1060,100 +1070,27 @@ function DeployedPage({ user, onLogout }) {
                     </div>
 
                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-                      {submission.type === 'attendance' && (
+                      {/* AttendRenderer 관련 모든 데이터 (attendance, other 타입 및 attendeeName이 있는 모든 데이터) */}
+                      {(submission.type === 'attendance' || 
+                        submission.type === 'other' ||
+                        submission.componentId?.includes('attend') ||
+                        submission.componentId?.includes('Attend') ||
+                        submission.data?.attendeeName) && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="flex flex-col">
                             <span className="text-xs text-slate-500 mb-1">이름</span>
                             <p className="font-medium">{submission.data.attendeeName}</p>
                           </div>
-                          
-                          {/* 결혼식 참석 폼 전용 필드들 */}
-                          {(!submission.data.formType || submission.data.formType === 'wedding-attendance') && (
-                            <>
-                              {submission.data.guestSide && (
-                                <div className="flex flex-col">
-                                  <span className="text-xs text-slate-500 mb-1">구분</span>
-                                  <p className="font-medium">{submission.data.guestSide}</p>
-                                </div>
-                              )}
-                              {submission.data.attendeeCount && (
-                                <div className="flex flex-col">
-                                  <span className="text-xs text-slate-500 mb-1">참석 인원</span>
-                                  <p className="font-medium">{submission.data.attendeeCount}명</p>
-                                </div>
-                              )}
-                              {submission.data.companionCount !== undefined && (
-                                <div className="flex flex-col">
-                                  <span className="text-xs text-slate-500 mb-1">동행인 수</span>
-                                  <p className="font-medium">{submission.data.companionCount}명</p>
-                                </div>
-                              )}
-                              {submission.data.mealOption && (
-                                <div className="flex flex-col">
-                                  <span className="text-xs text-slate-500 mb-1">식사여부</span>
-                                  <p className="font-medium">{submission.data.mealOption}</p>
-                                </div>
-                              )}
-                            </>
-                          )}
-                          
-                          {/* 생일파티 폼 전용 필드들 */}
-                          {submission.data.formType === 'birthday-party' && (
-                            <>
-                              {submission.data.arrivalTime && (
-                                <div className="flex flex-col">
-                                  <span className="text-xs text-slate-500 mb-1">도착 예정시간</span>
-                                  <p className="font-medium">{submission.data.arrivalTime}</p>
-                                </div>
-                              )}
-                            </>
-                          )}
-                          
-                          {/* 공통 필드들 */}
                           {submission.data.contact && (
                             <div className="flex flex-col">
                               <span className="text-xs text-slate-500 mb-1">연락처</span>
                               <p className="font-medium">{submission.data.contact}</p>
                             </div>
                           )}
-                          
-                          {/* 동아리 가입 폼 전용 필드들 (지원동기, 관련경험 등) */}
-                          {submission.data.formType === 'club-application' && (
-                            <>
-                              {submission.data.studentId && (
-                                <div className="flex flex-col">
-                                  <span className="text-xs text-slate-500 mb-1">학번</span>
-                                  <p className="font-medium">{submission.data.studentId}</p>
-                                </div>
-                              )}
-                              {submission.data.major && (
-                                <div className="flex flex-col">
-                                  <span className="text-xs text-slate-500 mb-1">전공</span>
-                                  <p className="font-medium">{submission.data.major}</p>
-                                </div>
-                              )}
-                              {submission.data.email && (
-                                <div className="flex flex-col">
-                                  <span className="text-xs text-slate-500 mb-1">이메일</span>
-                                  <p className="font-medium">{submission.data.email}</p>
-                                </div>
-                              )}
-                              {submission.data.motivation && (
-                                <div className="flex flex-col col-span-full">
-                                  <span className="text-xs text-slate-500 mb-1">지원 동기</span>
-                                  <p className="font-medium">{submission.data.motivation}</p>
-                                </div>
-                              )}
-                              {submission.data.experience && (
-                                <div className="flex flex-col col-span-full">
-                                  <span className="text-xs text-slate-500 mb-1">관련 경험</span>
-                                  <p className="font-medium">{submission.data.experience}</p>
-                                </div>
-                              )}
-                            </>
-                          )}
                         </div>
                       )}
+                      
+                      {/* 댓글 데이터 */}
                       {submission.type === 'comment' && (
                         <div className="grid grid-cols-1 gap-3">
                           <div className="flex flex-col">
@@ -1166,76 +1103,14 @@ function DeployedPage({ user, onLogout }) {
                           </div>
                         </div>
                       )}
+                      
+                      {/* 의견 데이터 */}
                       {submission.type === 'slido' && (
                         <div className="grid grid-cols-1 gap-3">
                           <div className="flex flex-col">
                             <span className="text-xs text-slate-500 mb-1">의견</span>
                             <p className="font-medium">{submission.data.content}</p>
                           </div>
-                        </div>
-                      )}
-                      {submission.type === 'other' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div className="flex flex-col">
-                            <span className="text-xs text-slate-500 mb-1">이름</span>
-                            <p className="font-medium">{submission.data.attendeeName}</p>
-                          </div>
-                          {submission.data.guestSide && (
-                            <div className="flex flex-col">
-                              <span className="text-xs text-slate-500 mb-1">학년/구분</span>
-                              <p className="font-medium">{submission.data.guestSide}</p>
-                            </div>
-                          )}
-                          {submission.data.contact && (
-                            <div className="flex flex-col">
-                              <span className="text-xs text-slate-500 mb-1">연락처</span>
-                              <p className="font-medium">{submission.data.contact}</p>
-                            </div>
-                          )}
-                          {submission.data.studentId && (
-                            <div className="flex flex-col">
-                              <span className="text-xs text-slate-500 mb-1">학번</span>
-                              <p className="font-medium">{submission.data.studentId}</p>
-                            </div>
-                          )}
-                          {submission.data.major && (
-                            <div className="flex flex-col">
-                              <span className="text-xs text-slate-500 mb-1">전공</span>
-                              <p className="font-medium">{submission.data.major}</p>
-                            </div>
-                          )}
-                          {submission.data.email && (
-                            <div className="flex flex-col">
-                              <span className="text-xs text-slate-500 mb-1">이메일</span>
-                              <p className="font-medium">{submission.data.email}</p>
-                            </div>
-                          )}
-                          {submission.data.attendeeCount && (
-                            <div className="flex flex-col">
-                              <span className="text-xs text-slate-500 mb-1">참석 인원</span>
-                              <p className="font-medium">{submission.data.attendeeCount}명</p>
-                            </div>
-                          )}
-                          {submission.data.companionCount && (
-                            <div className="flex flex-col">
-                              <span className="text-xs text-slate-500 mb-1">동반 인원</span>
-                              <p className="font-medium">{submission.data.companionCount}명</p>
-                            </div>
-                          )}
-                          {submission.data.mealOption && (
-                            <div className="flex flex-col">
-                              <span className="text-xs text-slate-500 mb-1">식사 옵션</span>
-                              <p className="font-medium">{submission.data.mealOption}</p>
-                            </div>
-                          )}
-                          {submission.data.privacyConsent && (
-                            <div className="flex flex-col">
-                              <span className="text-xs text-slate-500 mb-1">개인정보 동의</span>
-                              <p className="font-medium">
-                                {submission.data.privacyConsent ? '동의' : '미동의'}  
-                              </p>
-                            </div>
-                          )}
                         </div>
                       )}
                     </div>

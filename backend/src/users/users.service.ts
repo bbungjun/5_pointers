@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Users, AuthProvider } from './entities/users.entity';
 import { Pages, PageStatus } from './entities/pages.entity';
 import { Submissions } from './entities/submissions.entity';
@@ -1351,8 +1351,59 @@ export class UsersService {
       contact: submission.data.contact,
       companionCount: submission.data.companionCount,
       mealOption: submission.data.mealOption,
+      formType: submission.data.formType,
       createdAt: submission.createdAt,
     }));
+  }
+
+  // 참석 의사 요약 조회
+  async getAttendanceSummary(pageId: string): Promise<any> {
+    // 해당 페이지의 모든 attendance 관련 제출 데이터 조회
+    const submissions = await this.submissionsRepository.find({
+      where: {
+        page: { id: pageId },
+        component_id: Like('attend_%'),
+      },
+      order: { createdAt: 'DESC' },
+    });
+
+    const attendances = submissions.map((submission) => ({
+      id: submission.id,
+      attendeeName: submission.data.attendeeName,
+      attendeeCount: submission.data.attendeeCount || 1,
+      guestSide: submission.data.guestSide || '',
+      contact: submission.data.contact,
+      companionCount: submission.data.companionCount || 0,
+      mealOption: submission.data.mealOption || '',
+      formType: submission.data.formType || 'wedding-attendance',
+      createdAt: submission.createdAt,
+    }));
+
+    // 통계 계산
+    const totalResponses = attendances.length;
+    const totalAttendees = attendances.reduce((sum, a) => sum + a.attendeeCount, 0);
+    const totalCompanions = attendances.reduce((sum, a) => sum + a.companionCount, 0);
+    const totalPeople = totalAttendees + totalCompanions;
+    
+    const brideGuests = attendances.filter(a => a.guestSide === '신부측').length;
+    const groomGuests = attendances.filter(a => a.guestSide === '신랑측').length;
+    
+    const withMeal = attendances.filter(a => a.mealOption === '식사함').length;
+    const withoutMeal = attendances.filter(a => a.mealOption === '식사안함').length;
+
+    return {
+      summary: {
+        totalResponses,
+        totalPeople,
+        brideGuests,
+        groomGuests,
+        totalAttendees,
+        totalCompanions,
+        withMeal,
+        withoutMeal,
+      },
+      attendances,
+    };
   }
 
   // 참석 의사 작성
