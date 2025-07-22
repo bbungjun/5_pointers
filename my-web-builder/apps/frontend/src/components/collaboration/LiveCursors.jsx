@@ -29,7 +29,7 @@ export const LiveCursors = React.memo(({
   cursorChatMessages = {},
   canvasRef = null
 }) => {
-  const scale = zoom / 100;
+  const currentScale = Math.max(zoom / 100, 0.1);
 
   return (
     <>
@@ -37,9 +37,17 @@ export const LiveCursors = React.memo(({
         const userWithColor = addUserColor(cursor.user);
         const chatMessage = cursorChatMessages[userWithColor.id] || cursorChatMessages[String(userWithColor.id)];
         
-        // 캔버스 내부 좌표를 화면 좌표로 변환
-        const displayX = cursor.x * scale;
-        const displayY = cursor.y * scale;
+        // 콘텐츠 좌표를 원본 크기 기준으로 변환 (캔버스 transform 무시)
+        // cursor.x, cursor.y는 이미 콘텐츠 좌표이므로 그대로 사용
+        const displayX = cursor.x;
+        const displayY = cursor.y;
+
+        console.log('커서 위치 표시 (transform 독립):', {
+          사용자: userWithColor.name,
+          콘텐츠좌표: { x: cursor.x, y: cursor.y },
+          현재줌: zoom + '%',
+          표시좌표: { displayX, displayY }
+        });
 
         return (
           <div
@@ -50,7 +58,9 @@ export const LiveCursors = React.memo(({
               top: displayY,
               pointerEvents: 'none',
               zIndex: 9999,
-              transform: 'translate(-2px, -2px)',
+              // 캔버스의 transform을 상쇄하여 실제 크기로 표시
+              transform: `scale(${1 / currentScale}) translate(-2px, -2px)`,
+              transformOrigin: 'top left',
               transition: 'left 0.1s ease-out, top 0.1s ease-out',
             }}
           >
@@ -62,7 +72,7 @@ export const LiveCursors = React.memo(({
               fill="none"
               style={{
                 filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))',
-                transform: `scale(${1 / scale})`, // 줌 레벨에 반비례하여 크기 조정
+                transform: `scale(${1 / currentScale})`, // 현재 줌 레벨에 반비례하여 크기 조정
                 transformOrigin: 'left top' // 왼쪽 상단 기준으로 변환
               }}
             >
@@ -90,7 +100,7 @@ export const LiveCursors = React.memo(({
                 boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                 maxWidth: '200px',
                 wordWrap: 'break-word',
-                transform: `scale(${1 / scale})`, // 줌 레벨에 반비례하여 크기 조정
+                transform: `scale(${1 / currentScale})`, // 줌 레벨에 반비례하여 크기 조정
                 transformOrigin: 'left top' // 왼쪽 상단 기준으로 변환
               }}
             >
