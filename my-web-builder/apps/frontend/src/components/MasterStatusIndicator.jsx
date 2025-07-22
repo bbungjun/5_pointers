@@ -20,7 +20,7 @@ const MasterStatusIndicator = ({
   return (
     <div className="master-status-indicator" style={{
       position: 'fixed',
-      top: '10px',
+      top: '70px',
       right: '10px',
       background: isMaster ? '#4CAF50' : '#2196F3',
       color: 'white',
