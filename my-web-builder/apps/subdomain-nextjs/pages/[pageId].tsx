@@ -319,18 +319,14 @@ const DynamicPageRenderer = ({
 
   // ✅ 스케일링 전용 렌더링 함수: 이제 인자를 받도록 수정
   const renderMobileScalingLayout = (componentsToRender: ComponentData[]) => {
-    const PAGE_VERTICAL_PADDING = 16; // 상수를 공유하거나 동일한 값 사용
-    // 맨 마지막 컴포넌트 하단에 여백을 주기 위해 높이 계산 시 패딩 추가
+    const PAGE_VERTICAL_PADDING = 16;
     const contentHeight =
       Math.max(
         0,
         ...componentsToRender.map(
           (c: ComponentData) => (c.y || 0) + (c.height || 0)
         )
-      ) + PAGE_VERTICAL_PADDING; // 하단 여백 추가
-
-    // 편집 기준이 모바일일 때 데스크톱에서 보면 가운데 정렬
-    const isMobileEditingInDesktopView = editingMode === 'mobile';
+      ) + PAGE_VERTICAL_PADDING;
 
     return (
       <div
@@ -338,9 +334,7 @@ const DynamicPageRenderer = ({
           width: '100%',
           height: `${contentHeight * mobileScale}px`,
           display: 'flex',
-          justifyContent: isMobileEditingInDesktopView
-            ? 'center'
-            : 'flex-start',
+          justifyContent: 'center', // 항상 가운데 정렬
         }}
       >
         <div
@@ -348,7 +342,8 @@ const DynamicPageRenderer = ({
             width: `${BASE_MOBILE_WIDTH}px`,
             height: `${contentHeight}px`,
             transform: `scale(${mobileScale})`,
-            transformOrigin: 'top left',
+            transformOrigin: 'top center', // 중앙을 기준으로 변환
+            position: 'relative', // 상대 위치 설정
           }}
         >
           {componentsToRender.map((comp: ComponentData) => {
@@ -386,16 +381,8 @@ const DynamicPageRenderer = ({
     const currentEditingMode = editingMode;
 
     if (currentEditingMode === 'mobile') {
-      // 편집 기준이 모바일일 때도 데스크톱에서 보면 가운데 정렬
-      const centeredComponents = components.map((comp) => ({
-        ...comp,
-        x:
-          comp.x +
-          (BASE_MOBILE_WIDTH -
-            (comp.width || getComponentDefaultSize(comp.type).width)) /
-            2,
-      }));
-      return renderMobileScalingLayout(centeredComponents);
+      // 모바일 편집 모드일 때는 컴포넌트를 그대로 사용
+      return renderMobileScalingLayout(components);
     } else {
       const componentGroups = groupComponentsByVerticalStacks(
         components,
@@ -441,10 +428,10 @@ const DynamicPageRenderer = ({
           const relativeX = (comp.x || 0) - minX;
           const relativeY = (comp.y || 0) - minY;
 
-          // ✅ 텍스트 크기 재계산을 위한 newProps 생성
+          // 텍스트 크기 재계산을 위한 newProps 생성
           const newProps = { ...comp.props };
 
-          // ❗️ 모든 텍스트 관련 props 키를 배열로 관리
+          // 모든 텍스트 관련 props 키를 배열로 관리
           const FONT_SIZE_KEYS = [
             'fontSize',
             'titleFontSize',
@@ -454,21 +441,20 @@ const DynamicPageRenderer = ({
             'dateFontSize',
           ];
 
-          // ❗️ newProps 객체 내부의 모든 폰트 크기를 재계산하여 덮어씀
+          // newProps 객체 내부의 모든 폰트 크기를 재계산하여 덮어씀
           FONT_SIZE_KEYS.forEach((key) => {
             if (newProps[key]) {
               newProps[key] = newProps[key] * scaleRatio;
             }
           });
 
+          // x 좌표를 중앙 정렬로 계산
+          const centeredX = (BASE_MOBILE_WIDTH - (originalWidth * scaleRatio)) / 2;
+
           repositionedComponents.push({
             ...comp,
-            props: newProps, // ✅ 최종 계산된 props 주입
-            x:
-              (groupWidth > BASE_MOBILE_WIDTH
-                ? 0
-                : (BASE_MOBILE_WIDTH - groupWidth) / 2) +
-              relativeX * scaleRatio,
+            props: newProps,
+            x: centeredX + (relativeX * scaleRatio),
             y: currentY + relativeY * scaleRatio,
             width: originalWidth * scaleRatio,
             height: originalHeight * scaleRatio,
