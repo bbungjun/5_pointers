@@ -98,7 +98,9 @@ const DynamicPageRenderer = ({
       setIsMobileView(isMobile);
 
       if (isMobile) {
+        // 화면 가로 크기에 맞춰 스케일 계산
         const newScale = currentWidth / BASE_MOBILE_WIDTH;
+        console.log('Current width:', currentWidth, 'Scale:', newScale);
         setMobileScale(newScale);
       } else {
         if (editingMode === 'desktop') {
@@ -328,42 +330,65 @@ const DynamicPageRenderer = ({
         )
       ) + PAGE_VERTICAL_PADDING;
 
+    // 현재 화면 너비 가져오기
+    const currentWidth = typeof window !== 'undefined' ? window.innerWidth : BASE_MOBILE_WIDTH;
+    // 스케일 계산 (375px 기준으로 확대/축소)
+    const scale = currentWidth / BASE_MOBILE_WIDTH;
+
+    // 스케일링된 너비 계산
+    const scaledWidth = BASE_MOBILE_WIDTH * scale;
+    // 왼쪽 여백 계산
+    const leftMargin = (currentWidth - scaledWidth) / 2;
+
     return (
       <div
         style={{
           width: '100%',
-          height: `${contentHeight * mobileScale}px`,
-          display: 'flex',
-          justifyContent: 'center', // 항상 가운데 정렬
+          height: `${contentHeight * scale}px`,
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         <div
           style={{
             width: `${BASE_MOBILE_WIDTH}px`,
             height: `${contentHeight}px`,
-            transform: `scale(${mobileScale})`,
-            transformOrigin: 'top center', // 중앙을 기준으로 변환
-            position: 'relative', // 상대 위치 설정
+            transform: `scale(${scale})`,
+            transformOrigin: '0 0',
+            position: 'absolute',
+            left: `${leftMargin / scale}px`,
           }}
         >
           {componentsToRender.map((comp: ComponentData) => {
             const RendererComponent = getRendererByType(comp.type);
             if (!RendererComponent) return null;
 
+            const defaultSize = getComponentDefaultSize(comp.type);
+            const width = comp.width || defaultSize.width;
+            const height = comp.height || defaultSize.height;
+
+            // x 좌표 계산 (375px 기준으로 중앙 정렬)
+            const x = comp.x || 0;
+            const adjustedX = Math.min(x, BASE_MOBILE_WIDTH - width);
+
             return (
               <div
                 key={comp.id}
                 style={{
                   position: 'absolute',
-                  left: `${comp.x || 0}px`,
+                  left: `${adjustedX}px`,
                   top: `${comp.y || 0}px`,
-                  width: `${comp.width}px`,
-                  height: `${comp.height}px`,
+                  width: `${width}px`,
+                  height: `${height}px`,
                 }}
               >
                 <RendererComponent
                   {...comp.props}
-                  comp={{ ...comp }}
+                  comp={{
+                    ...comp,
+                    width,
+                    height,
+                  }}
                   mode="live"
                   isEditor={false}
                   pageId={pageId}

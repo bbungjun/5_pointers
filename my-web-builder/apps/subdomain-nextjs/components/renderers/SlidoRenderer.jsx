@@ -268,7 +268,6 @@ function SlidoRenderer({ comp, pageId, mode = 'live', width, height }) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('🚀 SlidoRenderer - API 응답 데이터:', data);
         setOpinions(data);
 
         // 의견 그룹 업데이트
