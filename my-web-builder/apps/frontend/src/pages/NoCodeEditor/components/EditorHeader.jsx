@@ -229,9 +229,9 @@ function EditorHeader({
                 "
                 title="클릭하여 제목 수정"
               >
-                {pageTitle && pageTitle.length > 15 
-                  ? `${pageTitle.substring(0, 15)}...` 
-                  : (pageTitle || '제목 없음')}
+                {pageTitle && pageTitle.length > 15
+                  ? `${pageTitle.substring(0, 15)}...`
+                  : pageTitle || '제목 없음'}
               </button>
             )}
           </div>
@@ -274,7 +274,8 @@ function EditorHeader({
                   key={member.id}
                   className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-white/90"
                   style={{
-                    color: member.status === 'PENDING' ? '#D97706' : member.color,
+                    color:
+                      member.status === 'PENDING' ? '#D97706' : member.color,
                   }}
                 >
                   <span
@@ -308,7 +309,10 @@ function EditorHeader({
                       key={member.id}
                       className="flex items-center gap-2 px-2 py-1 rounded text-xs hover:bg-gray-50"
                       style={{
-                        color: member.status === 'PENDING' ? '#D97706' : member.color
+                        color:
+                          member.status === 'PENDING'
+                            ? '#D97706'
+                            : member.color,
                       }}
                     >
                       <span
@@ -343,7 +347,7 @@ function EditorHeader({
             onClick={onTemplateSaveOpen}
             className="
               h-10 px-4 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white
-              font-medium rounded-lg transition-all duration-300
+              font-bold rounded-lg transition-all duration-300
               flex items-center whitespace-nowrap text-sm
             "
           >
@@ -381,7 +385,7 @@ function EditorHeader({
           onClick={onPreviewOpen}
           className="
             h-10 px-4 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white
-            font-medium rounded-lg transition-all duration-300
+            font-bold rounded-lg transition-all duration-300
             flex items-center whitespace-nowrap text-sm
           "
         >
@@ -393,7 +397,7 @@ function EditorHeader({
           onClick={() => setShowDeployModal(true)}
           disabled={isDeploying || !components || components.length === 0}
           className="
-            h-10 px-4 text-white font-medium rounded-lg
+            h-10 px-4 text-white font-bold rounded-lg
             flex items-center whitespace-nowrap text-sm border border-white/30
             disabled:opacity-50 disabled:cursor-not-allowed
           "

@@ -75,6 +75,7 @@ function SearchBar({ searchTerm, onSearchChange }) {
             backgroundColor: '#ffffff',
             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
             transition: 'all 0.2s ease',
+            fontFamily: 'Pretendard, sans-serif',
           }}
           onFocus={(e) => {
             e.target.style.borderColor = '#0ea5e9';
