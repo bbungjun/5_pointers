@@ -258,7 +258,16 @@ function App() {
     <ToastProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<MainPage onLogin={handleLogin} />} />
+          <Route
+            path="/"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <MainPage onLogin={handleLogin} />
+              )
+            }
+          />
           <Route
             path="/login"
             element={

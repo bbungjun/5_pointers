@@ -2,17 +2,32 @@ import React from 'react';
 import { addUserColor } from '../../utils/userColors';
 
 /**
- * 채팅 메시지 컴포넌트 - 줌 레벨과 관계없이 고정 크기
+ * 채팅 메시지 컴포넌트 - 일관된 레이아웃 구조
  */
 const ChatMessage = React.memo(({ userWithColor, message }) => {
-  if (!message) {
-    return <span style={{ fontSize: '12px' }}>{userWithColor.name || '사용자'}</span>;
-  }
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-      <span style={{ fontWeight: 'bold', fontSize: '12px' }}>{userWithColor.name}</span>
-      <span style={{ fontSize: '14px' }}>{message}</span>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      gap: '2px',
+      minHeight: '16px' // 최소 높이로 레이아웃 안정성 확보
+    }}>
+      <span style={{ 
+        fontWeight: 'bold', 
+        fontSize: '12px',
+        lineHeight: '14px'
+      }}>
+        {userWithColor.name || '사용자'}
+      </span>
+      {message && (
+        <span style={{ 
+          fontSize: '14px',
+          lineHeight: '16px',
+          marginTop: '2px'
+        }}>
+          {message}
+        </span>
+      )}
     </div>
   );
 });
@@ -42,13 +57,6 @@ export const LiveCursors = React.memo(({
         const displayX = cursor.x;
         const displayY = cursor.y;
 
-        console.log('커서 위치 표시 (transform 독립):', {
-          사용자: userWithColor.name,
-          콘텐츠좌표: { x: cursor.x, y: cursor.y },
-          현재줌: zoom + '%',
-          표시좌표: { displayX, displayY }
-        });
-
         return (
           <div
             key={`cursor-${cursor.id || index}`}
@@ -61,16 +69,24 @@ export const LiveCursors = React.memo(({
               // 캔버스의 transform을 상쇄하여 실제 크기로 표시
               transform: `scale(${1 / currentScale}) translate(-2px, -2px)`,
               transformOrigin: 'top left',
-              transition: 'left 0.1s ease-out, top 0.1s ease-out',
+              // 매우 빠른 transition으로 실시간 추적감 향상
+              transition: 'left 0.05s linear, top 0.05s linear',
+              // 레이아웃 안정성을 위한 최소 크기 설정
+              minWidth: '20px',
+              minHeight: '20px',
+              // GPU 가속 활성화
+              willChange: 'left, top',
             }}
           >
-            {/* 커서와 이름표를 하나의 그룹으로 묶어서 동일한 스케일 적용 */}
+            {/* 커서와 이름표를 하나의 그룹으로 묶어서 고정 크기 적용 */}
             <div
               style={{
                 position: 'relative',
-                // 커서 아이콘과 이름표 모두 동일한 스케일 적용
-                transform: `scale(${currentScale})`,
-                transformOrigin: 'top left'
+                // 줌 레벨과 관계없이 항상 동일한 크기 유지
+                transform: `scale(1)`,
+                transformOrigin: 'top left',
+                // 스케일 변화에 대한 빠른 transition
+                transition: 'transform 0.05s linear'
               }}
             >
               {/* 커서 아이콘 */}
@@ -107,6 +123,12 @@ export const LiveCursors = React.memo(({
                   boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                   maxWidth: '200px',
                   wordWrap: 'break-word',
+                  // 레이아웃 안정성을 위한 설정
+                  minHeight: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  // 내용 변화에 대한 빠른 transition (채팅 메시지 표시/숨김)
+                  transition: 'background-color 0.1s ease-out, box-shadow 0.1s ease-out',
                 }}
               >
                 <ChatMessage userWithColor={userWithColor} message={chatMessage} />
