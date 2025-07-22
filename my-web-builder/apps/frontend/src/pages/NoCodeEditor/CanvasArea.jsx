@@ -887,12 +887,50 @@ const CanvasArea = forwardRef(
               />
             ))}
 
-            {/* 캔버스 내 컴포넌트 렌더링 (더미 컴포넌트 제외) */}
+            {/* 캔버스 내 컴포넌트 렌더링 - 사각형 레이어를 항상 먼저 렌더링 */}
+            {/* 1. 먼저 사각형 레이어 컴포넌트만 렌더링 */}
             {components
               .filter((comp, index, arr) => {
-                // 중복 ID 제거: 같은 ID를 가진 첫 번째 컴포넌트만 유지
+                // 중복 ID 제거 및 사각형 레이어만 필터링
                 const firstIndex = arr.findIndex((c) => c.id === comp.id);
-                return firstIndex === index;
+                return firstIndex === index && comp.type === 'rectangleLayer';
+              })
+              .map((comp) => {
+                const isSelected = selectedId === comp.id;
+                const isMultiSelected =
+                  selectedIds && selectedIds.includes(comp.id);
+                const isAnySelected = isSelected || isMultiSelected;
+
+                return (
+                  <CanvasComponent
+                    key={comp.id}
+                    comp={comp}
+                    selected={isAnySelected}
+                    selectedIds={selectedIds}
+                    onSelect={onSelect}
+                    onUpdate={onUpdate}
+                    onMultiUpdate={onUpdate}
+                    onDelete={onDelete}
+                    setSnapLines={setSnapLines}
+                    zoom={zoom}
+                    viewport={viewport}
+                    components={components}
+                    getComponentDimensions={getComponentDimensions}
+                    canvasHeight={canvasHeight}
+                    updateCursorPosition={updateCursorPosition}
+                    pageId={pageId}
+                    setComponentDragging={setComponentDragging}
+                    isComponentDragging={checkComponentDragging}
+                  />
+                );
+              })}
+              
+            {/* 2. 그 다음 나머지 컴포넌트들 렌더링 */}
+            {components
+              .filter((comp, index, arr) => {
+                // 중복 ID 제거 및 사각형 레이어 제외
+                const firstIndex = arr.findIndex((c) => c.id === comp.id);
+                return firstIndex === index && comp.type !== 'rectangleLayer';
               })
               .map((comp) => {
                 const isSelected = selectedId === comp.id;
