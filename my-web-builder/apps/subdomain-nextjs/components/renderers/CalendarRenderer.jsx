@@ -1,8 +1,6 @@
 import React from 'react';
 
 function CalendarRenderer({ comp, mode = 'live' }) {
-  console.log('CalendarRenderer props:', comp.props);
-  console.log('CalendarRenderer comp:', comp);
 
   const {
     weddingDate,
