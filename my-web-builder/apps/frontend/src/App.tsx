@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MainPage from './pages/MainPage';
 import LoginPage from './pages/LoginPage';
@@ -122,6 +122,103 @@ function App() {
     }
   });
 
+  // 토큰 변경 감지 및 로그인 상태 업데이트
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'token') {
+        console.log('App.jsx - 토큰 변경 감지:', e.newValue ? '토큰 설정됨' : '토큰 제거됨');
+        const newLoginStatus = checkLoginStatus();
+        setIsLoggedIn(newLoginStatus);
+        
+        if (newLoginStatus) {
+          // 새로운 사용자 정보 설정
+          const token = localStorage.getItem('token');
+          if (token) {
+            try {
+              const tokenParts = token.split('.');
+              if (tokenParts.length === 3) {
+                let base64 = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
+                while (base64.length % 4) {
+                  base64 += '=';
+                }
+                const binaryString = atob(base64);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                  bytes[i] = binaryString.charCodeAt(i);
+                }
+                const utf8String = new TextDecoder('utf-8').decode(bytes);
+                const payload = JSON.parse(utf8String);
+                
+                setUser({
+                  nickname:
+                    payload.nickname ||
+                    payload.name ||
+                    payload.email?.split('@')[0] ||
+                    'User',
+                });
+              }
+            } catch (error) {
+              console.error('App.jsx - 새 토큰 파싱 오류:', error);
+            }
+          }
+        } else {
+          setUser({ nickname: 'Guest' });
+        }
+      }
+    };
+
+    // storage 이벤트 리스너 등록
+    window.addEventListener('storage', handleStorageChange);
+    
+    // 같은 탭에서의 토큰 변경도 감지하기 위한 커스텀 이벤트
+    const handleTokenChange = () => {
+      console.log('App.jsx - 커스텀 토큰 변경 이벤트 감지');
+      const newLoginStatus = checkLoginStatus();
+      setIsLoggedIn(newLoginStatus);
+      
+      if (newLoginStatus) {
+        const token = localStorage.getItem('token');
+        if (token) {
+          try {
+            const tokenParts = token.split('.');
+            if (tokenParts.length === 3) {
+              let base64 = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
+              while (base64.length % 4) {
+                base64 += '=';
+              }
+              const binaryString = atob(base64);
+              const bytes = new Uint8Array(binaryString.length);
+              for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+              }
+              const utf8String = new TextDecoder('utf-8').decode(bytes);
+              const payload = JSON.parse(utf8String);
+              
+              setUser({
+                nickname:
+                  payload.nickname ||
+                  payload.name ||
+                  payload.email?.split('@')[0] ||
+                  'User',
+              });
+            }
+          } catch (error) {
+            console.error('App.jsx - 새 토큰 파싱 오류:', error);
+          }
+        }
+      } else {
+        setUser({ nickname: 'Guest' });
+      }
+    };
+
+    window.addEventListener('tokenChanged', handleTokenChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('tokenChanged', handleTokenChange);
+    };
+  }, []);
+
   // 로그인 성공 시 호출
   const handleLogin = (userInfo) => {
     setIsLoggedIn(true);
@@ -161,7 +258,16 @@ function App() {
     <ToastProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<MainPage onLogin={handleLogin} />} />
+          <Route
+            path="/"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <MainPage onLogin={handleLogin} />
+              )
+            }
+          />
           <Route
             path="/login"
             element={

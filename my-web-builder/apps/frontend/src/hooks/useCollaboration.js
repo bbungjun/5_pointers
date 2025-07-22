@@ -40,17 +40,6 @@ export function useCollaboration({
     safeUserInfo
   );
 
-  // 마스터 시스템 관리 (접속 순서 기준)
-  const { 
-    isMaster, 
-    masterUserId, 
-    connectedUsers, 
-    totalUsers,
-    getJoinOrder,
-    getNextMaster,
-    myJoinOrder
-  } = useMasterSystem(awareness, safeUserInfo);
-
   // 라이브 커서 관리 (항상 호출)
   const {
     otherCursors,
@@ -85,6 +74,20 @@ export function useCollaboration({
     stopTyping,
     resetAutoCloseTimer,
   } = useChat(awareness, safeUserInfo, handleCursorChatUpdate);
+
+  // 마스터 시스템 관리
+  const {
+    isMaster,
+    masterUserId,
+    connectedUsers,
+    totalUsers,
+    isUserMaster,
+    getMasterName,
+    getJoinOrder,
+    getNextMaster,
+    masterJoinOrder,
+    myJoinOrder
+  } = useMasterSystem(awareness, safeUserInfo);
 
   // DB 복구 상태 추적
   const hasRestoredRef = useRef(false);
@@ -677,13 +680,15 @@ export function useCollaboration({
     connectionError,
     ydoc,
     provider,
-    // 마스터 시스템 정보
     isMaster,
     masterUserId,
     connectedUsers,
     totalUsers,
+    isUserMaster,
+    getMasterName,
     getJoinOrder,
     getNextMaster,
+    masterJoinOrder,
     myJoinOrder,
   }), [
     otherCursors,
@@ -720,6 +725,16 @@ export function useCollaboration({
     connectionError,
     ydoc,
     provider,
+    isMaster,
+    masterUserId,
+    connectedUsers,
+    totalUsers,
+    isUserMaster,
+    getMasterName,
+    getJoinOrder,
+    getNextMaster,
+    masterJoinOrder,
+    myJoinOrder,
   ]);
 
   // 정리 함수

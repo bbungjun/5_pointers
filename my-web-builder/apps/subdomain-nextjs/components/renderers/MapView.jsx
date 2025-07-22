@@ -32,7 +32,7 @@ function loadKakaoMapsScript() {
 function KakaoMapView({ 
   lat = 37.5665, 
   lng = 126.9780, 
-  zoom = 1,                // 확대된 상태로 기본 설정
+  zoom = 3,                // 확대된 상태로 기본 설정
   width = 400, 
   height = 300,
   interactive = false,     // 배포된 페이지에서는 기본적으로 상호작용 비활성화
@@ -43,8 +43,8 @@ function KakaoMapView({
   const markerRef = useRef(null);
 
   useEffect(() => {
-    // 배포된 페이지에서는 zoom을 1로 고정하여 확대된 상태로 표시
-    const targetZoom = interactive ? zoom : 1;
+    // 배포된 페이지에서는 zoom을 3으로 고정하여 확대된 상태로 표시
+    const targetZoom = interactive ? zoom : 3;
     loadKakaoMapsScript().then(() => {
       function renderMap() {
         if (!window.kakao || !window.kakao.maps || !window.kakao.maps.LatLng || !mapRef.current) {

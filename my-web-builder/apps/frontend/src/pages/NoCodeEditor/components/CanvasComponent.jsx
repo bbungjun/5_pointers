@@ -17,7 +17,6 @@ import CommentRenderer from '../ComponentRenderers/CommentRenderer';
 import SlidoRenderer from '../ComponentRenderers/SlidoRenderer';
 import PageButtonRenderer from '../ComponentRenderers/PageButtonRenderer';
 import LinkCopyRenderer from '../ComponentRenderers/LinkCopyRenderer';
-import RectangleLayerRenderer from '../ComponentRenderers/RectangleLayerRenderer';
 
 import {
   clamp,
@@ -364,14 +363,6 @@ function CanvasComponent({
             onUpdate={onUpdate}
           />
         );
-      case 'rectangleLayer':
-        return (
-          <RectangleLayerRenderer
-            comp={componentWithFinalStyles}
-            mode="editor"
-            onUpdate={onUpdate}
-          />
-        );
 
       default:
         return <span>{comp.props?.text || ''}</span>;
@@ -608,6 +599,29 @@ function CanvasComponent({
           y: newY,
         };
 
+        // 다중 선택된 컴포넌트들과 함께 이동
+        if (
+          selectedIds &&
+          selectedIds.length > 1 &&
+          selectedIds.includes(comp.id)
+        ) {
+          const deltaX = newX - currentX;
+          const deltaY = newY - currentY;
+
+          selectedIds.forEach((selectedId) => {
+            if (selectedId !== comp.id) {
+              const selectedComp = components.find((c) => c.id === selectedId);
+              if (selectedComp) {
+                onMultiUpdate({
+                  ...selectedComp,
+                  x: selectedComp.x + deltaX,
+                  y: selectedComp.y + deltaY,
+                });
+              }
+            }
+          });
+        }
+
         // 쓰로틀링을 적용하여 성능 최적화 (더 빠른 업데이트)
         if (!dragUpdateTimeoutRef.current) {
           dragUpdateTimeoutRef.current = setTimeout(() => {
@@ -636,6 +650,9 @@ function CanvasComponent({
       onUpdate,
       setComponentDragging,
       comp,
+      selectedIds,
+      components,
+      onMultiUpdate,
     ]
   );
 
@@ -666,29 +683,6 @@ function CanvasComponent({
         `(${currentX}, ${currentY}) -> (${finalX}, ${finalY})`
       );
 
-      // 다중 선택된 컴포넌트들과 함께 이동
-      if (
-        selectedIds &&
-        selectedIds.length > 1 &&
-        selectedIds.includes(comp.id)
-      ) {
-        const deltaX = finalX - currentX;
-        const deltaY = finalY - currentY;
-
-        selectedIds.forEach((selectedId) => {
-          if (selectedId !== comp.id) {
-            const selectedComp = components.find((c) => c.id === selectedId);
-            if (selectedComp) {
-              onMultiUpdate({
-                ...selectedComp,
-                x: selectedComp.x + deltaX,
-                y: selectedComp.y + deltaY,
-              });
-            }
-          }
-        });
-      }
-
       // 메인 컴포넌트 최종 위치 업데이트
       const updatedComponent = {
         ...comp,
@@ -711,10 +705,7 @@ function CanvasComponent({
     dragStart,
     currentX,
     currentY,
-    selectedIds,
-    components,
     onUpdate,
-    onMultiUpdate,
     setSnapLines,
   ]);
 
@@ -783,7 +774,7 @@ function CanvasComponent({
         cursor: isDragging ? 'grabbing' : 'grab',
         background: selected ? 'rgba(59, 78, 255, 0.05)' : 'transparent',
         //zIndex: selected ? 2000 : (comp.type === 'text' ? Math.max(comp.props?.zIndex || 1000, 1000) : (comp.props?.zIndex || 1)),
-        zIndex: comp.type === 'rectangleLayer' ? -1 : (comp.type === 'text' ? 2000 : 1000),
+        zIndex: comp.type === 'text' ? 2000 : 1000,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

@@ -66,7 +66,7 @@ function MapEditor({ selectedComp, onUpdate }) {
     const address = props.address;
     console.log('🔵 useEffect 진입, address:', address);
     if (!address) return;
-
+    
     console.log('🔵 loadKakaoMapsScript 호출 시작');
     loadKakaoMapsScript().then(() => {
       console.log('🟢 카카오 스크립트 로드됨 (services 포함)');
@@ -94,7 +94,15 @@ function MapEditor({ selectedComp, onUpdate }) {
   }, [props.address]);
 
   return (
-    <div style={{ marginTop: 20 }}>
+    <div>
+
+
+      <TextEditor
+        value={props.placeName || ''}
+        onChange={value => updateProperty('placeName', value)}
+        label="장소명"
+        placeholder="예) 메종 드 프리미어 그랜드홀"
+      />
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 16 }}>
         <div style={{ flex: 1 }}>
           <TextEditor
@@ -116,7 +124,7 @@ function MapEditor({ selectedComp, onUpdate }) {
             fontSize: 13,
             fontWeight: 500,
             cursor: 'pointer',
-            marginBottom: 17
+            marginBottom: 8
           }}
         >
           주소 검색
@@ -138,11 +146,17 @@ function MapEditor({ selectedComp, onUpdate }) {
       {props.address && props.lat && props.lng && (
         <div style={{ margin: '16px 0' }}>
           {console.log('지도 렌더링:', { address: props.address, lat: props.lat, lng: props.lng })}
-          <KakaoMapView lat={props.lat} lng={props.lng} zoom={1} width={290} height={200} />
+          <KakaoMapView lat={props.lat} lng={props.lng} zoom={3} width={290} height={200} />
         </div>
       )}
+      <TextEditor
+        value={props.phone || ''}
+        onChange={value => updateProperty('phone', value)}
+        label="전화번호"
+        placeholder="예) 02-2278-9977"
+      />
     </div>
   );
 }
 
-export default MapEditor;
+export default MapEditor; 
