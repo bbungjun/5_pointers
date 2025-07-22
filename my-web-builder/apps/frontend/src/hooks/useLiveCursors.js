@@ -35,24 +35,16 @@ export function useLiveCursors(awareness, canvasRef, updateActivity) {
       return;
     }
 
-    // 캔버스 기준 좌표 계산
+    // 캔버스 기준 좌표 계산 (정확한 변환)
     const canvasRect = canvasRef.current.getBoundingClientRect();
     const scale = zoom / 100;
     
-    // 스크롤 컨테이너 찾기 (캔버스의 부모 스크롤 컨테이너)
-    const scrollContainer = canvasRef.current.closest('[style*="overflow"]') || 
-                           canvasRef.current.parentElement;
-    const scrollLeft = scrollContainer?.scrollLeft || 0;
-    const scrollTop = scrollContainer?.scrollTop || 0;
-    
-    // 브라우저 좌표를 캔버스 좌표로 변환
-    // 스크롤 오프셋을 고려하여 정확한 위치 계산
-    const canvasX = (x - canvasRect.left + scrollLeft) / scale;
-    const canvasY = (y - canvasRect.top + scrollTop) / scale;
+    // 브라우저 좌표를 캔버스 내부 좌표로 변환
+    // 스크롤은 고려하지 않고 순수 캔버스 내 위치만 저장
+    const canvasX = (x - canvasRect.left) / scale;
+    const canvasY = (y - canvasRect.top) / scale;
 
-
-
-    // Awareness에 커서 위치 저장
+    // Awareness에 커서 위치 저장 (캔버스 내부 좌표)
     awareness.setLocalStateField('cursor', {
       x: canvasX,
       y: canvasY,

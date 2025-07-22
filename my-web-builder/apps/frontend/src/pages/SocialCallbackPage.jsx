@@ -54,41 +54,66 @@ function SocialCallbackPage() {
           window.history.replaceState({}, document.title, url.pathname);
           if (data.access_token) {
             localStorage.setItem('token', data.access_token);
+            
+            // 토큰 변경 이벤트 발생 (App.tsx에서 감지)
+            window.dispatchEvent(new Event('tokenChanged'));
 
             // JWT 토큰에서 사용자 정보 추출
             let nickname = `${provider}User`; // 기본값
 
             try {
-              // JWT 토큰 디코딩 (payload 부분만 추출) - 한글 깨짐 방지
+              // JWT 토큰 디코딩 (payload 부분만 추출) - 더 안전한 방식
               const tokenParts = data.access_token.split('.');
               if (tokenParts.length === 3) {
-                // Base64 디코딩 후 UTF-8로 디코딩
-                const base64Payload = tokenParts[1];
-                const decodedPayload = decodeURIComponent(
-                  atob(base64Payload)
-                    .split('')
-                    .map(
-                      (c) =>
-                        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-                    )
-                    .join('')
-                );
-                const payload = JSON.parse(decodedPayload);
-                console.log('JWT payload (한글 처리됨):', payload);
-
-                nickname =
-                  payload.nickname ||
-                  payload.name ||
-                  payload.email?.split('@')[0] ||
-                  nickname;
+                // Base64 URL Safe 디코딩
+                const base64Payload = tokenParts[1]
+                  .replace(/-/g, '+')
+                  .replace(/_/g, '/');
+                
+                // 패딩 추가
+                const paddedPayload = base64Payload + '='.repeat((4 - base64Payload.length % 4) % 4);
+                
+                try {
+                  // 먼저 일반적인 방식으로 시도
+                  const decodedPayload = atob(paddedPayload);
+                  const payload = JSON.parse(decodedPayload);
+                  console.log('JWT payload (일반 디코딩):', payload);
+                  
+                  nickname =
+                    payload.nickname ||
+                    payload.name ||
+                    payload.email?.split('@')[0] ||
+                    nickname;
+                } catch (innerError) {
+                  console.log('일반 디코딩 실패, UTF-8 디코딩 시도:', innerError);
+                  
+                  // UTF-8 디코딩 시도
+                  const decodedPayload = decodeURIComponent(
+                    atob(paddedPayload)
+                      .split('')
+                      .map(
+                        (c) =>
+                          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                      )
+                      .join('')
+                  );
+                  const payload = JSON.parse(decodedPayload);
+                  console.log('JWT payload (UTF-8 디코딩):', payload);
+                  
+                  nickname =
+                    payload.nickname ||
+                    payload.name ||
+                    payload.email?.split('@')[0] ||
+                    nickname;
+                }
               }
             } catch (error) {
               console.error('JWT 디코딩 실패:', error);
               // 실패 시 기본값 사용
+              nickname = `${provider}User`;
             }
 
             console.log('SocialCallbackPage - 최종 사용할 nickname:', nickname);
-            // onLogin({ nickname }); // This line was removed as per the new_code
 
             // 초대 링크에서 왔는지 확인하고 리디렉션
             const redirectUrl = localStorage.getItem('redirectUrl');
@@ -100,7 +125,8 @@ function SocialCallbackPage() {
               window.location.href = redirectUrl;
             } else {
               // 기본 대시보드로 이동
-              navigate('/dashboard');
+              console.log('소셜 로그인 성공 - 대시보드로 이동');
+              navigate('/dashboard', { replace: true });
             }
           } else {
             showError(data.message || '소셜 로그인 실패');

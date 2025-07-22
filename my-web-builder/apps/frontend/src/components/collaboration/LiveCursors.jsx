@@ -27,7 +27,7 @@ export const LiveCursors = React.memo(({
   zoom = 100, 
   viewport = 'desktop', 
   cursorChatMessages = {},
-  canvasRef = null // 캔버스 ref 추가
+  canvasRef = null
 }) => {
   const scale = zoom / 100;
 
@@ -37,30 +37,17 @@ export const LiveCursors = React.memo(({
         const userWithColor = addUserColor(cursor.user);
         const chatMessage = cursorChatMessages[userWithColor.id] || cursorChatMessages[String(userWithColor.id)];
         
-        // 캔버스 좌표를 화면 좌표로 변환
-        // 스크롤 오프셋을 고려하여 정확한 위치 계산
+        // 캔버스 내부 좌표를 화면 좌표로 변환
         const displayX = cursor.x * scale;
         const displayY = cursor.y * scale;
-
-        // 스크롤 컨테이너의 스크롤 위치 고려 (렌더링 시에는 빼야 함)
-        const scrollContainer = canvasRef?.current?.closest('[style*="overflow"]') || 
-                               canvasRef?.current?.parentElement;
-        const scrollLeft = scrollContainer?.scrollLeft || 0;
-        const scrollTop = scrollContainer?.scrollTop || 0;
-
-        // 최종 화면 좌표 계산 (스크롤 오프셋 제거)
-        const finalX = displayX - scrollLeft;
-        const finalY = displayY - scrollTop;
-
-        
 
         return (
           <div
             key={`cursor-${cursor.id || index}`}
             style={{
               position: 'absolute',
-              left: finalX,
-              top: finalY,
+              left: displayX,
+              top: displayY,
               pointerEvents: 'none',
               zIndex: 9999,
               transform: 'translate(-2px, -2px)',
