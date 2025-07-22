@@ -314,6 +314,18 @@ const PreviewRenderer = ({
           {componentsToRender.map((comp) => {
             const RendererComponent = getRendererByType(comp.type);
             if (!RendererComponent) return null;
+
+            // 디버깅 로그 추가
+            if (comp.type === 'text') {
+              console.log('🔍 PreviewRenderer - 텍스트 컴포넌트 렌더링:', {
+                componentId: comp.id,
+                originalProps: comp.props,
+                fontFamily: comp.props?.fontFamily,
+                fontSize: comp.props?.fontSize,
+                text: comp.props?.text,
+              });
+            }
+
             return (
               <div
                 key={comp.id}
@@ -326,8 +338,13 @@ const PreviewRenderer = ({
                 }}
               >
                 <RendererComponent
-                  {...comp.props}
-                  comp={{ ...comp }}
+                  comp={{
+                    ...comp,
+                    width:
+                      comp.width || getComponentDefaultSize(comp.type).width,
+                    height:
+                      comp.height || getComponentDefaultSize(comp.type).height,
+                  }}
                   mode="preview"
                   isEditor={false}
                   pageId={pageId}
@@ -345,16 +362,8 @@ const PreviewRenderer = ({
     const currentEditingMode = editingViewport || 'desktop';
 
     if (currentEditingMode === 'mobile') {
-      // 편집 기준이 모바일일 때도 데스크톱에서 보면 가운데 정렬
-      const centeredComponents = components.map((comp) => ({
-        ...comp,
-        x:
-          comp.x +
-          (BASE_MOBILE_WIDTH -
-            (comp.width || getComponentDefaultSize(comp.type).width)) /
-            2,
-      }));
-      return renderMobileScalingLayout(centeredComponents);
+      // 편집 기준이 모바일일 때는 컴포넌트를 그대로 사용 (subdomain과 동일)
+      return renderMobileScalingLayout(components);
     } else {
       const componentGroups = groupComponentsByVerticalStacks(
         components,
@@ -374,8 +383,43 @@ const PreviewRenderer = ({
           const defaultSize = getComponentDefaultSize(comp.type);
           const x = comp.x || 0;
           const y = comp.y || 0;
-          const width = comp.width || defaultSize.width;
-          const height = comp.height || defaultSize.height;
+
+          // 텍스트 컴포넌트의 경우 실제 크기 계산
+          let width, height;
+          if (comp.type === 'text') {
+            const fontSize = comp.props?.fontSize || 16;
+            const textLength = comp.props?.text?.length || 0;
+            const lineHeight = comp.props?.lineHeight || 1.2;
+
+            // 실제 텍스트 크기 추정
+            const estimatedTextWidth = Math.min(
+              Math.max(
+                textLength * fontSize * 0.6,
+                comp.width || defaultSize.width
+              ),
+              (comp.width || defaultSize.width) * 3
+            );
+            const estimatedTextHeight = Math.min(
+              Math.max(
+                fontSize * lineHeight * 1.5,
+                comp.height || defaultSize.height
+              ),
+              (comp.height || defaultSize.height) * 3
+            );
+
+            width = Math.max(
+              comp.width || defaultSize.width,
+              estimatedTextWidth
+            );
+            height = Math.max(
+              comp.height || defaultSize.height,
+              estimatedTextHeight
+            );
+          } else {
+            width = comp.width || defaultSize.width;
+            height = comp.height || defaultSize.height;
+          }
+
           minX = Math.min(minX, x);
           minY = Math.min(minY, y);
           maxX = Math.max(maxX, x + width);
@@ -400,10 +444,10 @@ const PreviewRenderer = ({
           const relativeX = (comp.x || 0) - minX;
           const relativeY = (comp.y || 0) - minY;
 
-          // ✅ 텍스트 크기 재계산을 위한 newProps 생성
+          // 텍스트 크기 재계산을 위한 newProps 생성
           const newProps = { ...comp.props };
 
-          // ❗️ 모든 텍스트 관련 props 키를 배열로 관리
+          // 모든 텍스트 관련 props 키를 배열로 관리
           const FONT_SIZE_KEYS = [
             'fontSize',
             'titleFontSize',
@@ -413,24 +457,46 @@ const PreviewRenderer = ({
             'dateFontSize',
           ];
 
-          // ❗️ newProps 객체 내부의 모든 폰트 크기를 재계산하여 덮어씀
+          // newProps 객체 내부의 모든 폰트 크기를 재계산하여 덮어씀
           FONT_SIZE_KEYS.forEach((key) => {
             if (newProps[key]) {
-              newProps[key] = newProps[key] * scaleRatio;
+              newProps[key] =
+                Math.round(newProps[key] * scaleRatio * 100) / 100; // 소수점 2자리로 반올림
             }
           });
 
+          // 그룹 중앙 정렬을 위한 x 좌표 계산 (subdomain과 동일한 로직)
+          const groupCenterX =
+            (BASE_MOBILE_WIDTH - groupWidth * scaleRatio) / 2;
+          const finalX = groupCenterX + relativeX * scaleRatio;
+          const finalY = currentY + relativeY * scaleRatio;
+
+          // 디버깅 로그 (텍스트 컴포넌트만)
+          if (comp.type === 'text') {
+            console.log('📐 PreviewRenderer - 텍스트 위치 계산:', {
+              componentId: comp.id,
+              originalX: comp.x,
+              originalY: comp.y,
+              resizeHandlerWidth: comp.width,
+              resizeHandlerHeight: comp.height,
+              relativeX: relativeX,
+              relativeY: relativeY,
+              scaleRatio: scaleRatio,
+              groupCenterX: groupCenterX,
+              finalX: finalX,
+              finalY: finalY,
+              groupWidth: groupWidth,
+              groupHeight: groupHeight,
+            });
+          }
+
           repositionedComponents.push({
             ...comp,
-            props: newProps, // ✅ 최종 계산된 props 주입
-            x:
-              (groupWidth > BASE_MOBILE_WIDTH
-                ? 0
-                : (BASE_MOBILE_WIDTH - groupWidth) / 2) +
-              relativeX * scaleRatio,
-            y: currentY + relativeY * scaleRatio,
-            width: originalWidth * scaleRatio,
-            height: originalHeight * scaleRatio,
+            props: newProps,
+            x: Math.round(finalX * 100) / 100, // 소수점 2자리로 반올림
+            y: Math.round(finalY * 100) / 100, // 소수점 2자리로 반올림
+            width: Math.round(originalWidth * scaleRatio * 100) / 100,
+            height: Math.round(originalHeight * scaleRatio * 100) / 100,
           });
         });
         currentY += newGroupHeight + PAGE_VERTICAL_PADDING;

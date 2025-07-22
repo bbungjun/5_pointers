@@ -113,47 +113,52 @@ function TextRenderer({
     }
   };
 
-  // ❗️ 부모가 계산해준 최종 폰트 크기를 props에서 바로 사용
-  const finalFontSize = comp.props?.fontSize || 16;
+  // --- ❗️ 스타일 속성 개선 ---
+  const {
+    text = '',
+    fontSize = 16,
+    color,
+    textAlign: propTextAlignValue = 'center',
+    lineHeight = 1.2,
+    letterSpacing = 0,
+    fontWeight: isBold,
+    textDecoration: isUnderline,
+    fontStyle: isItalic,
+  } = comp.props || {};
 
-  // 폰트 관련 속성들
-  const fontFamily = comp?.props?.fontFamily || 'Playfair Display, serif';
   // textAlign 우선순위: 1. 직접 전달된 prop, 2. comp.props에서, 3. 기본값
-  const textAlign = propTextAlign || comp?.props?.textAlign || 'center';
-  const lineHeight = comp?.props?.lineHeight || 1.2;
-  const letterSpacing = comp?.props?.letterSpacing || 0;
-  const fontWeight = comp?.props?.fontWeight ? 'bold' : 'normal';
-  const textDecoration = comp?.props?.textDecoration ? 'underline' : 'none';
-  const isItalic = comp?.props?.fontStyle;
-  const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
+  const textAlign = propTextAlign || propTextAlignValue || 'center';
 
-  // 폰트 디버깅 로그
-  console.log('🎯 Frontend TextRenderer 폰트 정보:', {
+  // 폰트 관련 속성들 (CommentRenderer와 동일한 방식)
+  const fontFamily = comp.props?.fontFamily || 'Playfair Display, serif';
+
+  const textStyle = {
+    color: color,
+    fontFamily: fontFamily, // CommentRenderer와 동일하게 직접 적용
+    fontSize: `${fontSize}px`,
+    textAlign: textAlign,
+    lineHeight: lineHeight,
+    letterSpacing: `${letterSpacing}px`,
+    fontWeight: isBold ? 'bold' : 'normal',
+    textDecoration: isUnderline ? 'underline' : 'none',
+    fontStyle: isItalic ? 'italic' : 'normal', // transform 대신 font-style 사용이 더 표준적입니다.
+    width: '100%',
+    height: '100%',
+    whiteSpace: 'pre-wrap', // 줄바꿈(\n)을 인식하게 함
+    overflowWrap: 'break-word',
+    wordBreak: 'keep-all', // 단어 단위 줄바꿈 (한글에 유리)
+  };
+
+  // 디버깅 로그는 유지하여 확인용으로 사용
+  console.log('🎨 TextRenderer 적용 스타일:', {
     componentId: comp?.id,
-    selectedFont: comp?.props?.fontFamily,
-    appliedFont: fontFamily,
-    allProps: comp?.props,
-    mode: mode,
+    fontFamily: fontFamily,
+    finalStyle: textStyle,
   });
 
   if (editing && mode === 'editor') {
-    console.log('편집 모드로 렌더링');
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent:
-            textAlign === 'left'
-              ? 'flex-start'
-              : textAlign === 'right'
-                ? 'flex-end'
-                : 'center',
-          width: '100%',
-          height: '100%',
-          padding: '0', // 패딩 제거하여 리사이즈 핸들러와 딱 맞게
-        }}
-      >
+      <div style={{ width: '100%', height: '100%' }}>
         <textarea
           ref={inputRef}
           value={editValue}
@@ -161,27 +166,14 @@ function TextRenderer({
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           style={{
-            fontSize: comp.props?.fontSize,
-            fontFamily: `${comp.props?.fontFamily || 'Playfair Display'}, serif !important`,
-            textAlign: textAlign,
-            lineHeight: lineHeight,
-            letterSpacing: letterSpacing + 'px',
-            fontWeight: fontWeight,
-            textDecoration: textDecoration,
-            transform: italicTransform,
-            border: '2px solid #3b82f6',
-            borderRadius: '6px',
-            padding: '8px 12px',
-            outline: 'none',
-            backgroundColor: 'white',
-            width: '100%',
-            height: '100%',
-            minWidth: '120px',
-            minHeight: '60px',
-            resize: 'both',
+            ...textStyle,
             boxSizing: 'border-box',
+            resize: 'none', // 리사이저는 부모 div에서 핸들링하므로 textarea 자체는 비활성화
+            border: '2px solid #3B82F6',
+            outline: 'none',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
           }}
-          placeholder="텍스트를 입력하세요. Shift+Enter로 줄바꿈이 가능합니다."
+          placeholder="텍스트를 입력하세요..."
         />
       </div>
     );
@@ -190,56 +182,20 @@ function TextRenderer({
   return (
     <div
       ref={textRef}
-      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[120px] min-h-[60px]' : 'w-full h-full'} transition-all duration-200 hover:opacity-80 cursor-pointer`}
+      className={`flex items-center justify-center w-full h-full`}
       style={{
-        color: comp.props?.color,
-        fontFamily: comp.props?.fontFamily,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing + 'px',
-        fontWeight: fontWeight,
-        textDecoration: textDecoration,
+        // 정렬을 위해 flexbox 사용
+        justifyContent:
+          textAlign === 'left'
+            ? 'flex-start'
+            : textAlign === 'right'
+              ? 'flex-end'
+              : 'center',
         zIndex: Math.min(Math.max(comp.props?.zIndex || 1000, 1000), 9999999),
-        padding: mode === 'editor' ? '12px' : '8px',
-        minHeight: mode === 'editor' ? '60px' : 'auto',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: comp.props?.textAlign || 'center',
-        width: width ? width : '100%',
-        height: height ? height : 'auto',
-        ...(comp.props?.textAlign === 'left' && {
-          justifyContent: 'flex-start',
-        }),
-        ...(comp.props?.textAlign === 'right' && {
-          justifyContent: 'flex-end',
-        }),
-        ...(comp.props?.textAlign === 'center' && { justifyContent: 'center' }),
-        fontSize: `${finalFontSize}px`,
       }}
       onDoubleClick={handleDoubleClick}
     >
-      <div
-        style={{
-          whiteSpace: 'pre-wrap',
-          width: '100%',
-          height: '100%',
-          flexShrink: 0,
-          textAlign: textAlign,
-          transform: italicTransform,
-          minHeight: '1em',
-          overflowWrap: 'break-word',
-          wordBreak: 'keep-all',
-          fontFamily: 'inherit',
-          ...((!comp.props?.text || comp.props?.text.trim() === '') &&
-            mode === 'editor' && {
-              backgroundColor: 'rgba(59, 130, 246, 0.1)',
-              borderRadius: '4px',
-            }),
-        }}
-      >
-        {comp.props?.text ||
-          (mode === 'editor' ? '텍스트를 입력하려면 더블클릭하세요' : '')}
-      </div>
+      <div style={textStyle}>{text}</div>
     </div>
   );
 }

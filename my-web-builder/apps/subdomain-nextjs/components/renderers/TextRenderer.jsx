@@ -88,75 +88,82 @@ function TextRenderer({
     }
   };
 
-  // ❗️ 부모가 계산해준 최종 폰트 크기를 props에서 바로 사용
-  const finalFontSize = comp.props?.fontSize || 16;
+  // --- ❗️ 스타일 속성 개선 ---
+  const {
+    text = '',
+    fontSize = 16,
+    color,
+    textAlign: propTextAlignValue = 'center',
+    lineHeight = 1.2,
+    letterSpacing = 0,
+    fontWeight: isBold,
+    textDecoration: isUnderline,
+    fontStyle: isItalic,
+  } = comp.props || {};
 
-  // 폰트 관련 속성들
-  const fontFamily = comp?.props?.fontFamily || 'Playfair Display, serif';
   // textAlign 우선순위: 1. 직접 전달된 prop, 2. comp.props에서, 3. 기본값
-  const textAlign = propTextAlign || comp?.props?.textAlign || 'center';
-  const lineHeight = comp?.props?.lineHeight || 1.2;
+  const textAlign = propTextAlign || propTextAlignValue || 'center';
 
-  // 폰트 디버깅 로그
-  console.log('🌐 Subdomain TextRenderer 폰트 정보:', {
+  // 폰트 관련 속성들 (CommentRenderer와 동일한 방식)
+  const fontFamily = comp.props?.fontFamily || 'Playfair Display, serif';
+
+  const textStyle = {
+    color: color,
+    fontFamily: fontFamily, // CommentRenderer와 동일하게 직접 적용
+    fontSize: `${fontSize}px`,
+    textAlign: textAlign,
+    lineHeight: lineHeight,
+    letterSpacing: `${letterSpacing}px`,
+    fontWeight: isBold ? 'bold' : 'normal',
+    textDecoration: isUnderline ? 'underline' : 'none',
+    fontStyle: isItalic ? 'italic' : 'normal', // transform 대신 font-style 사용이 더 표준적입니다.
+    width: '100%',
+    height: '100%',
+    whiteSpace: 'pre-wrap', // 줄바꿈(\n)을 인식하게 함
+    overflowWrap: 'break-word',
+    wordBreak: 'keep-all', // 단어 단위 줄바꿈 (한글에 유리)
+  };
+
+  // 디버깅 로그는 유지하여 확인용으로 사용
+  console.log('🎨 Subdomain TextRenderer 적용 스타일:', {
     componentId: comp?.id,
-    componentType: comp?.type,
-    selectedFont: comp?.props?.fontFamily,
-    appliedFont: fontFamily,
-    allProps: comp?.props,
-    mode: mode,
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+    text: text,
+    finalStyle: textStyle,
   });
 
   // 폰트 로딩 상태 확인
-  if (comp?.props?.fontFamily && typeof document !== 'undefined') {
+  if (fontFamily && typeof document !== 'undefined') {
     document.fonts.ready.then(() => {
-      const fontFamily = comp.props.fontFamily.replace(/['"]/g, '');
-      const isLoaded = document.fonts.check(`12px ${fontFamily}`);
-      console.log('🔍 폰트 로딩 상태:', {
-        fontFamily: fontFamily,
+      const cleanFontFamily = fontFamily.replace(/['"]/g, '');
+      const isLoaded = document.fonts.check(`12px ${cleanFontFamily}`);
+      console.log('🔍 Subdomain 폰트 로딩 상태:', {
+        fontFamily: cleanFontFamily,
         isLoaded: isLoaded,
         availableFonts: Array.from(document.fonts).map((f) => f.family),
       });
     });
   }
-  const letterSpacing = comp?.props?.letterSpacing || 0;
-  const fontWeight = comp?.props?.fontWeight ? 'bold' : 'normal';
-  const textDecoration = comp?.props?.textDecoration ? 'underline' : 'none';
-  const isItalic = comp?.props?.fontStyle;
-  const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
 
   if (editing && mode === 'editor') {
     return (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          padding: '0',
-        }}
-      >
+      <div style={{ width: '100%', height: '100%' }}>
         <textarea
           ref={inputRef}
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className="border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
           style={{
-            fontSize: comp.props?.fontSize,
-            fontFamily: `${comp.props?.fontFamily || 'Playfair Display'}, serif !important`,
-            textAlign: textAlign,
-            lineHeight: lineHeight,
-            letterSpacing: letterSpacing + 'px',
-            fontWeight: fontWeight,
-            textDecoration: textDecoration,
-            transform: italicTransform,
-            width: '100%',
-            height: '100%',
-            minHeight: '60px',
-            resize: 'both',
+            ...textStyle,
             boxSizing: 'border-box',
+            resize: 'none', // 리사이저는 부모 div에서 핸들링하므로 textarea 자체는 비활성화
+            border: '2px solid #3B82F6',
+            outline: 'none',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
           }}
-          placeholder="텍스트를 입력하세요. Shift+Enter로 줄바꿈이 가능합니다."
+          placeholder="텍스트를 입력하세요..."
         />
       </div>
     );
@@ -165,45 +172,20 @@ function TextRenderer({
   return (
     <div
       ref={textRef}
-      className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center transition-all duration-200 hover:opacity-80`}
+      className={`flex items-center justify-center w-full h-full`}
       style={{
-        color: comp.props?.color,
-        fontFamily: `${comp.props?.fontFamily} !important`,
-        textAlign: textAlign,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing + 'px',
-        fontWeight: fontWeight,
-        textDecoration: textDecoration,
-        alignItems: 'center',
-        justifyContent: 'center',
-        ...(comp.props?.textAlign === 'left' && {
-          justifyContent: 'flex-start',
-        }),
-        ...(comp.props?.textAlign === 'right' && {
-          justifyContent: 'flex-end',
-        }),
-        ...(comp.props?.textAlign === 'center' && { justifyContent: 'center' }),
+        // 정렬을 위해 flexbox 사용
+        justifyContent:
+          textAlign === 'left'
+            ? 'flex-start'
+            : textAlign === 'right'
+              ? 'flex-end'
+              : 'center',
         zIndex: Math.min(Math.max(comp.props?.zIndex || 1000, 1000), 9999999),
-        fontSize: `${finalFontSize}px`,
       }}
       onDoubleClick={handleDoubleClick}
     >
-      <div
-        style={{
-          whiteSpace: 'pre-wrap',
-          width: '100%',
-          height: '100%',
-          flexShrink: 0,
-          textAlign: textAlign,
-          transform: italicTransform,
-          minHeight: '1em',
-          overflowWrap: 'break-word',
-          wordBreak: 'keep-all',
-          fontFamily: `${comp.props?.fontFamily} !important`,
-        }}
-      >
-        {comp.props?.text || ''}
-      </div>
+      <div style={textStyle}>{text}</div>
     </div>
   );
 }
