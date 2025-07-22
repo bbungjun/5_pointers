@@ -100,7 +100,6 @@ const DynamicPageRenderer = ({
       if (isMobile) {
         // 화면 가로 크기에 맞춰 스케일 계산
         const newScale = currentWidth / BASE_MOBILE_WIDTH;
-        console.log('Current width:', currentWidth, 'Scale:', newScale);
         setMobileScale(newScale);
       } else {
         if (editingMode === 'desktop') {
@@ -283,6 +282,15 @@ const DynamicPageRenderer = ({
               return null;
             }
 
+            // 컴포넌트 데이터 디버깅 로그
+            if (comp.type === 'text') {
+              console.log('📦 Subdomain Desktop - Text 컴포넌트 데이터:', {
+                componentId: comp.id,
+                fontFamily: comp.props?.fontFamily,
+                allProps: comp.props,
+              });
+            }
+
             const defaultSize = getComponentDefaultSize(comp.type);
             const originalWidth = comp.width || defaultSize.width;
             const originalHeight = comp.height || defaultSize.height;
@@ -301,7 +309,6 @@ const DynamicPageRenderer = ({
                 }}
               >
                 <RendererComponent
-                  {...comp.props}
                   comp={{
                     ...comp,
                     width: originalWidth,
@@ -331,7 +338,8 @@ const DynamicPageRenderer = ({
       ) + PAGE_VERTICAL_PADDING;
 
     // 현재 화면 너비 가져오기
-    const currentWidth = typeof window !== 'undefined' ? window.innerWidth : BASE_MOBILE_WIDTH;
+    const currentWidth =
+      typeof window !== 'undefined' ? window.innerWidth : BASE_MOBILE_WIDTH;
     // 스케일 계산 (375px 기준으로 확대/축소)
     const scale = currentWidth / BASE_MOBILE_WIDTH;
 
@@ -363,6 +371,15 @@ const DynamicPageRenderer = ({
             const RendererComponent = getRendererByType(comp.type);
             if (!RendererComponent) return null;
 
+            // 컴포넌트 데이터 디버깅 로그
+            if (comp.type === 'text') {
+              console.log('📦 Subdomain Mobile - Text 컴포넌트 데이터:', {
+                componentId: comp.id,
+                fontFamily: comp.props?.fontFamily,
+                allProps: comp.props,
+              });
+            }
+
             const defaultSize = getComponentDefaultSize(comp.type);
             const width = comp.width || defaultSize.width;
             const height = comp.height || defaultSize.height;
@@ -383,7 +400,6 @@ const DynamicPageRenderer = ({
                 }}
               >
                 <RendererComponent
-                  {...comp.props}
                   comp={{
                     ...comp,
                     width,
@@ -473,13 +489,14 @@ const DynamicPageRenderer = ({
             }
           });
 
-          // x 좌표를 중앙 정렬로 계산
-          const centeredX = (BASE_MOBILE_WIDTH - (originalWidth * scaleRatio)) / 2;
-
           repositionedComponents.push({
             ...comp,
             props: newProps,
-            x: centeredX + (relativeX * scaleRatio),
+            x:
+              (groupWidth > BASE_MOBILE_WIDTH
+                ? 0
+                : (BASE_MOBILE_WIDTH - groupWidth) / 2) +
+              relativeX * scaleRatio,
             y: currentY + relativeY * scaleRatio,
             width: originalWidth * scaleRatio,
             height: originalHeight * scaleRatio,

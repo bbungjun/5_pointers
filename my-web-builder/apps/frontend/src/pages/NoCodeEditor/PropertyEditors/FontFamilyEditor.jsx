@@ -259,6 +259,11 @@ function FontFamilyEditor({ label, value, onChange }) {
   }, []);
 
   const handleFontSelect = (fontValue) => {
+    console.log('🎨 FontFamilyEditor - 폰트 선택됨:', {
+      selectedFont: fontValue,
+      currentValue: value,
+      willChange: value !== fontValue,
+    });
     onChange(fontValue);
     setIsOpen(false);
   };

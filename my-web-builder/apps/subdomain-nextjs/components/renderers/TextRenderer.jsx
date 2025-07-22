@@ -49,16 +49,6 @@ function TextRenderer({
     }
   }, [editing]);
 
-  useEffect(() => {
-    if (textRef.current && comp?.props?.fontFamily) {
-      textRef.current.style.setProperty(
-        'font-family',
-        comp.props.fontFamily,
-        'important'
-      );
-    }
-  }, [comp?.props?.fontFamily]);
-
   const handleDoubleClick = (e) => {
     e.stopPropagation();
     if (mode === 'editor') {
@@ -107,12 +97,28 @@ function TextRenderer({
   const textAlign = propTextAlign || comp?.props?.textAlign || 'center';
   const lineHeight = comp?.props?.lineHeight || 1.2;
 
-  // 디버깅: props 확인
-  console.log('TextRenderer all props:', {
-    propTextAlign,
-    compProps: comp?.props,
-    finalTextAlign: textAlign,
+  // 폰트 디버깅 로그
+  console.log('🌐 Subdomain TextRenderer 폰트 정보:', {
+    componentId: comp?.id,
+    componentType: comp?.type,
+    selectedFont: comp?.props?.fontFamily,
+    appliedFont: fontFamily,
+    allProps: comp?.props,
+    mode: mode,
   });
+
+  // 폰트 로딩 상태 확인
+  if (comp?.props?.fontFamily && typeof document !== 'undefined') {
+    document.fonts.ready.then(() => {
+      const fontFamily = comp.props.fontFamily.replace(/['"]/g, '');
+      const isLoaded = document.fonts.check(`12px ${fontFamily}`);
+      console.log('🔍 폰트 로딩 상태:', {
+        fontFamily: fontFamily,
+        isLoaded: isLoaded,
+        availableFonts: Array.from(document.fonts).map((f) => f.family),
+      });
+    });
+  }
   const letterSpacing = comp?.props?.letterSpacing || 0;
   const fontWeight = comp?.props?.fontWeight ? 'bold' : 'normal';
   const textDecoration = comp?.props?.textDecoration ? 'underline' : 'none';
@@ -137,19 +143,18 @@ function TextRenderer({
           className="border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
           style={{
             fontSize: comp.props?.fontSize,
-            fontFamily: fontFamily,
+            fontFamily: `${comp.props?.fontFamily || 'Playfair Display'}, serif !important`,
             textAlign: textAlign,
             lineHeight: lineHeight,
             letterSpacing: letterSpacing + 'px',
             fontWeight: fontWeight,
             textDecoration: textDecoration,
             transform: italicTransform,
-            width: '100%', // 리사이즈 핸들러 너비에 맞춤
-            height: '100%', // 리사이즈 핸들러 높이에 맞춤
+            width: '100%',
+            height: '100%',
             minHeight: '60px',
             resize: 'both',
-            fontFamily: 'inherit',
-            boxSizing: 'border-box', // 패딩과 보더를 포함한 크기 계산
+            boxSizing: 'border-box',
           }}
           placeholder="텍스트를 입력하세요. Shift+Enter로 줄바꿈이 가능합니다."
         />
@@ -163,39 +168,42 @@ function TextRenderer({
       className={`${mode === 'editor' ? 'w-auto h-auto min-w-[80px] min-h-[40px]' : 'w-full h-full'} flex items-center transition-all duration-200 hover:opacity-80`}
       style={{
         color: comp.props?.color,
-        fontFamily: fontFamily,
+        fontFamily: `${comp.props?.fontFamily} !important`,
         textAlign: textAlign,
         lineHeight: lineHeight,
         letterSpacing: letterSpacing + 'px',
         fontWeight: fontWeight,
         textDecoration: textDecoration,
-        alignItems: 'center', // 세로 가운데 정렬
-        justifyContent: 'center', // 가로 가운데 정렬 (기본값)
-        // 가로 정렬에 따른 justifyContent 조정
-        ...(textAlign === 'left' && { justifyContent: 'flex-start' }),
-        ...(textAlign === 'right' && { justifyContent: 'flex-end' }),
-        ...(textAlign === 'center' && { justifyContent: 'center' }),
+        alignItems: 'center',
+        justifyContent: 'center',
+        ...(comp.props?.textAlign === 'left' && {
+          justifyContent: 'flex-start',
+        }),
+        ...(comp.props?.textAlign === 'right' && {
+          justifyContent: 'flex-end',
+        }),
+        ...(comp.props?.textAlign === 'center' && { justifyContent: 'center' }),
         zIndex: Math.min(Math.max(comp.props?.zIndex || 1000, 1000), 9999999),
-        // ❗️ mode에 따른 분기 없이, finalFontSize를 직접 사용
         fontSize: `${finalFontSize}px`,
       }}
       onDoubleClick={handleDoubleClick}
     >
-      <span
+      <div
         style={{
           whiteSpace: 'pre-wrap',
           width: '100%',
           height: '100%',
+          flexShrink: 0,
           textAlign: textAlign,
           transform: italicTransform,
-          display: 'inline-block',
-          // 3. 계산된 값 적용 및 overflow 방지
+          minHeight: '1em',
           overflowWrap: 'break-word',
-          wordBreak: 'keep-all', // 단어 단위 줄바꿈
+          wordBreak: 'keep-all',
+          fontFamily: `${comp.props?.fontFamily} !important`,
         }}
       >
         {comp.props?.text || ''}
-      </span>
+      </div>
     </div>
   );
 }

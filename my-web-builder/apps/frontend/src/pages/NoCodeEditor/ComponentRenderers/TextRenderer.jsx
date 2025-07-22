@@ -50,31 +50,12 @@ function TextRenderer({
   //   setEditing(false);
   // }, [comp.id]); // 컴포넌트 ID가 변경될 때마다 초기화
 
+  // 폰트 관련 useEffect 제거 (더 이상 필요하지 않음)
   useEffect(() => {
     if (editing && inputRef.current) {
       inputRef.current.focus();
     }
   }, [editing]);
-
-  useEffect(() => {
-    if (textRef.current && comp?.props?.fontFamily) {
-      textRef.current.style.setProperty(
-        'font-family',
-        comp.props.fontFamily,
-        'important'
-      );
-    }
-  }, [comp?.props?.fontFamily]);
-
-  useEffect(() => {
-    if (textRef.current && comp?.props?.textAlign) {
-      textRef.current.style.setProperty(
-        'text-align',
-        comp.props.textAlign,
-        'important'
-      );
-    }
-  }, [comp?.props?.textAlign, width, height]);
 
   const handleDoubleClick = (e) => {
     console.log('handleDoubleClick 호출됨, 현재 editing:', editing);
@@ -146,6 +127,15 @@ function TextRenderer({
   const isItalic = comp?.props?.fontStyle;
   const italicTransform = isItalic ? 'skewX(-15deg)' : 'none';
 
+  // 폰트 디버깅 로그
+  console.log('🎯 Frontend TextRenderer 폰트 정보:', {
+    componentId: comp?.id,
+    selectedFont: comp?.props?.fontFamily,
+    appliedFont: fontFamily,
+    allProps: comp?.props,
+    mode: mode,
+  });
+
   if (editing && mode === 'editor') {
     console.log('편집 모드로 렌더링');
     return (
@@ -172,7 +162,7 @@ function TextRenderer({
           onKeyDown={handleKeyDown}
           style={{
             fontSize: comp.props?.fontSize,
-            fontFamily: fontFamily,
+            fontFamily: `${comp.props?.fontFamily || 'Playfair Display'}, serif !important`,
             textAlign: textAlign,
             lineHeight: lineHeight,
             letterSpacing: letterSpacing + 'px',
@@ -184,13 +174,12 @@ function TextRenderer({
             padding: '8px 12px',
             outline: 'none',
             backgroundColor: 'white',
-            width: '100%', // 리사이즈 핸들러 너비에 맞춤
-            height: '100%', // 리사이즈 핸들러 높이에 맞춤
+            width: '100%',
+            height: '100%',
             minWidth: '120px',
             minHeight: '60px',
             resize: 'both',
-            fontFamily: 'inherit',
-            boxSizing: 'border-box', // 패딩과 보더를 포함한 크기 계산
+            boxSizing: 'border-box',
           }}
           placeholder="텍스트를 입력하세요. Shift+Enter로 줄바꿈이 가능합니다."
         />
@@ -204,7 +193,7 @@ function TextRenderer({
       className={`${mode === 'editor' ? 'w-auto h-auto min-w-[120px] min-h-[60px]' : 'w-full h-full'} transition-all duration-200 hover:opacity-80 cursor-pointer`}
       style={{
         color: comp.props?.color,
-        fontFamily: fontFamily,
+        fontFamily: comp.props?.fontFamily,
         lineHeight: lineHeight,
         letterSpacing: letterSpacing + 'px',
         fontWeight: fontWeight,
@@ -213,16 +202,18 @@ function TextRenderer({
         padding: mode === 'editor' ? '12px' : '8px',
         minHeight: mode === 'editor' ? '60px' : 'auto',
         display: 'flex',
-        alignItems: 'center', // 세로 가운데 정렬
-        justifyContent: 'center', // 가로 가운데 정렬 (기본값)
-        textAlign: textAlign,
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: comp.props?.textAlign || 'center',
         width: width ? width : '100%',
         height: height ? height : 'auto',
-        // 가로 정렬에 따른 justifyContent 조정
-        ...(textAlign === 'left' && { justifyContent: 'flex-start' }),
-        ...(textAlign === 'right' && { justifyContent: 'flex-end' }),
-        ...(textAlign === 'center' && { justifyContent: 'center' }),
-        // ❗️ mode에 따른 분기 없이, finalFontSize를 직접 사용
+        ...(comp.props?.textAlign === 'left' && {
+          justifyContent: 'flex-start',
+        }),
+        ...(comp.props?.textAlign === 'right' && {
+          justifyContent: 'flex-end',
+        }),
+        ...(comp.props?.textAlign === 'center' && { justifyContent: 'center' }),
         fontSize: `${finalFontSize}px`,
       }}
       onDoubleClick={handleDoubleClick}
@@ -233,15 +224,12 @@ function TextRenderer({
           width: '100%',
           height: '100%',
           flexShrink: 0,
-          // 강제로 텍스트 정렬 적용
-          textAlign: textAlign + ' !important',
+          textAlign: textAlign,
           transform: italicTransform,
-          // 텍스트가 없을 때도 클릭 가능한 영역 확보
           minHeight: '1em',
-          // 3. 계산된 값 적용 및 overflow 방지
           overflowWrap: 'break-word',
-          wordBreak: 'keep-all', // 단어 단위 줄바꿈
-          // 플레이스홀더 텍스트가 있을 때 시각적 피드백
+          wordBreak: 'keep-all',
+          fontFamily: 'inherit',
           ...((!comp.props?.text || comp.props?.text.trim() === '') &&
             mode === 'editor' && {
               backgroundColor: 'rgba(59, 130, 246, 0.1)',
