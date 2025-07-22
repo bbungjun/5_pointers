@@ -130,7 +130,9 @@ function TextRenderer({
   const textAlign = propTextAlign || propTextAlignValue || 'center';
 
   // 폰트 관련 속성들 (CommentRenderer와 동일한 방식)
-  const fontFamily = comp.props?.fontFamily || 'Playfair Display, serif';
+  const fontFamily =
+    comp.props?.fontFamily ||
+    '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 
   const textStyle = {
     color: color,
@@ -143,7 +145,7 @@ function TextRenderer({
     textDecoration: isUnderline ? 'underline' : 'none',
     fontStyle: isItalic ? 'italic' : 'normal', // transform 대신 font-style 사용이 더 표준적입니다.
     width: '100%',
-    height: '100%',
+    // height: '100%' 제거 - 세로 중앙 정렬을 위해
     whiteSpace: 'pre-wrap', // 줄바꿈(\n)을 인식하게 함
     overflowWrap: 'break-word',
     wordBreak: 'keep-all', // 단어 단위 줄바꿈 (한글에 유리)

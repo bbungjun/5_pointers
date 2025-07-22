@@ -71,7 +71,7 @@
 }
 
 /* 전역 폰트 설정 - 컴포넌트 영역에서는 사용자 폰트 우선 */
-*:not([style*='font-family']) {
+*:not([style*='font-family']):not(.material-symbols-outlined) {
   font-family:
     'Pretendard',
     -apple-system,
