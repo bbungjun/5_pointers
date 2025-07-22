@@ -29,7 +29,7 @@ export const LiveCursors = React.memo(({
   cursorChatMessages = {},
   canvasRef = null
 }) => {
-  const scale = zoom / 100;
+  const currentScale = Math.max(zoom / 100, 0.1);
 
   return (
     <>
@@ -37,9 +37,17 @@ export const LiveCursors = React.memo(({
         const userWithColor = addUserColor(cursor.user);
         const chatMessage = cursorChatMessages[userWithColor.id] || cursorChatMessages[String(userWithColor.id)];
         
-        // 캔버스 내부 좌표를 화면 좌표로 변환
-        const displayX = cursor.x * scale;
-        const displayY = cursor.y * scale;
+        // 콘텐츠 좌표를 원본 크기 기준으로 변환 (캔버스 transform 무시)
+        // cursor.x, cursor.y는 이미 콘텐츠 좌표이므로 그대로 사용
+        const displayX = cursor.x;
+        const displayY = cursor.y;
+
+        console.log('커서 위치 표시 (transform 독립):', {
+          사용자: userWithColor.name,
+          콘텐츠좌표: { x: cursor.x, y: cursor.y },
+          현재줌: zoom + '%',
+          표시좌표: { displayX, displayY }
+        });
 
         return (
           <div
@@ -50,51 +58,59 @@ export const LiveCursors = React.memo(({
               top: displayY,
               pointerEvents: 'none',
               zIndex: 9999,
-              transform: 'translate(-2px, -2px)',
+              // 캔버스의 transform을 상쇄하여 실제 크기로 표시
+              transform: `scale(${1 / currentScale}) translate(-2px, -2px)`,
+              transformOrigin: 'top left',
               transition: 'left 0.1s ease-out, top 0.1s ease-out',
             }}
           >
-            {/* 커서 아이콘 - 줌 레벨과 관계없이 고정 크기 */}
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              style={{
-                filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))',
-                transform: `scale(${1 / scale})`, // 줌 레벨에 반비례하여 크기 조정
-                transformOrigin: 'left top' // 왼쪽 상단 기준으로 변환
-              }}
-            >
-              <path
-                d="M3 3L21 12L12 21L9 12L3 3Z"
-                fill={userWithColor.color}
-                stroke="white"
-                strokeWidth="1"
-              />
-            </svg>
-            
-            {/* 사용자 이름표 - 줌 레벨과 관계없이 고정 크기 */}
+            {/* 커서와 이름표를 하나의 그룹으로 묶어서 동일한 스케일 적용 */}
             <div
               style={{
-                position: 'absolute',
-                left: 16,
-                top: -4,
-                backgroundColor: userWithColor.color,
-                color: 'white',
-                padding: '4px 8px',
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontWeight: '500',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                maxWidth: '200px',
-                wordWrap: 'break-word',
-                transform: `scale(${1 / scale})`, // 줌 레벨에 반비례하여 크기 조정
-                transformOrigin: 'left top' // 왼쪽 상단 기준으로 변환
+                position: 'relative',
+                // 커서 아이콘과 이름표 모두 동일한 스케일 적용
+                transform: `scale(${currentScale})`,
+                transformOrigin: 'top left'
               }}
             >
-              <ChatMessage userWithColor={userWithColor} message={chatMessage} />
+              {/* 커서 아이콘 */}
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                style={{
+                  filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))',
+                }}
+              >
+                <path
+                  d="M3 3L21 12L12 21L9 12L3 3Z"
+                  fill={userWithColor.color}
+                  stroke="white"
+                  strokeWidth="1"
+                />
+              </svg>
+              
+              {/* 사용자 이름표 - 커서와 동일한 스케일 그룹 내부 */}
+              <div
+                style={{
+                  position: 'absolute',
+                  left: 16,
+                  top: -4,
+                  backgroundColor: userWithColor.color,
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                  maxWidth: '200px',
+                  wordWrap: 'break-word',
+                }}
+              >
+                <ChatMessage userWithColor={userWithColor} message={chatMessage} />
+              </div>
             </div>
           </div>
         );

@@ -15,8 +15,8 @@ export function useLiveCursors(awareness, canvasRef, updateActivity) {
   const lastUpdateRef = useRef(0);
   const throttleMs = 16; // 60fps
 
-  // 커서 위치 업데이트 함수
-  const updateCursorPosition = useCallback((x, y, zoom = 100, viewport = 'desktop') => {
+  // 커서 위치 업데이트 함수 (캔버스 콘텐츠 기준 좌표)
+  const updateCursorPosition = useCallback((clientX, clientY, zoom = 100, viewport = 'desktop') => {
     if (!awareness || !canvasRef?.current) return;
 
     // 쓰로틀링 체크
@@ -30,25 +30,43 @@ export function useLiveCursors(awareness, canvasRef, updateActivity) {
     }
 
     // 커서 숨기기
-    if (x === null || y === null) {
+    if (clientX === null || clientY === null) {
       awareness.setLocalStateField('cursor', null);
       return;
     }
 
-    // 캔버스 기준 좌표 계산 (정확한 변환)
+    // 캔버스 DOM 요소의 실제 위치 정보
     const canvasRect = canvasRef.current.getBoundingClientRect();
-    const scale = zoom / 100;
+    const currentScale = Math.max(zoom / 100, 0.1);
     
-    // 브라우저 좌표를 캔버스 내부 좌표로 변환
-    // 스크롤은 고려하지 않고 순수 캔버스 내 위치만 저장
-    const canvasX = (x - canvasRect.left) / scale;
-    const canvasY = (y - canvasRect.top) / scale;
+    // 브라우저 좌표를 캔버스 내부 픽셀 좌표로 변환
+    const canvasPixelX = clientX - canvasRect.left;
+    const canvasPixelY = clientY - canvasRect.top;
 
-    // Awareness에 커서 위치 저장 (캔버스 내부 좌표)
+    // 캔버스 경계 체크
+    if (canvasPixelX < 0 || canvasPixelY < 0 || 
+        canvasPixelX > canvasRect.width || canvasPixelY > canvasRect.height) {
+      awareness.setLocalStateField('cursor', null);
+      return;
+    }
+
+    // 캔버스 픽셀 좌표를 콘텐츠 좌표로 변환 (줌 독립적)
+    // 현재 줌 레벨을 역산하여 실제 콘텐츠 상의 위치 계산
+    const contentX = canvasPixelX / currentScale;
+    const contentY = canvasPixelY / currentScale;
+
+    console.log('커서 위치 저장 (콘텐츠 좌표):', {
+      브라우저좌표: { clientX, clientY },
+      캔버스픽셀좌표: { canvasPixelX, canvasPixelY },
+      현재줌: zoom + '%',
+      현재스케일: currentScale,
+      콘텐츠좌표: { contentX, contentY }
+    });
+
+    // 콘텐츠 좌표를 저장 (줌 독립적)
     awareness.setLocalStateField('cursor', {
-      x: canvasX,
-      y: canvasY,
-      zoom,
+      x: contentX,
+      y: contentY,
       viewport,
       timestamp: now,
     });
