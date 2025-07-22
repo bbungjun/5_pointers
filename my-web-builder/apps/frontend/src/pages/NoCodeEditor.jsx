@@ -667,8 +667,8 @@ function NoCodeEditor({ pageId }) {
         onSaveNow={masterAutoSave.saveNow}
       />
 
-      {/* 마스터 상태 표시 - 주석 처리 */}
-      {/* <MasterStatusIndicator
+      {/* 마스터 상태 표시 */}
+      <MasterStatusIndicator
         isMaster={collaboration.isMaster}
         masterUserId={collaboration.masterUserId}
         userInfo={userInfo}
@@ -676,7 +676,7 @@ function NoCodeEditor({ pageId }) {
         totalUsers={collaboration.totalUsers || 0}
         myJoinOrder={collaboration.myJoinOrder}
         getNextMaster={collaboration.getNextMaster}
-      /> */}
+      />
 
       {/* 연결 상태 표시 (헤더 밖) */}
       {/**

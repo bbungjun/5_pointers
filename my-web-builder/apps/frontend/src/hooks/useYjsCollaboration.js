@@ -200,6 +200,7 @@ export function useYjsCollaboration(roomId, userInfo) {
           name: userWithColor.name,
           color: userWithColor.color,
           id: userWithColor.id,
+          joinTime: Date.now(), // 마스터 시스템을 위한 접속 시간 추가
         });
         
         // 하트비트 시작

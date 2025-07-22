@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { useYjsCollaboration } from './useYjsCollaboration';
 import { useLiveCursors } from './useLiveCursors';
 import { useChat } from './useChat';
+import { useMasterSystem } from './useMasterSystem';
 import { API_BASE_URL } from '../config';
 
 /**
@@ -73,6 +74,20 @@ export function useCollaboration({
     stopTyping,
     resetAutoCloseTimer,
   } = useChat(awareness, safeUserInfo, handleCursorChatUpdate);
+
+  // 마스터 시스템 관리
+  const {
+    isMaster,
+    masterUserId,
+    connectedUsers,
+    totalUsers,
+    isUserMaster,
+    getMasterName,
+    getJoinOrder,
+    getNextMaster,
+    masterJoinOrder,
+    myJoinOrder
+  } = useMasterSystem(awareness, safeUserInfo);
 
   // DB 복구 상태 추적
   const hasRestoredRef = useRef(false);
@@ -665,6 +680,16 @@ export function useCollaboration({
     connectionError,
     ydoc,
     provider,
+    isMaster,
+    masterUserId,
+    connectedUsers,
+    totalUsers,
+    isUserMaster,
+    getMasterName,
+    getJoinOrder,
+    getNextMaster,
+    masterJoinOrder,
+    myJoinOrder,
   }), [
     otherCursors,
     otherSelections,
@@ -700,6 +725,16 @@ export function useCollaboration({
     connectionError,
     ydoc,
     provider,
+    isMaster,
+    masterUserId,
+    connectedUsers,
+    totalUsers,
+    isUserMaster,
+    getMasterName,
+    getJoinOrder,
+    getNextMaster,
+    masterJoinOrder,
+    myJoinOrder,
   ]);
 
   // 정리 함수

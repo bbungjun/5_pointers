@@ -395,12 +395,6 @@ export class UsersController {
     return this.usersService.getPageSubmissions(pageId, componentType, limit, offset);
   }
 
-  // 참석 의사 요약 조회
-  @Get('pages/:pageId/attendance-summary')
-  async getAttendanceSummary(@Param('pageId') pageId: string) {
-    return this.usersService.getAttendanceSummary(pageId);
-  }
-
   // 참석 의사 조회
   @Get('pages/:pageId/attendance/:componentId')
   async getAttendance(
