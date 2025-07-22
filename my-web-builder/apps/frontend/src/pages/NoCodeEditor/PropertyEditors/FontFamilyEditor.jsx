@@ -210,12 +210,14 @@ function FontFamilyEditor({ label, value, onChange }) {
   const getCurrentFontLabel = () => {
     const allFonts = [...koreanFonts, ...weddingFonts, ...englishFonts];
     const currentFont = allFonts.find((font) => font.value === value);
-    return currentFont ? currentFont.label : 'Playfair Display';
+    return currentFont ? currentFont.label : 'Pretendard';
   };
 
   // CSS 스타일 주입으로 폰트 강제 적용
   useEffect(() => {
-    const currentFontValue = value || '"Playfair Display", serif';
+    const currentFontValue =
+      value ||
+      '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 
     // 기존 스타일 제거
     const existingStyle = document.getElementById(uniqueId);
@@ -244,6 +246,43 @@ function FontFamilyEditor({ label, value, onChange }) {
     };
   }, [value, uniqueId]);
 
+  // 드롭다운 폰트 스타일 주입
+  useEffect(() => {
+    const allFonts = [...koreanFonts, ...weddingFonts, ...englishFonts];
+
+    // 기존 드롭다운 스타일 제거
+    const existingDropdownStyle = document.getElementById(
+      'font-dropdown-styles'
+    );
+    if (existingDropdownStyle) {
+      existingDropdownStyle.remove();
+    }
+
+    // 새 드롭다운 스타일 추가
+    const dropdownStyle = document.createElement('style');
+    dropdownStyle.id = 'font-dropdown-styles';
+
+    let styleContent = '';
+    allFonts.forEach((font, index) => {
+      const fontClass = `font-option-${index}`;
+      styleContent += `
+        .${fontClass} {
+          font-family: ${font.value} !important;
+        }
+      `;
+    });
+
+    dropdownStyle.textContent = styleContent;
+    document.head.appendChild(dropdownStyle);
+
+    return () => {
+      const styleToRemove = document.getElementById('font-dropdown-styles');
+      if (styleToRemove) {
+        styleToRemove.remove();
+      }
+    };
+  }, []);
+
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -259,6 +298,11 @@ function FontFamilyEditor({ label, value, onChange }) {
   }, []);
 
   const handleFontSelect = (fontValue) => {
+    console.log('🎨 FontFamilyEditor - 폰트 선택됨:', {
+      selectedFont: fontValue,
+      currentValue: value,
+      willChange: value !== fontValue,
+    });
     onChange(fontValue);
     setIsOpen(false);
   };
@@ -362,14 +406,14 @@ function FontFamilyEditor({ label, value, onChange }) {
             >
               한국어 폰트
             </div>
-            {koreanFonts.map((font) => (
+            {koreanFonts.map((font, index) => (
               <div
                 key={font.value}
                 onClick={() => handleFontSelect(font.value)}
+                className={`font-option-${index}`}
                 style={{
                   padding: '8px 12px',
                   cursor: 'pointer',
-                  fontFamily: font.value,
                   fontSize: '14px',
                   backgroundColor:
                     font.value === value ? '#f3f4f6' : 'transparent',
@@ -389,9 +433,12 @@ function FontFamilyEditor({ label, value, onChange }) {
                   }
                 }}
               >
-                <span style={{ fontFamily: font.value }}>
+                <span className={`font-option-${index}`}>
                   {font.label}{' '}
-                  <span style={{ fontSize: '12px', color: '#9ca3af' }}>
+                  <span
+                    className={`font-option-${index}`}
+                    style={{ fontSize: '12px', color: '#9ca3af' }}
+                  >
                     가나다
                   </span>
                 </span>
@@ -425,14 +472,14 @@ function FontFamilyEditor({ label, value, onChange }) {
             >
               웨딩 테마 폰트
             </div>
-            {weddingFonts.map((font) => (
+            {weddingFonts.map((font, index) => (
               <div
                 key={font.value}
                 onClick={() => handleFontSelect(font.value)}
+                className={`font-option-${koreanFonts.length + index}`}
                 style={{
                   padding: '8px 12px',
                   cursor: 'pointer',
-                  fontFamily: font.value,
                   fontSize: '14px',
                   backgroundColor:
                     font.value === value ? '#fdf8fd' : 'transparent',
@@ -452,9 +499,12 @@ function FontFamilyEditor({ label, value, onChange }) {
                   }
                 }}
               >
-                <span style={{ fontFamily: font.value }}>
+                <span className={`font-option-${koreanFonts.length + index}`}>
                   {font.label}{' '}
-                  <span style={{ fontSize: '12px', color: '#D8BFD8' }}>
+                  <span
+                    className={`font-option-${koreanFonts.length + index}`}
+                    style={{ fontSize: '12px', color: '#D8BFD8' }}
+                  >
                     Wedding
                   </span>
                 </span>
@@ -488,14 +538,14 @@ function FontFamilyEditor({ label, value, onChange }) {
             >
               영어 폰트
             </div>
-            {englishFonts.map((font) => (
+            {englishFonts.map((font, index) => (
               <div
                 key={font.value}
                 onClick={() => handleFontSelect(font.value)}
+                className={`font-option-${koreanFonts.length + weddingFonts.length + index}`}
                 style={{
                   padding: '8px 12px',
                   cursor: 'pointer',
-                  fontFamily: font.value,
                   fontSize: '14px',
                   backgroundColor:
                     font.value === value ? '#f3f4f6' : 'transparent',
@@ -515,9 +565,14 @@ function FontFamilyEditor({ label, value, onChange }) {
                   }
                 }}
               >
-                <span style={{ fontFamily: font.value }}>
+                <span
+                  className={`font-option-${koreanFonts.length + weddingFonts.length + index}`}
+                >
                   {font.label}{' '}
-                  <span style={{ fontSize: '12px', color: '#9ca3af' }}>
+                  <span
+                    className={`font-option-${koreanFonts.length + weddingFonts.length + index}`}
+                    style={{ fontSize: '12px', color: '#9ca3af' }}
+                  >
                     Abc
                   </span>
                 </span>

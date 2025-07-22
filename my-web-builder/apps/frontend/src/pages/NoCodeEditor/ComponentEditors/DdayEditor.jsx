@@ -19,7 +19,7 @@ function DdayEditor({ selectedComp, onUpdate }) {
           ...selectedComp,
           props: { ...selectedComp.props, targetDate: value }
         })}
-        label="결혼식 날짜"
+        label="날짜"
       />
 
       {/* 목표 시간 입력 */}

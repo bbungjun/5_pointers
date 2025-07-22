@@ -100,7 +100,6 @@ const DynamicPageRenderer = ({
       if (isMobile) {
         // 화면 가로 크기에 맞춰 스케일 계산
         const newScale = currentWidth / BASE_MOBILE_WIDTH;
-        console.log('Current width:', currentWidth, 'Scale:', newScale);
         setMobileScale(newScale);
       } else {
         if (editingMode === 'desktop') {
@@ -283,6 +282,17 @@ const DynamicPageRenderer = ({
               return null;
             }
 
+            // 컴포넌트 데이터 디버깅 로그
+            if (comp.type === 'text') {
+              console.log('📦 Subdomain Desktop - Text 컴포넌트 데이터:', {
+                componentId: comp.id,
+                fontFamily: comp.props?.fontFamily,
+                fontSize: comp.props?.fontSize,
+                text: comp.props?.text,
+                allProps: comp.props,
+              });
+            }
+
             const defaultSize = getComponentDefaultSize(comp.type);
             const originalWidth = comp.width || defaultSize.width;
             const originalHeight = comp.height || defaultSize.height;
@@ -301,7 +311,6 @@ const DynamicPageRenderer = ({
                 }}
               >
                 <RendererComponent
-                  {...comp.props}
                   comp={{
                     ...comp,
                     width: originalWidth,
@@ -331,7 +340,8 @@ const DynamicPageRenderer = ({
       ) + PAGE_VERTICAL_PADDING;
 
     // 현재 화면 너비 가져오기
-    const currentWidth = typeof window !== 'undefined' ? window.innerWidth : BASE_MOBILE_WIDTH;
+    const currentWidth =
+      typeof window !== 'undefined' ? window.innerWidth : BASE_MOBILE_WIDTH;
     // 스케일 계산 (375px 기준으로 확대/축소)
     const scale = currentWidth / BASE_MOBILE_WIDTH;
 
@@ -363,6 +373,17 @@ const DynamicPageRenderer = ({
             const RendererComponent = getRendererByType(comp.type);
             if (!RendererComponent) return null;
 
+            // 컴포넌트 데이터 디버깅 로그
+            if (comp.type === 'text') {
+              console.log('📦 Subdomain Mobile - Text 컴포넌트 데이터:', {
+                componentId: comp.id,
+                fontFamily: comp.props?.fontFamily,
+                fontSize: comp.props?.fontSize,
+                text: comp.props?.text,
+                allProps: comp.props,
+              });
+            }
+
             const defaultSize = getComponentDefaultSize(comp.type);
             const width = comp.width || defaultSize.width;
             const height = comp.height || defaultSize.height;
@@ -383,7 +404,6 @@ const DynamicPageRenderer = ({
                 }}
               >
                 <RendererComponent
-                  {...comp.props}
                   comp={{
                     ...comp,
                     width,
@@ -427,8 +447,43 @@ const DynamicPageRenderer = ({
           const defaultSize = getComponentDefaultSize(comp.type);
           const x = comp.x || 0;
           const y = comp.y || 0;
-          const width = comp.width || defaultSize.width;
-          const height = comp.height || defaultSize.height;
+
+          // 텍스트 컴포넌트의 경우 실제 크기 계산
+          let width, height;
+          if (comp.type === 'text') {
+            const fontSize = comp.props?.fontSize || 16;
+            const textLength = comp.props?.text?.length || 0;
+            const lineHeight = comp.props?.lineHeight || 1.2;
+
+            // 실제 텍스트 크기 추정
+            const estimatedTextWidth = Math.min(
+              Math.max(
+                textLength * fontSize * 0.6,
+                comp.width || defaultSize.width
+              ),
+              (comp.width || defaultSize.width) * 3
+            );
+            const estimatedTextHeight = Math.min(
+              Math.max(
+                fontSize * lineHeight * 1.5,
+                comp.height || defaultSize.height
+              ),
+              (comp.height || defaultSize.height) * 3
+            );
+
+            width = Math.max(
+              comp.width || defaultSize.width,
+              estimatedTextWidth
+            );
+            height = Math.max(
+              comp.height || defaultSize.height,
+              estimatedTextHeight
+            );
+          } else {
+            width = comp.width || defaultSize.width;
+            height = comp.height || defaultSize.height;
+          }
+
           minX = Math.min(minX, x);
           minY = Math.min(minY, y);
           maxX = Math.max(maxX, x + width);
@@ -473,16 +528,19 @@ const DynamicPageRenderer = ({
             }
           });
 
-          // x 좌표를 중앙 정렬로 계산
-          const centeredX = (BASE_MOBILE_WIDTH - (originalWidth * scaleRatio)) / 2;
+          // 그룹 중앙 정렬을 위한 x 좌표 계산 (수정된 로직)
+          const groupCenterX =
+            (BASE_MOBILE_WIDTH - groupWidth * scaleRatio) / 2;
+          const finalX = groupCenterX + relativeX * scaleRatio;
+          const finalY = currentY + relativeY * scaleRatio;
 
           repositionedComponents.push({
             ...comp,
             props: newProps,
-            x: centeredX + (relativeX * scaleRatio),
-            y: currentY + relativeY * scaleRatio,
-            width: originalWidth * scaleRatio,
-            height: originalHeight * scaleRatio,
+            x: Math.round(finalX * 100) / 100, // 소수점 2자리로 반올림
+            y: Math.round(finalY * 100) / 100, // 소수점 2자리로 반올림
+            width: Math.round(originalWidth * scaleRatio * 100) / 100,
+            height: Math.round(originalHeight * scaleRatio * 100) / 100,
           });
         });
         currentY += newGroupHeight + PAGE_VERTICAL_PADDING;

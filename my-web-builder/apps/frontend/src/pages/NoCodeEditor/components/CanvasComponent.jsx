@@ -10,7 +10,7 @@ import WeddingInviteRenderer from '../ComponentRenderers/WeddingInviteRenderer';
 import ImageRenderer from '../ComponentRenderers/ImageRenderer';
 import GridGalleryRenderer from '../ComponentRenderers/GridGalleryRenderer';
 import SlideGalleryRenderer from '../ComponentRenderers/SlideGalleryRenderer';
-import { MapInfoRenderer } from '../ComponentRenderers';
+import { MapInfoRenderer, RectangleLayerRenderer } from '../ComponentRenderers';
 import CalendarRenderer from '../ComponentRenderers/CalendarRenderer';
 import BankAccountRenderer from '../ComponentRenderers/BankAccountRenderer';
 import CommentRenderer from '../ComponentRenderers/CommentRenderer';
@@ -363,6 +363,14 @@ function CanvasComponent({
             onUpdate={onUpdate}
           />
         );
+      case 'rectangleLayer':
+        return (
+          <RectangleLayerRenderer
+          comp={componentWithFinalStyles}
+          mode="editor"
+          onUpdate={onUpdate}
+        />
+      );
 
       default:
         return <span>{comp.props?.text || ''}</span>;

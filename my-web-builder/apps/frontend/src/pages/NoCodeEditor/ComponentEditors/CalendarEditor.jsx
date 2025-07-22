@@ -39,7 +39,7 @@ function CalendarEditor({ selectedComp, onUpdate }) {
         placeholder="우리의 결혼식"
       />
       <PropertyEditors.DateEditor
-        label="결혼식 날짜"
+        label="날짜"
         value={weddingDate}
         onChange={(value) => handlePropChange('weddingDate', value)}
       />
