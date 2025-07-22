@@ -64,47 +64,53 @@ export const LiveCursors = React.memo(({
               transition: 'left 0.1s ease-out, top 0.1s ease-out',
             }}
           >
-            {/* 커서 아이콘 - 줌 레벨과 관계없이 고정 크기 */}
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              style={{
-                filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))',
-                transform: `scale(${1 / currentScale})`, // 현재 줌 레벨에 반비례하여 크기 조정
-                transformOrigin: 'left top' // 왼쪽 상단 기준으로 변환
-              }}
-            >
-              <path
-                d="M3 3L21 12L12 21L9 12L3 3Z"
-                fill={userWithColor.color}
-                stroke="white"
-                strokeWidth="1"
-              />
-            </svg>
-            
-            {/* 사용자 이름표 - 줌 레벨과 관계없이 고정 크기 */}
+            {/* 커서와 이름표를 하나의 그룹으로 묶어서 동일한 스케일 적용 */}
             <div
               style={{
-                position: 'absolute',
-                left: 16,
-                top: -4,
-                backgroundColor: userWithColor.color,
-                color: 'white',
-                padding: '4px 8px',
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontWeight: '500',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                maxWidth: '200px',
-                wordWrap: 'break-word',
-                transform: `scale(${1 / currentScale})`, // 줌 레벨에 반비례하여 크기 조정
-                transformOrigin: 'left top' // 왼쪽 상단 기준으로 변환
+                position: 'relative',
+                // 커서 아이콘과 이름표 모두 동일한 스케일 적용
+                transform: `scale(${currentScale})`,
+                transformOrigin: 'top left'
               }}
             >
-              <ChatMessage userWithColor={userWithColor} message={chatMessage} />
+              {/* 커서 아이콘 */}
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                style={{
+                  filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))',
+                }}
+              >
+                <path
+                  d="M3 3L21 12L12 21L9 12L3 3Z"
+                  fill={userWithColor.color}
+                  stroke="white"
+                  strokeWidth="1"
+                />
+              </svg>
+              
+              {/* 사용자 이름표 - 커서와 동일한 스케일 그룹 내부 */}
+              <div
+                style={{
+                  position: 'absolute',
+                  left: 16,
+                  top: -4,
+                  backgroundColor: userWithColor.color,
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                  maxWidth: '200px',
+                  wordWrap: 'break-word',
+                }}
+              >
+                <ChatMessage userWithColor={userWithColor} message={chatMessage} />
+              </div>
             </div>
           </div>
         );
