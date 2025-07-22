@@ -13,7 +13,7 @@ export function useLiveCursors(awareness, canvasRef, updateActivity) {
   
   // 쓰로틀링을 위한 ref
   const lastUpdateRef = useRef(0);
-  const throttleMs = 16; // 60fps
+  const throttleMs = 8; // 125fps로 증가 (더 부드러운 커서 추적)
 
   // 커서 위치 업데이트 함수 (캔버스 콘텐츠 기준 좌표)
   const updateCursorPosition = useCallback((clientX, clientY, zoom = 100, viewport = 'desktop') => {
