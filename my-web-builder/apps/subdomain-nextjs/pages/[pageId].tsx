@@ -342,11 +342,15 @@ const DynamicPageRenderer = ({
     // 현재 화면 너비 가져오기
     const currentWidth =
       typeof window !== 'undefined' ? window.innerWidth : BASE_MOBILE_WIDTH;
-    // 스케일 계산 (375px 기준으로 확대/축소)
-    const scale = currentWidth / BASE_MOBILE_WIDTH;
 
-    // 중앙 정렬을 위한 여백 계산 (원본 375px 기준)
-    const leftMargin = (currentWidth - BASE_MOBILE_WIDTH) / 2;
+    // 스케일 계산 (768px 기준으로 모바일/데스크톱 구분)
+    const isMobileViewport = currentWidth <= 768;
+    const scale = isMobileViewport ? currentWidth / BASE_MOBILE_WIDTH : 1;
+
+    // 중앙 정렬을 위한 여백 계산 (데스크톱에서만 적용)
+    const leftMargin = !isMobileViewport
+      ? (currentWidth - BASE_MOBILE_WIDTH) / 2
+      : 0;
 
     return (
       <div
