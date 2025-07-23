@@ -345,10 +345,8 @@ const DynamicPageRenderer = ({
     // 스케일 계산 (375px 기준으로 확대/축소)
     const scale = currentWidth / BASE_MOBILE_WIDTH;
 
-    // 스케일링된 너비 계산
-    const scaledWidth = BASE_MOBILE_WIDTH * scale;
-    // 왼쪽 여백 계산
-    const leftMargin = (currentWidth - scaledWidth) / 2;
+    // 중앙 정렬을 위한 여백 계산 (원본 375px 기준)
+    const leftMargin = (currentWidth - BASE_MOBILE_WIDTH) / 2;
 
     return (
       <div
@@ -545,7 +543,55 @@ const DynamicPageRenderer = ({
         });
         currentY += newGroupHeight + PAGE_VERTICAL_PADDING;
       }
-      return renderMobileScalingLayout(repositionedComponents);
+
+      // 데스크톱 편집 모드를 모바일로 변환한 경우 스케일 적용하여 렌더링
+      const contentHeight = currentY;
+
+      return (
+        <div
+          style={{
+            width: '100%',
+            height: `${contentHeight * mobileScale}px`,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              width: `${BASE_MOBILE_WIDTH}px`,
+              height: `${contentHeight}px`,
+              transform: `scale(${mobileScale})`,
+              transformOrigin: '0 0',
+              position: 'absolute',
+            }}
+          >
+            {repositionedComponents.map((comp: ComponentData) => {
+              const RendererComponent = getRendererByType(comp.type);
+              if (!RendererComponent) return null;
+
+              return (
+                <div
+                  key={comp.id}
+                  style={{
+                    position: 'absolute',
+                    left: `${comp.x}px`,
+                    top: `${comp.y}px`,
+                    width: `${comp.width}px`,
+                    height: `${comp.height}px`,
+                  }}
+                >
+                  <RendererComponent
+                    comp={comp}
+                    mode="live"
+                    isEditor={false}
+                    pageId={pageId}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
     }
   };
 
