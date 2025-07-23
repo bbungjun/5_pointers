@@ -345,13 +345,9 @@ const DynamicPageRenderer = ({
         )
       ) + PAGE_VERTICAL_PADDING;
 
-    // 현재 화면 너비 가져오기 (SSR 고려)
-    const currentWidth =
-      typeof window !== 'undefined' ? window.innerWidth : BASE_MOBILE_WIDTH;
-
-    // 스케일 계산 (768px 기준으로 모바일/데스크톱 구분)
-    const isMobileViewport = currentWidth <= 768;
-    const scale = isMobileViewport ? currentWidth / BASE_MOBILE_WIDTH : 1;
+    // 이미 useEffect에서 계산된 상태 사용
+    const isMobileViewport = isMobileView;
+    const scale = isMobileViewport ? mobileScale : 1;
 
     return (
       <div
