@@ -85,7 +85,12 @@ const DynamicPageRenderer = ({
   subdomain?: string;
   editingMode?: 'desktop' | 'mobile';
 }) => {
-  const [isMobileView, setIsMobileView] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
   const [mobileScale, setMobileScale] = useState(1);
   const [desktopScale, setDesktopScale] = useState(1);
   const BASE_DESKTOP_WIDTH = 1920;
@@ -106,16 +111,17 @@ const DynamicPageRenderer = ({
           const newScale = currentWidth / BASE_DESKTOP_WIDTH;
           setDesktopScale(newScale);
         } else if (editingMode === 'mobile') {
-          // 편집 기준이 모바일일 때 데스크톱에서 보면 적절한 크기로 보여주기
-          // 데스크톱 너비의 1/3 정도 크기로 제한
-          const maxWidth = Math.min(currentWidth * 0.33, BASE_MOBILE_WIDTH);
-          const newScale = maxWidth / BASE_MOBILE_WIDTH;
-          setMobileScale(newScale);
+          // 편집 기준이 모바일일 때 데스크톱에서 보면 원본 크기 유지
+          setMobileScale(1);
         }
       }
     };
 
-    checkViewport();
+    // 즉시 실행하여 초기 상태 설정
+    if (typeof window !== 'undefined') {
+      checkViewport();
+    }
+
     window.addEventListener('resize', checkViewport);
 
     return () => window.removeEventListener('resize', checkViewport);
@@ -328,7 +334,7 @@ const DynamicPageRenderer = ({
     );
   };
 
-  // ✅ 스케일링 전용 렌더링 함수: 이제 인자를 받도록 수정
+  // ✅ 스케일링 전용 렌더링 함수: 간단하고 명확한 중앙 정렬
   const renderMobileScalingLayout = (componentsToRender: ComponentData[]) => {
     const PAGE_VERTICAL_PADDING = 16;
     const contentHeight =
@@ -339,14 +345,9 @@ const DynamicPageRenderer = ({
         )
       ) + PAGE_VERTICAL_PADDING;
 
-    // 현재 화면 너비 가져오기
-    const currentWidth =
-      typeof window !== 'undefined' ? window.innerWidth : BASE_MOBILE_WIDTH;
-    // 스케일 계산 (375px 기준으로 확대/축소)
-    const scale = currentWidth / BASE_MOBILE_WIDTH;
-
-    // 중앙 정렬을 위한 여백 계산 (원본 375px 기준)
-    const leftMargin = (currentWidth - BASE_MOBILE_WIDTH) / 2;
+    // 이미 useEffect에서 계산된 상태 사용
+    const isMobileViewport = isMobileView;
+    const scale = isMobileViewport ? mobileScale : 1;
 
     return (
       <div
@@ -355,6 +356,8 @@ const DynamicPageRenderer = ({
           height: `${contentHeight * scale}px`,
           position: 'relative',
           overflow: 'hidden',
+          display: isMobileViewport ? 'block' : 'flex',
+          justifyContent: isMobileViewport ? 'flex-start' : 'center', // 모바일에서는 왼쪽, 데스크톱에서는 중앙
         }}
       >
         <div
@@ -363,8 +366,9 @@ const DynamicPageRenderer = ({
             height: `${contentHeight}px`,
             transform: `scale(${scale})`,
             transformOrigin: '0 0',
-            position: 'absolute',
-            left: `${leftMargin / scale}px`,
+            ...(isMobileViewport && {
+              width: '100%', // 모바일에서는 전체 너비 사용
+            }),
           }}
         >
           {componentsToRender.map((comp: ComponentData) => {
