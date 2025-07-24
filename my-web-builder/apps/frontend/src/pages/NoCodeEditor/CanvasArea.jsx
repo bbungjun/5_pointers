@@ -140,6 +140,7 @@ const CanvasArea = forwardRef(
       openChatInput, // 채팅 입력 열기 함수
       cursorChatMessages = {}, // 커서 채팅 메시지 추가
       syncComponentAfterDrag, // 드래그 종료 후 동기화 함수 추가
+      userInfo, // 사용자 정보 추가
     },
     ref
   ) => {
@@ -958,6 +959,8 @@ const CanvasArea = forwardRef(
                     pageId={pageId} // 페이지 ID 전달
                     setComponentDragging={setComponentDragging} // 드래그 상태 설정 함수 전달
                     isComponentDragging={checkComponentDragging} // 드래그 상태 확인 함수 전달 (이름 변경)
+                    otherSelections={otherSelections} // 다른 사용자들의 선택 상태
+                    currentUserId={userInfo?.id} // 현재 사용자 ID
                   />
                 );
               })}

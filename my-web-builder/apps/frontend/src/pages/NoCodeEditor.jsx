@@ -750,6 +750,7 @@ function NoCodeEditor({ pageId }) {
             openChatInput={openChatInput}
             cursorChatMessages={cursorChatMessages}
             syncComponentAfterDrag={syncComponentAfterDrag}
+            userInfo={userInfo}
           />
         </div>
 

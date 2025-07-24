@@ -144,7 +144,7 @@ export const LiveCursors = React.memo(({
 LiveCursors.displayName = 'LiveCursors';
 
 /**
- * 협업 선택 영역 컴포넌트 - 비활성화됨
+ * 협업 선택 영역 컴포넌트 - 다른 사용자가 선택한 컴포넌트 표시
  */
 export const CollaborativeSelections = React.memo(({ 
   selections = [], 
@@ -153,8 +153,79 @@ export const CollaborativeSelections = React.memo(({
   viewport = 'desktop', 
   getComponentDimensions 
 }) => {
-  // 상대방 선택 테두리 비활성화
-  return null;
+  const currentScale = zoom / 100;
+
+  // 모든 선택 정보 표시 (시간 제한 없음)
+  if (selections.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      {selections.map((selection, index) => {
+        const { user, componentIds } = selection;
+        
+        if (!user || !componentIds || componentIds.length === 0) {
+          return null;
+        }
+
+        return componentIds.map((componentId) => {
+          const component = components.find(comp => comp.id === componentId);
+          if (!component || !user) return null;
+
+          // 컴포넌트 크기 계산
+          const dimensions = getComponentDimensions ? getComponentDimensions(component.type) : { width: 120, height: 40 };
+          const componentWidth = component.width || dimensions.width;
+          const componentHeight = component.height || dimensions.height;
+
+          return (
+            <div
+              key={`collaborative-selection-${selection.id}-${componentId}`}
+              style={{
+                position: 'absolute',
+                left: component.x,
+                top: component.y,
+                width: componentWidth,
+                height: componentHeight,
+                border: `3px solid ${user.color || '#666'}`,
+                borderRadius: '4px',
+                pointerEvents: 'none',
+                zIndex: 1000,
+                boxShadow: `0 0 8px ${(user.color || '#666')}40`,
+              }}
+            >
+              {/* "편집 중" 메시지 */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '-30px',
+                  left: '0px',
+                  backgroundColor: user.color || '#666',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                  zIndex: 1001,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0px',
+                }}
+              >
+                {user.name || '사용자'} 편집 중
+              </div>
+
+
+            </div>
+          );
+        });
+      })}
+
+
+    </>
+  );
 });
 
 CollaborativeSelections.displayName = 'CollaborativeSelections';

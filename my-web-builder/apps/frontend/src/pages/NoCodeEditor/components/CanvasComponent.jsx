@@ -51,6 +51,8 @@ function CanvasComponent({
   pageId, // 페이지 ID prop 추가
   setComponentDragging, // 드래그 상태 설정 함수
   isComponentDragging, // 드래그 상태 확인 함수
+  otherSelections = [], // 다른 사용자들의 선택 상태
+  currentUserId, // 현재 사용자 ID
 }) {
   const ref = useRef();
 
@@ -130,6 +132,15 @@ function CanvasComponent({
   const actualSize = getActualSize();
   const currentWidth = actualSize.width;
   const currentHeight = actualSize.height;
+
+  // 다른 사용자가 선택한 컴포넌트인지 확인
+  const otherUserSelection = otherSelections.find(selection => 
+    selection.componentIds && selection.componentIds.includes(comp.id) && 
+    selection.user && selection.user.id !== currentUserId
+  );
+
+  // 다른 사용자가 선택한 컴포넌트인지 확인 (시간 제한 없음)
+  const isOtherUserRecentlySelected = otherUserSelection !== null;
 
   useEffect(() => {
     if (editing && ref.current) ref.current.focus();
@@ -778,9 +789,13 @@ function CanvasComponent({
         width: currentWidth,
         //height: currentHeight,
         height: comp.type === 'bankAccount' ? 'auto' : currentHeight,
-        border: selected ? '2px solid #3B4EFF' : '1px solid transparent',
+        border: selected ? '2px solid #3B4EFF' : 
+                isOtherUserRecentlySelected && otherUserSelection?.user?.color ? `2px solid ${otherUserSelection.user.color}` : 
+                '1px solid transparent',
         cursor: isDragging ? 'grabbing' : 'grab',
-        background: selected ? 'rgba(59, 78, 255, 0.05)' : 'transparent',
+        background: selected ? 'rgba(59, 78, 255, 0.05)' : 
+                   isOtherUserRecentlySelected && otherUserSelection?.user?.color ? `${otherUserSelection.user.color}15` : 
+                   'transparent',
         //zIndex: selected ? 2000 : (comp.type === 'text' ? Math.max(comp.props?.zIndex || 1000, 1000) : (comp.props?.zIndex || 1)),
         zIndex: comp.type === 'text' ? 2000 : 1000,
         display: 'flex',
@@ -802,7 +817,34 @@ function CanvasComponent({
         onSelect(comp.id, isCtrlPressed);
       }}
     >
+
       {renderContent()}
+
+      {/* 다른 사용자가 편집 중인 경우 표시 */}
+      {isOtherUserRecentlySelected && otherUserSelection?.user && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '-25px',
+            left: '0px',
+            backgroundColor: otherUserSelection.user.color || '#666',
+            color: 'white',
+            padding: '3px 6px',
+            borderRadius: '4px',
+            fontSize: '10px',
+            fontWeight: '500',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+            zIndex: 1001,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0px',
+            pointerEvents: 'none',
+          }}
+        >
+          {otherUserSelection.user.name || '사용자'} 편집 중
+        </div>
+      )}
 
       {/* Figma 스타일 선택 핸들 */}
       {selected && (
