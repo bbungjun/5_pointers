@@ -217,20 +217,7 @@ export const CollaborativeSelections = React.memo(({
                 {user.name || '사용자'} 편집 중
               </div>
 
-              {/* 사용자 색상 표시 */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '-2px',
-                  right: '-2px',
-                  width: '12px',
-                  height: '12px',
-                  backgroundColor: user.color || '#666',
-                  border: '2px solid white',
-                  borderRadius: '50%',
-                  zIndex: 1002,
-                }}
-              />
+
             </div>
           );
         });
