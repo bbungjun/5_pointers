@@ -247,11 +247,14 @@ function App() {
 
   // 로그아웃
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    // 먼저 상태를 업데이트
     setIsLoggedIn(false);
     setUser({ nickname: 'Guest' });
-    // 메인페이지로 이동
-    window.location.href = '/';
+    // 토큰 제거
+    localStorage.removeItem('token');
+    // 브라우저 히스토리를 완전히 교체하여 메인페이지로 이동
+    window.history.replaceState(null, '', '/');
+    window.location.reload();
   };
 
   return (
@@ -294,7 +297,7 @@ function App() {
               isLoggedIn ? (
                 <DashboardPage user={user} onLogout={handleLogout} />
               ) : (
-                <Navigate to="/login" replace />
+                <Navigate to="/" replace />
               )
             }
           />
@@ -304,7 +307,7 @@ function App() {
               isLoggedIn ? (
                 <DraftsPage user={user} onLogout={handleLogout} />
               ) : (
-                <Navigate to="/login" replace />
+                <Navigate to="/" replace />
               )
             }
           />
@@ -314,7 +317,7 @@ function App() {
               isLoggedIn ? (
                 <DeployedPage user={user} onLogout={handleLogout} />
               ) : (
-                <Navigate to="/login" replace />
+                <Navigate to="/" replace />
               )
             }
           />
