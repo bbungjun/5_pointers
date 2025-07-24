@@ -21,6 +21,7 @@ function DeployedPage({ user, onLogout }) {
     title: '',
     data: null,
   });
+  const [selectedFilter, setSelectedFilter] = useState('all'); // 'all', 'attendance', 'comment', 'other'
   // 페이지 submissions 데이터 조회
   const fetchPageSubmissions = async (pageId) => {
     try {
@@ -268,6 +269,7 @@ function DeployedPage({ user, onLogout }) {
       title: '',
       data: null,
     });
+    setSelectedFilter('all'); // 필터 초기화
   };
   // 페이지 삭제 실행
   const confirmDeletePage = async () => {
@@ -749,19 +751,61 @@ function DeployedPage({ user, onLogout }) {
 
       {/* Submissions 모달 */}
       {submissionsModal.isOpen && submissionsModal.data && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-hidden border border-gray-100">
-            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl max-w-4xl w-full shadow-2xl max-h-[90vh] min-h-[300px] overflow-hidden border border-gray-100 flex flex-col">
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white flex-shrink-0">
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                     <span className="inline-block w-1.5 h-6 bg-slate-700 rounded-full"></span>
-                    제출된 응답
-                    {submissionsModal.data.submissions.length > 5 && (
-                      <span className="text-sm font-normal text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
-                        스크롤하여 더 보기
-                      </span>
-                    )}
+                    {selectedFilter === 'all' ? '제출된 응답' : 
+                     selectedFilter === 'attendance' ? '참석/가입 응답' :
+                     selectedFilter === 'comment' ? '댓글 응답' :
+                     selectedFilter === 'other' ? '기타 응답' : '제출된 응답'}
+                    {(() => {
+                      const filteredSubmissions = submissionsModal.data.submissions.filter(submission => {
+                        if (selectedFilter === 'all') return true;
+                        
+                        // 분류 로직 재사용
+                        const isAttendance = (
+                          submission.type === 'attendance' || 
+                          submission.componentId?.includes('attend') ||
+                          submission.componentId?.includes('Attend') ||
+                          submission.data?.attendeeName ||
+                          submission.data?.formType === 'wedding-attendance' ||
+                          submission.data?.formType === 'birthday-party' ||
+                          submission.data?.formType === 'club-application' ||
+                          (submission.type === 'other' && (
+                            submission.data?.attendeeName ||
+                            submission.data?.guestSide ||
+                            submission.data?.mealOption ||
+                            submission.data?.companionCount !== undefined ||
+                            submission.data?.studentId ||
+                            submission.data?.major ||
+                            submission.data?.motivation
+                          ))
+                        );
+                        
+                        const isComment = (
+                          submission.type === 'comment' || 
+                          submission.componentId?.includes('comment') ||
+                          submission.componentId?.includes('Comment') ||
+                          (submission.data?.author && submission.data?.content && !submission.data?.attendeeName)
+                        );
+                        
+                        if (selectedFilter === 'attendance') return isAttendance;
+                        if (selectedFilter === 'comment') return isComment;
+                        if (selectedFilter === 'other') return !isAttendance && !isComment;
+                        
+                        return true;
+                      });
+                      
+                      return filteredSubmissions.length > 5 && (
+                        <span className="text-sm font-normal text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+                          스크롤하여 더 보기
+                        </span>
+                      );
+                    })()}
                   </h3>
                   {(() => {
                     // 폼 타입 분석 (추론 로직 적용) - attendance와 other 타입 모두 포함
@@ -857,35 +901,63 @@ function DeployedPage({ user, onLogout }) {
               {/* 통계 요약 */}
               <div className="mt-6">
                 {(() => {
-                  // 폼 타입별 세분화된 통계 생성 - attendance와 other 타입 모두 포함
-                  const attendanceSubmissions = submissionsModal.data.submissions.filter(s => s.type === 'attendance' || s.type === 'other');
-                  const formTypeStats = attendanceSubmissions.reduce((acc, submission) => {
-                    // formType 추론 로직 (동일한 로직 사용)
-                    const inferFormType = (submissionData) => {
-                      if (submissionData.formType) {
-                        // club-registration을 club-application으로 변환
-                        if (submissionData.formType === 'club-registration') {
+                  // 폼 타입별 세분화된 통계 생성 - 모든 타입 포함
+                  const allSubmissions = submissionsModal.data.submissions;
+                  const formTypeStats = allSubmissions.reduce((acc, submission) => {
+                    // 타입별 분류 로직
+                    const getSubmissionCategory = (submission) => {
+                      // 댓글 타입 먼저 확인
+                      if (submission.type === 'comment' || 
+                          submission.componentId?.includes('comment') ||
+                          submission.componentId?.includes('Comment') ||
+                          (submission.data?.author && submission.data?.content && !submission.data?.attendeeName)) {
+                        return 'comment';
+                      }
+                      
+                      // AttendRenderer 관련 응답들
+                      if (submission.type === 'attendance' || 
+                          submission.componentId?.includes('attend') ||
+                          submission.componentId?.includes('Attend') ||
+                          submission.data?.attendeeName ||
+                          submission.data?.formType === 'wedding-attendance' ||
+                          submission.data?.formType === 'birthday-party' ||
+                          submission.data?.formType === 'club-application' ||
+                          (submission.type === 'other' && (
+                            submission.data?.attendeeName ||
+                            submission.data?.guestSide ||
+                            submission.data?.mealOption ||
+                            submission.data?.companionCount !== undefined ||
+                            submission.data?.studentId ||
+                            submission.data?.major ||
+                            submission.data?.motivation
+                          ))) {
+                        // 세부 폼 타입 추론
+                        if (submission.data?.formType) {
+                          if (submission.data.formType === 'club-registration') {
+                            return 'club-application';
+                          }
+                          return submission.data.formType;
+                        }
+                        
+                        // 데이터 필드 기반으로 폼 타입 추론
+                        if (submission.data?.guestSide || submission.data?.mealOption || submission.data?.companionCount !== undefined) {
+                          return 'wedding-attendance';
+                        }
+                        if (submission.data?.studentId && submission.data?.major && submission.data?.motivation) {
                           return 'club-application';
                         }
-                        return submissionData.formType;
+                        if (submission.data?.attendeeName) {
+                          return 'general-attendance';
+                        }
+                        
+                        return 'attendance'; // 기본 참석 타입
                       }
                       
-                      // 데이터 필드 기반으로 폼 타입 추론
-                      if (submissionData.guestSide || submissionData.mealOption || submissionData.companionCount !== undefined) {
-                        return 'wedding-attendance'; // 결혼식 참석 (신랑/신부측, 식사여부, 동행인수)
-                      }
-                      if (submissionData.studentId && submissionData.major && submissionData.motivation) {
-                        return 'club-application'; // 동아리 가입 (학번, 전공, 지원동기)
-                      }
-                      if (submissionData.attendeeName && submissionData.attendeeCount) {
-                        return 'general-attendance'; // 일반 참석
-                      }
-                      
-                      return 'unknown';
+                      return 'other';
                     };
                     
-                    const formType = inferFormType(submission.data);
-                    acc[formType] = (acc[formType] || 0) + 1;
+                    const category = getSubmissionCategory(submission);
+                    acc[category] = (acc[category] || 0) + 1;
                     return acc;
                   }, {});
                   
@@ -904,7 +976,9 @@ function DeployedPage({ user, onLogout }) {
                                 case 'birthday-party': return '생일파티 참석';  
                                 case 'club-application': return '동아리 가입';
                                 case 'general-attendance': return '일반 참석';
-                                case 'unknown': return '알 수 없음';
+                                case 'attendance': return '참석';
+                                case 'comment': return '댓글';
+                                case 'other': return '기타';
                                 default: return type;
                               }
                             };
@@ -931,75 +1005,190 @@ function DeployedPage({ user, onLogout }) {
                   return null;
                 })()}
                 
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                  <div className="bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-slate-700"></div>
-                      <span className="text-sm font-medium text-slate-700">
-                        참석/가입
-                      </span>
+                {(() => {
+                  // 동적으로 타입 재계산 - AttendRenderer 응답을 올바르게 분류
+                  const recalculatedStats = submissionsModal.data.submissions.reduce((acc, submission) => {
+                    // AttendRenderer 관련 응답 판별 로직 (위에서 사용한 것과 동일)
+                    const isAttendanceSubmission = (
+                      submission.type === 'attendance' || 
+                      submission.componentId?.includes('attend') ||
+                      submission.componentId?.includes('Attend') ||
+                      submission.data?.attendeeName ||
+                      submission.data?.formType === 'wedding-attendance' ||
+                      submission.data?.formType === 'birthday-party' ||
+                      submission.data?.formType === 'club-application' ||
+                      (submission.type === 'other' && (
+                        submission.data?.attendeeName ||
+                        submission.data?.guestSide ||
+                        submission.data?.mealOption ||
+                        submission.data?.companionCount !== undefined ||
+                        submission.data?.studentId ||
+                        submission.data?.major ||
+                        submission.data?.motivation
+                      ))
+                    );
+                    
+                    if (isAttendanceSubmission) {
+                      acc.attendance = (acc.attendance || 0) + 1;
+                    } else if (submission.type === 'comment' || 
+                               submission.componentId?.includes('comment') ||
+                               submission.componentId?.includes('Comment') ||
+                               (submission.data?.author && submission.data?.content && !submission.data?.attendeeName)) {
+                      acc.comment = (acc.comment || 0) + 1;
+                    } else {
+                      acc.other = (acc.other || 0) + 1;
+                    }
+                    
+                    return acc;
+                  }, {});
+                  
+                  return (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div 
+                        onClick={() => setSelectedFilter(selectedFilter === 'attendance' ? 'all' : 'attendance')}
+                        className={`px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${
+                          selectedFilter === 'attendance' 
+                            ? 'bg-blue-100 border-2 border-blue-500 text-blue-800' 
+                            : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${
+                            selectedFilter === 'attendance' ? 'bg-blue-600' : 'bg-slate-700'
+                          }`}></div>
+                          <span className={`text-sm font-medium ${
+                            selectedFilter === 'attendance' ? 'text-blue-800' : 'text-slate-700'
+                          }`}>
+                            참석/가입
+                          </span>
+                        </div>
+                        <p className={`text-xl font-semibold mt-1 ${
+                          selectedFilter === 'attendance' ? 'text-blue-900' : 'text-slate-800'
+                        }`}>
+                          {recalculatedStats.attendance || 0}
+                        </p>
+                      </div>
+                      <div 
+                        onClick={() => setSelectedFilter(selectedFilter === 'comment' ? 'all' : 'comment')}
+                        className={`px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${
+                          selectedFilter === 'comment'
+                            ? 'bg-green-100 border-2 border-green-500 text-green-800' 
+                            : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${
+                            selectedFilter === 'comment' ? 'bg-green-600' : 'bg-slate-700'
+                          }`}></div>
+                          <span className={`text-sm font-medium ${
+                            selectedFilter === 'comment' ? 'text-green-800' : 'text-slate-700'
+                          }`}>
+                            댓글
+                          </span>
+                        </div>
+                        <p className={`text-xl font-semibold mt-1 ${
+                          selectedFilter === 'comment' ? 'text-green-900' : 'text-slate-800'
+                        }`}>
+                          {recalculatedStats.comment || 0}
+                        </p>
+                      </div>
+                      <div 
+                        onClick={() => setSelectedFilter(selectedFilter === 'other' ? 'all' : 'other')}
+                        className={`px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${
+                          selectedFilter === 'other'
+                            ? 'bg-orange-100 border-2 border-orange-500 text-orange-800' 
+                            : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${
+                            selectedFilter === 'other' ? 'bg-orange-600' : 'bg-slate-700'
+                          }`}></div>
+                          <span className={`text-sm font-medium ${
+                            selectedFilter === 'other' ? 'text-orange-800' : 'text-slate-700'
+                          }`}>
+                            기타
+                          </span>
+                        </div>
+                        <p className={`text-xl font-semibold mt-1 ${
+                          selectedFilter === 'other' ? 'text-orange-900' : 'text-slate-800'
+                        }`}>
+                          {recalculatedStats.other || 0}
+                        </p>
+                      </div>
+                      <div 
+                        onClick={() => setSelectedFilter('all')}
+                        className={`px-4 py-3 rounded-lg shadow-sm cursor-pointer transition-all duration-200 ${
+                          selectedFilter === 'all'
+                            ? 'bg-slate-800 text-white'
+                            : 'bg-slate-700 text-white hover:bg-slate-800'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-white"></div>
+                          <span className="text-sm font-medium text-slate-100">
+                            전체
+                          </span>
+                        </div>
+                        <p className="text-xl font-semibold text-white mt-1">
+                          {submissionsModal.data.totalCount}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-xl font-semibold text-slate-800 mt-1">
-                      {submissionsModal.data.typeStats.attendance}
-                    </p>
-                  </div>
-                <div className="bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-slate-700"></div>
-                    <span className="text-sm font-medium text-slate-700">
-                      댓글
-                    </span>
-                  </div>
-                  <p className="text-xl font-semibold text-slate-800 mt-1">
-                    {submissionsModal.data.typeStats.comment}
-                  </p>
-                </div>
-                <div className="bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-slate-700"></div>
-                    <span className="text-sm font-medium text-slate-700">
-                      의견
-                    </span>
-                  </div>
-                  <p className="text-xl font-semibold text-slate-800 mt-1">
-                    {submissionsModal.data.typeStats.slido}
-                  </p>
-                </div>
-                <div className="bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg shadow-sm hover:shadow transition-all duration-200">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-slate-700"></div>
-                    <span className="text-sm font-medium text-slate-700">
-                      기타
-                    </span>
-                  </div>
-                  <p className="text-xl font-semibold text-slate-800 mt-1">
-                    {submissionsModal.data.typeStats.other}
-                  </p>
-                </div>
-                <div className="bg-slate-700 text-white px-4 py-3 rounded-lg shadow-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-white"></div>
-                    <span className="text-sm font-medium text-slate-100">
-                      전체
-                    </span>
-                  </div>
-                  <p className="text-xl font-semibold text-white mt-1">
-                    {submissionsModal.data.totalCount}
-                  </p>
-                </div>
-                </div>
+                  );
+                })()}
               </div>
             </div>
 
             <div 
-              className={`overflow-auto ${submissionsModal.data.submissions.length > 5 ? 'max-h-[400px]' : 'max-h-[calc(90vh-200px)]'}`}
+              className="overflow-y-auto overflow-x-hidden flex-1"
               style={{
                 scrollbarWidth: 'thin',
-                scrollbarColor: '#cbd5e1 #f1f5f9'
+                scrollbarColor: '#cbd5e1 #f1f5f9',
+                scrollBehavior: 'smooth'
               }}
             >
-              <div className="p-6 space-y-4">
-                {submissionsModal.data.submissions.map((submission) => {
+              <div className="px-6 py-4 space-y-4">
+                {(() => {
+                  // 필터에 따라 데이터 필터링
+                  const filteredSubmissions = submissionsModal.data.submissions.filter(submission => {
+                    if (selectedFilter === 'all') return true;
+                    
+                    // 분류 로직 재사용
+                    const isAttendance = (
+                      submission.type === 'attendance' || 
+                      submission.componentId?.includes('attend') ||
+                      submission.componentId?.includes('Attend') ||
+                      submission.data?.attendeeName ||
+                      submission.data?.formType === 'wedding-attendance' ||
+                      submission.data?.formType === 'birthday-party' ||
+                      submission.data?.formType === 'club-application' ||
+                      (submission.type === 'other' && (
+                        submission.data?.attendeeName ||
+                        submission.data?.guestSide ||
+                        submission.data?.mealOption ||
+                        submission.data?.companionCount !== undefined ||
+                        submission.data?.studentId ||
+                        submission.data?.major ||
+                        submission.data?.motivation
+                      ))
+                    );
+                    
+                    const isComment = (
+                      submission.type === 'comment' || 
+                      submission.componentId?.includes('comment') ||
+                      submission.componentId?.includes('Comment') ||
+                      (submission.data?.author && submission.data?.content && !submission.data?.attendeeName)
+                    );
+                    
+                    if (selectedFilter === 'attendance') return isAttendance;
+                    if (selectedFilter === 'comment') return isComment;
+                    if (selectedFilter === 'other') return !isAttendance && !isComment;
+                    
+                    return true;
+                  });
+                  
+                  return filteredSubmissions.map((submission) => {
                   // formType이 없는 경우 데이터 기반으로 추론
                   const inferFormType = (submissionData) => {
                     if (submissionData.formType) {
@@ -1049,15 +1238,27 @@ function DeployedPage({ user, onLogout }) {
                           {(() => {
                             // AttendRenderer 관련 모든 응답을 참석/가입으로 통일
                             if (submission.type === 'attendance' || 
-                                submission.type === 'other' ||
                                 submission.componentId?.includes('attend') ||
                                 submission.componentId?.includes('Attend') ||
-                                submission.data?.attendeeName) {
+                                submission.data?.attendeeName ||
+                                submission.data?.formType === 'wedding-attendance' ||
+                                submission.data?.formType === 'birthday-party' ||
+                                submission.data?.formType === 'club-application' ||
+                                (submission.type === 'other' && (
+                                  submission.data?.attendeeName ||
+                                  submission.data?.guestSide ||
+                                  submission.data?.mealOption ||
+                                  submission.data?.companionCount !== undefined ||
+                                  submission.data?.studentId ||
+                                  submission.data?.major ||
+                                  submission.data?.motivation
+                                ))) {
                               return '참석/가입';
-                            } else if (submission.type === 'comment') {
+                            } else if (submission.type === 'comment' || 
+                                       submission.componentId?.includes('comment') ||
+                                       submission.componentId?.includes('Comment') ||
+                                       (submission.data?.author && submission.data?.content && !submission.data?.attendeeName)) {
                               return '댓글';
-                            } else if (submission.type === 'slido') {
-                              return '의견';
                             } else {
                               return '기타';
                             }
@@ -1072,10 +1273,21 @@ function DeployedPage({ user, onLogout }) {
                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
                       {/* AttendRenderer 관련 모든 데이터 (attendance, other 타입 및 attendeeName이 있는 모든 데이터) */}
                       {(submission.type === 'attendance' || 
-                        submission.type === 'other' ||
                         submission.componentId?.includes('attend') ||
                         submission.componentId?.includes('Attend') ||
-                        submission.data?.attendeeName) && (
+                        submission.data?.attendeeName ||
+                        submission.data?.formType === 'wedding-attendance' ||
+                        submission.data?.formType === 'birthday-party' ||
+                        submission.data?.formType === 'club-application' ||
+                        (submission.type === 'other' && (
+                          submission.data?.attendeeName ||
+                          submission.data?.guestSide ||
+                          submission.data?.mealOption ||
+                          submission.data?.companionCount !== undefined ||
+                          submission.data?.studentId ||
+                          submission.data?.major ||
+                          submission.data?.motivation
+                        ))) && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="flex flex-col">
                             <span className="text-xs text-slate-500 mb-1">이름</span>
@@ -1091,36 +1303,90 @@ function DeployedPage({ user, onLogout }) {
                       )}
                       
                       {/* 댓글 데이터 */}
-                      {submission.type === 'comment' && (
-                        <div className="grid grid-cols-1 gap-3">
+                      {(submission.type === 'comment' || 
+                        submission.componentId?.includes('comment') ||
+                        submission.componentId?.includes('Comment') ||
+                        (submission.data?.author && submission.data?.content && !submission.data?.attendeeName)) && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="flex flex-col">
                             <span className="text-xs text-slate-500 mb-1">작성자</span>
                             <p className="font-medium">{submission.data.author}</p>
                           </div>
                           <div className="flex flex-col">
                             <span className="text-xs text-slate-500 mb-1">내용</span>
-                            <p className="font-medium">{submission.data.content}</p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* 의견 데이터 */}
-                      {submission.type === 'slido' && (
-                        <div className="grid grid-cols-1 gap-3">
-                          <div className="flex flex-col">
-                            <span className="text-xs text-slate-500 mb-1">의견</span>
-                            <p className="font-medium">{submission.data.content}</p>
+                            <p className="font-medium line-clamp-2">{submission.data.content}</p>
                           </div>
                         </div>
                       )}
                     </div>
                   </div>
                   );
-                })}
+                  });
+                })()}
+                
+                {/* 필터링된 결과가 없을 때 */}
+                {(() => {
+                  const filteredSubmissions = submissionsModal.data.submissions.filter(submission => {
+                    if (selectedFilter === 'all') return true;
+                    
+                    const isAttendance = (
+                      submission.type === 'attendance' || 
+                      submission.componentId?.includes('attend') ||
+                      submission.componentId?.includes('Attend') ||
+                      submission.data?.attendeeName ||
+                      submission.data?.formType === 'wedding-attendance' ||
+                      submission.data?.formType === 'birthday-party' ||
+                      submission.data?.formType === 'club-application' ||
+                      (submission.type === 'other' && (
+                        submission.data?.attendeeName ||
+                        submission.data?.guestSide ||
+                        submission.data?.mealOption ||
+                        submission.data?.companionCount !== undefined ||
+                        submission.data?.studentId ||
+                        submission.data?.major ||
+                        submission.data?.motivation
+                      ))
+                    );
+                    
+                    const isComment = (
+                      submission.type === 'comment' || 
+                      submission.componentId?.includes('comment') ||
+                      submission.componentId?.includes('Comment') ||
+                      (submission.data?.author && submission.data?.content && !submission.data?.attendeeName)
+                    );
+                    
+                    if (selectedFilter === 'attendance') return isAttendance;
+                    if (selectedFilter === 'comment') return isComment;
+                    if (selectedFilter === 'other') return !isAttendance && !isComment;
+                    
+                    return true;
+                  });
+                  
+                  return filteredSubmissions.length === 0 && selectedFilter !== 'all' && (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <p className="text-slate-600 font-medium">
+                        {selectedFilter === 'attendance' ? '참석/가입' :
+                         selectedFilter === 'comment' ? '댓글' :
+                         selectedFilter === 'other' ? '기타' : ''} 응답이 없습니다.
+                      </p>
+                      <button
+                        onClick={() => setSelectedFilter('all')}
+                        className="mt-3 px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors text-sm"
+                      >
+                        전체 보기
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
             
-            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+            <div className="px-6 py-3 border-t border-slate-100 bg-slate-50 flex justify-end flex-shrink-0">
               <button
                 onClick={closeSubmissionsModal}
                 className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors"
