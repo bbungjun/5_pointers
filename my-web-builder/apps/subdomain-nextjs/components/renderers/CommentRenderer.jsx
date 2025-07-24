@@ -23,6 +23,7 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
   });
   const [showDeleteModal, setShowDeleteModal] = useState(null);
   const [deletePassword, setDeletePassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 댓글 목록 조회
   const fetchComments = async () => {
@@ -48,6 +49,34 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
     }
   };
 
+  // 성공 알림 표시 함수
+  const showSuccessNotification = (message) => {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #10b981;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 999999;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-width: 300px;
+      word-wrap: break-word;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    // 3초 후 자동 제거
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 3000);
+  };
+
   // 댓글 작성
   const handleSubmitComment = async (e) => {
     e.preventDefault();
@@ -56,12 +85,16 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       return;
     }
 
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     const actualPageId = pageId || comp.pageId;
     const actualApiBaseUrl =
       typeof window !== 'undefined' ? window.API_BASE_URL : null;
 
     if (!actualPageId || !actualApiBaseUrl) {
       alert('페이지 정보를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+      setIsSubmitting(false);
       return;
     }
 
@@ -77,7 +110,7 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       if (response.ok) {
         setNewComment({ author: '', content: '', password: '' });
         await fetchComments();
-        // alert('댓글이 성공적으로 등록되었습니다.');
+        showSuccessNotification('댓글이 성공적으로 등록되었습니다!');
       } else {
         alert(
           `댓글 등록에 실패했습니다. (${response.status}: ${response.statusText})`
@@ -85,6 +118,8 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       }
     } catch (error) {
       alert(`댓글 등록에 실패했습니다. 네트워크 오류: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -111,7 +146,8 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
       if (response.ok) {
         setShowDeleteModal(null);
         setDeletePassword('');
-        fetchComments();
+        await fetchComments();
+        showSuccessNotification('댓글이 삭제되었습니다.');
       } else {
         alert('비밀번호가 일치하지 않습니다.');
       }
@@ -122,6 +158,29 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
 
   useEffect(() => {
     fetchComments();
+  }, [comp.id, comp.pageId, mode]);
+
+  // 주기적 댓글 새로고침 (30초마다)
+  useEffect(() => {
+    if (mode !== 'live') return;
+
+    const interval = setInterval(() => {
+      fetchComments();
+    }, 30000); // 30초
+
+    return () => clearInterval(interval);
+  }, [comp.id, comp.pageId, mode]);
+
+  // 페이지 포커스 시 댓글 새로고침
+  useEffect(() => {
+    if (mode !== 'live') return;
+
+    const handleFocus = () => {
+      fetchComments();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [comp.id, comp.pageId, mode]);
 
   // 폰트 관련 속성들
@@ -252,6 +311,7 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
         />
         <button
           type="submit"
+          disabled={isSubmitting}
           style={{
             marginTop: mode === 'live' ? `${12 * scaleFactor}px` : '12px',
             padding:
@@ -261,14 +321,15 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
             borderRadius: mode === 'live' ? `${6 * scaleFactor}px` : '6px',
             fontSize: mode === 'live' ? `${14 * scaleFactor}px` : '14px',
             border: 'none',
-            cursor: 'pointer',
-            backgroundColor: '#2563eb',
+            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+            backgroundColor: isSubmitting ? '#9ca3af' : '#2563eb',
             color: '#ffffff',
             transition: 'background-color 0.2s',
             whiteSpace: 'pre-wrap',
+            opacity: isSubmitting ? 0.7 : 1,
           }}
         >
-          댓글 작성
+          {isSubmitting ? '작성 중...' : '댓글 작성'}
         </button>
       </form>
 
@@ -439,7 +500,7 @@ function CommentRenderer({ comp, mode = 'live', pageId }) {
                 fontSize: mode === 'live' ? 'clamp(12px, 3vw, 14px)' : '14px',
                 boxSizing: 'border-box',
               }}
-              onKeyPress={(e) => e.key === 'Enter' && handleDeleteComment()}
+              onKeyDown={(e) => e.key === 'Enter' && handleDeleteComment()}
             />
             <div
               style={{
