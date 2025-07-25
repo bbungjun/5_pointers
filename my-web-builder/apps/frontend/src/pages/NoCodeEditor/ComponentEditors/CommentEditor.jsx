@@ -73,11 +73,10 @@ function CommentEditor({ selectedComp, onUpdate }) {
         fontSize: 12,
         color: '#65676b',
         fontWeight: 600,
-        marginBottom: 12,
+        marginBottom: 2,
         textTransform: 'uppercase',
         letterSpacing: '0.5px'
       }}>
-        Typography
       </div>
 
       <FontFamilyEditor

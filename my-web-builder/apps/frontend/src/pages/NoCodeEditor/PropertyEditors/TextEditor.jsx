@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 
-function TextEditor({ value, onChange, label = "Text", placeholder = "Enter text" }) {
+function TextEditor({ value, onChange, label, placeholder = "Enter text" }) {
   const [isComposing, setIsComposing] = useState(false);
   const [localValue, setLocalValue] = useState(value || '');
   const inputRef = useRef(null);
