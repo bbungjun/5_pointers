@@ -151,12 +151,7 @@ function TextRenderer({
     wordBreak: 'keep-all', // 단어 단위 줄바꿈 (한글에 유리)
   };
 
-  // 디버깅 로그는 유지하여 확인용으로 사용
-  console.log('🎨 TextRenderer 적용 스타일:', {
-    componentId: comp?.id,
-    fontFamily: fontFamily,
-    finalStyle: textStyle,
-  });
+
 
   if (editing && mode === 'editor') {
     return (

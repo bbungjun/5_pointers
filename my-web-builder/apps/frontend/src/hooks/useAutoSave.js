@@ -64,7 +64,7 @@ function useAutoSave(roomId, components, canvasHeight, debounceMs = 2000) {
         setSaveCount((prev) => prev + 1);
         lastSaveTimeRef.current = now;
 
-        console.log('✅ 자동저장 완료:', result);
+
       } catch (error) {
         console.error('❌ 자동저장 실패:', error);
         setSaveError(error.message);

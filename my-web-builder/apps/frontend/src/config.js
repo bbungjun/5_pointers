@@ -77,7 +77,6 @@ const getWebSocketUrl = () => {
   // 환경변수가 있으면 우선 사용 (도메인 기반 우선)
   const envUrl = getEnvVar('VITE_YJS_WEBSOCKET_URL') || getEnvVar('VITE_WEBSOCKET_URL') || getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL');
   if (envUrl) {
-    console.log('🔧 환경변수에서 WebSocket URL 사용:', envUrl);
     return envUrl;
   }
   
@@ -87,27 +86,19 @@ const getWebSocketUrl = () => {
   const isLocalhost = currentUrl === 'localhost' || currentUrl === '127.0.0.1';
   const isHttps = currentProtocol === 'https:';
   
-  console.log('🔍 환경 감지:', {
-    currentUrl,
-    currentProtocol,
-    isLocalhost,
-    isHttps
-  });
+
   
   if (isLocalhost) {
     // 로컬 환경: WSS 연결 사용 (SSL 보안)
     // WSL 환경에서는 WSL IP 사용
     const localIP = getLocalNetworkIP();
     const localUrl = `wss://${localIP}:1235`;
-    console.log('🔒 로컬 WSS URL 설정 (SSL 보안):', localUrl);
-    console.log('💡 WSL 환경에서 WSL IP 사용:', localIP);
     return localUrl;
   } else {
     // 배포 환경: 도메인 기반 WebSocket 서버 사용
     // HTTPS면 WSS, HTTP면 WS
     const WEBSOCKET_DOMAIN = 'ws.ddukddak.org'; // Y.js WebSocket 서버 도메인
     const prodUrl = isHttps ? `wss://${WEBSOCKET_DOMAIN}:1235` : `ws://${WEBSOCKET_DOMAIN}:1234`;
-    console.log('🌍 배포 WebSocket URL 사용:', prodUrl, `(도메인 기반)`);
     return prodUrl;
   }
 };
@@ -130,46 +121,17 @@ export const getRedirectUrl = (provider) => {
 export const getDeployedUrl = (subdomain) => {
   const isProduction = isProductionEnvironment();
   
-  console.log('🚀 getDeployedUrl 호출:', {
-    subdomain,
-    isProduction,
-    currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'server'
-  });
+
   
   if (isProduction) {
     // 프로덕션: CloudFront 우회하여 백엔드 API 직접 접근
     const url = `https://ddukddak.org/api/generator/deployed-sites/${subdomain}`;
-    console.log('✅ 프로덕션 URL 생성 (API 엔드포인트 기반):', url);
     return url;
   } else {
     // 로컬: 와일드카드 서브도메인 서버 사용
     const url = `https://${subdomain}.localhost:3001`;
-    console.log('🏠 로컬 URL 생성 (와일드카드 서브도메인):', url);
     return url;
   }
 };
 
-console.log('🔧 API 설정:', {
-  baseUrl: API_BASE_URL,
-  websocketUrl: YJS_WEBSOCKET_URL,
-  frontend: getEnvVar('VITE_FRONTEND_URL') || getEnvVar('NEXT_PUBLIC_FRONTEND_URL') || 'http://localhost:5173',
-  isProduction: isProductionEnvironment(),
-  currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'server'
-});
-
-// WebSocket URL 디버깅을 위한 추가 로깅
-console.log('🔍 WebSocket URL 디버깅:', {
-  YJS_WEBSOCKET_URL,
-  getWebSocketUrl: getWebSocketUrl(),
-  currentUrl: typeof window !== 'undefined' ? window.location.hostname : 'server',
-  isLocalhost: typeof window !== 'undefined' ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') : false,
-  // 환경변수 직접 확인
-  VITE_YJS_WEBSOCKET_URL: getEnvVar('VITE_YJS_WEBSOCKET_URL'),
-  VITE_WEBSOCKET_URL: getEnvVar('VITE_WEBSOCKET_URL'),
-  NEXT_PUBLIC_YJS_WEBSOCKET_URL: getEnvVar('NEXT_PUBLIC_YJS_WEBSOCKET_URL'),
-  // 모든 환경변수 확인 (개발용)
-  allEnvVars: typeof window !== 'undefined' ? Object.keys(window).filter(key => key.startsWith('VITE_')).reduce((acc, key) => {
-    acc[key] = window[key];
-    return acc;
-  }, {}) : 'server-side'
-}); // Cache bust: Fri Jul 18 19:00:00 KST 2025 - Force deployment
+ // Cache bust: Fri Jul 18 19:00:00 KST 2025 - Force deployment

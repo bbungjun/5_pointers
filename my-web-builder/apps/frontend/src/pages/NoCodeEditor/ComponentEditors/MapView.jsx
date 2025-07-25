@@ -10,7 +10,6 @@ function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 3, width = 400, he
         setTimeout(renderMap, 100);
         return;
       }
-      console.log('KakaoMapView 렌더링:', { lat, lng, zoom });
       let map = mapRef.current._kakao_map_instance;
       const center = new window.kakao.maps.LatLng(lat, lng);
       if (!map) {
@@ -23,7 +22,6 @@ function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 3, width = 400, he
           position: center,
           map: map,
         });
-        console.log('새 지도 생성됨');
       } else {
         map.setCenter(center);
         if (markerRef.current) {
@@ -36,7 +34,6 @@ function KakaoMapView({ lat = 37.5665, lng = 126.9780, zoom = 3, width = 400, he
         }
         map.setLevel(zoom);
         map.relayout();
-        console.log('지도 업데이트됨');
       }
     }
     renderMap();

@@ -5,15 +5,6 @@ import { join } from 'path';
 import * as express from 'express';
 
 async function bootstrap() {
-  // 환경 변수 디버깅
-  console.log('[Main] 환경 변수 확인:', {
-    NODE_ENV: process.env.NODE_ENV,
-    PORT: process.env.PORT,
-    DB_HOST: process.env.DB_HOST ? '설정됨' : '설정되지 않음',
-    JWT_SECRET: process.env.JWT_SECRET ? '설정됨' : '설정되지 않음',
-    JWT_SECRET_LENGTH: process.env.JWT_SECRET?.length || 0,
-    KAKAO_JS_KEY: process.env.KAKAO_JS_KEY ? '설정됨' : '설정되지 않음'
-  });
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
@@ -47,25 +38,18 @@ async function bootstrap() {
         /^http:\/\/127\.0\.0\.1:\d+$/ // 127.0.0.1의 모든 포트 허용
       ];
       
-      console.log('[CORS] 요청 Origin:', origin);
-      console.log('[CORS] 허용된 Origins:', allowedOrigins);
-
       if (!origin) {
-        console.log('[CORS] Origin 없음 - 허용');
         return callback(null, true);
       }
       
       if (allowedOrigins.includes(origin)) {
-        console.log('[CORS] Origin 허용됨:', origin);
         return callback(null, true);
       }
       
       if (subdomainPatterns.some(pattern => pattern.test(origin))) {
-        console.log('[CORS] 서브도메인 패턴 매치:', origin);
         return callback(null, true);
       }
       
-      console.log('[CORS] Origin 거부됨:', origin);
       return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,

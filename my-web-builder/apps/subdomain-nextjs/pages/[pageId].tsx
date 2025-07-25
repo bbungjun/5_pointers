@@ -67,10 +67,7 @@ const getRendererByType = (type: string) => {
     linkCopy: LinkCopyRenderer,
   };
 
-  console.log(
-    `🎯 Getting renderer for type: ${type}`,
-    renderers[type] ? 'Found' : 'Not found'
-  );
+
   return renderers[type] || null;
 };
 
@@ -288,16 +285,7 @@ const DynamicPageRenderer = ({
               return null;
             }
 
-            // 컴포넌트 데이터 디버깅 로그
-            if (comp.type === 'text') {
-              console.log('📦 Subdomain Desktop - Text 컴포넌트 데이터:', {
-                componentId: comp.id,
-                fontFamily: comp.props?.fontFamily,
-                fontSize: comp.props?.fontSize,
-                text: comp.props?.text,
-                allProps: comp.props,
-              });
-            }
+
 
             const defaultSize = getComponentDefaultSize(comp.type);
             const originalWidth = comp.width || defaultSize.width;
@@ -373,16 +361,7 @@ const DynamicPageRenderer = ({
             const RendererComponent = getRendererByType(comp.type);
             if (!RendererComponent) return null;
 
-            // 컴포넌트 데이터 디버깅 로그
-            if (comp.type === 'text') {
-              console.log('📦 Subdomain Mobile - Text 컴포넌트 데이터:', {
-                componentId: comp.id,
-                fontFamily: comp.props?.fontFamily,
-                fontSize: comp.props?.fontSize,
-                text: comp.props?.text,
-                allProps: comp.props,
-              });
-            }
+
 
             const defaultSize = getComponentDefaultSize(comp.type);
             const width = comp.width || defaultSize.width;

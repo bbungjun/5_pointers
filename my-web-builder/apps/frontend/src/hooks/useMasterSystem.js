@@ -361,13 +361,7 @@ export function useMasterSystem(awareness, userInfo) {
 
     const joinTime = joinTimeRef.current;
 
-    console.log('🚀 접속 순서 기반 마스터 시스템 초기화:', {
-      사용자: userInfo.name,
-      ID: userInfo.id,
-      접속시간: new Date(joinTime).toLocaleString(),
-      원본시간: joinTime,
-      clientId: awareness.clientID
-    });
+
 
     // 사용자 정보를 Awareness에 등록 (접속 시간 포함)
     const userState = {
@@ -379,8 +373,6 @@ export function useMasterSystem(awareness, userInfo) {
       registeredAt: Date.now()
     };
 
-    console.log('📝 Awareness에 등록할 사용자 정보:', userState);
-    
     // 기존 사용자 정보가 있다면 보존하면서 업데이트 (단, joinTime은 항상 새로 설정)
     const currentUserState = awareness.getLocalState().user || {};
     const finalUserState = {
@@ -389,38 +381,21 @@ export function useMasterSystem(awareness, userInfo) {
       joinTime: userState.joinTime // joinTime을 항상 새로 설정 (기존 보존 로직 제거)
     };
     
-    console.log('📝 최종 사용자 정보 (기존 정보 보존):', finalUserState);
-    
     awareness.setLocalStateField('user', finalUserState);
 
-    // 등록 후 확인
-    setTimeout(() => {
-      const currentState = awareness.getLocalState();
-      console.log('✅ 등록 후 로컬 상태 확인:', {
-        hasUser: !!currentState.user,
-        userInfo: currentState.user
-      });
-    }, 100);
+
 
     isInitializedRef.current = true;
 
     // 초기 마스터 결정 (최적화된 방식)
     setTimeout(() => {
-      console.log('⏰ 초기 마스터 결정 시작 (최적화)');
       stableDetermineMaster();
     }, 300); // 300ms로 단축 (기존 글로벌 마스터 확인 우선)
 
     // Awareness 변경 감지
     const handleAwarenessChange = (changes) => {
-      console.log('🔄 Awareness 변경:', {
-        added: changes.added.length,
-        updated: changes.updated.length,
-        removed: changes.removed.length
-      });
-      
       // 사용자 추가/제거 시에만 마스터 재결정
       if (changes.added.length > 0 || changes.removed.length > 0) {
-        console.log('👥 사용자 변화 감지 - 접속 순서 기준 마스터 재결정');
         determineMaster();
       }
     };

@@ -127,14 +127,7 @@ export function useYjsCollaboration(roomId, userInfo) {
     const safeRoomId = roomId || 'default-room';
     const safeUserInfo = userInfo || { id: 'anonymous', name: 'Anonymous', color: '#000000' };
 
-    console.log('🔄 연결 초기화 시작:', {
-      roomId: safeRoomId,
-      userId: safeUserInfo.id,
-      isInitialized: isInitializedRef.current,
-      currentRoomId: currentRoomIdRef.current,
-      currentUserId: currentUserInfoRef.current?.id,
-      isConnected
-    });
+
 
     // 이미 같은 룸에 연결되어 있고 연결이 유효하다면 재연결하지 않음
     if (isInitializedRef.current && 

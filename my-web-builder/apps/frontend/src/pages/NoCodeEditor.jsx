@@ -187,16 +187,9 @@ function NoCodeEditor({ pageId }) {
       components.length > 0 &&
       !hasInitialSync
     ) {
-      console.log(
-        '🎨 템플릿이 로드되었습니다. 모든 사용자에게 즉시 동기화 준비 완료'
-      );
       if (collaboration.updateAllComponents) {
-        console.log('🔄 모든 사용자에게 템플릿 동기화 시작...');
         collaboration.updateAllComponents(components);
         setHasInitialSync(true);
-        console.log(
-          '✅ 템플릿 초기 동기화 완료. 이후 Y.js가 실시간 협업을 처리합니다.'
-        );
       }
     }
   }, [
@@ -318,16 +311,16 @@ function NoCodeEditor({ pageId }) {
     if (connectionError) {
       console.error('🔴 협업 연결 오류:', connectionError);
     } else if (isConnected) {
-      console.log('🟢 Y.js 협업 연결 성공');
+      
     } else {
-      console.log('🟡 Y.js 협업 연결 중...');
+  
     }
   }, [connectionError, isConnected]);
 
   // 연결 상태 변경 시 데이터 안정성 보장
   useEffect(() => {
     if (isConnected && !hasInitialSync) {
-      console.log('🔗 연결 복구 감지, 데이터 안정성 확인...');
+      
       
       // 연결 복구 시 기존 데이터가 있는지 확인
       if (components.length > 0) {
