@@ -140,6 +140,7 @@ const CanvasArea = forwardRef(
       openChatInput, // 채팅 입력 열기 함수
       cursorChatMessages = {}, // 커서 채팅 메시지 추가
       syncComponentAfterDrag, // 드래그 종료 후 동기화 함수 추가
+      userInfo, // 사용자 정보 추가
     },
     ref
   ) => {
