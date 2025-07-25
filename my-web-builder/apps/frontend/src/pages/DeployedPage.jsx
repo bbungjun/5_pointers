@@ -219,7 +219,7 @@ function DeployedPage({ user, onLogout }) {
         setEditingTitle('');
       }
     } catch (error) {
-      console.error('제목 수정 실패:', error);
+      // 제목 수정 실패 처리
     }
   };
   // 삭제 모달 열기

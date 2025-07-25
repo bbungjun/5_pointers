@@ -27,25 +27,12 @@ export function useMasterSystem(awareness, userInfo) {
       try {
         const states = awareness.getStates();
         
-        console.log('🔍 마스터 결정 시작 (접속 순서 기준):', {
-          총States: states.size,
-          현재사용자: userInfo.name
-        });
+
 
         // 모든 사용자 수집 (중복 제거 + 접속 시간 포함)
         const userMap = new Map();
         
-        console.log('🔍 States 상세 분석:');
         states.forEach((state, clientId) => {
-          console.log(`📱 클라이언트 ${clientId}:`, {
-            hasUser: !!state.user,
-            userId: state.user?.id,
-            userName: state.user?.name,
-            hasJoinTime: !!state.user?.joinTime,
-            joinTime: state.user?.joinTime,
-            joinTimeFormatted: state.user?.joinTime ? new Date(state.user.joinTime).toLocaleString() : 'N/A',
-            allUserKeys: state.user ? Object.keys(state.user) : []
-          });
           
           if (state.user && state.user.id) {
             const userId = state.user.id;
@@ -70,25 +57,14 @@ export function useMasterSystem(awareness, userInfo) {
 
         const uniqueUsers = Array.from(userMap.values());
         
-        console.log('🔍 수집된 사용자 데이터:', uniqueUsers.map(u => ({
-          이름: u.userName,
-          ID: u.userId,
-          접속시간: u.joinTimeFormatted,
-          원본joinTime있음: u.hasOriginalJoinTime
-        })));
+
 
         // 접속 시간 순으로 정렬 (가장 이른 시간이 첫 번째)
         uniqueUsers.sort((a, b) => a.joinTime - b.joinTime);
         
         setConnectedUsers(uniqueUsers);
 
-        console.log('👥 접속 순서별 사용자 목록:', uniqueUsers.map((u, index) => ({
-          순서: index + 1,
-          이름: u.userName,
-          ID: u.userId,
-          접속시간: u.joinTimeFormatted,
-          원본시간: u.joinTime
-        })));
+
 
         if (uniqueUsers.length === 0) {
           console.log('⚠️ 연결된 사용자가 없습니다.');
@@ -108,12 +84,7 @@ export function useMasterSystem(awareness, userInfo) {
           }
         });
 
-        console.log('🔍 글로벌 마스터 상태들:', globalMasterStates.map(gms => ({
-          클라이언트: gms.clientId,
-          마스터ID: gms.masterState.masterId,
-          마스터이름: gms.masterState.masterName,
-          선출시간: new Date(gms.masterState.electedAt).toLocaleTimeString()
-        })));
+
 
         // 중복된 글로벌 마스터 상태가 있으면 가장 최신 것 사용
         if (globalMasterStates.length > 0) {
@@ -135,7 +106,7 @@ export function useMasterSystem(awareness, userInfo) {
         const shouldUpdateGlobalState = (shouldBeMaster.userId === userInfo.id);
         const masterDecisionReason = `접속 순서 기준 마스터 선정 (${shouldBeMaster.userName})`;
 
-        console.log('🎯 마스터 결정 이유:', masterDecisionReason);
+
 
         // 글로벌 마스터 상태 업데이트 (중복 정리 포함)
         if (shouldUpdateGlobalState) {
@@ -153,16 +124,10 @@ export function useMasterSystem(awareness, userInfo) {
           
           awareness.setLocalStateField('globalMasterState', newGlobalMasterState);
           
-          console.log('📢 글로벌 마스터 상태 업데이트:', {
-            마스터: masterUser.userName,
-            총사용자: uniqueUsers.length,
-            업데이트자: userInfo.name,
-            버전: newGlobalMasterState.version
-          });
+
           
           // 다른 클라이언트들의 중복 글로벌 상태 정리 요청
           setTimeout(() => {
-            console.log('🧹 중복 글로벌 상태 정리 요청');
             awareness.setLocalStateField('cleanupRequest', {
               timestamp: Date.now(),
               requestedBy: userInfo.id
@@ -177,33 +142,21 @@ export function useMasterSystem(awareness, userInfo) {
             currentState.globalMasterState &&
             !shouldUpdateGlobalState) {
           
-          console.log('🧹 중복 글로벌 상태 정리 실행');
+
           awareness.setLocalStateField('globalMasterState', null);
           awareness.setLocalStateField('cleanupRequest', null);
         }
 
         const masterUser = uniqueUsers.find(u => u.userId === finalMasterId);
 
-        console.log('👑 마스터 결정 (접속 순서 기준):', {
-          마스터: masterUser.userName,
-          마스터ID: finalMasterId,
-          접속시간: masterUser.joinTimeFormatted,
-          총사용자수: uniqueUsers.length,
-          마스터순서: '1번째 접속자'
-        });
+
 
         // 상태 업데이트
         setMasterUserId(finalMasterId);
         const amIMaster = String(finalMasterId) === String(userInfo.id);
         setIsMaster(amIMaster);
 
-        if (amIMaster) {
-          const myOrder = uniqueUsers.findIndex(u => String(u.userId) === String(userInfo.id)) + 1;
-          console.log(`👑 마스터 권한 획득: ${userInfo.name} (${myOrder}번째 접속자)`);
-        } else {
-          const myOrder = uniqueUsers.findIndex(u => String(u.userId) === String(userInfo.id)) + 1;
-          console.log(`👤 일반 사용자: ${userInfo.name} (${myOrder}번째 접속자, 마스터: ${masterUser.userName})`);
-        }
+
 
       } catch (error) {
         console.error('❌ 마스터 결정 중 오류:', error);
@@ -229,11 +182,7 @@ export function useMasterSystem(awareness, userInfo) {
         const states = awareness.getStates();
         const currentUserCount = states.size;
 
-        console.log(`🔍 연결 안정성 확인 ${checkCount + 1}/${maxChecks}:`, {
-          현재사용자수: currentUserCount,
-          이전사용자수: lastUserCount,
-          안정화카운트: stableCount
-        });
+
 
         // 사용자 수가 변하지 않으면 안정화 카운트 증가
         if (currentUserCount === lastUserCount && currentUserCount > 0) {
@@ -247,10 +196,7 @@ export function useMasterSystem(awareness, userInfo) {
 
         // 2번 연속 안정적이거나 최대 체크 횟수 도달 시 완료
         if (stableCount >= 2 || checkCount >= maxChecks) {
-          console.log('✅ 연결 안정화 완료:', {
-            최종사용자수: currentUserCount,
-            안정화여부: stableCount >= 2 ? '안정' : '시간초과'
-          });
+
           resolve();
         } else {
           setTimeout(checkStability, 500);
@@ -279,11 +225,7 @@ export function useMasterSystem(awareness, userInfo) {
       }
     });
 
-    console.log('🔍 글로벌 마스터 상태 확인:', {
-      연결된사용자수: connectedUserCount,
-      글로벌마스터있음: !!existingGlobalMaster,
-      글로벌마스터정보: existingGlobalMaster
-    });
+
 
     if (existingGlobalMaster && connectedUserCount > 1) {
       // 기존 마스터가 여전히 연결되어 있는지 확인
@@ -295,28 +237,16 @@ export function useMasterSystem(awareness, userInfo) {
       });
 
       if (masterStillConnected) {
-        console.log('⚡ 유효한 글로벌 마스터 발견:', {
-          마스터: existingGlobalMaster.masterName,
-          마스터ID: existingGlobalMaster.masterId,
-          현재사용자: userInfo.name,
-          현재사용자ID: userInfo.id,
-          마스터여전히연결됨: masterStillConnected
-        });
+
 
         // 즉시 로컬 상태 업데이트
         setMasterUserId(existingGlobalMaster.masterId);
         const amIMaster = String(existingGlobalMaster.masterId) === String(userInfo.id);
         setIsMaster(amIMaster);
 
-        if (amIMaster) {
-          console.log('👑 기존 마스터 권한 즉시 복구:', userInfo.name);
-        } else {
-          console.log('👤 즉시 일반 사용자 설정:', userInfo.name, '(마스터:', existingGlobalMaster.masterName, ')');
-        }
+
 
         return existingGlobalMaster;
-      } else {
-        console.log('⚠️ 글로벌 마스터가 연결되어 있지 않음 - 새 마스터 선출 필요');
       }
     }
 
@@ -333,20 +263,17 @@ export function useMasterSystem(awareness, userInfo) {
     while (!existingMaster && attempts < maxAttempts) {
       existingMaster = checkExistingMaster();
       if (!existingMaster) {
-        console.log(`🔄 글로벌 마스터 확인 재시도 ${attempts + 1}/${maxAttempts}`);
+
         await new Promise(resolve => setTimeout(resolve, 200)); // 200ms 대기
       }
       attempts++;
     }
     
     if (existingMaster) {
-      console.log('⚡ 기존 마스터 확인 완료 - 안정화 생략');
       return;
     }
 
-    console.log('⏳ 기존 마스터 없음 - 연결 안정화 시작');
     await waitForStableConnection();
-    console.log('🎯 안정화 완료 - 마스터 결정 시작');
     determineMaster();
   }, [checkExistingMaster, waitForStableConnection, determineMaster]);
 
@@ -411,11 +338,8 @@ export function useMasterSystem(awareness, userInfo) {
       
       // 마스터였다면 글로벌 상태 정리
       if (isMaster) {
-        console.log('🚪 마스터 퇴장 - 글로벌 상태 정리:', userInfo.name);
         awareness.setLocalStateField('globalMasterState', null);
       }
-      
-      console.log('🚪 마스터 시스템 정리:', userInfo.name);
     };
   }, [awareness, userInfo, stableDetermineMaster, determineMaster, checkExistingMaster]);
 

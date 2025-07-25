@@ -224,7 +224,6 @@ export function useComponentActions(
       }
 
       const result = await response.json();
-      console.log('✅ 페이지 생성 성공:', result);
 
       // PageButton 컴포넌트 생성 및 캔버스에 추가
       const pageButtonComponent = {
@@ -258,7 +257,6 @@ export function useComponentActions(
 
       return pageButtonComponent.id;
     } catch (error) {
-      console.error('❌ PageButton 컴포넌트 생성 실패:', error);
       showError('페이지 생성에 실패했습니다. 다시 시도해주세요.');
       return null;
     }

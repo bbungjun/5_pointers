@@ -925,7 +925,7 @@ const CanvasArea = forwardRef(
                   />
                 );
               })}
-              
+
             {/* 2. 그 다음 나머지 컴포넌트들 렌더링 */}
             {components
               .filter((comp, index, arr) => {
