@@ -85,14 +85,6 @@ function MapEditor({ selectedComp, onUpdate }) {
 
   return (
     <div>
-
-
-      <TextEditor
-        value={props.placeName || ''}
-        onChange={value => updateProperty('placeName', value)}
-        label="장소명"
-        placeholder="예) 메종 드 프리미어 그랜드홀"
-      />
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 16 }}>
         <div style={{ flex: 1 }}>
           <TextEditor
@@ -114,7 +106,7 @@ function MapEditor({ selectedComp, onUpdate }) {
             fontSize: 13,
             fontWeight: 500,
             cursor: 'pointer',
-            marginBottom: 8
+            marginBottom: 18
           }}
         >
           주소 검색
@@ -138,14 +130,8 @@ function MapEditor({ selectedComp, onUpdate }) {
           <KakaoMapView lat={props.lat} lng={props.lng} zoom={3} width={290} height={200} />
         </div>
       )}
-      <TextEditor
-        value={props.phone || ''}
-        onChange={value => updateProperty('phone', value)}
-        label="전화번호"
-        placeholder="예) 02-2278-9977"
-      />
     </div>
   );
 }
 
-export default MapEditor; 
+export default MapEditor;
