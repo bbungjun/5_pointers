@@ -19,10 +19,6 @@ function LoginPage({ onLogin }) {
 
   // 소셜 로그인 리다이렉트 URL
   const googleRedirectUrl = getRedirectUrl('google');
-  console.log('Google OAuth 설정:', {
-    clientId: GOOGLE_CLIENT_ID,
-    redirectUrl: googleRedirectUrl,
-  });
 
   const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(googleRedirectUrl)}&response_type=code&scope=openid%20email%20profile`;
 

@@ -186,18 +186,14 @@ function DashboardPage({ user, onLogout }) {
         url += `?${params.join('&')}`;
       }
 
-      console.log('템플릿 조회 URL:', url);
       const response = await fetch(url);
-      console.log('템플릿 조회 응답:', response.status, response.ok);
 
       if (response.ok) {
         const data = await response.json();
-        console.log('템플릿 원본 데이터:', data);
         const uniqueTemplates = data.filter((template, index, arr) => {
           const firstIndex = arr.findIndex((t) => t.id === template.id);
           return firstIndex === index;
         });
-        console.log('중복 제거된 템플릿:', uniqueTemplates);
 
         if (device === 'all') {
           // 모바일과 데스크톱 템플릿 분리
@@ -208,8 +204,7 @@ function DashboardPage({ user, onLogout }) {
             (t) => t.editingMode === 'desktop'
           );
 
-          console.log('모바일 템플릿:', mobileData);
-          console.log('데스크톱 템플릿:', desktopData);
+
 
           // 전체 데이터 저장
           setAllMobileTemplates(mobileData);
@@ -235,8 +230,7 @@ function DashboardPage({ user, onLogout }) {
           );
           setDesktopTotalCount(desktopData.length);
 
-          console.log('설정된 모바일 템플릿:', mobilePagedData);
-          console.log('설정된 데스크톱 템플릿:', desktopPagedData);
+
 
           setTemplates([]); // 기존 templates는 비움
         } else {
@@ -405,17 +399,13 @@ function DashboardPage({ user, onLogout }) {
 
       if (response.ok) {
         const newPage = await response.json();
-        console.log('새 페이지 생성:', newPage);
-        console.log('템플릿 editingMode:', template.editingMode);
         // URL 파라미터 없이 일반 페이지로 시작
         const url = `/editor/${newPage.id}`;
-        console.log('네비게이션 URL:', url);
         navigate(url);
       } else {
         showError('템플릿 페이지 생성에 실패했습니다.');
       }
     } catch (error) {
-      console.error('템플릿 페이지 생성 실패:', error);
       showError('템플릿 페이지 생성에 실패했습니다.');
     }
   };
@@ -453,7 +443,7 @@ function DashboardPage({ user, onLogout }) {
         setEditingTitle('');
       }
     } catch (error) {
-      console.error('제목 수정 실패:', error);
+      // 제목 수정 실패 처리
     }
   };
 

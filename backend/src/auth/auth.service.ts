@@ -108,14 +108,7 @@ export class AuthService {
       ? 'https://ddukddak.org/social-callback?provider=google'
       : 'http://localhost:5173/social-callback?provider=google';
 
-    console.log('Google OAuth 설정 (백엔드):', {
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ? '***설정됨***' : '❌ 설정되지 않음',
-      callbackUrl,
-      environment: process.env.NODE_ENV || 'development',
-      isProduction,
-      authCode: code?.substring(0, 10) + '...', // 보안을 위해 코드 일부만 출력
-    });
+
 
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,

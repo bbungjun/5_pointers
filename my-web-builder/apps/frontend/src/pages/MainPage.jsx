@@ -223,7 +223,14 @@ const MainPage = () => {
 
           <div className="mt-16">
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => {
+                const isLoggedIn = checkLoginStatus();
+                if (isLoggedIn) {
+                  navigate('/dashboard');
+                } else {
+                  navigate('/login');
+                }
+              }}
               className="px-8 py-4 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white font-semibold rounded-full transition-all duration-300 text-lg"
             >
               시작하기

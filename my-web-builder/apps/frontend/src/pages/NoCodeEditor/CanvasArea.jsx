@@ -376,13 +376,11 @@ const CanvasArea = forwardRef(
       if (isLocalComponentDragging && syncComponentAfterDrag) {
         // 현재 선택된 컴포넌트가 있다면 해당 컴포넌트 동기화
         if (selectedId) {
-          console.log('🔄 드래그 종료, 컴포넌트 동기화 호출:', selectedId);
           syncComponentAfterDrag(selectedId);
         }
         // 다중 선택된 컴포넌트들도 동기화
         if (selectedIds && selectedIds.length > 0) {
           selectedIds.forEach(id => {
-            console.log('🔄 드래그 종료, 다중 선택 컴포넌트 동기화 호출:', id);
             syncComponentAfterDrag(id);
           });
         }
@@ -428,7 +426,7 @@ const CanvasArea = forwardRef(
 
       // 중간 버튼이나 스페이스바와 함께 클릭한 경우에만 패닝
       if (e.button === 1 || (e.button === 0 && e.spaceKey)) {
-        console.log('패닝 시작');
+
         setIsPanning(true);
         setPanStart({
           x: e.clientX,
@@ -888,50 +886,12 @@ const CanvasArea = forwardRef(
               />
             ))}
 
-            {/* 캔버스 내 컴포넌트 렌더링 - 사각형 레이어를 항상 먼저 렌더링 */}
-            {/* 1. 먼저 사각형 레이어 컴포넌트만 렌더링 */}
+            {/* 캔버스 내 컴포넌트 렌더링 (더미 컴포넌트 제외) */}
             {components
               .filter((comp, index, arr) => {
-                // 중복 ID 제거 및 사각형 레이어만 필터링
+                // 중복 ID 제거: 같은 ID를 가진 첫 번째 컴포넌트만 유지
                 const firstIndex = arr.findIndex((c) => c.id === comp.id);
-                return firstIndex === index && comp.type === 'rectangleLayer';
-              })
-              .map((comp) => {
-                const isSelected = selectedId === comp.id;
-                const isMultiSelected =
-                  selectedIds && selectedIds.includes(comp.id);
-                const isAnySelected = isSelected || isMultiSelected;
-
-                return (
-                  <CanvasComponent
-                    key={comp.id}
-                    comp={comp}
-                    selected={isAnySelected}
-                    selectedIds={selectedIds}
-                    onSelect={onSelect}
-                    onUpdate={onUpdate}
-                    onMultiUpdate={onUpdate}
-                    onDelete={onDelete}
-                    setSnapLines={setSnapLines}
-                    zoom={zoom}
-                    viewport={viewport}
-                    components={components}
-                    getComponentDimensions={getComponentDimensions}
-                    canvasHeight={canvasHeight}
-                    updateCursorPosition={updateCursorPosition}
-                    pageId={pageId}
-                    setComponentDragging={setComponentDragging}
-                    isComponentDragging={checkComponentDragging}
-                  />
-                );
-              })}
-              
-            {/* 2. 그 다음 나머지 컴포넌트들 렌더링 */}
-            {components
-              .filter((comp, index, arr) => {
-                // 중복 ID 제거 및 사각형 레이어 제외
-                const firstIndex = arr.findIndex((c) => c.id === comp.id);
-                return firstIndex === index && comp.type !== 'rectangleLayer';
+                return firstIndex === index;
               })
               .map((comp) => {
                 const isSelected = selectedId === comp.id;
