@@ -876,63 +876,65 @@ function NoCodeEditor({ pageId }) {
         </div>
       )}
 
-      {/* 줌 슬라이더 - 화면 중앙 하단 */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)', // 정확히 중앙 정렬
-          zIndex: 1000,
-          background: 'white',
-          borderRadius: '8px',
-          padding: '8px 12px',
-          boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #e1e5e9',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          minWidth: '120px',
-        }}
-      >
-        {/* 줌 레벨 표시 */}
+      {/* 줌 슬라이더 - 화면 중앙 하단 (미리보기 모드가 아닐 때만 표시) */}
+      {!interaction.isPreviewOpen && (
         <div
           style={{
-            fontSize: '12px',
-            fontWeight: '600',
-            color: '#374151',
-            minWidth: '35px',
+            position: 'fixed',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)', // 정확히 중앙 정렬
+            zIndex: 1000,
+            background: 'white',
+            borderRadius: '8px',
+            padding: '8px 12px',
+            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+            border: '1px solid #e1e5e9',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            minWidth: '120px',
           }}
         >
-          {interaction.zoom}%
-        </div>
+          {/* 줌 레벨 표시 */}
+          <div
+            style={{
+              fontSize: '12px',
+              fontWeight: '600',
+              color: '#374151',
+              minWidth: '35px',
+            }}
+          >
+            {interaction.zoom}%
+          </div>
 
-        {/* 줌 슬라이더 */}
-        <input
-          type="range"
-          min="35"
-          max="150"
-          value={interaction.zoom}
-          onChange={(e) => {
-            const newZoom = parseInt(e.target.value);
-            interaction.handleZoomChange(newZoom);
-          }}
-          style={{
-            width: '80px',
-            height: '4px',
-            borderRadius: '2px',
-            background: '#e1e5e9',
-            outline: 'none',
-            cursor: 'pointer',
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.background = '#3B4EFF';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = '#e1e5e9';
-          }}
-        />
-      </div>
+          {/* 줌 슬라이더 */}
+          <input
+            type="range"
+            min="35"
+            max="150"
+            value={interaction.zoom}
+            onChange={(e) => {
+              const newZoom = parseInt(e.target.value);
+              interaction.handleZoomChange(newZoom);
+            }}
+            style={{
+              width: '80px',
+              height: '4px',
+              borderRadius: '2px',
+              background: '#e1e5e9',
+              outline: 'none',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = '#3B4EFF';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = '#e1e5e9';
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
