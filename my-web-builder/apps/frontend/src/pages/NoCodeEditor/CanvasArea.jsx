@@ -928,9 +928,9 @@ const CanvasArea = forwardRef(
             {/* 2. 그 다음 나머지 컴포넌트들 렌더링 */}
             {components
               .filter((comp, index, arr) => {
-                // 중복 ID 제거: 같은 ID를 가진 첫 번째 컴포넌트만 유지
+                // 중복 ID 제거 및 사각형 레이어 제외
                 const firstIndex = arr.findIndex((c) => c.id === comp.id);
-                return firstIndex === index;
+                return firstIndex === index && comp.type !== 'rectangleLayer';
               })
               .map((comp) => {
                 const isSelected = selectedId === comp.id;
@@ -958,6 +958,8 @@ const CanvasArea = forwardRef(
                     pageId={pageId} // 페이지 ID 전달
                     setComponentDragging={setComponentDragging} // 드래그 상태 설정 함수 전달
                     isComponentDragging={checkComponentDragging} // 드래그 상태 확인 함수 전달 (이름 변경)
+                    otherSelections={otherSelections} // 다른 사용자들의 선택 상태
+                    currentUserId={userInfo?.id} // 현재 사용자 ID
                   />
                 );
               })}
