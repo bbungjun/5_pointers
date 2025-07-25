@@ -6,8 +6,7 @@ export default function KakaoTalkShareRenderer({ comp, mode = 'editor' }) {
 
   // 디버깅: mode 값 확인 (SSR 안전)
   useEffect(() => {
-    console.log('KakaoTalkShareRenderer - mode:', mode);
-    console.log('KakaoTalkShareRenderer - window.location.href:', window.location.href);
+    
   }, [mode]);
 
   useEffect(() => {

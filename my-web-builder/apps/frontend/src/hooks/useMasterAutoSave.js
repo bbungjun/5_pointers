@@ -38,11 +38,7 @@ function useMasterAutoSave(roomId, components, canvasHeight, isMaster, debounceM
           throw new Error('인증 토큰이 없습니다.');
         }
 
-        console.log('👑 마스터 자동저장 시작:', {
-          roomId,
-          componentCount: components.length,
-          canvasHeight
-        });
+        
 
         const response = await fetch(
           `${API_BASE_URL}/users/pages/room/${roomId}/content`,
@@ -70,10 +66,7 @@ function useMasterAutoSave(roomId, components, canvasHeight, isMaster, debounceM
         setSaveCount((prev) => prev + 1);
         lastSaveTimeRef.current = now;
 
-        console.log('✅ 마스터 자동저장 완료:', {
-          saveCount: saveCount + 1,
-          timestamp: new Date().toLocaleTimeString()
-        });
+
 
       } catch (error) {
         console.error('❌ 마스터 자동저장 실패:', error);
@@ -89,7 +82,7 @@ function useMasterAutoSave(roomId, components, canvasHeight, isMaster, debounceM
   const debouncedSave = useCallback(
     (components) => {
       if (!isMaster) {
-        console.log('👤 일반 사용자 - 자동저장 건너뜀');
+
         return;
       }
 
@@ -107,7 +100,7 @@ function useMasterAutoSave(roomId, components, canvasHeight, isMaster, debounceM
   // 수동 저장 (마스터만)
   const saveNow = useCallback(() => {
     if (!roomId || !components || !isMaster) {
-      console.log('🚫 수동저장 불가:', { roomId: !!roomId, components: !!components, isMaster });
+
       return;
     }
 
@@ -131,7 +124,7 @@ function useMasterAutoSave(roomId, components, canvasHeight, isMaster, debounceM
     // 데이터가 실제로 변경되었을 때만 저장
     if (lastDataRef.current !== currentDataStr) {
       lastDataRef.current = currentDataStr;
-      console.log('📝 데이터 변경 감지 - 마스터 자동저장 예약');
+  
       debouncedSave(components);
     }
   }, [roomId, components, canvasHeight, debouncedSave, isMaster]);
@@ -139,9 +132,9 @@ function useMasterAutoSave(roomId, components, canvasHeight, isMaster, debounceM
   // 마스터 권한 변경 시 처리
   useEffect(() => {
     if (isMaster) {
-      console.log('👑 마스터 권한 획득 - 자동저장 활성화');
+      
     } else {
-      console.log('👤 일반 사용자 - 자동저장 비활성화');
+  
       
       // 마스터가 아니면 진행 중인 저장 취소
       if (timeoutRef.current) {
@@ -165,7 +158,7 @@ function useMasterAutoSave(roomId, components, canvasHeight, isMaster, debounceM
     lastSaved: isMaster ? lastSaved : null,
     saveError: isMaster ? saveError : null,
     saveCount: isMaster ? saveCount : 0,
-    saveNow: isMaster ? saveNow : () => console.log('👤 일반 사용자는 수동저장 불가'),
+    saveNow: isMaster ? saveNow : () => {},
     isMasterSaver: isMaster
   };
 }

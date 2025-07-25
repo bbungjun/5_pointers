@@ -124,27 +124,7 @@ function TextRenderer({
     wordBreak: 'keep-all', // 단어 단위 줄바꿈 (한글에 유리)
   };
 
-  // 디버깅 로그는 유지하여 확인용으로 사용
-  console.log('🎨 Subdomain TextRenderer 적용 스타일:', {
-    componentId: comp?.id,
-    fontFamily: fontFamily,
-    fontSize: fontSize,
-    text: text,
-    finalStyle: textStyle,
-  });
 
-  // 폰트 로딩 상태 확인
-  if (fontFamily && typeof document !== 'undefined') {
-    document.fonts.ready.then(() => {
-      const cleanFontFamily = fontFamily.replace(/['"]/g, '');
-      const isLoaded = document.fonts.check(`12px ${cleanFontFamily}`);
-      console.log('🔍 Subdomain 폰트 로딩 상태:', {
-        fontFamily: cleanFontFamily,
-        isLoaded: isLoaded,
-        availableFonts: Array.from(document.fonts).map((f) => f.family),
-      });
-    });
-  }
 
   if (editing && mode === 'editor') {
     return (

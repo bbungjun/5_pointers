@@ -55,13 +55,7 @@ export function useLiveCursors(awareness, canvasRef, updateActivity) {
     const contentX = canvasPixelX / currentScale;
     const contentY = canvasPixelY / currentScale;
 
-    console.log('커서 위치 저장 (콘텐츠 좌표):', {
-      브라우저좌표: { clientX, clientY },
-      캔버스픽셀좌표: { canvasPixelX, canvasPixelY },
-      현재줌: zoom + '%',
-      현재스케일: currentScale,
-      콘텐츠좌표: { contentX, contentY }
-    });
+
 
     // 콘텐츠 좌표를 저장 (줌 독립적)
     awareness.setLocalStateField('cursor', {

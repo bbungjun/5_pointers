@@ -19,10 +19,8 @@ function App() {
   // JWT 토큰 기반으로 로그인 상태 확인
   const checkLoginStatus = () => {
     const token = localStorage.getItem('token');
-    console.log('App.jsx - 토큰 확인:', token ? '존재함' : '없음');
 
     if (!token) {
-      console.log('App.jsx - 토큰이 없음, 로그인 안됨');
       return false;
     }
 
@@ -61,12 +59,7 @@ function App() {
       const currentTime = Date.now() / 1000;
       const isValid = payload.exp > currentTime;
 
-      console.log('App.jsx - JWT 검증:', {
-        exp: payload.exp,
-        currentTime,
-        isValid,
-        payload: payload,
-      });
+
 
       return isValid;
     } catch (error) {
@@ -126,7 +119,6 @@ function App() {
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'token') {
-        console.log('App.jsx - 토큰 변경 감지:', e.newValue ? '토큰 설정됨' : '토큰 제거됨');
         const newLoginStatus = checkLoginStatus();
         setIsLoggedIn(newLoginStatus);
         
@@ -172,7 +164,6 @@ function App() {
     
     // 같은 탭에서의 토큰 변경도 감지하기 위한 커스텀 이벤트
     const handleTokenChange = () => {
-      console.log('App.jsx - 커스텀 토큰 변경 이벤트 감지');
       const newLoginStatus = checkLoginStatus();
       setIsLoggedIn(newLoginStatus);
       
@@ -229,12 +220,10 @@ function App() {
     if (redirectUrl) {
       // 리디렉션 URL 정리
       localStorage.removeItem('redirectUrl');
-      console.log('App.jsx: 로그인 후 원래 목적지로 이동:', redirectUrl);
 
       // URL 파라미터가 저장되어 있는지 확인
       const savedParams = localStorage.getItem('invitationParams');
       if (savedParams) {
-        console.log('App.jsx: 저장된 파라미터 발견:', savedParams);
         // 파라미터는 InvitationHandler에서 처리하도록 그대로 두고
         // 초대 링크로 이동
         window.location.href = redirectUrl;
@@ -247,11 +236,14 @@ function App() {
 
   // 로그아웃
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    // 먼저 상태를 업데이트
     setIsLoggedIn(false);
     setUser({ nickname: 'Guest' });
-    // 메인페이지로 이동
-    window.location.href = '/';
+    // 토큰 제거
+    localStorage.removeItem('token');
+    // 브라우저 히스토리를 완전히 교체하여 메인페이지로 이동
+    window.history.replaceState(null, '', '/');
+    window.location.reload();
   };
 
   return (
@@ -294,7 +286,7 @@ function App() {
               isLoggedIn ? (
                 <DashboardPage user={user} onLogout={handleLogout} />
               ) : (
-                <Navigate to="/login" replace />
+                <Navigate to="/" replace />
               )
             }
           />
@@ -304,7 +296,7 @@ function App() {
               isLoggedIn ? (
                 <DraftsPage user={user} onLogout={handleLogout} />
               ) : (
-                <Navigate to="/login" replace />
+                <Navigate to="/" replace />
               )
             }
           />
@@ -314,7 +306,7 @@ function App() {
               isLoggedIn ? (
                 <DeployedPage user={user} onLogout={handleLogout} />
               ) : (
-                <Navigate to="/login" replace />
+                <Navigate to="/" replace />
               )
             }
           />

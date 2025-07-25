@@ -64,32 +64,22 @@ function MapEditor({ selectedComp, onUpdate }) {
   // 주소가 바뀔 때마다 카카오 geocoder로 좌표 변환
   useEffect(() => {
     const address = props.address;
-    console.log('🔵 useEffect 진입, address:', address);
     if (!address) return;
     
-    console.log('🔵 loadKakaoMapsScript 호출 시작');
     loadKakaoMapsScript().then(() => {
-      console.log('🟢 카카오 스크립트 로드됨 (services 포함)');
-      console.log('🟢 Geocoder 생성 시작');
       const geocoder = new window.kakao.maps.services.Geocoder();
-      console.log('🟢 addressSearch 호출:', address);
       geocoder.addressSearch(address, (result, status) => {
-        console.log('🔴 addressSearch 콜백 실행', { result, status, statusOK: window.kakao.maps.services.Status.OK });
         if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
-          console.log('🟢 카카오 geocoder 결과:', result[0]);
           const newLat = parseFloat(result[0].y);
           const newLng = parseFloat(result[0].x);
-          console.log('🟢 좌표 업데이트:', { newLat, newLng });
           updateProperty({
             lat: newLat,
             lng: newLng,
           });
-        } else {
-          console.log('🔴 geocoder 실패:', { status, result });
         }
       });
     }).catch(err => {
-      console.log('🔴 loadKakaoMapsScript 에러:', err);
+      // 에러 처리
     });
   }, [props.address]);
 
@@ -145,7 +135,6 @@ function MapEditor({ selectedComp, onUpdate }) {
       {/* 지도 미리보기 */}
       {props.address && props.lat && props.lng && (
         <div style={{ margin: '16px 0' }}>
-          {console.log('지도 렌더링:', { address: props.address, lat: props.lat, lng: props.lng })}
           <KakaoMapView lat={props.lat} lng={props.lng} zoom={3} width={290} height={200} />
         </div>
       )}

@@ -39,12 +39,20 @@ function KakaoMapView({
   mode = 'live',           // 'preview' 또는 'live'
   comp = {}                // 컴포넌트 props
 }) {
+  // comp.props에서 좌표 정보를 가져오기 (배포된 페이지용)
+  const actualLat = comp?.props?.lat || lat;
+  const actualLng = comp?.props?.lng || lng;
+  const actualZoom = comp?.props?.zoom || zoom;
+  const actualWidth = comp?.width || width;
+  const actualHeight = comp?.height || height;
+  
+
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
   useEffect(() => {
     // 배포된 페이지에서는 zoom을 3으로 고정하여 확대된 상태로 표시
-    const targetZoom = interactive ? zoom : 3;
+    const targetZoom = interactive ? actualZoom : 3;
     loadKakaoMapsScript().then(() => {
       function renderMap() {
         if (!window.kakao || !window.kakao.maps || !window.kakao.maps.LatLng || !mapRef.current) {
@@ -52,7 +60,7 @@ function KakaoMapView({
           return;
         }
         let map = mapRef.current._kakao_map_instance;
-        const center = new window.kakao.maps.LatLng(lat, lng);
+        const center = new window.kakao.maps.LatLng(actualLat, actualLng);
         if (!map) {
           map = new window.kakao.maps.Map(mapRef.current, {
             center,
@@ -95,13 +103,13 @@ function KakaoMapView({
       }
       renderMap();
     });
-  }, [lat, lng, zoom, interactive]);
+  }, [actualLat, actualLng, actualZoom, interactive]);
 
   return (
     <div>
       <div
         ref={mapRef}
-        style={{ width: `${comp?.width || width || 300}px`, height: `${comp?.height || height || 200}px`, borderRadius: 0, border: '1px solid #ccc' }}
+        style={{ width: `${actualWidth}px`, height: `${actualHeight}px`, borderRadius: 0, border: '1px solid #ccc' }}
       />
     </div>
   );
