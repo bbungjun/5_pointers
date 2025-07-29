@@ -38,6 +38,13 @@ export class UsersController {
     return this.usersService.getMyPages(req.user.userId);
   }
 
+  // 사용자 통계 조회 API
+  @UseGuards(JwtAuthGuard)
+  @Get('stats')
+  async getUserStats(@Request() req) {
+    return this.usersService.getUserStats(req.user.userId);
+  }
+
   // 페이지 단일 조회 API
   @UseGuards(JwtAuthGuard)
   @Get('pages/:pageId')

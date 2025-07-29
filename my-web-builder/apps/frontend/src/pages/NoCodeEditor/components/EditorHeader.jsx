@@ -7,6 +7,7 @@ import { usePageMembers } from '../../../hooks/usePageMembers';
 import { getUserColor } from '../../../utils/userColors';
 import { colors } from '../../../styles/colors';
 import ddukddakLogo from '/ddukddak-logo.png';
+import Toast from '../../../components/Toast';
 
 function EditorHeader({
   components,
@@ -40,6 +41,8 @@ function EditorHeader({
     deployedUrl,
     errorMessage,
     resetDeploy,
+    toast,
+    closeToast,
   } = useDeploy();
 
   // 페이지 멤버 정보 가져오기
@@ -421,6 +424,16 @@ function EditorHeader({
         onDeploy={(domain) => {
           handleDeploy(components, roomId, domain, designMode);
         }}
+      />
+
+      {/* Toast */}
+      <Toast
+        type={toast.type}
+        message={toast.message}
+        isVisible={toast.isVisible}
+        onClose={closeToast}
+        autoClose={true}
+        duration={3000}
       />
     </div>
   );

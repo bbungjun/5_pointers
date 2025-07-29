@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDeploy } from '../hooks/useDeploy';
 import { getDeployedUrl } from '../../../../config';
+import Toast from '../../../../components/Toast';
 
 function DeploySection({ components, roomId }) {
   const {
@@ -11,7 +12,9 @@ function DeploySection({ components, roomId }) {
     isDeploying,
     deployedUrl,
     errorMessage,
-    handleDeploy
+    handleDeploy,
+    toast,
+    closeToast
   } = useDeploy();
 
   const onDeploy = () => handleDeploy(components, roomId);
@@ -71,7 +74,7 @@ function DeploySection({ components, roomId }) {
             style={{
               width: '100%',
               padding: '10px 12px',
-              border: errorMessage ? '1px solid #dc2626' : '1px solid #e1e5e9',
+              border: '1px solid #e1e5e9',
               borderRadius: 6,
               fontSize: 13,
               outline: 'none',
@@ -91,21 +94,7 @@ function DeploySection({ components, roomId }) {
             }}
             autoFocus
           />
-          {errorMessage && (
-            <div style={{
-              marginTop: 6,
-              padding: '8px',
-              backgroundColor: '#fee2e2',
-              border: '1px solid #fecaca',
-              borderRadius: 4,
-              color: '#dc2626',
-              fontSize: 11,
-              fontWeight: '500',
-              lineHeight: 1.4
-            }}>
-              {errorMessage}
-            </div>
-          )}
+          {/* 에러 메시지는 Toast로 표시하므로 제거 */}
           <div style={{ 
             fontSize: 10, 
             color: '#65676b', 
@@ -195,6 +184,16 @@ function DeploySection({ components, roomId }) {
           </a>
         </div>
       )}
+
+      {/* Toast */}
+      <Toast
+        type={toast.type}
+        message={toast.message}
+        isVisible={toast.isVisible}
+        onClose={closeToast}
+        autoClose={true}
+        duration={3000}
+      />
     </div>
   );
 }
