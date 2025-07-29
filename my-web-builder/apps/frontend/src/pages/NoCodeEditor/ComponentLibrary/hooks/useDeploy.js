@@ -43,6 +43,19 @@ export function useDeploy() {
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' });
+
+  // Toast 함수들
+  const showToast = (message, type = 'success') => {
+    setToast({ isVisible: true, message, type });
+  };
+
+  const showSuccess = (message) => showToast(message, 'success');
+  const showError = (message) => showToast(message, 'error');
+
+  const closeToast = () => {
+    setToast({ isVisible: false, message: '', type: 'success' });
+  };
 
   const handleDeploy = async (components, roomId, domainOverride = null, editingMode = 'desktop', onDeploySuccess = null) => {
     const domainToUse = domainOverride ? domainOverride.trim() : domainName.trim();
@@ -119,6 +132,9 @@ export function useDeploy() {
           
           console.log('배포 완료! URL 상태 업데이트됨:', deployedUrl);
           
+          // 배포 성공 Toast 표시
+          showSuccess('페이지가 성공적으로 배포되었습니다!');
+          
           // 배포 성공 후 콜백 실행
           if (onDeploySuccess) {
             onDeploySuccess(deployedUrl);
@@ -147,6 +163,8 @@ export function useDeploy() {
         
         if (response.status === 401) {
           throw new Error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+        } else if (errorMessage.includes('배포는 최대 5개까지만')) {
+          throw new Error('배포는 최대 5개까지만 할 수 있습니다. 관리자는 무제한 배포 가능합니다.');
         } else {
           throw new Error(errorMessage);
         }
@@ -164,7 +182,9 @@ export function useDeploy() {
       if (errorMsg.includes('cannot read properties of undefined') || 
           (errorMsg.includes('undefined') && errorMsg.includes('id')) || 
           errorMsg.includes('데이터베이스 저장 실패')) {
-        setErrorMessage('이미 사용중인 주소입니다. 다른 주소를 입력해주세요.');
+        const errorMessage = '이미 사용중인 주소입니다. 다른 주소를 입력해주세요.';
+        setErrorMessage(errorMessage);
+        showError(errorMessage);
       }
       // 이미 존재하는 도메인 관련 오류 처리
       else if (errorMsg.includes('이미 존재') || 
@@ -172,9 +192,13 @@ export function useDeploy() {
           errorMsg.includes('already') || 
           errorMsg.includes('exist') || 
           errorMsg.includes('duplicate')) {
-        setErrorMessage('이미 사용중인 주소입니다. 다른 주소를 입력해주세요.');
+        const errorMessage = '이미 사용중인 주소입니다. 다른 주소를 입력해주세요.';
+        setErrorMessage(errorMessage);
+        showError(errorMessage);
       } else {
-        setErrorMessage(`배포 중 오류가 발생했습니다: ${error.message}`);
+        const errorMessage = `배포 중 오류가 발생했습니다: ${error.message}`;
+        setErrorMessage(errorMessage);
+        showError(errorMessage);
       }
     } finally {
       setIsDeploying(false);
@@ -194,6 +218,9 @@ export function useDeploy() {
       setDeployedUrl('');
       setDomainName('');
       setErrorMessage('');
-    }
+    },
+    // Toast 관련
+    toast,
+    closeToast
   };
 }

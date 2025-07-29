@@ -138,6 +138,31 @@ export class UsersService {
     return this.getMyPages(userId);
   }
 
+  // 사용자 통계 조회
+  async getUserStats(userId: number) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) throw new Error('User not found');
+
+    const totalPages = await this.pagesRepository.count({
+      where: { owner: { id: userId } }
+    });
+
+    const deployedPages = await this.pagesRepository.count({
+      where: { 
+        owner: { id: userId },
+        status: PageStatus.DEPLOYED 
+      }
+    });
+
+    return {
+      totalPages,
+      deployedPages,
+      maxPages: user.role === 'ADMIN' ? -1 : 10, // -1은 무제한
+      maxDeployments: user.role === 'ADMIN' ? -1 : 5,
+      isAdmin: user.role === 'ADMIN'
+    };
+  }
+
   // 페이지 단일 조회
   async getPage(userId: number, pageId: string): Promise<Pages> {
     // 먼저 페이지 소유자인지 확인
@@ -403,6 +428,17 @@ export class UsersService {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) throw new Error('User not found');
 
+    // 관리자가 아닌 경우 페이지 생성 제한 확인 (10개)
+    if (user.role !== 'ADMIN') {
+      const userPageCount = await this.pagesRepository.count({
+        where: { owner: { id: userId } }
+      });
+      
+      if (userPageCount >= 10) {
+        throw new Error('페이지는 최대 10개까지만 생성할 수 있습니다.');
+      }
+    }
+
     let content = null;
 
     // templateId가 있으면 템플릿에서 content 가져오기
@@ -460,6 +496,20 @@ export class UsersService {
       relations: ['owner'],
     });
     if (!page) throw new Error('Page not found');
+
+    // 관리자가 아닌 경우 배포 제한 확인 (5개)
+    if (page.owner.role !== 'ADMIN') {
+      const deployedPageCount = await this.pagesRepository.count({
+        where: { 
+          owner: { id: userId },
+          status: PageStatus.DEPLOYED 
+        }
+      });
+      
+      if (deployedPageCount >= 5) {
+        throw new Error('배포는 최대 5개까지만 할 수 있습니다. 관리자는 무제한 배포 가능합니다.');
+      }
+    }
 
     // 서브도메인 중복 검사
     const existingPage = await this.pagesRepository.findOne({

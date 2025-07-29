@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Templates } from '../users/entities/templates.entity';
@@ -201,6 +201,17 @@ export class TemplatesService {
 
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    // 관리자가 아닌 경우 페이지 생성 제한 확인 (10개)
+    if (user.role !== 'ADMIN') {
+      const userPageCount = await this.pagesRepository.count({
+        where: { owner: { id: userId } }
+      });
+      
+      if (userPageCount >= 10) {
+        throw new BadRequestException('페이지는 최대 10개까지만 생성할 수 있습니다.');
+      }
     }
 
     // 컴포넌트 ID 재발급 및 캔버스 설정 복원

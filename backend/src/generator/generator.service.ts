@@ -37,6 +37,34 @@ export class GeneratorService {
     const numericUserId = parseInt(userId.replace(/\D/g, '')) || 1;
     let subdomain = requestedSubdomain;
     
+    // 4. 사용자 권한 확인 및 배포 제한 체크
+    const user = await this.pagesRepository.manager.getRepository('Users').findOne({
+      where: { id: numericUserId }
+    });
+    
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // 관리자가 아닌 경우 배포 제한 확인 (5개)
+    if (user.role !== 'ADMIN') {
+      const deployedPageCount = await this.pagesRepository.count({
+        where: { 
+          owner: { id: numericUserId },
+          status: PageStatus.DEPLOYED 
+        }
+      });
+      
+      // 기존 페이지를 재배포하는 경우가 아닌 새로운 배포인지 확인
+      const existingPage = await this.pagesRepository.findOne({
+        where: { id: projectId, status: PageStatus.DEPLOYED }
+      });
+      
+      if (!existingPage && deployedPageCount >= 5) {
+        throw new BadRequestException('배포는 최대 5개까지만 할 수 있습니다. 관리자는 무제한 배포 가능합니다.');
+      }
+    }
+    
     let page;
     try {
       // 4. 서브도메인 소유권 확인 및 프로젝트 페이지 확인
@@ -65,14 +93,7 @@ export class GeneratorService {
         page = await this.pagesRepository.findOne({ where: { id: projectId } });
         
         if (!page) {
-          // 완전히 새로운 페이지 생성 - owner 관계도 설정
-          const user = await this.pagesRepository.manager.getRepository('Users').findOne({
-            where: { id: numericUserId }
-          });
-          
-          if (!user) {
-            throw new BadRequestException('User not found');
-          }
+          // 완전히 새로운 페이지 생성 - owner 관계도 설정 (이미 위에서 user를 조회했으므로 재사용)
           
           page = this.pagesRepository.create({
             id: projectId,

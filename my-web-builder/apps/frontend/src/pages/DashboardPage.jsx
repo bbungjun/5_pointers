@@ -7,22 +7,24 @@ import TemplateCanvasPreview from '../components/TemplateCanvasPreview';
 import { getUserColor } from '../utils/userColors';
 import { getCurrentUser } from '../utils/userUtils';
 import Footer from '../components/Footer';
+import Toast from '../components/Toast';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 10);
 }
 
 function DashboardPage({ user, onLogout }) {
-  // Toast Context를 안전하게 사용
-  let showError = null;
-  try {
-    const { useToastContext } = require('../contexts/ToastContext');
-    const toastContext = useToastContext();
-    showError = toastContext?.showError;
-  } catch (error) {
-    // ToastProvider가 없는 경우 기본 alert 사용
-    showError = (message) => alert(message);
-  }
+  // Toast 함수들
+  const showToast = (message, type = 'success') => {
+    setToast({ isVisible: true, message, type });
+  };
+
+  const showSuccess = (message) => showToast(message, 'success');
+  const showError = (message) => showToast(message, 'error');
+
+  const closeToast = () => {
+    setToast({ isVisible: false, message: '', type: 'success' });
+  };
 
   const navigate = useNavigate();
   const [myPages, setMyPages] = useState([]);
@@ -31,8 +33,10 @@ function DashboardPage({ user, onLogout }) {
   const [selectedDevice, setSelectedDevice] = useState('all');
   const [loading, setLoading] = useState(false);
   const [pagesLoading, setPagesLoading] = useState(true);
+  const [userStats, setUserStats] = useState({ totalPages: 0, deployedPages: 0 });
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState('');
+  const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' });
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
     pageId: null,
@@ -281,6 +285,11 @@ function DashboardPage({ user, onLogout }) {
           return firstIndex === index;
         });
         setMyPages(uniquePages);
+        
+        // 사용자 통계 계산
+        const totalPages = uniquePages.length;
+        const deployedPages = uniquePages.filter(page => page.status === 'DEPLOYED').length;
+        setUserStats({ totalPages, deployedPages });
       }
     } catch (error) {
       console.error('페이지 목록 조회 실패:', error);
@@ -399,11 +408,19 @@ function DashboardPage({ user, onLogout }) {
 
       if (response.ok) {
         const newPage = await response.json();
+        // 페이지 생성 후 통계 업데이트
+        fetchMyPages();
+        showSuccess('템플릿으로 새 페이지가 생성되었습니다!');
         // URL 파라미터 없이 일반 페이지로 시작
         const url = `/editor/${newPage.id}`;
-        navigate(url);
+        setTimeout(() => navigate(url), 1000);
       } else {
-        showError('템플릿 페이지 생성에 실패했습니다.');
+        const errorData = await response.text();
+        if (errorData.includes('페이지는 최대 10개까지만')) {
+          showError('페이지는 최대 10개까지만 생성할 수 있습니다.');
+        } else {
+          showError('템플릿 페이지 생성에 실패했습니다.');
+        }
       }
     } catch (error) {
       showError('템플릿 페이지 생성에 실패했습니다.');
@@ -474,6 +491,7 @@ function DashboardPage({ user, onLogout }) {
       if (response.ok) {
         fetchMyPages();
         closeDeleteModal();
+        showSuccess('페이지가 삭제되었습니다.');
       }
     } catch (error) {
       console.error('페이지 삭제 실패:', error);
@@ -503,9 +521,17 @@ function DashboardPage({ user, onLogout }) {
       if (response.ok) {
         const newPage = await response.json();
         console.log('새 페이지 생성:', newPage);
-        navigate(`/editor/${newPage.id}`);
+        // 페이지 생성 후 통계 업데이트
+        fetchMyPages();
+        showSuccess('새 페이지가 생성되었습니다!');
+        setTimeout(() => navigate(`/editor/${newPage.id}`), 1000);
       } else {
-        showError('페이지 생성에 실패했습니다.');
+        const errorData = await response.text();
+        if (errorData.includes('페이지는 최대 10개까지만')) {
+          showError('페이지는 최대 10개까지만 생성할 수 있습니다.');
+        } else {
+          showError('페이지 생성에 실패했습니다.');
+        }
       }
     } catch (error) {
       console.error('페이지 생성 실패:', error);
@@ -1544,22 +1570,38 @@ function DashboardPage({ user, onLogout }) {
                               </div>
                             </div>
                             {/* 템플릿 캔버스 미리보기 */}
-                            <div
-                              className={`relative rounded-lg overflow-hidden mb-2 ${
-                                template.editingMode === 'mobile'
-                                  ? 'flex justify-center items-center' // 모바일: 중앙 정렬
-                                  : 'aspect-video' // 데스크톱: 16:9 비율
-                              }`}
-                              style={
-                                template.editingMode === 'mobile'
-                                  ? { width: '240px', height: '380px' }
-                                  : {}
-                              }
-                            >
-                              <TemplateCanvasPreview
-                                template={template}
-                                className="w-full h-full object-cover"
-                              />
+                            <div className="relative rounded-lg overflow-hidden mb-2">
+                              {template.editingMode === 'mobile' ? (
+                                // 모바일 고정 높이
+                                <div
+                                  className="relative rounded-lg overflow-hidden"
+                                  style={{
+                                    width: '240px',
+                                    height: '380px',
+                                  }}
+                                >
+                                  <TemplateCanvasPreview
+                                    template={template}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ) : (
+                                // 데스크톱만 배포된 페이지와 동일하게
+                                <div className="flex items-center justify-center">
+                                  <div
+                                    className="relative bg-gray-50 overflow-hidden rounded-lg border border-gray-200"
+                                    style={{
+                                      width: '220px',
+                                      height: '150px',
+                                    }}
+                                  >
+                                    <TemplateCanvasPreview
+                                      template={template}
+                                      className="w-full h-full"
+                                    />
+                                  </div>
+                                </div>
+                              )}
                             </div>
 
                             <h4 className="font-bold text-slate-800 text-base mb-1 group-hover:text-gray-600 transition-colors">
@@ -1718,6 +1760,16 @@ function DashboardPage({ user, onLogout }) {
 
       {/* Footer */}
       <Footer />
+
+      {/* Toast */}
+      <Toast
+        type={toast.type}
+        message={toast.message}
+        isVisible={toast.isVisible}
+        onClose={closeToast}
+        autoClose={true}
+        duration={3000}
+      />
     </div>
   );
 }
