@@ -445,7 +445,7 @@ export function useComponentActions(
         if (response.ok) {
           console.log('템플릿 저장 성공');
           showSuccess('템플릿이 성공적으로 저장되었습니다!');
-          setTemplateData({ name: '', category: 'wedding', tags: '' });
+          setTemplateData({ name: '', category: 'etc', tags: '' });
           setIsTemplateSaveOpen(false);
         } else {
           const errorData = await response.text();

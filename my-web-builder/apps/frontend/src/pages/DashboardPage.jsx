@@ -75,6 +75,7 @@ function DashboardPage({ user, onLogout }) {
     { value: 'birthday', label: '생일' },
     { value: 'dol', label: '돌잔치' },
     { value: 'pet', label: '반려동물' },
+    { value: 'etc', label: '기타' },
   ];
 
   const deviceTypes = [
@@ -410,10 +411,9 @@ function DashboardPage({ user, onLogout }) {
         const newPage = await response.json();
         // 페이지 생성 후 통계 업데이트
         fetchMyPages();
-        showSuccess('템플릿으로 새 페이지가 생성되었습니다!');
         // URL 파라미터 없이 일반 페이지로 시작
         const url = `/editor/${newPage.id}`;
-        setTimeout(() => navigate(url), 1000);
+        navigate(url);
       } else {
         const errorData = await response.text();
         if (errorData.includes('페이지는 최대 10개까지만')) {
@@ -523,8 +523,7 @@ function DashboardPage({ user, onLogout }) {
         console.log('새 페이지 생성:', newPage);
         // 페이지 생성 후 통계 업데이트
         fetchMyPages();
-        showSuccess('새 페이지가 생성되었습니다!');
-        setTimeout(() => navigate(`/editor/${newPage.id}`), 1000);
+        navigate(`/editor/${newPage.id}`);
       } else {
         const errorData = await response.text();
         if (errorData.includes('페이지는 최대 10개까지만')) {
@@ -858,6 +857,9 @@ function DashboardPage({ user, onLogout }) {
                         className="w-3 h-3"
                       />
                     )}
+                    {category.value === 'etc' && (
+                      <span className="text-sm">⋯</span>
+                    )}
                     {category.label}
                   </button>
                 ))}
@@ -1092,7 +1094,7 @@ function DashboardPage({ user, onLogout }) {
                               className="group cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
                               style={{ width: '240px' }}
                             >
-                              <div className="p-3 flex flex-col items-center">
+                                                              <div className="p-3 flex flex-col items-center">
                                 {/* 기기 타입과 테마 표시 */}
                                 <div className="flex items-center gap-2 mb-2 self-start">
                                   <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-blue-800">
@@ -1115,6 +1117,15 @@ function DashboardPage({ user, onLogout }) {
                                         (cat) => cat.value === template.category
                                       )?.label
                                     }
+                                    {template.category === 'etc' && (
+                                      <svg
+                                        className="w-3 h-3 ml-1"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                      </svg>
+                                    )}
                                   </div>
                                 </div>
                                 {/* 템플릿 캔버스 미리보기 */}
@@ -1293,6 +1304,15 @@ function DashboardPage({ user, onLogout }) {
                                         (cat) => cat.value === template.category
                                       )?.label
                                     }
+                                    {template.category === 'etc' && (
+                                      <svg
+                                        className="w-3 h-3 ml-1"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                      </svg>
+                                    )}
                                   </div>
                                 </div>
                                 {/* 템플릿 캔버스 미리보기 */}
@@ -1567,6 +1587,15 @@ function DashboardPage({ user, onLogout }) {
                                     (cat) => cat.value === template.category
                                   )?.label
                                 }
+                                {template.category === 'etc' && (
+                                  <svg
+                                    className="w-3 h-3 ml-1"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                  </svg>
+                                )}
                               </div>
                             </div>
                             {/* 템플릿 캔버스 미리보기 */}

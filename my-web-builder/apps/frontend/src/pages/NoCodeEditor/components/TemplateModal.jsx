@@ -74,6 +74,7 @@ function TemplateModal({
             <option value="birthday">생일</option>
             <option value="dol">돌잔치</option>
             <option value="pet">반려동물</option>
+            <option value="etc">기타</option>
           </select>
         </div>
         
