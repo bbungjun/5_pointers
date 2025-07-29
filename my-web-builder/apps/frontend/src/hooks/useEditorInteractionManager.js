@@ -20,7 +20,7 @@ export function useEditorInteractionManager(designMode, setDesignMode) {
   const [isTemplateSaveOpen, setIsTemplateSaveOpen] = useState(false);
   const [templateData, setTemplateData] = useState({
     name: '',
-    category: 'wedding',
+    category: 'etc',
     tags: '',
   });
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -117,7 +117,7 @@ export function useEditorInteractionManager(designMode, setDesignMode) {
 
   const handleTemplateSaveClose = useCallback(() => {
     setIsTemplateSaveOpen(false);
-    setTemplateData({ name: '', category: 'wedding', tags: '' });
+    setTemplateData({ name: '', category: 'etc', tags: '' });
   }, []);
 
   // 초대 모달 관련 핸들러들
